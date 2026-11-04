@@ -105,7 +105,7 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset ) = 0;
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset ) = 0;
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset ) = 0;
-    virtual void WriteSTL( FILE* fp ) = 0;
+    virtual void AppendSTL( string &out ) = 0;
     virtual double ComputeMass( int property_index ) = 0;
 
     virtual int GetFeaSSIndex()
@@ -146,7 +146,7 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
-    virtual void WriteSTL( FILE* fp );
+    virtual void AppendSTL( string &out );
     virtual double ComputeMass( int property_index );
 };
 
@@ -161,7 +161,7 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
-    virtual void WriteSTL( FILE* fp );
+    virtual void AppendSTL( string &out );
     virtual double ComputeMass( int property_index );
 };
 
@@ -178,7 +178,7 @@ public:
     virtual void WriteCalculixNormal( FILE* fp );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
-    virtual void WriteSTL( FILE* fp ) {};
+    virtual void AppendSTL( string &out ) {};
     virtual double ComputeMass( int property_index );
 
     vec3d m_Norm0; // Vector from end point in the displacement coordinate system at the end point
@@ -200,7 +200,7 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )    {};
-    virtual void WriteSTL( FILE* fp ) {};
+    virtual void AppendSTL( string &out ) {};
     virtual double ComputeMass( int property_index )
     {
         return m_Mass;

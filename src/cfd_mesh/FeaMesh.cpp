@@ -2567,16 +2567,19 @@ void FeaMesh::WriteSTL( FILE* fp )
                     fprintf( fp, "solid %s_%d\n", m_FeaPartNameVec[ i ].c_str(), isurf );
 
                     const vector < int > & surf_list = ListAt( part_surfs, isurf );
-                    for ( size_t k = 0; k < surf_list.size(); k++ )
+                    FeaMeshMgr.WriteChunked( fp, (int)surf_list.size(), [&]( int ibeg, int iend, string &out )
                     {
-                        int j = surf_list[k];
-                        if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
-                             m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
-                             m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                        for ( int k = ibeg; k < iend; k++ )
                         {
-                            m_FeaElementVec[j]->WriteSTL( fp );
+                            int j = surf_list[k];
+                            if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
+                                 m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
+                                 m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                            {
+                                m_FeaElementVec[j]->AppendSTL( out );
+                            }
                         }
-                    }
+                    } );
 
                     fprintf( fp, "endsolid %s_%d\n", m_FeaPartNameVec[ i ].c_str(), isurf );
                 }
@@ -2596,15 +2599,18 @@ void FeaMesh::WriteSTL( FILE* fp )
                     fprintf( fp, "solid %s_%d\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
 
                     const vector < int > & surf_list = ListAt( ss_surfs, isurf );
-                    for ( size_t k = 0; k < surf_list.size(); k++ )
+                    FeaMeshMgr.WriteChunked( fp, (int)surf_list.size(), [&]( int ibeg, int iend, string &out )
                     {
-                        int j = surf_list[k];
-                        if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
-                             m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                        for ( int k = ibeg; k < iend; k++ )
                         {
-                            m_FeaElementVec[j]->WriteSTL( fp );
+                            int j = surf_list[k];
+                            if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+                                 m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                            {
+                                m_FeaElementVec[j]->AppendSTL( out );
+                            }
                         }
-                    }
+                    } );
                     fprintf( fp, "endsolid %s_%d\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
                 }
             }
