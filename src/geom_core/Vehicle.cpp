@@ -44,6 +44,7 @@
 #include "HumanGeom.h"
 #include "GeometryAnalysisMgr.h"
 #include "LinkMgr.h"
+#include "LocaleUtil.h"
 #include "MeasureMgr.h"
 #include "MeshGeom.h"
 #include "ModeMgr.h"
@@ -76,6 +77,22 @@ using namespace vsp;
 Vehicle::Vehicle()
 {
     m_Name = "Vehicle_Constructor";
+
+    // Every number OpenVSP writes or reads as text needs a '.' decimal point.  The API wrappers
+    // set the C numeric locale for each call; a program that uses the C++ library directly must
+    // keep its threads in it.
+    if ( !CNumericLocaleGuard::IsCNumeric() )
+    {
+        string msg = "Error: the numeric locale does not use a '.' decimal point, so files OpenVSP "
+                     "writes and reads will be corrupt.  Set LC_NUMERIC to \"C\" before using OpenVSP.\n";
+        fprintf( stderr, "%s", msg.c_str() );
+
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_NON_C_NUMERIC_LOCALE );
+        errMsgData.m_StringVec.push_back( msg );
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
 
     m_ExperimentalFlag = false;
 
