@@ -3838,6 +3838,66 @@ static bool PolyContainsUW( const vector < vec3d > &poly, const vec3d &uw )
     return inside;
 }
 
+// The box of points a and b, grown by r on every side.
+static void GrownBox( const vec3d &a, const vec3d &b, double r, vec3d &lo, vec3d &hi )
+{
+    for ( int k = 0; k < 3; k++ )
+    {
+        lo.v[k] = std::min( a.v[k], b.v[k] ) - r;
+        hi.v[k] = std::max( a.v[k], b.v[k] ) + r;
+    }
+}
+
+// Whether p lies outside the box lo hi.
+static bool OutsideBox( const vec3d &p, const vec3d &lo, const vec3d &hi )
+{
+    return p.x() < lo.x() || p.x() > hi.x() || p.y() < lo.y() || p.y() > hi.y() || p.z() < lo.z() || p.z() > hi.z();
+}
+
+// The uw box of loop poly.  A point that is not a number leaves the box unbounded.
+static void LoopBox( const vector < vec3d > &poly, vec3d &lo, vec3d &hi )
+{
+    lo = vec3d( 1.0e300, 1.0e300, 0.0 );
+    hi = vec3d( -1.0e300, -1.0e300, 0.0 );
+    for ( int k = 0; k < ( int )poly.size(); k++ )
+    {
+        if ( std::isnan( poly[k].x() ) || std::isnan( poly[k].y() ) )
+        {
+            lo = vec3d( -HUGE_VAL, -HUGE_VAL, 0.0 );
+            hi = vec3d( HUGE_VAL, HUGE_VAL, 0.0 );
+            return;
+        }
+        lo.set_x( std::min( lo.x(), poly[k].x() ) );
+        lo.set_y( std::min( lo.y(), poly[k].y() ) );
+        hi.set_x( std::max( hi.x(), poly[k].x() ) );
+        hi.set_y( std::max( hi.y(), poly[k].y() ) );
+    }
+}
+
+// Whether PolyContainsUW can find uw inside a loop of box lo hi.  Above or below the box no edge
+// crosses the ray; past its far side none lies ahead of the point, and before its near side every
+// crossing does, which around a closed loop is an even number of them.  slack covers the rounding
+// of where an edge crosses.
+static bool InLoopBox( const vec3d &lo, const vec3d &hi, double slack, const vec3d &uw )
+{
+    return uw.y() >= lo.y() && uw.y() <= hi.y() && uw.x() >= lo.x() - slack && uw.x() <= hi.x() + slack;
+}
+
+// A margin well past the rounding of a point projected onto a segment among points no bigger
+// than those in pnt_vec.
+static double RoundingSlack( const vector < vec3d > &pnt_vec )
+{
+    double big = 1.0;
+    for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
+    {
+        for ( int k = 0; k < 3; k++ )
+        {
+            big = std::max( big, std::fabs( pnt_vec[i].v[k] ) );
+        }
+    }
+    return 1.0e-9 * big;
+}
+
 // How far, as a fraction of its uw length, a loop edge may stray from the image of its xyz chord
 // before it is refined, and so how near an edge a sample is put to the side test.
 static const double UW_REFINE_TOL = 0.01;
@@ -4488,6 +4548,42 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
 
         int nu = uvec[iface].size();
 
+        // A box around each edge and loop, grown by the reach of the test made of it and a margin
+        // past rounding.  A sample outside the box is out of reach, so the test is not made.
+        vector < vec3d > all_uw = bnd_a;
+        all_uw.insert( all_uw.end(), bnd_b.begin(), bnd_b.end() );
+        all_uw.insert( all_uw.end(), uw_a.begin(), uw_a.end() );
+        all_uw.insert( all_uw.end(), uw_b.begin(), uw_b.end() );
+        for ( int j = 0; j < ( int )loop_uw.size(); j++ )
+        {
+            all_uw.insert( all_uw.end(), loop_uw[j].begin(), loop_uw[j].end() );
+        }
+        double slack_uw = RoundingSlack( all_uw );
+        vector < vec3d > all_xyz = seg_a;
+        all_xyz.insert( all_xyz.end(), seg_b.begin(), seg_b.end() );
+        double slack_xyz = RoundingSlack( all_xyz );
+
+        vector < vec3d > bnd_lo( bnd_a.size() ), bnd_hi( bnd_a.size() );
+        for ( int e = 0; e < ( int )bnd_a.size(); e++ )
+        {
+            GrownBox( bnd_a[e], bnd_b[e], 1.0e-12 + slack_uw, bnd_lo[e], bnd_hi[e] );
+        }
+
+        vector < vec3d > seg_lo( seg_a.size() ), seg_hi( seg_a.size() ), uw_lo( seg_a.size() ), uw_hi( seg_a.size() );
+        for ( int e = 0; e < ( int )seg_a.size(); e++ )
+        {
+            GrownBox( seg_a[e], seg_b[e], seg_band[e] + slack_xyz, seg_lo[e], seg_hi[e] );
+            GrownBox( uw_a[e], uw_b[e], UW_REFINE_TOL * dist( uw_a[e], uw_b[e] ) + slack_uw, uw_lo[e], uw_hi[e] );
+        }
+
+        // A loop holds no point beside or above or below its box, and the crossings of a ray from
+        // a point before it pair off.
+        vector < vec3d > loop_lo( loop_uw.size() ), loop_hi( loop_uw.size() );
+        for ( int j = 0; j < ( int )loop_uw.size(); j++ )
+        {
+            LoopBox( loop_uw[j], loop_lo[j], loop_hi[j] );
+        }
+
         for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
         {
             vec3d suw( uvec[iface][ i % nu ], wvec[iface][ i / nu ], 0.0 );
@@ -4496,6 +4592,10 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
             bool in = false;
             for ( int e = 0; e < ( int )bnd_a.size() && !in; e++ )
             {
+                if ( OutsideBox( suw, bnd_lo[e], bnd_hi[e] ) )
+                {
+                    continue;
+                }
                 if ( dist( proj_pnt_on_line_seg( bnd_a[e], bnd_b[e], suw ), suw ) < 1.0e-12 )
                 {
                     in = true;
@@ -4503,11 +4603,11 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
             }
             for ( int j = 0; j < next && !in; j++ )
             {
-                in = PolyContainsUW( loop_uw[j], suw );
+                in = InLoopBox( loop_lo[j], loop_hi[j], slack_uw, suw ) && PolyContainsUW( loop_uw[j], suw );
             }
             for ( int j = next; j < ( int )loop_uw.size() && in; j++ )
             {
-                if ( PolyContainsUW( loop_uw[j], suw ) )
+                if ( InLoopBox( loop_lo[j], loop_hi[j], slack_uw, suw ) && PolyContainsUW( loop_uw[j], suw ) )
                 {
                     in = false;
                 }
@@ -4520,6 +4620,10 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
             double dnear = 1.0e300;
             for ( int e = 0; e < ( int )seg_a.size(); e++ )
             {
+                if ( OutsideBox( pnt_vec[i], seg_lo[e], seg_hi[e] ) && OutsideBox( suw, uw_lo[e], uw_hi[e] ) )
+                {
+                    continue;
+                }
                 double d = dist( proj_pnt_on_line_seg( seg_a[e], seg_b[e], pnt_vec[i] ), pnt_vec[i] );
                 double d_uw = dist( proj_pnt_on_line_seg( uw_a[e], uw_b[e], suw ), suw );
                 if ( ( d <= seg_band[e] || d_uw <= UW_REFINE_TOL * dist( uw_a[e], uw_b[e] ) ) && d < dnear )
