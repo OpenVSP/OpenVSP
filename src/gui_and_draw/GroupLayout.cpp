@@ -957,7 +957,11 @@ Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doub
     xaxis->axis_align( CA_BOTTOM );
     m_Group->add( xaxis );
 
-    Ca_Y_Axis* yaxis = new Ca_Y_Axis( m_X, m_Y - margin, wyaxis, h + margin, ylabel );
+    // The y axes reach half a tick label below the plot, room for the lowest y label, and stop short of the
+    // x axis, since each axis erases its own area before it draws.
+    int hyaxis = h - hxaxis + margin + xaxis->label_size() / 2 + 1;
+
+    Ca_Y_Axis* yaxis = new Ca_Y_Axis( m_X, m_Y - margin, wyaxis, hyaxis, ylabel );
     canvas->current_y(yaxis);    // this is needed to ensure that the axis gets associated with the right canvas
     yaxis->labelsize( 14 );
     yaxis->align( Fl_Align( FL_ALIGN_TOP ) );
@@ -974,7 +978,7 @@ Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doub
     yaxis->axis_align( CA_LEFT );
     m_Group->add( yaxis );      // this is needed for correct resize behavior
 
-    Ca_Y_Axis* y2axis = new Ca_Y_Axis( m_X + w - wyaxis, m_Y - margin, wyaxis, h + margin, ylabel );
+    Ca_Y_Axis* y2axis = new Ca_Y_Axis( m_X + w - wyaxis, m_Y - margin, wyaxis, hyaxis, ylabel );
     y2axis->labelsize( 14 );
     y2axis->align( Fl_Align( FL_ALIGN_TOP ) );
     y2axis->minimum( ymin );
