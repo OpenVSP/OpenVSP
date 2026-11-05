@@ -1,5 +1,10 @@
 #include "Vortex_Trail.H"
 
+// Fraction of the trailing edge's path in one time step at which the newest shed vortex
+// sits behind the trailing edge in time accurate runs (Katz and Plotkin use 0.2 to 0.3)
+
+#define SHED_VORTEX_FRACTION 0.25
+
 #include "START_NAME_SPACE.H"
 
 /*##############################################################################
@@ -864,7 +869,7 @@ void VORTEX_TRAIL::UpdateUnsteadyWakeLocation(double WakeRelax, double &ResMax, 
  
     int i, iMax;
     double dx, dy, dz;
-    double Vec[3], Dot;
+    double Vec[3], Dot, Target[3];
     
     ResMax = ResL2 = 0.;
     
@@ -872,9 +877,19 @@ void VORTEX_TRAIL::UpdateUnsteadyWakeLocation(double WakeRelax, double &ResMax, 
 
     for ( i = 2 ; i <= iMax + 1 ; i++ ) {
        
+       // Frozen wing wake: convect with the local free stream only, no induced velocities
+
+       if ( IsFrozenTrailingEdge_ && IsARotor_ == 0 ) {
+
+          Vec[0] = EdgeList_[i-1]->LocalFreeStreamVelocity(0);
+          Vec[1] = EdgeList_[i-1]->LocalFreeStreamVelocity(1);
+          Vec[2] = EdgeList_[i-1]->LocalFreeStreamVelocity(2);
+
+       }
+       
        // Full, unsteady time step using full velocity field
 
-       if ( IsARotor_ == 0 || IsARotor_ == 2 ) {
+       else if ( IsARotor_ == 0 || IsARotor_ == 2 ) {
 
           Vec[0] = EdgeList_[i-1]->Velocity()[0];
           Vec[1] = EdgeList_[i-1]->Velocity()[1];
@@ -913,9 +928,27 @@ void VORTEX_TRAIL::UpdateUnsteadyWakeLocation(double WakeRelax, double &ResMax, 
        
        // Take a time step
 
-       dx = NodeList_Time_M_1_[i].x() + Vec[0] * DeltaTime_ - NodeList_[i].x();
-       dy = NodeList_Time_M_1_[i].y() + Vec[1] * DeltaTime_ - NodeList_[i].y();
-       dz = NodeList_Time_M_1_[i].z() + Vec[2] * DeltaTime_ - NodeList_[i].z();
+       Target[0] = NodeList_Time_M_1_[i].x() + Vec[0] * DeltaTime_;
+       Target[1] = NodeList_Time_M_1_[i].y() + Vec[1] * DeltaTime_;
+       Target[2] = NodeList_Time_M_1_[i].z() + Vec[2] * DeltaTime_;
+
+       // Wake node 2 bounds the newest shed vortex. Put it a fraction of the way along the
+       // path the trailing edge swept relative to the fluid in this step (Katz and Plotkin,
+       // Low-Speed Aerodynamics, 13.12), not at the end of it. At the end of it the shed
+       // vorticity sits a full V*dt downstream, which underpredicts the circulation lag with
+       // a first order error in dt that is large at the -qstab/-pstab/-rstab time steps.
+
+       if ( i == 2 ) {
+
+          Target[0] = NodeList_[1].x() + SHED_VORTEX_FRACTION * ( Target[0] - NodeList_[1].x() );
+          Target[1] = NodeList_[1].y() + SHED_VORTEX_FRACTION * ( Target[1] - NodeList_[1].y() );
+          Target[2] = NodeList_[1].z() + SHED_VORTEX_FRACTION * ( Target[2] - NodeList_[1].z() );
+
+       }
+
+       dx = Target[0] - NodeList_[i].x();
+       dy = Target[1] - NodeList_[i].y();
+       dz = Target[2] - NodeList_[i].z();
  
        NodeList_[i].x() += WakeRelax * dx;
        NodeList_[i].y() += WakeRelax * dy;
