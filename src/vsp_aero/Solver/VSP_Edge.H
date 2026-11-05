@@ -239,6 +239,11 @@ private:
     static double Tolerance_2_;
     static double Tolerance_4_;
 
+    // Whether the velocity being evaluated is at a surface point (a surface loop or edge), set per
+    // thread by VSP_EDGE_EVALUATION_POINT. The wake vortex core is skipped there.
+
+    static thread_local int EvaluationPointIsOnSurface_;
+
     // Mach number
     
     double Mach_;
@@ -1303,6 +1308,10 @@ public:
     /** Flag to determine if this edge lies on the wake **/
     
     int IsWakeEdge(void) { return IsWakeEdge_; };
+
+    /** Flag, per thread, that the point velocities are being evaluated at lies on a surface **/
+
+    static int &EvaluationPointIsOnSurface(void) { return EvaluationPointIsOnSurface_; };
     
     /** Wake edge data **/
     
@@ -1384,6 +1393,22 @@ public:
     
     void UnsteadyWake_pResidual_pMach(double pResidual_pMach[3], double &DeltaTime);
     
+
+};
+
+// Marks, for the scope of one evaluation point, whether that point lies on a surface (a surface
+// loop centroid or surface edge) or in the wake, and restores the previous setting on exit.
+
+class VSP_EDGE_EVALUATION_POINT {
+
+private:
+
+    int Saved_;
+
+public:
+
+    VSP_EDGE_EVALUATION_POINT(int OnSurface) { Saved_ = VSP_EDGE::EvaluationPointIsOnSurface(); VSP_EDGE::EvaluationPointIsOnSurface() = OnSurface; };
+   ~VSP_EDGE_EVALUATION_POINT(void) { VSP_EDGE::EvaluationPointIsOnSurface() = Saved_; };
 
 };
 

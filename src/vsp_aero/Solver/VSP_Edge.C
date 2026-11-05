@@ -18,6 +18,7 @@
     double VSP_EDGE::Tolerance_1_ = 1.e-7;
     double VSP_EDGE::Tolerance_2_ = 1.e-7 * 1.e-7;
     double VSP_EDGE::Tolerance_4_ = 1.e-7 * 1.e-7 * 1.e-7 * 1.e-7;
+    thread_local int VSP_EDGE::EvaluationPointIsOnSurface_ = 0;
 
 /*##############################################################################
 #                                                                              #
@@ -3364,7 +3365,21 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
 
     if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
     
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    // The core regularises wake on wake velocities (roll up). At a surface point the wake is
+    // the sheet the boundary condition must see in full: a core there, a quarter of the strip
+    // width across, removed most of the near wake's influence at the trailing edge and, with
+    // the newest shed vortex close behind it, made time accurate solutions unstable. Keep only
+    // the guard against the point lying on the segment.
+
+    if ( EvaluationPointIsOnSurface_ ) {
+       if ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) return 0.;
+    }
+    else if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
 
     Denom = d * sqrt(R);
 
@@ -3411,7 +3426,21 @@ double VSP_EDGE::GradientFint(double &a, double &b, double &c, double &d, double
 
     if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
 
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    // The core regularises wake on wake velocities (roll up). At a surface point the wake is
+    // the sheet the boundary condition must see in full: a core there, a quarter of the strip
+    // width across, removed most of the near wake's influence at the trailing edge and, with
+    // the newest shed vortex close behind it, made time accurate solutions unstable. Keep only
+    // the guard against the point lying on the segment.
+
+    if ( EvaluationPointIsOnSurface_ ) {
+       if ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) return 0.;
+    }
+    else if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
 
     Denom = d * sqrt(R);
     
@@ -3457,7 +3486,21 @@ double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
 
     if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
     
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    // The core regularises wake on wake velocities (roll up). At a surface point the wake is
+    // the sheet the boundary condition must see in full: a core there, a quarter of the strip
+    // width across, removed most of the near wake's influence at the trailing edge and, with
+    // the newest shed vortex close behind it, made time accurate solutions unstable. Keep only
+    // the guard against the point lying on the segment.
+
+    if ( EvaluationPointIsOnSurface_ ) {
+       if ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) return 0.;
+    }
+    else if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
     
     Denom = d * sqrt(R);
     
@@ -3485,7 +3528,21 @@ double VSP_EDGE::GradientGint(double &a, double &b, double &c, double &d, double
 
     if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
     
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    // The core regularises wake on wake velocities (roll up). At a surface point the wake is
+    // the sheet the boundary condition must see in full: a core there, a quarter of the strip
+    // width across, removed most of the near wake's influence at the trailing edge and, with
+    // the newest shed vortex close behind it, made time accurate solutions unstable. Keep only
+    // the guard against the point lying on the segment.
+
+    if ( EvaluationPointIsOnSurface_ ) {
+       if ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) return 0.;
+    }
+    else if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
     
     Denom = d * sqrt(R);
     
