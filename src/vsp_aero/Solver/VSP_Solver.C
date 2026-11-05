@@ -14380,9 +14380,9 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Gamma(void)
              
              KuttaWeight /= VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges();
    
-             Forces[0] = KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ );
-             Forces[1] = KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ );
-             Forces[2] = KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ ); 
+             Forces[0] = -KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ );
+             Forces[1] = -KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ );
+             Forces[2] = -KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ ); 
             
              // Force partials wrt current time gamma
              
@@ -14400,9 +14400,9 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Gamma(void)
                    dy = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Yc() - XYZcg_[1];
                    dz = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Zc() - XYZcg_[2];
    
-                   Forces[0] = VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
-                   Forces[1] = VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
-                   Forces[2] = VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() ); 
+                   Forces[0] = -VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
+                   Forces[1] = -VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
+                   Forces[2] = -VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() ); 
       
                    if ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).IsSymmetryPlaneEdge() ) Forces[1] = 0.;
       
@@ -14489,9 +14489,9 @@ void VSP_SOLVER::CalculateTimeAccurateForceCouplingTerms_wrt_Gamma(void)
           
           KuttaWeight /= VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges();
    
-          Forces[0] = -KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ );
-          Forces[1] = -KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ );
-          Forces[2] = -KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ ); 
+          Forces[0] = KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ );
+          Forces[1] = KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ );
+          Forces[2] = KuttaWeight * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ ); 
    
           // Force partials wrt time - 1 gamma
    
@@ -14509,9 +14509,9 @@ void VSP_SOLVER::CalculateTimeAccurateForceCouplingTerms_wrt_Gamma(void)
                 dy = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Yc() - XYZcg_[1];
                 dz = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Zc() - XYZcg_[2];
    
-                Forces[0] = -VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
-                Forces[1] = -VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
-                Forces[2] = -VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() ); 
+                Forces[0] = VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[0] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
+                Forces[1] = VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[1] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() );
+                Forces[2] = VSPGeom().Grid(MGLevel_).LoopList(iLoop).Area() * VSPGeom().Grid(MGLevel_).LoopList(iLoop).Normal()[2] / ( DeltaTime_ * VSPGeom().Grid(MGLevel_).LoopList(iLoop).NumberOfEdges() ); 
    
                 if ( VSPGeom().Grid(MGLevel_).EdgeList(Edge).IsSymmetryPlaneEdge() ) Forces[1] = 0.;
    
@@ -16358,7 +16358,9 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
              
              DGammaDt = ( Gamma(Loop) - GammaNM1(Loop) )/DeltaTime_;
              
-             DeltaPressure = -DGammaDt;
+             // Same sign as CalculateUnsteadyForces: the loop gammas are negative for positive lift
+             
+             DeltaPressure = DGammaDt;
    
              NormalGradients = new double[9*VSPGeom().Grid(MGLevel_).LoopList(Loop).NumberOfNodes() + 1];
              
@@ -28307,7 +28309,10 @@ void VSP_SOLVER::CalculateUnsteadyForces(void)
        
        DGammaDt = ( Gamma(i) - GammaNM1(i) )/DeltaTime_;
 
-       DeltaPressure = -DGammaDt;
+       // dCp = -F.n/A (CalculateDeltaCPs) and the loop gammas are negative for positive
+       // lift, so the unsteady load adds to the steady one with DeltaPressure = +dGamma/dt
+       
+       DeltaPressure = DGammaDt;
 
        VSPGeom().Grid(MGLevel_).LoopList(i).dCp_Unsteady() = DeltaPressure;
   
