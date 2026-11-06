@@ -110,7 +110,6 @@ protected:
 
     ToggleButton m_PrimaryGeomToggle;
     GeomPicker m_PrimaryGeomPicker;
-    vector < string > m_GeomIDs;
 
     ToggleRadioGroup m_SecondaryToggleGroup;
     ToggleButton m_SecondarySetToggle;

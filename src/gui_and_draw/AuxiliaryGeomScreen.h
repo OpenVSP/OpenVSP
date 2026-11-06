@@ -226,8 +226,6 @@ protected:
     GroupLayout m_EditCEDITGroup;
     TriggerButton m_EditCEDITButton;
 
-    GroupLayout m_PointGroup;
-
     GroupLayout m_CircleGroup;
     SliderAdjRangeInput m_DiameterSlider;
 

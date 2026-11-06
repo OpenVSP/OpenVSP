@@ -59,7 +59,6 @@ protected:
     StringOutput m_IyzOutput;
     StringOutput m_FileSelect;
 
-    TriggerButton m_FileExportButton;
     TriggerButton m_ComputeButton;
     TriggerButton m_FileTrigger;
 

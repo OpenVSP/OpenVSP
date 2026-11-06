@@ -170,8 +170,6 @@ protected:
     virtual void NewModel();
     virtual void ExitVSP();
 
-    ActionMenuItem m_FileMenuItem;
-
     ActionMenuItem m_NewMenuItem;
     ActionMenuItem m_OpenMenuItem;
     ActionMenuItem m_SaveMenuItem;

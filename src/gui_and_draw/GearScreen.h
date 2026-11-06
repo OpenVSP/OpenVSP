@@ -85,7 +85,6 @@ protected:
 
     // Bogie
     TriggerButton m_AddBogieButton;
-    TriggerButton m_RenameBogieButton;
     TriggerButton m_RemoveBogieButton;
     TriggerButton m_RemoveAllBogiesButton;
 

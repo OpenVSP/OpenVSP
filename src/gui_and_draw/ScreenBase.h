@@ -346,7 +346,6 @@ public:
     ColorPicker m_ColorPicker;
     Choice m_MaterialChoice;
     TriggerButton m_CustomMaterialButton;
-    Choice m_ExportNameChoice;
 
     //==== Tessellation ====//
     SliderInput m_NumUSlider;

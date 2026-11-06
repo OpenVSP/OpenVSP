@@ -32,7 +32,6 @@ protected:
 
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
-    GroupLayout m_BgLayout;
 
     ColResizeBrowser* m_Background3DBrowser;
 
