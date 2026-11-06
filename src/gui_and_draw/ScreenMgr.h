@@ -112,10 +112,6 @@ public:
     condition_variable m_TaskCV;
     bool m_TaskComplete;
 
-    mutex m_ScreenGrabMutex;
-    condition_variable m_ScreenGrabCV;
-    bool m_ScreenGrabComplete;
-
     void LoadSetChoice( Choice &choice, const int &selected, bool includeNone = false, int istart = 0 );
     void LoadSetChoice( const vector < Choice* > &choicevec, const vector <int> &selectedvec, bool includeNone = false, int istart = 0 );
     void LoadSetChoice( const vector < Choice* > &choicevec, const vector <string> &selectedIDvec, bool includeNone = false, int istart = 0 );
