@@ -166,7 +166,6 @@ protected:
     Fl_Box* m_DataLabel;
 
     GroupLayout m_TreeGroupLayout;
-    GroupLayout m_TreeWidgetLayout;
     GroupLayout m_CommonEntryLayout;
     GroupLayout m_ResizableLayout;
 

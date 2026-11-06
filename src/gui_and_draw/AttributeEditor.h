@@ -107,8 +107,6 @@ protected:
     string m_FilterStr;
     bool m_FilterCase;
 
-    GroupLayout m_TreeGroup;
-
     vector < vector < string > > m_SelectIDs; //build select ID from positively-ID'd anchor point (anything with an actual ID) and vector path from that one.
     vector < string > m_AttrIDs;
     vector < string > m_CollIDs;
@@ -159,8 +157,6 @@ protected:
     AttributeTree m_AttrTreeWidget;
 
     GroupLayout m_AttrCommonGroup;
-    GroupLayout m_AttrStrGroup;
-    GroupLayout m_AttrToggleGroup;
 
     bool m_ShowState;
 
