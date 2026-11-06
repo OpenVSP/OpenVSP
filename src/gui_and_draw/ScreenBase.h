@@ -723,9 +723,6 @@ public:
     SliderAdjRangeInput m_SSXSCOneSixSeriesChordSlider;
     SliderAdjRangeInput m_SSXSCOneSixSeriesThickChordSlider;
     SliderAdjRangeInput m_SSXSCOneSixSeriesCLiSlider;
-    SliderAdjRangeInput m_SSXSCOneSixSeriesCamberLocSlider;
-    SliderAdjRangeInput m_SSXSCOneSixSeriesThicknessLocSlider;
-    SliderAdjRangeInput m_SSXSCOneSixSeriesLERadIndexSlider;
     CheckButton m_SSXSCOneSixSeriesSharpTEButton;
     TriggerButton m_SSXSCOneSixSeriesFitCSTButton;
     Counter m_SSXSCOneSixSeriesDegreeCounter;
@@ -1083,9 +1080,6 @@ protected:
     SliderAdjRangeInput m_OneSixSeriesChordSlider;
     SliderAdjRangeInput m_OneSixSeriesThickChordSlider;
     SliderAdjRangeInput m_OneSixSeriesCLiSlider;
-    SliderAdjRangeInput m_OneSixSeriesCamberLocSlider;
-    SliderAdjRangeInput m_OneSixSeriesThicknessLocSlider;
-    SliderAdjRangeInput m_OneSixSeriesLERadIndexSlider;
     CheckButton m_OneSixSeriesSharpTEButton;
     TriggerButton m_OneSixSeriesFitCSTButton;
     Counter m_OneSixSeriesDegreeCounter;

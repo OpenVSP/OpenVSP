@@ -572,9 +572,6 @@ private:
     SliderAdjRangeInput m_FeaSSXSCOneSixSeriesChordSlider;
     SliderAdjRangeInput m_FeaSSXSCOneSixSeriesThickChordSlider;
     SliderAdjRangeInput m_FeaSSXSCOneSixSeriesCLiSlider;
-    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesCamberLocSlider;
-    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesThicknessLocSlider;
-    SliderAdjRangeInput m_FeaSSXSCOneSixSeriesLERadIndexSlider;
     CheckButton m_FeaSSXSCOneSixSeriesSharpTEButton;
     TriggerButton m_FeaSSXSCOneSixSeriesFitCSTButton;
     Counter m_FeaSSXSCOneSixSeriesDegreeCounter;

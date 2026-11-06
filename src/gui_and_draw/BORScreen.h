@@ -261,9 +261,6 @@ protected:
     SliderAdjRangeInput m_OneSixSeriesChordSlider;
     SliderAdjRangeInput m_OneSixSeriesThickChordSlider;
     SliderAdjRangeInput m_OneSixSeriesCLiSlider;
-    SliderAdjRangeInput m_OneSixSeriesCamberLocSlider;
-    SliderAdjRangeInput m_OneSixSeriesThicknessLocSlider;
-    SliderAdjRangeInput m_OneSixSeriesLERadIndexSlider;
     CheckButton m_OneSixSeriesSharpTEButton;
     TriggerButton m_OneSixSeriesFitCSTButton;
     Counter m_OneSixSeriesDegreeCounter;
