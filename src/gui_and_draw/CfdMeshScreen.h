@@ -286,7 +286,6 @@ protected:
     TriggerButton m_MeshAndExport;
 
     ProcessUtil m_CFDMeshProcess;
-    ProcessUtil m_MonitorProcess;
 
 private:
 

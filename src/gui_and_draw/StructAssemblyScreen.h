@@ -74,7 +74,6 @@ private:
     Fl_Terminal* m_ConsoleDisplay;
 
     ProcessUtil m_FeaMeshProcess;
-    ProcessUtil m_MonitorProcess;
 
     //===== Common buttons =====//
     TriggerButton m_FeaReMeshAllButton;

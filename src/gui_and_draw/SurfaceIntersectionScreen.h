@@ -130,7 +130,6 @@ protected:
     TriggerButton m_IntersectAndExport;
 
     ProcessUtil m_IntersectProcess;
-    ProcessUtil m_MonitorProcess;
 
 private:
 
