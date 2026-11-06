@@ -140,7 +140,6 @@ protected:
     ToggleRadioGroup m_RefToggle;
     Choice m_RefWingChoice;
     SliderAdjRangeInput m_SrefSlider;
-    TriggerButton m_SrefUnit;
 
     //---- Flow Parameters ----//
     Choice m_FreestreamTypeChoice;
@@ -253,12 +252,6 @@ protected:
     StringInput m_excresNameInput;
     Choice m_excresTypeChoice;
     SliderAdjRangeInput m_excresInput;
-
-    // Excres Labels
-    TriggerButton m_excresNameLabel;
-    TriggerButton m_excresTypeLabel;
-    TriggerButton m_excresInputLabel;
-    TriggerButton m_excresAmountLabel;
 
     // Excrescence Buttons
     TriggerButton m_excresAdd;
