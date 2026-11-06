@@ -169,9 +169,6 @@ private:
     TriggerButton m_AddFeaMaterialButton;
     TriggerButton m_DelFeaMaterialButton;
 
-    TriggerButton m_EditLaminateButton;
-    TriggerButton m_EditLaminaButton;
-
     VspBrowser* m_FeaMaterialSelectBrowser;
     vector < string > m_FeaMaterialIDVec;
 
@@ -604,9 +601,6 @@ private:
     //==== Private Variables ====//
     string m_SelectedGeomID;
     vector < string > m_GeomIDVec;
-    vector < string > m_SubSurfIDVec;
-    vector < string > m_FixPointParentIDVec;
-    vector < string > m_PerpendicularEdgeVec;
 
     int m_FeaCurrMainSurfIndx;
     vector < int > m_SelectedPartIndexVec;
