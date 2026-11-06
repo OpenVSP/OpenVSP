@@ -45,10 +45,6 @@ protected:
 
     GroupLayout m_NotesScreenLayout;
     GroupLayout m_NotesLayout;
-    GroupLayout m_ToggleLayout;
-    GroupLayout m_ResizableLayout;
-
-    Fl_Box* m_DataLabel;
 
     StringOutput m_ShowToggleLabel;
     ToggleButton m_ShowDataToggleIn;
