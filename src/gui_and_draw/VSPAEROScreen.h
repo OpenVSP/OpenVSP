@@ -115,7 +115,6 @@ protected:
     GroupLayout m_RefLengthLayout;
     GroupLayout m_MomentRefLayout;
     GroupLayout m_FlowCondLayout;
-    GroupLayout m_ExecuteOptionsLayout;
 
     // Case Setup Layout
     ToggleButton m_SetToggle;
@@ -194,7 +193,6 @@ protected:
     GroupLayout m_WakeLayout;
     GroupLayout m_OtherParmsLayout;
     GroupLayout m_PropAndStabLayout;
-    GroupLayout m_AdvancedFlowLayout;
     GroupLayout m_CpSlicerLayout;
     GroupLayout m_CpSlicerSubLayout;
 
@@ -206,8 +204,6 @@ protected:
     ToggleButton m_Write2DFEMToggle;
     ToggleButton m_WriteTecplotToggle;
     TriggerButton m_LoadExistingResultsButton;
-    Choice m_PreconditionChoice;
-    ToggleButton m_KTCorrectionToggle;
     ToggleButton m_FromSteadyStateToggle;
 
     // Wake calculation options
@@ -234,12 +230,10 @@ protected:
 
     // Other Setup Parms Setup
     Choice m_StallChoice;
-    ToggleButton m_MaxTurningToggle;
     ToggleButton m_FarDistToggle;
     ToggleButton m_GroundEffectToggle;
     SliderAdjRangeInput m_Clo2DSlider;
     SliderAdjRangeInput m_CLMax2DSlider;
-    SliderAdjRangeInput m_MaxTurningSlider;
     SliderAdjRangeInput m_FarDistSlider;
     SliderAdjRangeInput m_GroundEffectSlider;
 
@@ -306,7 +300,6 @@ protected:
 
     StringInput m_GroupEditNameInput;
 
-    StringInput m_CSGroupInput;
     TriggerButton m_AddCSGroupButton;
     TriggerButton m_RemoveCSGroupButton;
 
@@ -314,8 +307,6 @@ protected:
     TriggerButton m_AddAllCSButton;
     TriggerButton m_RemoveSelectedCSButton;
     TriggerButton m_RemoveAllCSButton;
-
-    SliderAdjRangeInput m_DeflectionGainSlider;
 
     ToggleButton m_HoverRampToggle;
     SliderAdjRangeInput m_HoverRampSlider;
@@ -326,8 +317,6 @@ protected:
     Choice m_NoiseUnitChoice;
 
     //==== Solver Tab ====//
-    GroupLayout m_SolverLayout;
-
     Fl_Terminal *m_SolverDisplay;
 
     //====  Propeller Tab ====//
