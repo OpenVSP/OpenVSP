@@ -5431,6 +5431,8 @@ VspBrowser::VspBrowser( int X, int Y, int W, int H, const char* L ) : Fl_Browser
     m_PopupIndex = 0;
     m_PopupCol = 0;
 
+    m_ScrollLine = -1;
+
     m_DoubleClickFlag = true;
     m_HotKeyFlag = true;
 
@@ -5604,6 +5606,53 @@ void VspBrowser::GetSelected( vector < int > &int_vec )
         }
         k++;
     }
+}
+
+// Scroll the minimum amount needed to fit line (1-based) in view, clamped to the scroll limits
+// make_visible() is not used because it centers lines that are out of view
+void VspBrowser::ScrollToLine( int line )
+{
+    void* item = item_at( line );
+    if ( !item )
+    {
+        return;
+    }
+
+    // Only a change of line, or of what the line holds, moves the view.
+    string line_text;
+    if ( text( line ) )
+    {
+        line_text = text( line );
+    }
+    if ( line == m_ScrollLine && line_text == m_ScrollText )
+    {
+        return;
+    }
+    m_ScrollLine = line;
+    m_ScrollText = line_text;
+
+    int X, Y, W, H;
+    bbox( X, Y, W, H );
+
+    int item_top = 0;
+    for ( void* i = item_first(); i && i != item; i = item_next( i ) )
+    {
+        item_top += item_height( i ) + linespacing();
+    }
+    int item_bot = item_top + item_height( item ) + linespacing();
+
+    int pos = vposition();
+    if ( item_top < pos )
+    {
+        pos = item_top;
+    }
+    else if ( item_bot > pos + H )
+    {
+        pos = item_bot - H;
+    }
+    pos = min( pos, full_height() - H );
+    pos = max( pos, 0 );
+    vposition( pos );
 }
 
 void VspBrowser::BrowserCB( Fl_Widget* w )

@@ -1625,6 +1625,9 @@ public:
     virtual void GetItemDims( int &X, int &Y, int &W, int &H, int index, int col = 0 );
 
     void GetSelected( vector < int > &int_vec );
+    // Scroll just far enough to show line, once each time the line asked for changes, so a
+    // screen can call it on every Update without undoing the user's own scrolling.
+    void ScrollToLine( int line );
 
     int GetCBReason()
     {
@@ -1660,6 +1663,10 @@ private:
     int m_PopupCol;
 
     int m_CBReason;
+
+    // The line ScrollToLine last showed, and its text
+    int m_ScrollLine;
+    string m_ScrollText;
 };
 
 class ColResizeBrowser : public VspBrowser
