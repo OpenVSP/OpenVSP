@@ -474,13 +474,18 @@ void RoutingScreen::UpdateBrowser()
 
         for ( int i = 0 ; i < (int)pt_vec.size() ; i++ )
         {
+            // every point needs a row, even with no parent, so rows stay aligned with pt_vec
+            string parent_name;
             Geom* parent_geom = vPtr->FindGeom( pt_vec[i]->GetParentID() );
 
             if ( parent_geom )
             {
-                snprintf( str, sizeof( str ),  "%s:%s:%d\n", pt_vec[i]->GetName().c_str(), parent_geom->GetName().c_str(), pt_vec[i]->m_SurfIndx() );
-                m_RoutingPointBrowser->add( str );
+                parent_name = parent_geom->GetName();
             }
+
+            snprintf( str, sizeof( str ),  "%s:%s:%d\n", pt_vec[i]->GetName().c_str(), parent_name.c_str(), pt_vec[i]->m_SurfIndx() );
+            m_RoutingPointBrowser->add( str );
+            m_RoutingPointBrowser->addCopyText( pt_vec[i]->GetName() );
         }
 
         if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < (int)pt_vec.size() )
