@@ -13,6 +13,7 @@ INCLUDE_DIRECTORIES(
     ${CFD_MESH_INCLUDE_DIR}
     ${FLTK_INCLUDE_DIR}
     ${VSP_GRAPHIC_INCLUDE_DIR}
+    ${VSP_TEXT_INCLUDE_DIR}
     ${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_DIR}
     ${STB_INCLUDE_DIR}
@@ -68,6 +69,7 @@ ImportScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
 MainVSPScreen.cpp
+MathLabel.cpp
 ManageBackgroundScreen.cpp
 ManageBackground3DScreen.cpp
 ManageCORScreen.cpp
@@ -168,6 +170,7 @@ ImportScreen.h
 MainGLWindow.h
 MainGLWindow.h
 MainVSPScreen.h
+MathLabel.h
 ManageBackgroundScreen.h
 ManageBackground3DScreen.h
 ManageCORScreen.h
