@@ -10,7 +10,6 @@
 #include "VertexBuffer.h"
 
 #include "TextMgr.h"
-#include "glfont2.h"
 
 namespace VSPGraphic
 {
@@ -104,11 +103,12 @@ void Watermark::draw_watermark( TextMgr * textMgr )
     const Color textcolor = _getTextColor();
 
 
-    // Calculate size of watermark box.  Duplicate from TextMgr::drawText().
-    std::pair< int, int > dimension;
-    textMgr->loadFont()->GetStringSize( _text.data(), &dimension );
-    float w = ( ( float ) dimension.first ) * TextMgr::getBaseScale() * _textScale * aspectRatioH;
-    float h = ( ( float ) dimension.second ) * TextMgr::getBaseScale() * _textScale * aspectRatioW;
+    // The watermark's text is twice the size of labels of the same scale.
+    const float textScale = 2.0f * _textScale;
+
+    // Calculate size of watermark box, as TextMgr draws the text.
+    float w, h;
+    textMgr->getTextSize( textScale, _text, w, h );
     double x = x0 - w / 2 + w * xoffset;
     double y = y0 + h / 2 + h * yoffset;
 
@@ -148,7 +148,7 @@ void Watermark::draw_watermark( TextMgr * textMgr )
     glActiveTexture( GL_TEXTURE0 );
 
     // Draw text.
-    TextMgr::drawText( textMgr->loadFont(), _textScale, _text, x0, y0, xoffset, yoffset, aspectRatioW, aspectRatioH );
+    textMgr->drawText( textScale, _text, x0, y0, xoffset, yoffset );
 }
 
 
