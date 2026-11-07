@@ -23,7 +23,7 @@ struct HarmonicGui
     SliderAdjRangeInput m_MeanSlider;
     GroupLayout m_Layout;
     Fl_Scroll* m_Scroll;
-    string m_Greek;
+    string m_Greek;                 // the hinge's letter as TeX names it, as \beta
     vector < SliderAdjRangeInput > m_CosSliderVec;
     vector < SliderAdjRangeInput > m_SinSliderVec;
 };
