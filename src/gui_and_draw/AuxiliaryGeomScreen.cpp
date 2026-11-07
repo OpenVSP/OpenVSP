@@ -65,8 +65,8 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_RotorTipPathLayput.SetButtonWidth( m_RotorTipPathLayput.GetChoiceButtonWidth() );
     m_RotorTipPathLayput.AddButton( m_RTP_AutoDiamToggleButton, "Automatic Diameter" );
     m_RotorTipPathLayput.AddSlider( m_RTP_DiameterSlider, "Diameter", 1.0, "%5.4f" );
-    m_RotorTipPathLayput.AddButton( m_RTP_AutoFlapRadiusToggleButton, "Automatic r_flap/R" );
-    m_RotorTipPathLayput.AddSlider( m_RTP_FlapRadiusFractSlider, "r_flap/R", 1.0, "%5.4f" );
+    m_RotorTipPathLayput.AddButton( m_RTP_AutoFlapRadiusToggleButton, "Automatic $r_\\mathrm{flap}/R$" );
+    m_RotorTipPathLayput.AddSlider( m_RTP_FlapRadiusFractSlider, "$r_\\mathrm{flap}/R$", 1.0, "%5.4f" );
     m_RotorTipPathLayput.AddSlider( m_RTP_ThetaThrustSlider, "Theta Thrust", 1.0, "%5.4f" );
     m_RotorTipPathLayput.AddSlider( m_RTP_ThetaAntiThrustSlider, "Theta Anti Thrust", 1.0, "%5.4f" );
 
@@ -280,75 +280,20 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_TireSprayLayout.AddYGap();
     m_TireSprayLayout.AddDividerBox( "Tire Contact" );
-    m_TireSprayLayout.AddSlider( m_SprayTireContactWidthSlider, "Width (b_g/D)", 10.0, "%5.4f" );
+    m_TireSprayLayout.AddSlider( m_SprayTireContactWidthSlider, "Width ($b_\\mathrm{g}/D$)", 10.0, "%5.4f" );
     m_TireSprayLayout.AddSlider( m_SprayTireContactHalfLengthSlider, "Half Length (h/D)", 10.0, "%5.4f" );
-
-    int indx;
-    char theta[5];
-    indx = 0;
-    indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
-    theta[ indx ] = 0;
-
-    char gamma[5];
-    indx = 0;
-    indx += fl_utf8encode( 947, &gamma[ indx ] ); // Greek character gamma
-    gamma[ indx ] = 0;
-
-    char lambda[5];
-    indx = 0;
-    indx += fl_utf8encode( 955, &lambda[ indx ] ); // Greek character lambda
-    lambda[ indx ] = 0;
-
-    char phi[5];
-    indx = 0;
-    indx += fl_utf8encode( 966, &phi[ indx ] ); // Greek character phi
-    phi[ indx ] = 0;
-
-    char delta[5];
-    indx = 0;
-    indx += fl_utf8encode( 916, &delta[ indx ] ); // Greek character delta
-    delta[ indx ] = 0;
-
-
-    char s[4] = "_s)";
-    char gammas[255] = "Elevation (";
-    strcat( gammas, gamma );
-    strcat( gammas, s );
-
-    char thetas[255] = "Plan (";
-    strcat( thetas, theta );
-    strcat( thetas, s );
-
-    char lambdas[255] = "Incremental (";
-    strcat( lambdas, lambda );
-    strcat( lambdas, s );
-
-    char phis[255] = "Inclination (";
-    strcat( phis, phi );
-    strcat( phis, s );
-
-    char c[4] = "_c)";
-    char gammac[255] = "Elevation (";
-    strcat( gammac, gamma );
-    strcat( gammac, c );
-
-    char yconD[7] = "y_c/D)";
-    char deltayc[255] = "Width (";
-    strcat( deltayc, delta );
-    strcat( deltayc, yconD );
-
 
     m_TireSprayLayout.AddYGap();
     m_TireSprayLayout.AddDividerBox( "Side Spray" );
-    m_TireSprayLayout.AddSlider( m_SpraySideElevationAngleSlider, gammas, 10.0, "%5.4f" );
-    m_TireSprayLayout.AddSlider( m_SpraySidePlanAngleSlider, thetas, 10.0, "%5.4f" );
-    m_TireSprayLayout.AddSlider( m_SpraySideIncrementalAngleSlider, lambdas, 10.0, "%5.4f" );
-    m_TireSprayLayout.AddSlider( m_SpraySideInclinationAngleSlider, phis, 10.0, "%5.4f" );
+    m_TireSprayLayout.AddSlider( m_SpraySideElevationAngleSlider, "Elevation ($\\gamma_\\mathrm{s}$)", 10.0, "%5.4f" );
+    m_TireSprayLayout.AddSlider( m_SpraySidePlanAngleSlider, "Plan ($\\theta_\\mathrm{s}$)", 10.0, "%5.4f" );
+    m_TireSprayLayout.AddSlider( m_SpraySideIncrementalAngleSlider, "Incremental ($\\lambda_\\mathrm{s}$)", 10.0, "%5.4f" );
+    m_TireSprayLayout.AddSlider( m_SpraySideInclinationAngleSlider, "Inclination ($\\phi_\\mathrm{s}$)", 10.0, "%5.4f" );
 
     m_TireSprayLayout.AddYGap();
     m_TireSprayLayout.AddDividerBox( "Center Spray" );
-    m_TireSprayLayout.AddSlider( m_SprayCenterElevationAngleSlider, gammac, 10.0, "%5.4f" );
-    m_TireSprayLayout.AddSlider( m_SprayCenterWidthSlider, deltayc, 10.0, "%5.4f" );
+    m_TireSprayLayout.AddSlider( m_SprayCenterElevationAngleSlider, "Elevation ($\\gamma_\\mathrm{c}$)", 10.0, "%5.4f" );
+    m_TireSprayLayout.AddSlider( m_SprayCenterWidthSlider, "Width ($\\Delta y_\\mathrm{c}/D$)", 10.0, "%5.4f" );
 
 
     m_WheelTireFailureLayout.SetButtonWidth( m_WheelTireFailureLayout.GetChoiceButtonWidth() );
