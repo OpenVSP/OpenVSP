@@ -127,7 +127,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
     m_DesignLayout.SetSameLineFlag( true );
     m_DesignLayout.AddOutput( m_AFOutput, "Activity Factor", "%6.2f", m_DesignLayout.GetW() / 2 );
     m_DesignLayout.SetButtonWidth( 50 );
-    m_DesignLayout.AddSlider( m_AFLimitSlider, "r_0", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_AFLimitSlider, "$r_0$", 1, "%6.5f" );
     m_DesignLayout.SetButtonWidth( 100 );
 
     m_DesignLayout.ForceNewLine();
@@ -142,53 +142,15 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
     m_DesignLayout.SetSameLineFlag( true );
 
     m_DesignLayout.AddOutput( m_ChordOutput, "C/R", "%7.4f" );
-    m_DesignLayout.AddOutput( m_TChordOutput, "C_T/R", "%7.4f" );
-    m_DesignLayout.AddOutput( m_PChordOutput, "C_P/R", "%7.4f" );
+    m_DesignLayout.AddOutput( m_TChordOutput, "$C_\\mathrm{T}/R$", "%7.4f" );
+    m_DesignLayout.AddOutput( m_PChordOutput, "$C_\\mathrm{P}/R$", "%7.4f" );
 
-    char buf[16];
-    int indx = 0;
-    indx += fl_utf8encode( 963, &buf[ indx ] ); // Greek character sigma
-    buf[ indx ] = 0;
     m_DesignLayout.ForceNewLine();
-    m_DesignLayout.AddOutput( m_SolidityOutput, buf, "%7.4f" );
+    m_DesignLayout.AddOutput( m_SolidityOutput, "$\\sigma$", "%7.4f" );
 
-    buf[ indx ] = '_';
-    buf[ indx + 1 ] = 'T';
-    buf[ indx + 2 ] = 0;
-    m_DesignLayout.AddOutput( m_TSolidityOutput, buf, "%7.4f" );
+    m_DesignLayout.AddOutput( m_TSolidityOutput, "$\\sigma_\\mathrm{T}$", "%7.4f" );
 
-    buf[ indx + 1 ] = 'P';
-    m_DesignLayout.AddOutput( m_PSolidityOutput, buf, "%7.4f" );
-
-    char theta[5];
-    indx = 0;
-    indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
-    theta[ indx ] = 0;
-
-    char delta[5];
-    indx = 0;
-    indx += fl_utf8encode( 948, &delta[ indx ] ); // Greek character delta
-    delta[ indx ] = 0;
-
-    char alpha[5];
-    indx = 0;
-    indx += fl_utf8encode( 945, &alpha[ indx ] ); // Greek character alpha
-    alpha[ indx ] = 0;
-
-    char beta[5];
-    indx = 0;
-    indx += fl_utf8encode( 946, &beta[ indx ] ); // Greek character beta
-    beta[ indx ] = 0;
-
-    char zeta[5];
-    indx = 0;
-    indx += fl_utf8encode( 950, &zeta[ indx ] ); // Greek character zeta
-    zeta[ indx ] = 0;
-
-    char psi[5];
-    indx = 0;
-    indx += fl_utf8encode( 968, &psi[ indx ] ); // Greek character psi
-    psi[ indx ] = 0;
+    m_DesignLayout.AddOutput( m_PSolidityOutput, "$\\sigma_\\mathrm{P}$", "%7.4f" );
 
     m_DesignLayout.ForceNewLine();
     m_DesignLayout.SetFitWidthFlag( true );
@@ -498,7 +460,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
     // Rotate is also on the Design tab; here it turns the harmonic motion.
     m_HingeLayout.AddDividerBox( "Rotation" );
     m_HingeLayout.AddSlider( m_HingeRotateSlider, "Rotate", 100, "%5.3f" );
-    m_HingeLayout.AddSlider( m_PsiRefSlider, ( string( psi ) + " Ref" ).c_str(), 100, "%5.3f" );
+    m_HingeLayout.AddSlider( m_PsiRefSlider, "$\\psi$ Ref", 100, "%5.3f" );
 
     m_HingeLayout.AddYGap();
 
@@ -520,26 +482,26 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
     m_HingeLayout.AddDividerBox( "Flap", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::FLAP_HINGE ) ) );
     AddHingePlace( m_RFlapSlider, m_AxFlapSlider, m_OffFlapSlider );
     // The axis angles carry their rotor notation in Greek.
-    AddSliderPair( m_HingeLayout, m_AzFlapSlider, string( "Azimuth (" ) + theta + "_F)", 100,
-                   m_ElFlapSlider, string( "Elevation (" ) + delta + "_3)", 100 );
+    AddSliderPair( m_HingeLayout, m_AzFlapSlider, "Azimuth ($\\theta_\\mathrm{F}$)", 100,
+                   m_ElFlapSlider, "Elevation ($\\delta_3$)", 100 );
     m_HingeLayout.AddYGap();
-    AddHarmonicGui( m_FlapHarmonicGui, m_FlapAngleSlider, beta );
+    AddHarmonicGui( m_FlapHarmonicGui, m_FlapAngleSlider, "\\beta" );
 
     m_HingeLayout.AddYGap();
 
     m_HingeLayout.AddDividerBox( "Lag", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::LAG_HINGE ) ) );
     AddHingePlace( m_RLagSlider, m_AxLagSlider, m_OffLagSlider );
-    AddSliderPair( m_HingeLayout, m_AzLagSlider, string( "Azimuth (" ) + theta + "_L)", 100,
-                   m_CantLagSlider, string( "Cant (" ) + alpha + "_1)", 100 );
+    AddSliderPair( m_HingeLayout, m_AzLagSlider, "Azimuth ($\\theta_\\mathrm{L}$)", 100,
+                   m_CantLagSlider, "Cant ($\\alpha_1$)", 100 );
     m_HingeLayout.AddYGap();
-    AddHarmonicGui( m_LagHarmonicGui, m_LagAngleSlider, zeta );
+    AddHarmonicGui( m_LagHarmonicGui, m_LagAngleSlider, "\\zeta" );
 
     m_HingeLayout.AddYGap();
 
     m_HingeLayout.AddDividerBox( "Feather", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::FEATHER_HINGE ) ) );
     m_HingeLayout.AddSlider( m_RFeatherSlider, "Radial/R", 1, "%5.3f" );
     m_HingeLayout.AddYGap();
-    AddHarmonicGui( m_FeatherHarmonicGui, m_HingeFeatherSlider, theta );
+    AddHarmonicGui( m_FeatherHarmonicGui, m_HingeFeatherSlider, "\\theta" );
 
     m_HingeLayout.AddYGap();
 
@@ -727,7 +689,8 @@ void PropScreen::AddHarmonicGui( HarmonicGui & gui, SliderAdjRangeInput & angle,
 {
     gui.m_Greek = greek;
 
-    AddSliderPair( m_HingeLayout, angle, "Angle (" + greek + ")", 100, gui.m_MeanSlider, "Mean (" + greek + "0)", 100 );
+    AddSliderPair( m_HingeLayout, angle, "Angle ($" + greek + "$)", 100, gui.m_MeanSlider, "Mean ($" + greek + "_0$)",
+                   100 );
 
     int ht = m_HingeLayout.GetStdHeight() * 3;
     m_HingeLayout.AddSubGroupLayout( gui.m_Layout, m_HingeLayout.GetRemainX(), ht );
@@ -762,8 +725,9 @@ void PropScreen::UpdateHarmonicGui( HarmonicGui & gui, Parm & mean, const vector
 
         for ( int k = 0; k < n; k++ )
         {
-            string label = gui.m_Greek + to_string( k + 1 );
-            AddSliderPair( gui.m_Layout, gui.m_CosSliderVec[k], label + "c", 10, gui.m_SinSliderVec[k], label + "s", 10 );
+            string label = "$" + gui.m_Greek + "_{" + to_string( k + 1 );
+            AddSliderPair( gui.m_Layout, gui.m_CosSliderVec[k], label + "\\mathrm{c}}$", 10, gui.m_SinSliderVec[k],
+                           label + "\\mathrm{s}}$", 10 );
         }
     }
 
