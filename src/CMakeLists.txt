@@ -81,6 +81,7 @@ ADD_SUBDIRECTORY( external )
 
 IF( NOT VSP_NO_GRAPHICS )
 	SET ( GUI_AND_DRAW_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/gui_and_draw )
+	ADD_SUBDIRECTORY( vsp_text )
 	ADD_SUBDIRECTORY( vsp_graphic )
 ENDIF()
 
@@ -152,6 +153,9 @@ SET( VSP_JUST_G_LIBRARIES
     gui_and_draw
     vsp_graphic
     glfont2
+    vsp_text
+    dejavu
+    stb_truetype
     ${GL2PS_LIBRARIES}
     ${EXPRPARSE_LIBRARY}
     cartesian

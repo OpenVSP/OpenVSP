@@ -1,0 +1,17 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.24)
+
+SET(VSP_TEXT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to vsp_text headers")
+
+INCLUDE_DIRECTORIES( ${VSP_TEXT_INCLUDE_DIR}
+${STB_INCLUDE_DIR}
+${DEJAVU_INCLUDE_DIR}
+)
+
+ADD_LIBRARY(vsp_text
+MathText.cpp
+MathText.h
+VspFont.cpp
+VspFont.h
+)
+
+TARGET_LINK_LIBRARIES( vsp_text dejavu stb_truetype )
