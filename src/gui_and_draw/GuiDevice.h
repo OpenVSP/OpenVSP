@@ -164,6 +164,15 @@ public:
     virtual void SetIndex( int i )      { m_Index = i; }
     virtual int  GetIndex()             { return m_Index; }
 
+    //==== Tooltips ====//
+    // QASP: hover help text shown for a control.  The text is stored and applied
+    // to every FLTK widget that backs this device, so compound controls (slider +
+    // input + parm button) all show the same help.  Widgets added after the call
+    // still receive it, because AddWidget() re-applies the stored text.
+    virtual void AddTooltip( const string& tip )    { AddTooltip( tip.c_str() ); }
+    virtual void AddTooltip( const char* tip );
+    virtual string GetTooltip()                     { return m_Tooltip; }
+
     virtual void DeviceCB( Fl_Widget* w ) = 0;
     static void StaticDeviceCB( Fl_Widget *w, void* data )
     {
@@ -188,6 +197,7 @@ protected:
     double m_LastVal;
 
     int m_ResizableWidgetIndex;
+    string m_Tooltip;
     vector< Fl_Widget* > m_WidgetVec;
 
 };

@@ -1284,8 +1284,13 @@ string ScreenMgr::FileChooser( const string &title, const string &filter, int mo
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
     Fl_Preferences app( prefs, "Application" );
 
-    int fc_type = vsp::FC_OPENVSP;
-    app.get( "File_Chooser", fc_type, vsp::FC_OPENVSP );
+    // QASP: default to the operating system's native file chooser instead of
+    // OpenVSP's custom in-window FLTK browser. This gives users real Explorer /
+    // Finder dialogs with Quick Access, network drives, recent files, search and
+    // a familiar overwrite prompt on save. Users who prefer the old browser can
+    // still select it under Preferences -> File Chooser.
+    int fc_type = vsp::FC_NATIVE;
+    app.get( "File_Chooser", fc_type, vsp::FC_NATIVE );
 
     if ( fc_type == vsp::FC_OPENVSP )
     {

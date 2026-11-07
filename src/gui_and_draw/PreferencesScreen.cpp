@@ -27,11 +27,16 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 
     m_BorderLayout.AddDividerBox( "File Chooser GUI" );
     m_BorderLayout.AddYGap();
 
-    m_FCTypeChoice.AddItem( "OpenVSP Default", vsp::FC_OPENVSP );
-    m_FCTypeChoice.AddItem( "Native", vsp::FC_NATIVE );
+    m_FCTypeChoice.AddItem( "Classic browser (in-app)", vsp::FC_OPENVSP );
+    m_FCTypeChoice.AddItem( "OS dialog (recommended)", vsp::FC_NATIVE );
     m_FCTypeChoice.UpdateItems();
 
     m_BorderLayout.AddChoice( m_FCTypeChoice, "File Chooser" );
+    m_FCTypeChoice.AddTooltip( "How files are opened and saved.\n\n"
+                               "OS dialog (default) - your computer's normal Windows/Mac file window.\n"
+                               "Shows Quick Access, Downloads, network drives, recent files and search.\n\n"
+                               "Classic browser - the older in-app list of files. Use this only if the\n"
+                               "OS dialog does not work on your system." );
 
     m_BorderLayout.SetSameLineFlag( true );
     m_BorderLayout.SetFitWidthFlag( false );
@@ -111,8 +116,9 @@ int PreferencesScreen::GetFCType()
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
     Fl_Preferences app( prefs, "Application" );
 
-    int fc_type = vsp::FC_OPENVSP;
-    app.get( "File_Chooser", fc_type, vsp::FC_OPENVSP );
+    // QASP: native OS dialogs are the default.  See ScreenMgr::FileChooser().
+    int fc_type = vsp::FC_NATIVE;
+    app.get( "File_Chooser", fc_type, vsp::FC_NATIVE );
 
     return fc_type;
 }
