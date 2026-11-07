@@ -159,7 +159,7 @@
    Converted to C using F2C.
 
    - [stb](https://github.com/nothings/stb) - Single-file libraries for
-   C/C++ for reading and writing image files.  GRAPHICS_ONLY
+   C/C++ for reading and writing image files, and reading TrueType fonts.  GRAPHICS_ONLY
    
    - [Robust Geometric Predicates by Jonathan Shewchuk](https://github.com/libigl/libigl-predicates)
    Routines that provide orient2d, orient3d, incircle, and insphere tests.

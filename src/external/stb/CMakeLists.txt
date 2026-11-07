@@ -11,3 +11,10 @@ stb_image_write.h
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     TARGET_COMPILE_OPTIONS( stb_image PUBLIC -Wno-deprecated-declarations)
 endif()
+
+IF( NOT VSP_NO_GRAPHICS )
+    ADD_LIBRARY(stb_truetype
+    stb_truetype.cpp
+    stb_truetype.h
+    )
+ENDIF()
