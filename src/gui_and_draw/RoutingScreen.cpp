@@ -191,12 +191,7 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
 
     m_DesignLayout.SetButtonWidth( normalButtonWidth );
 
-    char eta[5];
-    int indx = 0;
-    indx += fl_utf8encode( 951, &eta[ indx ] ); // Greek character eta
-    eta[ indx ] = 0;
-
-    m_DesignLayout.AddSlider( m_RoutePtCoordEtaSlider, eta, 1, " %7.6f" );
+    m_DesignLayout.AddSlider( m_RoutePtCoordEtaSlider, "$\\eta$", 1, " %7.6f" );
 
     m_DesignLayout.AddSlider( m_RoutePtCoordMSlider, "M", 1, " %7.6f" );
     m_DesignLayout.AddSlider( m_RoutePtCoordNSlider, "N", 1, " %7.6f" );
@@ -530,13 +525,7 @@ void RoutingScreen::UpdateBrowser()
                 WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent_geom->GetBehaviorGeom() );
                 if ( behavior_wing )
                 {
-                    char etaMN[7];
-                    int indx = 0;
-                    indx += fl_utf8encode( 951, &etaMN[ indx ] ); // Greek character eta
-                    etaMN[ indx ] = 'M';
-                    etaMN[ indx + 1 ] = 'N';
-                    etaMN[ indx + 2 ] = 0;
-                    m_RoutePtCoordChoice.AddItem( etaMN, vsp::ROUTE_PT_EtaMN );
+                    m_RoutePtCoordChoice.AddItem( "$\\eta$MN", vsp::ROUTE_PT_EtaMN );
                 }
             }
         }
