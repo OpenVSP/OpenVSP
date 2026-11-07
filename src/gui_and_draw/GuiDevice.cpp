@@ -11,6 +11,7 @@
 
 #include "GuiDevice.h"
 #include "ResultsPlotCanvas.h"
+#include "MathLabel.h"
 #include "ParmMgr.h"
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
@@ -2670,6 +2671,7 @@ void Choice::UpdateItems( bool keepsetting )
             // short circuits that.
             m_Choice->add( dummymenuentry.c_str(), 0, 0, 0, m_Flags[i] );
             m_Choice->replace( i, m_Items[i].c_str() );
+            SetMathLabel( const_cast < Fl_Menu_Item* > ( &m_Choice->menu()[i] ) );
         }
 
         if( keepsetting )

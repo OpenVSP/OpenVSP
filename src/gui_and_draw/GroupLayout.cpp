@@ -7,6 +7,7 @@
 
 #include "GroupLayout.h"
 #include "DrawObj.h"
+#include "MathLabel.h"
 #include "ScreenBase.h"
 #include "ResultsPlotCanvas.h"
 #include <FL/Fl_Value_Slider.H>
@@ -339,7 +340,7 @@ void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreen* screen )
 VspButton* GroupLayout::AddParmButton( const char* label )
 {
     VspButton* button = new VspButton( m_X, m_Y, m_ButtonWidth, m_StdHeight );
-    button->copy_label( label );
+    SetMathLabel( button, label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
@@ -681,7 +682,7 @@ void GroupLayout::AddLabel( const char* label, int width, int bgcolor )
 {
 
     Fl_Button* button = new Fl_Button( m_X, m_Y, width, m_StdHeight );
-    button->copy_label( label );
+    SetMathLabel( button, label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
@@ -708,7 +709,7 @@ void GroupLayout::AddButton( CheckButton& cbutton, const char* label, int used_w
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->align( FL_ALIGN_NOWRAP );
-    flbutton->copy_label( label );
+    SetMathLabel( flbutton, label );
     m_Group->add( flbutton );
     DebugLabelSize( flbutton );
     AddX( bw );
@@ -732,7 +733,7 @@ void GroupLayout::AddButton( ToggleButton& tbutton, const char* label, int used_
     flbutton->align( Fl_Align( FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP ) );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->align( FL_ALIGN_NOWRAP );
-    flbutton->copy_label( label );
+    SetMathLabel( flbutton, label );
     m_Group->add( flbutton );
     DebugLabelSize( flbutton );
     AddX( bw );
@@ -757,7 +758,7 @@ void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int val
     flbutton->align( Fl_Align( FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP ) );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->align( FL_ALIGN_NOWRAP );
-    flbutton->copy_label( label );
+    SetMathLabel( flbutton, label );
     m_Group->add( flbutton );
     DebugLabelSize( flbutton );
     AddX( bw );
@@ -781,7 +782,7 @@ void GroupLayout::AddButton( TriggerButton& tbutton, const char* label, int used
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->align( FL_ALIGN_NOWRAP );
-    flbutton->copy_label( label );
+    SetMathLabel( flbutton, label );
     m_Group->add( flbutton );
     DebugLabelSize( flbutton );
     AddX( bw );
@@ -800,7 +801,7 @@ void GroupLayout::AddButton( ParmButton& pbutton, const char* label )
     //==== Add Parm Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
     VspButton* flbutton = new VspButton( m_X, m_Y, bw, m_StdHeight, label );
-    flbutton->copy_label( label );
+    SetMathLabel( flbutton, label );
     flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
@@ -827,7 +828,7 @@ void GroupLayout::AddButton( RadioButton& rbutton, const char* label, int val )
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->align( FL_ALIGN_NOWRAP );
-    flbutton->copy_label( label );
+    SetMathLabel( flbutton, label );
     m_Group->add( flbutton );
     DebugLabelSize( flbutton );
     AddX( bw );
@@ -867,7 +868,7 @@ Fl_Box* GroupLayout::AddDividerBox( const string& text, int used_w, Fl_Color col
         flbox->labelcolor( FL_BACKGROUND2_COLOR );
     }
     flbox->align( FL_ALIGN_NOWRAP );
-    flbox->copy_label( text.c_str() );
+    SetMathLabel( flbox, text.c_str() );
     m_Group->add( flbox );
     DebugLabelSize( flbox );
     AddX( dw );
@@ -941,7 +942,7 @@ void GroupLayout::AddLegendEntry( const string& text, Fl_Color c, bool show_line
     assert( m_Group && m_Screen );
 
     Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
-    button->copy_label( text.c_str() );
+    SetMathLabel( button, text.c_str() );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
@@ -1461,7 +1462,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
         button->labelsize( 12 );
         button->labelcolor( FL_BLACK );
         button->align( FL_ALIGN_NOWRAP );
-        button->copy_label( label );
+        SetMathLabel( button, label );
         m_Group->add( button );
         DebugLabelSize( button );
         AddX( m_ChoiceButtonWidth );
@@ -1903,7 +1904,7 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w, string te
             text = string( "Geom" );
         }
         Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight );
-        button->copy_label( text.c_str() );
+        SetMathLabel( button, text.c_str() );
         button->box( FL_THIN_UP_BOX );
         button->labelfont( FL_HELVETICA_BOLD );
         button->labelsize( 12 );
