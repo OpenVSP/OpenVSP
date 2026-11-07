@@ -255,7 +255,7 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     m_ExecuteLayout.AddYGap();
     m_ExecuteLayout.SetButtonWidth( 50 );
 
-    m_ExecuteLayout.AddOutput( m_CDwResult, "CD0_w" );
+    m_ExecuteLayout.AddOutput( m_CDwResult, "$C_{D_0,\\mathrm{w}}$" );
 
     m_SetMaxDragFlag = false;
     m_Dragging = false;
