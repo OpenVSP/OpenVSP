@@ -344,13 +344,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_MotionOptionsLayout.SetInputWidth( 50 );
 
-    char theta[16];
-    int indx = 0;
-    indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
-    theta[ indx ] = 'X';
-    theta[ indx + 1 ] = '+';
-    theta[ indx + 2 ] = 0;
-
     int tbw = 55;
     int thetabw = 30;
 
@@ -358,12 +351,9 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_MotionOptionsLayout.AddButton( m_SymmRotXToggle, "Symm" );
     m_MotionOptionsLayout.SetFitWidthFlag( true );
     m_MotionOptionsLayout.SetButtonWidth( thetabw );
-    m_MotionOptionsLayout.AddSlider( m_RotXpSlider, theta, 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
-    theta[ indx + 1 ] = '-';
-    m_MotionOptionsLayout.AddSlider( m_RotXnSlider, theta, 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_RotXpSlider, "$\\theta_X^+$", 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
+    m_MotionOptionsLayout.AddSlider( m_RotXnSlider, "$\\theta_X^-$", 10, "%6.4f" );
 
-    theta[ indx ] = 'Y';
-    theta[ indx + 1 ] = '+';
     m_MotionOptionsLayout.ForceNewLine();
     m_MotionOptionsLayout.SetFitWidthFlag( false );
     m_MotionOptionsLayout.SetButtonWidth( tbw );
@@ -371,12 +361,9 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_MotionOptionsLayout.AddButton( m_SymmRotYToggle, "Symm" );
     m_MotionOptionsLayout.SetFitWidthFlag( true );
     m_MotionOptionsLayout.SetButtonWidth( thetabw );
-    m_MotionOptionsLayout.AddSlider( m_RotYpSlider, theta, 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
-    theta[ indx + 1 ] = '-';
-    m_MotionOptionsLayout.AddSlider( m_RotYnSlider, theta, 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_RotYpSlider, "$\\theta_Y^+$", 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
+    m_MotionOptionsLayout.AddSlider( m_RotYnSlider, "$\\theta_Y^-$", 10, "%6.4f" );
 
-    theta[ indx ] = 'Z';
-    theta[ indx + 1 ] = '+';
     m_MotionOptionsLayout.ForceNewLine();
     m_MotionOptionsLayout.SetFitWidthFlag( false );
     m_MotionOptionsLayout.SetButtonWidth( tbw );
@@ -384,9 +371,8 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_MotionOptionsLayout.AddButton( m_SymmRotZToggle, "Symm" );
     m_MotionOptionsLayout.SetFitWidthFlag( true );
     m_MotionOptionsLayout.SetButtonWidth( thetabw );
-    m_MotionOptionsLayout.AddSlider( m_RotZpSlider, theta, 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
-    theta[ indx + 1 ] = '-';
-    m_MotionOptionsLayout.AddSlider( m_RotZnSlider, theta, 10, "%6.4f" );
+    m_MotionOptionsLayout.AddSlider( m_RotZpSlider, "$\\theta_Z^+$", 10, "%6.4f", m_MotionOptionsLayout.GetRemainX() * 0.5 );
+    m_MotionOptionsLayout.AddSlider( m_RotZnSlider, "$\\theta_Z^-$", 10, "%6.4f" );
 
     m_LookAtVisibilityOptionsLayout.AddSlider( m_AzimuthSlider, "Azimuth", 10, "%6.4f" );
     m_LookAtVisibilityOptionsLayout.AddSlider( m_ElevationSlider, "Elevation", 10, "%6.4f" );
