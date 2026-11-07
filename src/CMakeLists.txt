@@ -152,7 +152,6 @@ SET( VSP_JUST_G_LIBRARIES
     gui_interface_g
     gui_and_draw
     vsp_graphic
-    glfont2
     vsp_text
     dejavu
     stb_truetype

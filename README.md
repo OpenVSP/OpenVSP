@@ -149,10 +149,6 @@
    and bold oblique, version 2.37, embedded in the source to draw text and math.
    GRAPHICS_ONLY
 
-   - [glFont2 by Brad Fish (was: students.cs.byu.edu/~bfish/glfont2.php)](http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) -
-   2D OpenGL font tool.  glFont2 has been included in this source
-   distribution.  GRAPHICS_ONLY
-
    - [nanoflann](http://code.google.com/p/nanoflann) - Fast nearest neighbors
    library.
 
