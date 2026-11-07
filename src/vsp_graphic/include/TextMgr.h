@@ -5,15 +5,11 @@
 #include <string>
 #include <map>
 
-namespace glfont
-{
-class GLFont;
-}
-
 namespace VSPGraphic
 {
 /*!
-* TextMgr class.
+* TextMgr class.  Text is typeset in the embedded DejaVu Sans, with any math between dollar signs as LaTeX writes
+* it, and rendered to a texture at the size it is drawn on screen.
 */
 class TextMgr
 {
@@ -27,29 +23,38 @@ public:
     */
     virtual ~TextMgr();
 
+    /*!
+    * Forget the rendered text.
+    */
     virtual void clearFont();
 
-    static double getBaseScale();
+    /*!
+    * Draw Text, in screen pixels.
+    * scale - scale of the text; a line at scale one is 1/126 of the viewport's larger side.
+    * str - text to draw, UTF-8.
+    * x0, y0 - center location of the text, in the current modelview.
+    * xoffset, yoffset - offset from the center, as fractions of the text's width and height.
+    */
+    void drawText( float scale, const std::string &str, float x0, float y0, float xoffset, float yoffset );
 
     /*!
-    * Load font from file and return the font object.
+    * The width and height drawText draws text at, in the viewport's normalized device coordinates.
     */
-    glfont::GLFont * loadFont();
-
-    /*!
-    * Draw Text.
-    * font - type of font.
-    * scale - scale of the text.
-    * str - text to draw.
-    * x0, y0 - center location of the text.
-    * xoffset, yoffset - offset from the center.
-    */
-    static void drawText( glfont::GLFont * font, float scale, const std::string &str, float x0, float y0, float xoffset, float yoffset, float arW = 1.f, float arH = 1.f );
+    void getTextSize( float scale, const std::string &str, float &w, float &h );
 
 private:
 
-    unsigned int texID;
-    glfont::GLFont * _font;
+    // Text rendered to a texture, w by h pixels.
+    struct TextImage
+    {
+        unsigned int tex;
+        int w;
+        int h;
+    };
+
+    const TextImage & getImage( const std::string &str, float scale );
+
+    std::map< std::string, TextImage > _images;
 };
 }
 #endif

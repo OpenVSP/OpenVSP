@@ -234,22 +234,22 @@ void Viewport::drawColorScale()
 
     glPushMatrix();
     glTranslatef( tx, y1 - 0.02f, 0.0f );
-    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleHiLabel, 0.f, 0.f, 0.f, 0.f );
+    _textMgr->drawText( 2.0f, _colorScaleHiLabel, 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef( tx, 0.5f * ( y0 + y1 ) - 0.02f, 0.0f );
-    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleMidLabel, 0.f, 0.f, 0.f, 0.f );
+    _textMgr->drawText( 2.0f, _colorScaleMidLabel, 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef( tx, y0 - 0.02f, 0.0f );
-    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleLoLabel, 0.f, 0.f, 0.f, 0.f );
+    _textMgr->drawText( 2.0f, _colorScaleLoLabel, 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef( x0, y1 + 0.045f, 0.0f );
-    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleTitle, 0.f, 0.f, 0.f, 0.f );
+    _textMgr->drawText( 2.0f, _colorScaleTitle, 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     glEnable( GL_DEPTH_TEST );
@@ -343,22 +343,19 @@ void Viewport::drawXYZArrows()
     // X
     glPushMatrix();
     glMultMatrixf( &xt[0][0] );
-    _textMgr->drawText( _textMgr->loadFont(),
-                        2.0f, "X", 0.f, 0.f, 0.f, 0.f );
+    _textMgr->drawText( 2.0f, "X", 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     // Y
     glPushMatrix();
     glMultMatrixf( &yt[0][0] );
-    _textMgr->drawText( _textMgr->loadFont(),
-                        2.0f, "Y", 0.f, 0.f, 0.f, 0.f );
+    _textMgr->drawText( 2.0f, "Y", 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 
     // Z
     glPushMatrix();
     glMultMatrixf( &zt[0][0] );
-    _textMgr->drawText( _textMgr->loadFont(),
-                        2.0f, "Z", 0.f, 0.f, 0.f, 0.f );
+    _textMgr->drawText( 2.0f, "Z", 0.f, 0.f, 0.f, 0.f );
     glPopMatrix();
 }
 

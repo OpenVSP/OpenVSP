@@ -137,7 +137,7 @@ void Probe::_draw()
 
         glColor4f(textColor.red, textColor.green, textColor.blue, textColor.alpha);
         glDepthFunc(GL_ALWAYS);
-        _textMgr.drawText(_textMgr.loadFont(), _getTextSize(), _label, 0.0f, 0.0f, 0.0f, 0.75f);
+        _textMgr.drawText(_getTextSize(), _label, 0.0f, 0.0f, 0.0f, 0.75f);
         glDepthFunc(GL_LEQUAL);
 
         glMatrixMode(GL_PROJECTION);
