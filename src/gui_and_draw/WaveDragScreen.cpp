@@ -263,7 +263,7 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     m_ExecuteLayout.AddYGap();
     m_ExecuteLayout.SetButtonWidth( 50 );
 
-    m_ExecuteLayout.AddOutput( m_CDwResult, "CD0_w" );
+    m_ExecuteLayout.AddOutput( m_CDwResult, "$C_{D_0,\\mathrm{w}}$" );
 
     // The plot takes a resize.  The tabs and the Execute area keep their size, and a strip along the
     // bottom of the window, beneath them, takes the added height.
