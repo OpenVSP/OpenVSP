@@ -237,9 +237,9 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_ProbeCol2Layout.AddDividerBox( "Normal" );
 
-    m_ProbeCol2Layout.AddOutput( m_NXOutput, "N_X", "%6.5g" );
-    m_ProbeCol2Layout.AddOutput( m_NYOutput, "N_Y", "%6.5g" );
-    m_ProbeCol2Layout.AddOutput( m_NZOutput, "N_Z", "%6.5g" );
+    m_ProbeCol2Layout.AddOutput( m_NXOutput, "$N_X$", "%6.5g" );
+    m_ProbeCol2Layout.AddOutput( m_NYOutput, "$N_Y$", "%6.5g" );
+    m_ProbeCol2Layout.AddOutput( m_NZOutput, "$N_Z$", "%6.5g" );
 
     m_ProbeCol3Layout.AddDividerBox( "Curvature" );
 
