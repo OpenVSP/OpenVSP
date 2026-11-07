@@ -145,6 +145,10 @@
    - [cartesian](https://sourceforge.net/p/rfltk/code/HEAD/tree/cartesian/) -
    Simple 2D plotting library for FLTK.  GRAPHICS_ONLY
 
+   - [DejaVu fonts](https://dejavu-fonts.github.io) - DejaVu Sans, its oblique, bold
+   and bold oblique, version 2.37, embedded in the source to draw text and math.
+   GRAPHICS_ONLY
+
    - [glFont2 by Brad Fish (was: students.cs.byu.edu/~bfish/glfont2.php)](http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) -
    2D OpenGL font tool.  glFont2 has been included in this source
    distribution.  GRAPHICS_ONLY
