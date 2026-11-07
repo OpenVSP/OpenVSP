@@ -14,6 +14,7 @@
 #endif
 
 #include "ParasiteDragScreen.h"
+#include "MathLabel.h"
 #include "ParasiteDragMgr.h"
 #include "StlHelper.h"
 #include "ModeMgr.h"
@@ -173,7 +174,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ConstantViewLayout.AddButton( m_fTotalLabel, "" );
     m_fTotalLabel.GetFlButton()->box( FL_THIN_UP_BOX );
     m_fTotalLabel.GetFlButton()->labelcolor( FL_BLACK );
-    m_ConstantViewLayout.AddLabel( "C_D", TYPICAL_INPUT_WIDTH - 10 );
+    m_ConstantViewLayout.AddLabel( "$C_D$", TYPICAL_INPUT_WIDTH - 10 );
     m_ConstantViewLayout.AddLabel( "% Total", TYPICAL_INPUT_WIDTH - 10 );
     m_ConstantViewLayout.SetSameLineFlag( true );
     m_ConstantViewLayout.SetFitWidthFlag( false );
@@ -732,63 +733,63 @@ void ParasiteDragScreen::UpdateTableLabels()
     switch ( ParasiteDragMgr.m_LengthUnit() )
     {
     case vsp::LEN_MM:
-        temp = "S_wet (mm" + squared + ")";
-        m_SwetUnitLabel.GetFlButton()->copy_label( temp.c_str() );
-        m_LrefUnitLabel.GetFlButton()->copy_label( "L_ref (mm)" );
+        temp = "$S_\\mathrm{wet}$ (mm" + squared + ")";
+        SetMathLabel( m_SwetUnitLabel.GetFlButton(), temp.c_str() );
+        SetMathLabel( m_LrefUnitLabel.GetFlButton(), "$L_\\mathrm{ref}$ (mm)" );
         temp = "f (mm" + squared + ")";
         m_fLabel.GetFlButton()->copy_label( temp.c_str() );
         m_fTotalLabel.GetFlButton()->copy_label( temp.c_str() );
         break;
 
     case vsp::LEN_CM:
-        temp = "S_wet (cm" + squared + ")";
-        m_SwetUnitLabel.GetFlButton()->copy_label( temp.c_str() );
-        m_LrefUnitLabel.GetFlButton()->copy_label( "L_ref (cm)" );
+        temp = "$S_\\mathrm{wet}$ (cm" + squared + ")";
+        SetMathLabel( m_SwetUnitLabel.GetFlButton(), temp.c_str() );
+        SetMathLabel( m_LrefUnitLabel.GetFlButton(), "$L_\\mathrm{ref}$ (cm)" );
         temp = "f (cm" + squared + ")";
         m_fLabel.GetFlButton()->copy_label( temp.c_str() );
         m_fTotalLabel.GetFlButton()->copy_label( temp.c_str() );
         break;
 
     case vsp::LEN_M:
-        temp = "S_wet (m" + squared + ")";
-        m_SwetUnitLabel.GetFlButton()->copy_label( temp.c_str() );
-        m_LrefUnitLabel.GetFlButton()->copy_label( "L_ref (m)" );
+        temp = "$S_\\mathrm{wet}$ (m" + squared + ")";
+        SetMathLabel( m_SwetUnitLabel.GetFlButton(), temp.c_str() );
+        SetMathLabel( m_LrefUnitLabel.GetFlButton(), "$L_\\mathrm{ref}$ (m)" );
         temp = "f (m" + squared + ")";
         m_fLabel.GetFlButton()->copy_label( temp.c_str() );
         m_fTotalLabel.GetFlButton()->copy_label( temp.c_str() );
         break;
 
     case vsp::LEN_IN:
-        temp = "S_wet (in" + squared + ")";
-        m_SwetUnitLabel.GetFlButton()->copy_label( temp.c_str() );
-        m_LrefUnitLabel.GetFlButton()->copy_label( "L_ref (in)" );
+        temp = "$S_\\mathrm{wet}$ (in" + squared + ")";
+        SetMathLabel( m_SwetUnitLabel.GetFlButton(), temp.c_str() );
+        SetMathLabel( m_LrefUnitLabel.GetFlButton(), "$L_\\mathrm{ref}$ (in)" );
         temp = "f (in" + squared + ")";
         m_fLabel.GetFlButton()->copy_label( temp.c_str() );
         m_fTotalLabel.GetFlButton()->copy_label( temp.c_str() );
         break;
 
     case vsp::LEN_FT:
-        temp = "S_wet (ft" + squared + ")";
-        m_SwetUnitLabel.GetFlButton()->copy_label( temp.c_str() );
-        m_LrefUnitLabel.GetFlButton()->copy_label( "L_ref (ft)" );
+        temp = "$S_\\mathrm{wet}$ (ft" + squared + ")";
+        SetMathLabel( m_SwetUnitLabel.GetFlButton(), temp.c_str() );
+        SetMathLabel( m_LrefUnitLabel.GetFlButton(), "$L_\\mathrm{ref}$ (ft)" );
         temp = "f (ft" + squared + ")";
         m_fLabel.GetFlButton()->copy_label( temp.c_str() );
         m_fTotalLabel.GetFlButton()->copy_label( temp.c_str() );
         break;
 
     case vsp::LEN_YD:
-        temp = "S_wet (yd" + squared + ")";
-        m_SwetUnitLabel.GetFlButton()->copy_label( temp.c_str() );
-        m_LrefUnitLabel.GetFlButton()->copy_label( "L_ref (yd)" );
+        temp = "$S_\\mathrm{wet}$ (yd" + squared + ")";
+        SetMathLabel( m_SwetUnitLabel.GetFlButton(), temp.c_str() );
+        SetMathLabel( m_LrefUnitLabel.GetFlButton(), "$L_\\mathrm{ref}$ (yd)" );
         temp = "f (yd" + squared + ")";
         m_fLabel.GetFlButton()->copy_label( temp.c_str() );
         m_fTotalLabel.GetFlButton()->copy_label( temp.c_str() );
         break;
 
     case vsp::LEN_UNITLESS:
-        temp = "S_wet (LU" + squared + ")";
-        m_SwetUnitLabel.GetFlButton()->copy_label( temp.c_str() );
-        m_LrefUnitLabel.GetFlButton()->copy_label( "L_ref (LU)" );
+        temp = "$S_\\mathrm{wet}$ (LU" + squared + ")";
+        SetMathLabel( m_SwetUnitLabel.GetFlButton(), temp.c_str() );
+        SetMathLabel( m_LrefUnitLabel.GetFlButton(), "$L_\\mathrm{ref}$ (LU)" );
         temp = "f (LU" + squared + ")";
         m_fLabel.GetFlButton()->copy_label( temp.c_str() );
         m_fTotalLabel.GetFlButton()->copy_label( temp.c_str() );
@@ -1500,7 +1501,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
 
     //  Changing Units - therefore isButton
     m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH + 20 );
-    m_MainTableLabelsLayout.AddButton( m_SwetUnitLabel, "S_wet (ft2)" );
+    m_MainTableLabelsLayout.AddButton( m_SwetUnitLabel, "$S_\\mathrm{wet}$ (ft2)" );
     m_SwetUnitLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_SwetUnitLabel.GetFlButton()->copy_tooltip( "Wetted Area of Geometry" );
 
@@ -1523,7 +1524,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_FFLabel.GetFlButton()->copy_tooltip( "Manual or Calculated Form Factor" );
 
     m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH + 5 );
-    m_MainTableLabelsLayout.AddButton( m_LrefUnitLabel, "L_ref (ft)" );
+    m_MainTableLabelsLayout.AddButton( m_LrefUnitLabel, "$L_\\mathrm{ref}$ (ft)" );
     m_LrefUnitLabel.GetFlButton()->box( FL_THIN_UP_BOX );
     m_LrefUnitLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_LrefUnitLabel.GetFlButton()->copy_tooltip( "Reference Length of Geometry" );
@@ -1553,7 +1554,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_PercLamLabel.GetFlButton()->copy_tooltip( "Percentage of Flow that is Laminar \n Values should be input from 0 - 100" );
 
     m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH );
-    m_MainTableLabelsLayout.AddButton( m_CfLabel, "C_f (1e-3)" );
+    m_MainTableLabelsLayout.AddButton( m_CfLabel, "$C_f$ (1e-3)" );
     m_CfLabel.GetFlButton()->box( FL_THIN_UP_BOX );
     m_CfLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_CfLabel.GetFlButton()->copy_tooltip( "Friction Coefficient Calculated from Selected Equations" );
@@ -1570,7 +1571,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_fLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_fLabel.GetFlButton()->copy_tooltip( "Flat Plate Friction Drag" );
 
-    m_ConstantTableLabelsLayout.AddButton( m_CdLabel, "C_D" );
+    m_ConstantTableLabelsLayout.AddButton( m_CdLabel, "$C_D$" );
     m_CdLabel.GetFlButton()->box( FL_THIN_UP_BOX );
     m_CdLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_CdLabel.GetFlButton()->copy_tooltip( "Coefficient of Parasite Drag Per Component" );
