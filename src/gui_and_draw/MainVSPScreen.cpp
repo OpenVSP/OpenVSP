@@ -18,6 +18,7 @@
 
 #include "main.h"
 #include "MainVSPScreen.h"
+#include "QaspFieldGuide.h"
 #include "MainGLWindow.h"
 #include "ScreenMgr.h"
 #include "GraphicEngine.h"
@@ -196,7 +197,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
 
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );
-    m_OnlineHelpMenuItem.Init( this, m_MenuBar, "Help/Help..." );
+    m_FieldGuideMenuItem.Init( this, m_MenuBar, "Help/Field Guide..." );
+    m_OnlineHelpMenuItem.Init( this, m_MenuBar, "Help/Reference Manual..." );
     // m_VersionMenuItem.Init( mgr, m_MenuBar, "Help/Check Latest Version...", ScreenMgr:: );
 
     // Add some hidden test menu entries.
@@ -694,6 +696,12 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_ResetAllViewMenuItem )
     {
         ResetViews();
+    }
+    else if ( data == &m_FieldGuideMenuItem )
+    {
+        // QASP: in-application plain-English help.  Deliberately independent of
+        // the ScreenMgr screen list so it cannot interfere with the GUI.
+        QaspFieldGuide::Show();
     }
     else if ( data == &m_OnlineHelpMenuItem )
     {

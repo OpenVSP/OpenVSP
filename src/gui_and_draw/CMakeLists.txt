@@ -68,6 +68,7 @@ ImportScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
 MainVSPScreen.cpp
+QaspFieldGuide.cpp
 ManageBackgroundScreen.cpp
 ManageBackground3DScreen.cpp
 ManageCORScreen.cpp
@@ -168,6 +169,7 @@ ImportScreen.h
 MainGLWindow.h
 MainGLWindow.h
 MainVSPScreen.h
+QaspFieldGuide.h
 ManageBackgroundScreen.h
 ManageBackground3DScreen.h
 ManageCORScreen.h
