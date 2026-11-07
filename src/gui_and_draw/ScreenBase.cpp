@@ -867,13 +867,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_AttachLayoutSelections.SetFitWidthFlag( false );
     m_AttachLayoutSelections.SetSameLineFlag( true );
 
-    char etaMN[7];
-    int indx = 0;
-    indx += fl_utf8encode( 951, &etaMN[ indx ] ); // Greek character eta
-    etaMN[ indx ] = 'M';
-    etaMN[ indx + 1 ] = 'N';
-    etaMN[ indx + 2 ] = 0;
-
     m_AttachLayoutTransHeader.AddLabel( "Translate:", labelw );
     m_AttachLayoutTransHeader.AddButton( m_TransNoneButton, "None" );
 
@@ -882,7 +875,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_AttachLayoutSelections.AddButton( m_TransUVButton, "UW" );
     m_AttachLayoutSelections.AddButton( m_TransRSTButton, "RST" );
     m_AttachLayoutSelections.AddButton( m_TransLMNButton, "LMN" );
-    m_AttachLayoutSelections.AddButton( m_TransEtaMNButton, etaMN );
+    m_AttachLayoutSelections.AddButton( m_TransEtaMNButton, "$\\eta$MN" );
     m_AttachLayoutSelections.ForceNewLine();
     m_AttachLayoutSelections.AddYGap();
 
@@ -902,7 +895,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_AttachLayoutSelections.AddButton( m_RotUVButton, "UW" );
     m_AttachLayoutSelections.AddButton( m_RotRSTButton, "RST" );
     m_AttachLayoutSelections.AddButton( m_RotLMNButton, "LMN" );
-    m_AttachLayoutSelections.AddButton( m_RotEtaMNButton, etaMN );
+    m_AttachLayoutSelections.AddButton( m_RotEtaMNButton, "$\\eta$MN" );
     m_AttachLayoutSelections.ForceNewLine();
     m_AttachLayoutSelections.AddYGap();
 
@@ -989,12 +982,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_AttachLayoutSelections.SetButtonWidth( normalButtonWidth );
 
-    char eta[5];
-    indx = 0;
-    indx += fl_utf8encode( 951, &eta[ indx ] ); // Greek character eta
-    eta[ indx ] = 0;
-
-    m_AttachLayoutSelections.AddSlider( m_AttachEtaSlider, eta, 1, " %7.6f" );
+    m_AttachLayoutSelections.AddSlider( m_AttachEtaSlider, "$\\eta$", 1, " %7.6f" );
 
     m_AttachLayoutSelections.AddSlider( m_AttachMSlider, "M", 1, " %7.6f" );
     m_AttachLayoutSelections.AddSlider( m_AttachNSlider, "N", 1, " %7.6f" );
