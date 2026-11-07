@@ -516,13 +516,6 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
     m_StowAttachLayoutSelections.SetFitWidthFlag( false );
     m_StowAttachLayoutSelections.SetSameLineFlag( true );
 
-    char etaMN[7];
-    int indx = 0;
-    indx += fl_utf8encode( 951, &etaMN[ indx ] ); // Greek character eta
-    etaMN[ indx ] = 'M';
-    etaMN[ indx + 1 ] = 'N';
-    etaMN[ indx + 2 ] = 0;
-
     m_StowAttachLayoutTransHeader.AddLabel( "Translate:", labelw );
     m_StowAttachLayoutTransHeader.AddButton( m_StowTransNoneButton, "Contact" );
 
@@ -531,7 +524,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
     m_StowAttachLayoutSelections.AddButton( m_StowTransUVButton, "UW" );
     m_StowAttachLayoutSelections.AddButton( m_StowTransRSTButton, "RST" );
     m_StowAttachLayoutSelections.AddButton( m_StowTransLMNButton, "LMN" );
-    m_StowAttachLayoutSelections.AddButton( m_StowTransEtaMNButton, etaMN );
+    m_StowAttachLayoutSelections.AddButton( m_StowTransEtaMNButton, "$\\eta$MN" );
     m_StowAttachLayoutSelections.ForceNewLine();
     m_StowAttachLayoutSelections.AddYGap();
 
@@ -551,7 +544,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
     m_StowAttachLayoutSelections.AddButton( m_StowRotUVButton, "UW" );
     m_StowAttachLayoutSelections.AddButton( m_StowRotRSTButton, "RST" );
     m_StowAttachLayoutSelections.AddButton( m_StowRotLMNButton, "LMN" );
-    m_StowAttachLayoutSelections.AddButton( m_StowRotEtaMNButton, etaMN );
+    m_StowAttachLayoutSelections.AddButton( m_StowRotEtaMNButton, "$\\eta$MN" );
     m_StowAttachLayoutSelections.ForceNewLine();
     m_StowAttachLayoutSelections.AddYGap();
 
@@ -634,12 +627,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
 
     m_StowAttachLayoutSelections.SetButtonWidth( normalButtonWidth );
 
-    char eta[5];
-    indx = 0;
-    indx += fl_utf8encode( 951, &eta[ indx ] ); // Greek character eta
-    eta[ indx ] = 0;
-
-    m_StowAttachLayoutSelections.AddSlider( m_StowAttachEtaSlider, eta, 1, " %7.6f" );
+    m_StowAttachLayoutSelections.AddSlider( m_StowAttachEtaSlider, "$\\eta$", 1, " %7.6f" );
 
     m_StowAttachLayoutSelections.AddSlider( m_StowAttachMSlider, "M", 1, " %7.6f" );
     m_StowAttachLayoutSelections.AddSlider( m_StowAttachNSlider, "N", 1, " %7.6f" );
@@ -716,12 +704,6 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
     m_MechAttachLayoutSelections.SetFitWidthFlag( false );
     m_MechAttachLayoutSelections.SetSameLineFlag( true );
 
-    indx = 0;
-    indx += fl_utf8encode( 951, &etaMN[ indx ] ); // Greek character eta
-    etaMN[ indx ] = 'M';
-    etaMN[ indx + 1 ] = 'N';
-    etaMN[ indx + 2 ] = 0;
-
     m_MechAttachLayoutTransHeader.AddLabel( "Translate:", labelw );
     m_MechAttachLayoutTransHeader.AddButton( m_MechTransNoneButton, "Contact" );
 
@@ -730,7 +712,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
     m_MechAttachLayoutSelections.AddButton( m_MechTransUVButton, "UW" );
     m_MechAttachLayoutSelections.AddButton( m_MechTransRSTButton, "RST" );
     m_MechAttachLayoutSelections.AddButton( m_MechTransLMNButton, "LMN" );
-    m_MechAttachLayoutSelections.AddButton( m_MechTransEtaMNButton, etaMN );
+    m_MechAttachLayoutSelections.AddButton( m_MechTransEtaMNButton, "$\\eta$MN" );
     m_MechAttachLayoutSelections.ForceNewLine();
     m_MechAttachLayoutSelections.AddYGap();
 
@@ -812,11 +794,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
 
     m_MechAttachLayoutSelections.SetButtonWidth( normalButtonWidth );
 
-    indx = 0;
-    indx += fl_utf8encode( 951, &eta[ indx ] ); // Greek character eta
-    eta[ indx ] = 0;
-
-    m_MechAttachLayoutSelections.AddSlider( m_MechAttachEtaSlider, eta, 1, " %7.6f" );
+    m_MechAttachLayoutSelections.AddSlider( m_MechAttachEtaSlider, "$\\eta$", 1, " %7.6f" );
 
     m_MechAttachLayoutSelections.AddSlider( m_MechAttachMSlider, "M", 1, " %7.6f" );
     m_MechAttachLayoutSelections.AddSlider( m_MechAttachNSlider, "N", 1, " %7.6f" );
