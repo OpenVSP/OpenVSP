@@ -7,7 +7,8 @@ program must have these options; name it with the environment variable VSP_SNAP_
 so it needs a logged-in desktop session.
 
 A crop box is given in screen units, (left, top, right, bottom) of the window's contents; the dump is taken at
-scale 2 and the box is scaled to it.
+scale 2 and the box is scaled to it.  The PNG is marked 144 dpi, which the help build reads to show it at one pixel a
+screen unit.
 
     import snap
     def model():
@@ -86,7 +87,7 @@ def crop( folder, screen, box, name ):
     b = tuple( int( round( v * SCALE ) ) for v in box )
     assert b[ 2 ] <= img.width and b[ 3 ] <= img.height, ( screen, b, img.size )
     out = os.path.join( IMAGES, name + ".png" )
-    img.crop( b ).save( out, optimize = True )
+    img.crop( b ).save( out, optimize = True, dpi = ( 72 * SCALE, 72 * SCALE ) )
     print( "wrote", out, b[ 2 ] - b[ 0 ], "x", b[ 3 ] - b[ 1 ] )
 
 

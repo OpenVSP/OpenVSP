@@ -13,3 +13,21 @@ function Pandoc(doc)
   end
   return doc
 end
+
+-- A screenshot, a PNG snap.py marks 144 dpi as taken at scale 2, is shown at one pixel a screen unit, wider than the
+-- text if it must be.
+function Image(el)
+  if not pandoc.image then
+    return el
+  end
+  local ok, _, contents = pcall(pandoc.mediabag.fetch, el.src)
+  if not ok or not contents then
+    return el
+  end
+  local size = pandoc.image.size(contents)
+  if size.dpi_horz and size.dpi_horz >= 142 and size.dpi_horz <= 146 then
+    el.attributes.width = tostring(math.floor(size.width / 2 + 0.5))
+    el.attributes.style = "max-width: none"
+  end
+  return el
+end

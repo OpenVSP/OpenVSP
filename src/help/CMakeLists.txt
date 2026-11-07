@@ -83,6 +83,9 @@ FOREACH ( hpath ${HELP_FILES} )
                                          --css=github-pandoc.css
         )
 
+        # The Lua filter reads each screenshot's size from images/, so the images are copied first.
+        ADD_DEPENDENCIES ( ${hbase}.html_product copy_images )
+
         INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION help )
 
         ADD_CUSTOM_COMMAND ( TARGET ${hbase} POST_BUILD
