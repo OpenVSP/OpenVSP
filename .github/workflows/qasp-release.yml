@@ -1,0 +1,182 @@
+# QASP - portable Windows build + GitHub Release
+#
+# QASP is an unofficial fork of OpenVSP (NASA NOSA 1.3). See MODIFICATIONS.md.
+#
+# Produces a portable ("unpacked") Windows x64 build: download, extract, run.
+# No installer, no admin rights, no registry writes.
+#
+# Triggers:
+#   - push to the qasp branch      -> build + upload artifacts (no release)
+#   - tag matching qasp-v*         -> build + publish a GitHub Release
+#   - manual dispatch              -> build + upload artifacts
+
+name: QASP Build
+
+on:
+  push:
+    branches: [ qasp ]
+    tags: [ 'qasp-v*' ]
+  workflow_dispatch:
+    inputs:
+      make_release:
+        description: 'Publish a GitHub Release from this run'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Windows x64 portable
+    runs-on: windows-2022
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install cmake
+        uses: jwlawson/actions-setup-cmake@v2
+
+      - name: Install dependencies
+        shell: cmd
+        run: |
+          choco install -y swig pandoc
+          pip install --upgrade pip setuptools wheel
+          pip install sphinx numpy
+
+      - name: Build bundled libraries
+        shell: bash
+        run: |
+          mkdir -p build buildlibs artifacts
+          cd "$GITHUB_WORKSPACE/buildlibs"
+          cmake -DCMAKE_BUILD_TYPE=Release -A x64 ../Libraries
+          cmake --build . --config Release -j 2
+
+      - name: Build QASP
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE/build"
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DVSP_CPACK_GEN=ZIP \
+                -DVSP_LIBRARY_PATH="$GITHUB_WORKSPACE/buildlibs" \
+                -A x64 ../src
+          cmake --build . --target package --config Release -j 2
+
+      - name: Collect portable package and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/build"
+          ls -la *.zip
+
+          SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)
+          VSPVER=$(basename $(ls QASP-*.zip | head -1) | cut -d- -f2)
+
+          OUT="QASP-${VSPVER}-Windows-x64-portable_${SHORT_SHA}.zip"
+          cp $(ls QASP-*.zip | head -1) "$OUT"
+
+          # Extract so the release also carries the raw unpacked tree.
+          mkdir -p unpacked
+          unzip -q "$OUT" -d unpacked
+
+          echo "VSPVER=${VSPVER}" >> "$GITHUB_ENV"
+          echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
+
+          cp "$OUT" "$GITHUB_WORKSPACE/artifacts"
+          (cd "$GITHUB_WORKSPACE/artifacts" && sha256sum *.zip > SHA256SUMS.txt)
+          cat "$GITHUB_WORKSPACE/artifacts/SHA256SUMS.txt"
+
+      - name: Verify the executable was produced
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/build/unpacked"
+          echo "--- package root ---"
+          ls -la
+          echo "--- searching for vsp.exe ---"
+          find . -iname 'vsp.exe' -o -iname 'vspscript.exe' | head
+          VSP_EXE=$(find . -iname 'vsp.exe' | head -1)
+          if [ -z "$VSP_EXE" ]; then
+            echo "ERROR: vsp.exe not found in package - packaging is broken."
+            exit 1
+          fi
+          echo "OK: found $VSP_EXE ($(stat -c%s "$VSP_EXE") bytes)"
+          echo "DLL count: $(find . -iname '*.dll' | wc -l)"
+
+      - name: Upload portable build
+        uses: actions/upload-artifact@v4
+        with:
+          name: QASP-Windows-x64-portable
+          path: |
+            ${{ github.workspace }}/artifacts/*.zip
+            ${{ github.workspace }}/artifacts/SHA256SUMS.txt
+          retention-days: 30
+
+  release:
+    name: Publish Release
+    needs: build-windows
+    if: startsWith(github.ref, 'refs/tags/qasp-v') || inputs.make_release == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download built package
+        uses: actions/download-artifact@v4
+        with:
+          name: QASP-Windows-x64-portable
+          path: dist
+
+      - name: Show contents
+        run: ls -la dist
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Derive a version string for the title/notes.
+          ZIPFILE=$(ls dist/QASP-*.zip | head -1)
+          echo "Attaching: $ZIPFILE"
+
+          TAG="$GITHUB_REF_NAME"
+          if [[ "$GITHUB_REF_TYPE" != "tag" ]]; then
+            TAG="qasp-build-$(date -u +%Y%m%d-%H%M%S)"
+          fi
+
+          cat > notes.md <<'EOF'
+          ## QASP — Aircraft Design Studio
+
+          **Unofficial fork of OpenVSP.** Not affiliated with, endorsed, or supported
+          by NASA or the OpenVSP development team.
+
+          ### Download
+          `QASP-*-Windows-x64-portable.zip` — **portable build**.
+          Extract anywhere and run `vsp.exe`. No installer, no admin rights,
+          nothing written to the registry. Delete the folder to uninstall.
+
+          Verify the download against `SHA256SUMS.txt`.
+
+          ### Requirements
+          Windows 10/11, 64-bit. Microsoft Visual C++ Redistributable required —
+          the bundled dependency DLLs are included in the zip.
+
+          ### License
+          Distributed under the **NASA Open Source Agreement (NOSA) 1.3**, unchanged.
+          This is a modified build; see `MODIFICATIONS.md` inside the archive.
+          EOF
+
+          gh release create "$TAG" \
+            --title "QASP ${GITHUB_SHA::7} (Windows x64 portable)" \
+            --notes-file notes.md \
+            --repo "$GITHUB_REPOSITORY" \
+            dist/QASP-*.zip dist/SHA256SUMS.txt

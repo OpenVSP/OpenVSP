@@ -13,9 +13,15 @@
 #define VSP_VERSION_MAJOR @VSPVER_MAJOR@
 #define VSP_VERSION_MINOR @VSPVER_MINOR@
 #define VSP_VERSION_CHANGE @VSPVER_PATCH@
-#define VSPVERSION1 "Vehicle Sketch Pad @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@"
-#define VSPVERSION2 "OpenVSP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ - @VSPDATE@"
-#define VSPVERSION3 "OpenVSP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ : Vehicle Sketch Pad"
+// QASP is an unofficial fork of OpenVSP (NASA NOSA 1.3).  The version strings
+// below are the single place where the user-visible product name is defined.
+// VSPVERSION1..3 are display strings and are branded for QASP.
+// VSPVERSION4 is deliberately left unchanged: it is returned by the public
+// GetVSPVersion() API and written into CAD/DXF/NASTRAN export metadata, so
+// changing it would alter machine-readable output and break script compatibility.
+#define VSPVERSION1 "QASP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ (based on Vehicle Sketch Pad)"
+#define VSPVERSION2 "QASP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ - @VSPDATE@"
+#define VSPVERSION3 "QASP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@ : Aircraft Design Studio"
 #define VSPVERSION4 "OpenVSP @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@"
 
 enum
