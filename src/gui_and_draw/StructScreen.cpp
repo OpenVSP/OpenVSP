@@ -364,26 +364,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     int smallw = ( m_IsoSubGroup.GetW() - gapw ) / 8.0;
     int fieldw = ( m_IsoSubGroup.GetW() - gapw - labelw - 2 * choicew ) / 2.0;
 
-    char rho[5];
-    int indx = 0;
-    indx += fl_utf8encode( 961, &rho[ indx ] ); // Greek character rho
-    rho[ indx ] = 0;
-
-    char alpha[5];
-    indx = 0;
-    indx += fl_utf8encode( 961-16, &alpha[ indx ] ); // Greek character alpha
-    alpha[ indx ] = 0;
-
-    char nu[5];
-    indx = 0;
-    indx += fl_utf8encode( 961-16+12, &nu[ indx ] ); // Greek character nu
-    nu[ indx ] = 0;
-
-    char theta[16];
-    indx = 0;
-    indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
-    theta[ indx ] = 0;
-
     m_IsoSubGroup.SetSameLineFlag( true );
     m_IsoSubGroup.SetFitWidthFlag( false );
 
@@ -401,7 +381,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_IsoSubGroup.SetButtonWidth( labelw );
 
-    m_IsoSubGroup.AddInput( m_MatDensityInput, rho, "%5.3g" );
+    m_IsoSubGroup.AddInput( m_MatDensityInput, "$\\rho$", "%5.3g" );
 
     m_IsoSubGroup.SetButtonWidth( smallw );
 
@@ -452,7 +432,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_IsoSubGroup.ForceNewLine();
 
     m_IsoSubGroup.SetButtonWidth( labelw );
-    m_IsoSubGroup.AddInput( m_MatThermalExCoeffInput, alpha, "%5.3g" );
+    m_IsoSubGroup.AddInput( m_MatThermalExCoeffInput, "$\\alpha$", "%5.3g" );
 
     m_IsoSubGroup.SetButtonWidth( smallw );
 
@@ -476,7 +456,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_IsoSubGroup.SetFitWidthFlag( true );
     m_IsoSubGroup.SetButtonWidth( labelw );
-    m_IsoSubGroup.AddInput( m_MatPoissonInput, nu, "%5.3g" );
+    m_IsoSubGroup.AddInput( m_MatPoissonInput, "$\\nu$", "%5.3g" );
     m_IsoSubGroup.SetFitWidthFlag( false );
 
     m_IsoSubGroup.ForceNewLine();
@@ -527,7 +507,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_OrthoSubGroup.SetButtonWidth( labelw );
 
-    m_OrthoSubGroup.AddInput( m_OrthoMatDensityInput, rho, "%5.3g" );
+    m_OrthoSubGroup.AddInput( m_OrthoMatDensityInput, "$\\rho$", "%5.3g" );
 
     m_OrthoMatDensityUnitChoice.AddItem( "lbm/in^3", vsp::RHO_UNIT_LBM_IN3 );
     m_OrthoMatDensityUnitChoice.AddItem( "lbf s^2/in^4", vsp::RHO_UNIT_LBFSEC2_IN4 );
@@ -608,7 +588,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_OrthoSubGroup.SetButtonWidth( labelw );
 
-    m_OrthoSubGroup.AddInput( m_MatA1Input, alpha, "%5.3g" );
+    m_OrthoSubGroup.AddInput( m_MatA1Input, "$\\alpha$", "%5.3g" );
     m_OrthoSubGroup.SetButtonWidth( 0 );
     m_OrthoSubGroup.AddInput( m_MatA2Input, "", "%5.3g" );
     m_MatA2Input.SetButtonNameUpdate( false );
@@ -686,7 +666,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
 
     m_OrthoSubGroup.SetButtonWidth( labelw );
-    m_OrthoSubGroup.AddInput( m_Matnu12Input, nu, "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
+    m_OrthoSubGroup.AddInput( m_Matnu12Input, "$\\nu$", "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
     m_OrthoSubGroup.SetButtonWidth( 0 );
     m_OrthoSubGroup.AddInput( m_Matnu13Input, "", "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
     m_Matnu13Input.SetButtonNameUpdate( false );
@@ -724,7 +704,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_LaminateSubGroup.SetInputWidth( little );
     m_LaminateSubGroup.SetButtonWidth( labelw );
 
-    m_LaminateSubGroup.AddOutput( m_LaminateMatDensity_FEMOutput, rho, "%5.3g" );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatDensity_FEMOutput, "$\\rho$", "%5.3g" );
 
     m_LaminateSubGroup.SetButtonWidth( little );
     m_LaminateSubGroup.AddButton( m_LaminateMatDensityUnit_FEM, "" );
@@ -779,7 +759,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_LaminateSubGroup.SetButtonWidth( labelw );
 
-    m_LaminateSubGroup.AddOutput( m_LaminateMatA1Output_FEM, alpha, "%5.3g" );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatA1Output_FEM, "$\\alpha$", "%5.3g" );
     m_LaminateSubGroup.SetButtonWidth( 0 );
     m_LaminateSubGroup.AddOutput( m_LaminateMatA2Output_FEM, "", "%5.3g" );
     m_MatA2Input.SetButtonNameUpdate( false );
@@ -824,7 +804,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
 
     m_LaminateSubGroup.SetButtonWidth( labelw );
-    m_LaminateSubGroup.AddOutput( m_LaminateMatnu12Output, nu, "%5.3g", 2.0 * m_LaminateSubGroup.GetW() / 3.0 );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatnu12Output, "$\\nu$", "%5.3g", 2.0 * m_LaminateSubGroup.GetW() / 3.0 );
     m_LaminateSubGroup.SetButtonWidth( 0 );
     m_LaminateSubGroup.AddOutput( m_LaminateMatnu13Output, "", "%5.3g", 2.0 * m_LaminateSubGroup.GetW() / 3.0 );
     m_Matnu13Input.SetButtonNameUpdate( false );
@@ -968,7 +948,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_LaminateEditGroup.SetFitWidthFlag( false );
     m_LaminateEditGroup.SetButtonWidth( little );
-    m_LaminateEditGroup.AddInput( m_LayerThetaInput, theta, "%7.5g" );
+    m_LaminateEditGroup.AddInput( m_LayerThetaInput, "$\\theta$", "%7.5g" );
 
     m_LaminateEditGroup.ForceNewLine();
 
@@ -1262,7 +1242,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_PipeXSecGroup.SetInputWidth( propw );
     m_PipeXSecGroup.SetButtonWidth( propw );
 
-    m_PipeXSecGroup.AddInput( m_PipeDim1Input, "R_outer", "%5.3f" );
+    m_PipeXSecGroup.AddInput( m_PipeDim1Input, "$R_\\mathrm{outer}$", "%5.3f" );
 
     m_PipeXSecGroup.AddButton( m_PipeDim1Unit, "" );
     m_PipeDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -1279,7 +1259,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_PipeXSecGroup.ForceNewLine();
 
-    m_PipeXSecGroup.AddInput( m_PipeDim2Input, "R_inner", "%5.3f" );
+    m_PipeXSecGroup.AddInput( m_PipeDim2Input, "$R_\\mathrm{inner}$", "%5.3f" );
 
     m_PipeXSecGroup.AddButton( m_PipeDim2Unit, "" );
     m_PipeDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
