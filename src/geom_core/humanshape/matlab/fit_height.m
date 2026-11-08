@@ -1,0 +1,43 @@
+clear all
+format compact
+
+% ECDF of male height from: 
+% 2012 ANTHROPOMETRIC SURVEY OF U.S. ARMY PERSONNEL: METHODS AND SUMMARY STATISTICS 
+% NATICK/TR-15/007
+
+M=[1500 0
+1600  1
+1621  2
+1634  3
+1648  5
+1669  10
+1685  15
+1699  20
+1710  25
+1720  30
+1729  35
+1738  40
+1745  45
+1755  50
+1764  55
+1773  60
+1782  65
+1791  70
+1802  75
+1813  80
+1827  85
+1844  90
+1870  95
+1890  97
+1905  98
+1927  99
+2060  100];
+
+sta_mm = M(:,1);
+cprob =  M(:,2);
+
+
+figure(1)
+plot(sta_mm,cprob)
+
+

@@ -10,6 +10,7 @@ OpenVSP, and the program that generates the Human's Bezier surface data.
 | ---- | ---- |
 | `MaleGeomData.h`, `FemaleGeomData.h` | Original 200-principal-component data. **Archived only -- no longer compiled into OpenVSP.** Kept as the source of truth for regeneration. |
 | `reduce_geomdata.py` | Converter. Reads the originals, collapses the two-stage PCA, and writes the compiled headers. |
+| `matlab/` | The MATLAB scripts that made the originals from the UMTRI model files; see `matlab/README.md`. |
 | `repair_toes.py` | Repairs the UMTRI fine mesh: stray vertices and tangled faces on the right foot's second and third toes, then the left half made the exact mirror image of the right (the model is symmetric but for the left toes' and eyes', mouth's and ears' faces).  Writes the repair into the originals (`--write`; run `reduce_geomdata.py` after it) and, with `--fine-out DIR --model-out`, a whole repaired copy of the UMTRI model files for a future reduction.  It needs the UMTRI model files. |
 | `../MaleGeomDataReduced.h`, `../FemaleGeomDataReduced.h` | **Generated** headers that `HumanGeom.cpp` includes and compiles. Do not edit by hand. |
 
