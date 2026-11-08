@@ -674,37 +674,44 @@ void HumanGeom::UpdateSurf()
     m_PoseSkelVerts[LTOE] = t_ltfoot.xform( m_PoseSkelVerts[LTOE] );
 
 
-    // Transfer transformations to Pinocchio vector form.
+    // The transformation of each bone; the bones not set here do not move.
     unsigned int nbones = m_SkelVerts.size();
+    vector < Matrix4d > bone_mats( nbones );
+
+    bone_mats[NECK] = t_head;
+    bone_mats[SKULL] = t_head;
+    bone_mats[LORBITAL] = t_head;
+    bone_mats[RORBITAL] = t_head;
+
+    bone_mats[LOWSPINE] = t_waist;
+
+    bone_mats[LPELVIS] = t_waist;
+    bone_mats[RPELVIS] = t_waist;
+
+    bone_mats[RHAND] = t_rtwrist;
+    bone_mats[RWRISTBASE] = t_rtforearm;
+    bone_mats[RFOREARM] = t_rtforearm;
+    bone_mats[RBICEP] = t_rtbicep;
+
+    bone_mats[LHAND] = t_ltwrist;
+    bone_mats[LWRISTBASE] = t_ltforearm;
+    bone_mats[LFOREARM] = t_ltforearm;
+    bone_mats[LBICEP] = t_ltbicep;
+
+    bone_mats[RFOOT] = t_rtfoot;
+    bone_mats[RSHIN] = t_rtshin;
+    bone_mats[RTHIGH] = t_rtthigh;
+
+    bone_mats[LFOOT] = t_ltfoot;
+    bone_mats[LSHIN] = t_ltshin;
+    bone_mats[LTHIGH] = t_ltthigh;
+
+    // Transfer transformations to Pinocchio vector form.
     std::vector< Pinocchio::Transform<> > trs( nbones );
-
-    Mat2Trans( t_head, trs[NECK] );
-    Mat2Trans( t_head, trs[SKULL] );
-    Mat2Trans( t_head, trs[LORBITAL] );
-    Mat2Trans( t_head, trs[RORBITAL] );
-
-    Mat2Trans( t_waist, trs[LOWSPINE] );
-
-    Mat2Trans( t_waist, trs[LPELVIS] );
-    Mat2Trans( t_waist, trs[RPELVIS] );
-
-    Mat2Trans( t_rtwrist, trs[RHAND] );
-    Mat2Trans( t_rtforearm, trs[RWRISTBASE] );
-    Mat2Trans( t_rtforearm, trs[RFOREARM] );
-    Mat2Trans( t_rtbicep, trs[RBICEP] );
-
-    Mat2Trans( t_ltwrist, trs[LHAND] );
-    Mat2Trans( t_ltforearm, trs[LWRISTBASE] );
-    Mat2Trans( t_ltforearm, trs[LFOREARM] );
-    Mat2Trans( t_ltbicep, trs[LBICEP] );
-
-    Mat2Trans( t_rtfoot, trs[RFOOT] );
-    Mat2Trans( t_rtshin, trs[RSHIN] );
-    Mat2Trans( t_rtthigh, trs[RTHIGH] );
-
-    Mat2Trans( t_ltfoot, trs[LFOOT] );
-    Mat2Trans( t_ltshin, trs[LSHIN] );
-    Mat2Trans( t_ltthigh, trs[LTHIGH] );
+    for ( int i = 0; i < ( int )nbones; i++ )
+    {
+        Mat2Trans( bone_mats[i], trs[i] );
+    }
 
     // Build up vision transformation matrix.
     Matrix4d tcenter1;
