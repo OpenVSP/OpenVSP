@@ -2491,6 +2491,10 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
     destObj->emptyVBuffer();
     destObj->appendVBuffer( data.data(), sizeof( float ) * data.size() );
 
+    // The points are drawn in order, without an element buffer.
+    destObj->emptyEBuffer();
+    destObj->enableEBuffer( false );
+
     if ( drawObj->m_WireColorVec.size() == drawObj->m_PntVec.size() )
     {
         std::vector<float> cdata( n * 4, 0.0f );
