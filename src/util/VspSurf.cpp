@@ -978,6 +978,37 @@ void VspSurf::CreatePlane( double xmin, double xmax, double ymin, double ymax )
     m_Surface.set( patch, 0, 0 );
 }
 
+// A grid of bicubic patches from their control points, cpts[i][j] with i along u and j along w,
+// 3 nu + 1 by 3 nw + 1; neighbouring patches share the points on their common edge.
+void VspSurf::CreateBicubic( const vector < vector < vec3d > > &cpts )
+{
+    int nu = ( (int)cpts.size() - 1 ) / 3;
+    int nw = ( (int)cpts[0].size() - 1 ) / 3;
+
+    m_Surface.clear();
+    m_Surface.init_uv( nu, nw );
+
+    for ( int iu = 0; iu < nu; iu++ )
+    {
+        for ( int iw = 0; iw < nw; iw++ )
+        {
+            surface_patch_type patch( 3, 3 );
+
+            for ( int i = 0; i < 4; i++ )
+            {
+                for ( int j = 0; j < 4; j++ )
+                {
+                    threed_point_type p;
+                    cpts[ 3 * iu + i ][ 3 * iw + j ].get_pnt( p );
+                    patch.set_control_point( p, i, j );
+                }
+            }
+
+            m_Surface.set( patch, iu, iw );
+        }
+    }
+}
+
 // Simplifed skinning for when curves and derivatives are known at patches.
 void VspSurf::BuildCubic( const vector<rib_data_type> &ribs, const vector < double > &param )
 {
