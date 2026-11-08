@@ -62,6 +62,9 @@ public:
     // The vertices, in the Geom's own frame, before symmetry or placement.
     virtual const vector < vec3d > & GetMainVerts() const = 0;
 
+    // Whether the shape is the mesh; otherwise it is the surfaces.
+    virtual bool IsHumanMeshRep() const = 0;
+
     // The eye placed at the asked Geom, and one eye per symmetric copy.
     Matrix4d BuildDesignEyeMatrix( bool axisaligned ) const;
     void BuildDesignEyeVec( vector < vec3d > & eyevec ) const;
@@ -185,6 +188,11 @@ public:
 
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
 
+    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const;
+    virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
+
+    virtual bool IsHumanMeshRep() const;
+
     virtual void SetupMesh( Pinocchio::Mesh &m );
     template < typename vertmat > void SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton );
     static Pinocchio::Attachment * SetupAttach( const Pinocchio::Mesh &m, const Pinocchio::Skeleton &skeleton );
@@ -201,6 +209,8 @@ public:
 
     IntParm m_LenUnit;
     IntParm m_MassUnit;
+
+    IntParm m_Representation;
 
     IntParm m_PresetPose;  // Used by GUI when set preset pose is triggered.
 

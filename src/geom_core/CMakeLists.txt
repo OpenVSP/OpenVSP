@@ -63,6 +63,7 @@ GeomEngine.cpp
 GridDensity.cpp
 GroupTransformations.cpp
 HingeGeom.cpp
+HumanBezier.cpp
 HumanGeom.cpp
 IDMgr.cpp
 Link.cpp
@@ -152,6 +153,8 @@ GeomEngine.h
 GridDensity.h
 GroupTransformations.h
 HingeGeom.h
+HumanBezier.h
+HumanBezierData.h
 HumanGeom.h
 IDMgr.h
 Light.h

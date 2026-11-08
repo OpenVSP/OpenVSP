@@ -18,6 +18,13 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
 
     m_AnthropoLayout.SetGroupAndScreen( design_group, this );
 
+    m_AnthropoLayout.AddDividerBox( "Representation" );
+
+    m_RepresentationChoice.AddItem( "MESH" );
+    m_RepresentationChoice.AddItem( "SURFACE" );
+    m_AnthropoLayout.AddChoice( m_RepresentationChoice, "Shape" );
+
+    m_AnthropoLayout.AddYGap();
     m_AnthropoLayout.AddDividerBox( "Units" );
 
     m_LenUnitChoice.AddItem( "MM" );
@@ -204,6 +211,8 @@ bool HumanGeomScreen::Update()
     assert( human_ptr );
 
     m_PresetPoseChoice.Update( human_ptr->m_PresetPose.GetID() );
+
+    m_RepresentationChoice.Update( human_ptr->m_Representation.GetID() );
 
     m_LenUnitChoice.Update( human_ptr->m_LenUnit.GetID() );
     m_MassUnitChoice.Update( human_ptr->m_MassUnit.GetID() );

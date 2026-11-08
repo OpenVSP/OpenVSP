@@ -958,6 +958,14 @@ enum GENDER { MALE,	/*!< Male Human component */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the shape a Human component is represented by. */
+enum HUMAN_REP { HUMAN_REP_MESH,	/*!< The triangle mesh */
+                 HUMAN_REP_SURF	/*!< Closed piecewise Bezier surfaces, one per body part */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Geometry analysis types.. */
 enum GEOMETRY_ANALYSIS_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between mutually external bodies */
                               PACKAGING_INTERFERENCE,	/*!< Interference when one body is internal to another */

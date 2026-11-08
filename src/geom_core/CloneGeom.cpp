@@ -2061,6 +2061,28 @@ HumanVertRole* CloneGeom::GetOriginalHumanVert() const
     return Geom::CastTo< HumanVertRole >( GetOriginalGeom() );
 }
 
+bool CloneGeom::IsHumanMeshRep() const
+{
+    HumanVertRole* human = GetOriginalHumanVert();
+    if ( !human )
+    {
+        return false;
+    }
+
+    return human->IsHumanMeshRep();
+}
+
+HumanVertRole* CloneGeom::GetOriginalHumanMesh() const
+{
+    HumanVertRole* human = GetOriginalHumanVert();
+    if ( human && human->IsHumanMeshRep() )
+    {
+        return human;
+    }
+
+    return nullptr;
+}
+
 const vector < vec3d > & CloneGeom::GetMainVerts() const
 {
     static const vector < vec3d > empty;
@@ -2328,7 +2350,7 @@ void CloneGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int
     }
 
     // One entry per symmetric copy, each with its placement and mirror flag.
-    if ( GetOriginalHumanVert() )
+    if ( GetOriginalHumanMesh() )
     {
         unsigned int num_meshes = m_TransMatVec.size();
 
@@ -2501,7 +2523,7 @@ vector< TMesh* > CloneGeom::CreateTMeshVec( bool skipnegflipnormal, const int &n
         return BuildTMeshVec( this );
     }
 
-    if ( GetOriginalHumanVert() )
+    if ( GetOriginalHumanMesh() )
     {
         vector < vector < vec3d > > verts;
         vector < bool > flipnormal;
@@ -2571,7 +2593,7 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         return;
     }
 
-    if ( GetOriginalTMesh() || GetOriginalHumanVert() )
+    if ( GetOriginalTMesh() || GetOriginalHumanMesh() )
     {
         for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
         {
@@ -2591,7 +2613,7 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 void CloneGeom::UpdateBBox()
 {
     // No main surfaces: bound the borrowed shape at this Geom's position.
-    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() || GetOriginalWirePts() || GetOriginalPGMesh() || GetOriginalRoute() )
+    if ( GetOriginalTMesh() || GetOriginalHumanMesh() || GetOriginalPointCloud() || GetOriginalWirePts() || GetOriginalPGMesh() || GetOriginalRoute() )
     {
         BndBox new_box;
 
@@ -2603,7 +2625,7 @@ void CloneGeom::UpdateBBox()
         {
             BuildTMeshBndBox( new_box );
         }
-        else if ( GetOriginalHumanVert() )
+        else if ( GetOriginalHumanMesh() )
         {
             vector < vector < vec3d > > verts;
             vector < bool > flipnormal;
@@ -2661,7 +2683,7 @@ void CloneGeom::UpdateDrawObj()
         return;
     }
 
-    if ( GetOriginalHumanVert() )
+    if ( GetOriginalHumanMesh() )
     {
         vector < vector < vec3d > > verts;
         vector < bool > flipnormal;

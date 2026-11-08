@@ -4675,7 +4675,7 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
 
         // Human and Mesh types will run in VSPAERO panel method... support accordingly
         size_t num_surf = 0;
-        if ( geom->GetBehaviorType() == HUMAN_GEOM_TYPE )
+        if ( geom->GetBehaviorType() == HUMAN_GEOM_TYPE && geom->isNonSurfaceType() )
         {
             num_surf = 1;
         }

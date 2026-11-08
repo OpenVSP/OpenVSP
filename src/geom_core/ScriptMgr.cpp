@@ -1806,6 +1806,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "HUMAN_REP" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_REP", "HUMAN_REP_MESH", HUMAN_REP_MESH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_REP", "HUMAN_REP_SURF", HUMAN_REP_SURF );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "GEOMETRY_ANALYSIS_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "EXTERNAL_INTERFERENCE", EXTERNAL_INTERFERENCE );

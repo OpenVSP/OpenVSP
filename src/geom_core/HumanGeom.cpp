@@ -8,6 +8,7 @@
 #include <unordered_set>
 
 #include "HumanGeom.h"
+#include "HumanBezier.h"
 #include "pinocchioApi.h"
 #include "MeshGeom.h"
 #include "ParmMgr.h"
@@ -37,6 +38,10 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Human";
     m_Type.m_Type = HUMAN_GEOM_TYPE;
 
+    // Points per patch of the surfaces, along and around.
+    m_TessU.Set( 3 );
+    m_TessW.SetMultShift( 1, 0 );
+    m_TessW.Set( 3 );
     m_TessU.Deactivate();
     m_TessW.Deactivate();
     m_Origin.Deactivate();
@@ -46,6 +51,9 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_MassUnit.Init( "MassUnit", "Anthropometric", this, vsp::MASS_UNIT_LBM, vsp::MASS_UNIT_G, vsp::MASS_LBFSEC2IN );
     m_MassUnit.SetDescript( "Mass unit" );
+
+    m_Representation.Init( "Representation", "Design", this, vsp::HUMAN_REP_MESH, vsp::HUMAN_REP_MESH, vsp::HUMAN_REP_SURF );
+    m_Representation.SetDescript( "Represent the human by its mesh or by its surfaces" );
 
     m_GenderFlag.Init( "GenderFlag", "Anthropometric", this, vsp::MALE, vsp::MALE, vsp::FEMALE );
     m_GenderFlag.SetDescript( "Gender" );
@@ -353,10 +361,14 @@ void HumanVertRole::BuildDesignEyeVec( vector < vec3d > & eyevec ) const
 
     vector < Matrix4d > tmv = geom_ptr->GetTransMatVec();
 
-    eyevec.resize( tmv.size() );
-    for ( int i = 0; i < ( int )tmv.size(); i++ )
+    // One per symmetric copy of the first main surface or mesh.
+    vector < int > symindexs;
+    geom_ptr->GetSymmIndexs( 0, symindexs );
+
+    eyevec.resize( symindexs.size() );
+    for ( int i = 0; i < ( int )symindexs.size(); i++ )
     {
-        eyevec[i] = tmv[ i ].xform( GetDesignEyePtInSelf() );
+        eyevec[i] = tmv[ symindexs[i] ].xform( GetDesignEyePtInSelf() );
     }
 }
 
@@ -754,6 +766,29 @@ void HumanGeom::UpdateSurf()
     tcenter.xformvec( m_MainVerts );
     tcenter.xformvec( m_PoseSkelVerts );
 
+    // The surfaces, placed as the mesh is.
+    if ( m_Representation() == vsp::HUMAN_REP_SURF )
+    {
+        m_TessU.Activate();
+        m_TessW.Activate();
+
+        vector < HumanBezNet > nets;
+        BuildHumanBezierNets( m_GenderFlag(), vars, nets );
+
+        BuildHumanBezierSurfs( m_GenderFlag(), nets, tcenter, m_MainSurfVec );
+
+        // The eyes on the surface, and the design eye between them.
+        GetHumanBezierEyes( m_GenderFlag(), nets, m_MainSurfVec, m_PoseSkelVerts[REYE], m_PoseSkelVerts[LEYE] );
+        m_PoseSkelVerts[DES_EYE] = ( m_PoseSkelVerts[REYE] + m_PoseSkelVerts[LEYE] ) * 0.5;
+    }
+    else
+    {
+        m_TessU.Deactivate();
+        m_TessW.Deactivate();
+
+        m_MainSurfVec.clear();
+    }
+
 
 /*
     for ( int i = 0; i < nbones; i++ )
@@ -808,6 +843,12 @@ double HumanGeom::CalculateVolume()
 
 void HumanGeom::UpdateBBox()
 {
+    if ( !IsHumanMeshRep() )
+    {
+        Geom::UpdateBBox();
+        return;
+    }
+
     BndBox new_box;
 
     for ( int j = 0 ; j < ( int )m_Verts.size() ; j++ )
@@ -836,6 +877,12 @@ void HumanGeom::UpdateBBox()
 // This is substantially similar to Geom::UpdateSymmAttach() and could probably be combined in a meaningful way.
 void HumanGeom::UpdateSymmAttach()
 {
+    if ( !IsHumanMeshRep() )
+    {
+        Geom::UpdateSymmAttach();
+        return;
+    }
+
     unsigned int num_surf = GetNumTotalMeshs();
     m_Verts.clear();
     m_FlipNormal.clear();
@@ -1009,6 +1056,12 @@ void HumanGeom::UpdateSymmAttach()
 
 void HumanGeom::UpdateDrawObj()
 {
+    if ( !IsHumanMeshRep() )
+    {
+        Geom::UpdateDrawObj();
+        return;
+    }
+
     BuildHumanDrawObjs( m_Verts, m_FlipNormal, m_WireShadeDrawObj_vec );
 
     //==== Bounding Box ====//
@@ -1041,6 +1094,11 @@ void HumanGeom::UpdateDrawObj()
 
 void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+    if ( !IsHumanMeshRep() )
+    {
+        Geom::LoadDrawObjs( draw_obj_vec );
+        return;
+    }
 
     char str[256];
 
@@ -1189,6 +1247,12 @@ void HumanGeom::ScaleTriangles()
 
 void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
 {
+    if ( !IsHumanMeshRep() )
+    {
+        Geom::CreateDegenGeom( dgs, preview, n_ref );
+        return;
+    }
+
     unsigned int num_meshes = GetNumTotalMeshs();
 
     dgs.resize( num_meshes );
@@ -1387,7 +1451,30 @@ void HumanVertRole::BuildHumanBndBox( const vector < vector < vec3d > > &verts, 
 
 vector<TMesh*> HumanGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
+    if ( !IsHumanMeshRep() )
+    {
+        return Geom::CreateTMeshVec( skipnegflipnormal, n_ref );
+    }
+
     return BuildHumanTMeshVec( m_Verts, m_FlipNormal, this );
+}
+
+// The surfaces are tessellated per patch: m_TessU points along each and m_TessW around each.
+void HumanGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
+{
+    int num_w = surf.GetNumSectW() * ( m_TessW() - 1 ) + 1;
+    surf.Tesselate( m_TessU(), num_w, pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, n_ref );
+}
+
+void HumanGeom::UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
+{
+    int num_w = surf.GetNumSectW() * ( m_TessW() - 1 ) + 1;
+    surf.SplitTesselate( m_TessU(), num_w, pnts, norms, m_CapUMinTess(), m_TessU() );
+}
+
+bool HumanGeom::IsHumanMeshRep() const
+{
+    return m_Representation() == vsp::HUMAN_REP_MESH;
 }
 
 void HumanGeom::SetupMesh( Pinocchio::Mesh &m )

@@ -1735,7 +1735,7 @@ vector < int > Vehicle::GetDegenGeomTypeVec( int set_index )
             {
                 surftype = DegenGeom::DISK_TYPE;
             }
-            else if ( geom->GetType().m_Type == MESH_GEOM_TYPE || geom->GetType().m_Type == HUMAN_GEOM_TYPE )
+            else if ( geom->GetType().m_Type == MESH_GEOM_TYPE || ( geom->GetType().m_Type == HUMAN_GEOM_TYPE && geom->isNonSurfaceType() ) )
             {
                 surftype = DegenGeom::MESH_TYPE;
             }

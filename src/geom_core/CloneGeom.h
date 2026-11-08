@@ -203,8 +203,12 @@ public:
     // Vertices come from the original; this Geom's symmetry and placement expand them.
     virtual const vector < vec3d > & GetMainVerts() const override;
     virtual HumanVertRole* GetOriginalHumanVert() const;
+    virtual bool IsHumanMeshRep() const override;
     virtual vec3d GetDesignEyePtInSelf() const override;
     virtual Matrix4d GetVisionBasis() const override;
+
+    // The original as a Human shown by its mesh, if it is one.
+    virtual HumanVertRole* GetOriginalHumanMesh() const;
 
     // The original's vertices, expanded by this Geom's symmetry and placement.
     virtual void BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bool > &flipnormal ) const;

@@ -5123,6 +5123,12 @@ vector < int > Geom::GetNonSurfaceTypeVec()
 // Or an optional method implemented by only non-surface types.
 bool Geom::isNonSurfaceType()
 {
+    // A Human, or a Clone of one, has surfaces when it is represented by them.
+    if ( GetBehaviorType() == HUMAN_GEOM_TYPE )
+    {
+        return GetNumMainSurfs() == 0;
+    }
+
     // Uses the behaviour type, so a Clone of a non-surface Geom counts.  The fallback below
     // catches a Clone not yet updated, whose surface vector is still empty.
     vector < int > nst = GetNonSurfaceTypeVec();

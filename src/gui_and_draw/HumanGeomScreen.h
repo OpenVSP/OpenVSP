@@ -37,6 +37,8 @@ protected:
     Choice m_LenUnitChoice;
     Choice m_MassUnitChoice;
 
+    Choice m_RepresentationChoice;
+
     Choice m_GenderChoice;
 
     SliderAdjRangeInput m_StatureSlider;
