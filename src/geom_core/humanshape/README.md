@@ -1,8 +1,8 @@
 # HumanGeom anthropometric data
 
 This directory holds the **original, full-resolution** anthropometric data for
-`HumanGeom` and the script that reduces it into the form actually compiled into
-OpenVSP.
+`HumanGeom`, the script that reduces it into the form actually compiled into
+OpenVSP, and the program that generates the Human's Bezier surface data.
 
 ## Files
 
@@ -59,6 +59,75 @@ exactly by emitting the same number of rows.
 3. Rebuild OpenVSP.
 
 The converter needs NumPy (used only for the double-precision matrix multiply).
+
+## The Bezier surface: `human_bezier.py`
+
+`HumanGeom` can also represent the body by closed piecewise Bezier surfaces (the
+`Representation` Parm).  Their data are generated offline into
+`../HumanBezierData.h` by `human_bezier.py`; building OpenVSP does not need Python.
+
+| File | Role |
+| ---- | ---- |
+| `human_bezier.py` | Main program.  Builds the parts, fits them, writes `../HumanBezierData.h`; `--check` also prints the measured errors. |
+| `hb_data.py` | Reads `../MaleGeomDataReduced.h` and `../FemaleGeomDataReduced.h`; the closed full mesh and the skeleton. |
+| `hb_layout.py` | The parts: cut planes, regions, and each part's axis, net size and ends. |
+| `hb_quilt.py` | The closed B-spline quilts and the linear fit operator. |
+| `hb_check.py` | The measurements of `--check`. |
+| `../HumanBezierData.h` | **Generated.**  Do not edit by hand. |
+
+### The parts
+
+The body is twenty overlapping closed parts: trunk, head and neck, and per side
+arm, palm, thumb, four fingers, leg and foot (fused toes).  Each is one bicubic
+B-spline net, periodic around and clamped along, whose first and last rows
+collapse to poles, so each part is a complete closed quilt with degenerate patches
+at its poles.  The surface is C2 everywhere but at the poles; a visible pole's
+first ring is an affine image of a regular polygon, which gives the pole a tangent
+plane.  Where a part meets its neighbour it continues inside it (a hidden "nose")
+and closes to a pole; where a child part attaches, the parent spans the hole.
+Neither the noses nor the holes are fitted to anything: past the data the surface
+is faired (the smoothing is raised up to `free` times on control points the data
+do not reach), so it leaves the body tangent to it and closes quickly.  A finger
+also fits the palm's skin for 20 mm below its base (the thumb 10 mm) before its
+nose closes, so the two meet tangent over a shared band rather than leaving a
+valley.  The union
+of the parts is the body; `CompGeom` and `CFDMesh` find the intersection curves.
+
+The cut planes and each part's parameterization are fixed on one reference body,
+so the fit of every body is the same linear map of the mesh vertices and joints.
+The control points are therefore exactly linear in the anthropometric vector X:
+
+```
+P = Pbar + Q_P . X
+```
+
+Centre parts are mirror symmetric nets; each left part is the mirror image of its
+right part.  The fingers are cut off the palm where each parts from it; the feet
+are simplified (convex hulls of their cross sections).  More detailed parts would
+change `hb_layout.py` only.
+
+The eyes are fixed points of the head's surface, (u, w) found on each sex's
+reference body, so they move with the surface.
+
+### Regenerating
+
+```
+python3 human_bezier.py            # writes ../HumanBezierData.h, under a minute
+python3 human_bezier.py --check    # also measures the fit (much longer)
+```
+
+Regenerate after changing the anthropometric tables or the part layout.  The
+generator needs NumPy and SciPy.
+
+## Tests
+
+```
+python3 -m pytest tests
+```
+
+checks the half mesh and that the generated headers are current: each records the
+SHA-1 of the headers it was made from, so a header left stale after its inputs
+changed fails `tests/test_generated.py`.
 
 ## Attribution
 
