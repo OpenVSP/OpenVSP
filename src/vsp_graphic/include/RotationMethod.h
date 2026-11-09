@@ -109,6 +109,33 @@ private:
 };
 
 /*!
+* Tumbler: each mouse move turns the view about the screen axis perpendicular to the move,
+* by an angle proportional to its length.  Horizontal motion turns about the screen's
+* vertical axis and vertical motion about its horizontal axis.  Any orientation can be
+* reached, but the result depends on the path: a drag that returns to where it started
+* does not in general restore the view.
+*/
+class Tumbler : public RotationMethod
+{
+public:
+    Tumbler();
+
+    /*!
+    * gain - radians per window pixel.
+    */
+    void setGain( double gain );
+
+    virtual void begin( Camera * cam, int x, int y );
+    virtual void drag( Camera * cam, int x, int y );
+
+private:
+    double _gain;
+
+    int _px;
+    int _py;
+};
+
+/*!
 * Turntable: horizontal motion turns the model about a fixed world axis, vertical motion
 * tips it about a horizontal screen axis.  Measured from the press, so the result depends
 * only on the total motion.  When the up axis points down the screen at press, horizontal

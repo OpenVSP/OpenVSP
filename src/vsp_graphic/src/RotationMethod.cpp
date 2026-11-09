@@ -138,6 +138,47 @@ void RoundedArcball::drag( Camera * cam, int x, int y )
     _version = cam->rotationVersion();
 }
 
+Tumbler::Tumbler()
+{
+    _gain = 0.4 * M_PI / 180.0;
+    _px = 0;
+    _py = 0;
+}
+
+void Tumbler::setGain( double gain )
+{
+    _gain = gain;
+}
+
+void Tumbler::begin( Camera * cam, int x, int y )
+{
+    _px = x;
+    _py = y;
+}
+
+void Tumbler::drag( Camera * cam, int x, int y )
+{
+    double dx = x - _px;
+    double dy = y - _py;
+    double len = std::sqrt( dx * dx + dy * dy );
+
+    _px = x;
+    _py = y;
+
+    if ( len <= 0.0 )
+    {
+        return;
+    }
+
+    // Turn about the screen axis perpendicular to the move, in eye coordinates, so the near
+    // side follows the mouse.
+    glm::dvec3 axis( -dy / len, dx / len, 0.0 );
+    glm::dquat q = glm::angleAxis( _gain * len, axis );
+
+    glm::dquat rot = q * glm::dquat( cam->getViewRotation() );
+    cam->setViewRotation( glm::quat( glm::normalize( rot ) ) );
+}
+
 Turntable::Turntable()
 {
     _gain = 0.4 * M_PI / 180.0;
