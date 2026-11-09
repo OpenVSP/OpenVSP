@@ -33,6 +33,20 @@ Diameter = 2.0 * sqrt( Sdisk / 3.1415926 );
 ```
 
 
+## Building a Link in the Window
+
+Add makes a new link; a double-click on its name, or Enter or F2 with it selected, renames it.
+
+A Parm becomes an input or output variable in either of two ways.  Choose it in the Parm Picker and press Add Input
+Var or Add Output Var, or drag the button with the Parm's name, beside its slider in any window, and drop it on the
+Input Parms or Output Parms area.  The variable takes the name in Var Name, or with Auto on, a name made from the
+parts chosen beside it: the container, group, alias and Parm names.  A name already in use brings up a suggestion.
+
+A double-click on an input or output variable copies its name to the clipboard, ready to paste into the code.
+
+Other places that take a dropped Parm, and the other hidden uses of the mouse and keyboard, are described in
+[Mouse and Keyboard](MouseKeyboard.md).
+
 ## Math with Semicolons
 
 OpenVSP automatically defines input and output variables as `double`.  These variables can be used to construct

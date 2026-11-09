@@ -167,7 +167,7 @@ public:
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 800, "Preferences", "", 30 )
+PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 800, "Preferences", "MouseKeyboard.html", 30 )
 {
     m_SelBinding = -1;
     m_FCTypeAtShow = vsp::FC_OPENVSP;

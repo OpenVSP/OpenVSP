@@ -10,6 +10,10 @@ There are certain areas where things get more complex and deep-dive documentatio
 warranted.  These in-program help files will be added as needed, but this also presents an
 opportunity for users to contribute.
 
+## Using OpenVSP
+
+- [Mouse and Keyboard](MouseKeyboard.md)
+
 ## Tools
 
 - [Advanced Parameter Linking](AdvLink.md)

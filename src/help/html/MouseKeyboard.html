@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Mouse and Keyboard</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Mouse and Keyboard</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>Most of OpenVSP is driven through its windows' visible controls, but
+a good deal of it also answers to the mouse and keyboard in ways the
+controls do not show. This page gathers all of them in one place: how
+the mouse moves the 3D view and how to change that, the keyboard
+shortcuts, and what the Parm controls, lists and trees do beyond their
+obvious use, including where a Parm can be dragged and dropped.</p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#moving-the-view">Moving the view</a></td>
+<td>the 3D window</td>
+</tr>
+<tr>
+<td><a href="#picking-and-selecting">Picking and selecting</a></td>
+<td>the 3D window</td>
+</tr>
+<tr>
+<td><a href="#keyboard-in-the-3d-window">Keyboard in the 3D
+window</a></td>
+<td>the 3D window and View menu</td>
+</tr>
+<tr>
+<td><a href="#3d-view-preferences">3D View preferences</a></td>
+<td>File &gt; Preferences &gt; 3D View</td>
+</tr>
+<tr>
+<td><a href="#mouse-button-preferences">Mouse button
+preferences</a></td>
+<td>File &gt; Preferences &gt; Mouse Buttons</td>
+</tr>
+<tr>
+<td><a href="#schemes">Schemes</a></td>
+<td>File &gt; Preferences</td>
+</tr>
+<tr>
+<td><a href="#parm-controls">Parm controls</a></td>
+<td>every slider and value box</td>
+</tr>
+<tr>
+<td><a href="#dragging-and-dropping-parms">Dragging and dropping
+Parms</a></td>
+<td>link, design variable and preset windows</td>
+</tr>
+<tr>
+<td><a href="#lists-and-trees">Lists and trees</a></td>
+<td>the Geom Browser and other lists</td>
+</tr>
+<tr>
+<td><a href="#keyboard-shortcuts">Keyboard shortcuts</a></td>
+<td>menus and other windows</td>
+</tr>
+</tbody>
+</table>
+<p>On macOS, Option is the key other systems call Alt, and Cmd stands in
+for Ctrl in many shortcuts. This page writes Alt for Alt or Option.</p>
+<h2 id="moving-the-view">Moving the view</h2>
+<p>Out of the box the mouse moves the view as it always has in
+OpenVSP:</p>
+<table>
+<thead>
+<tr>
+<th>Press</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left drag</td>
+<td>Rotate</td>
+</tr>
+<tr>
+<td>Alt + left drag</td>
+<td>Pan</td>
+</tr>
+<tr>
+<td>Right drag</td>
+<td>Pan</td>
+</tr>
+<tr>
+<td>Middle drag</td>
+<td>Zoom</td>
+</tr>
+<tr>
+<td>Ctrl + left drag (or Cmd + left drag)</td>
+<td>Zoom</td>
+</tr>
+<tr>
+<td>Left + right drag</td>
+<td>Zoom</td>
+</tr>
+<tr>
+<td>z held + left drag</td>
+<td>Roll about the view direction</td>
+</tr>
+<tr>
+<td>Wheel</td>
+<td>Zoom, about the point under the pointer</td>
+</tr>
+</tbody>
+</table>
+<p>The mouse buttons can instead follow the habits of another program;
+see <a href="#schemes">Schemes</a>. Whatever the scheme, a drag acts on
+the viewport it starts in, and the action is chosen when the drag
+starts: pressing or releasing a key part way through does not switch
+from rotating to panning. Esc during a drag puts the view back as it was
+at the press.</p>
+<h3 id="ball-and-turntable">Ball and turntable</h3>
+<p>A rotate drag turns the view one of two ways.</p>
+<ul>
+<li>Ball: the model turns freely, as if it were inside a ball being
+rolled. Any orientation can be reached. What the ball does is set in the
+preferences: the Trackball (the default), the Rounded Arcball, OpenVSP
+Classic (the rotation of OpenVSP 3.55 and earlier), or the Tumbler.</li>
+<li>Turntable: horizontal motion turns the model about the vertical Z
+axis and vertical motion tips it toward or away from you, so Z always
+stays upright on the screen. It suits aircraft, which have a natural
+up.</li>
+</ul>
+<p>View &gt; Turntable Rotation (t) and View &gt; Ball Rotation (b)
+switch between them at any time; the preferences set which one OpenVSP
+starts with. Switching to the turntable first turns the view about the
+screen's axis until Z points up. View &gt; Z Up (z), or a tap of z on
+its own with no mouse button down, does that at any time.</p>
+<p>The four balls differ in what a drag does:</p>
+<ul>
+<li>Rounded Arcball: the press point is grabbed on a sphere and follows
+the mouse, so a drag that comes back to where it started puts the view
+back exactly. Starting a drag outside the sphere turns the view about
+the line of sight instead; the outline of the sphere is drawn while it
+turns. Its size and speed are preferences.</li>
+<li>OpenVSP Classic: OpenVSP's rotation through version 3.55, kept
+exactly at the default Speed of 0.5. Each mouse movement turns the view
+on its own, so moving the mouse in a circle and back to where it started
+leaves the view turned.</li>
+<li>Trackball: Bell's trackball surface, as in SGI's tools, measured
+from the press, so a drag that comes back to where it started puts the
+view back exactly. Near the middle of the view it turns like OpenVSP
+Classic; farther out it turns the model less and less, tipping it on a
+move toward or away from the middle and rolling it on a move
+around.</li>
+<li>Tumbler: each mouse movement turns the view about the screen axis
+across it, by a fixed amount per point of movement. Any orientation can
+be reached, but the result depends on the path: moving the mouse in a
+small circle rolls the model. ParaView, EnSight, Pointwise and STAR-CCM+
+turn this way.</li>
+</ul>
+<h3 id="what-the-view-turns-about">What the view turns about</h3>
+<p>The view turns about the rotation center. View &gt; Set Rotation
+Center (r) waits for a click on the model and moves the rotation center
+there; View &gt; Center (c) and Center All (C) put it at the middle of
+the selected or all Geoms. With Rotate About set to Point under cursor
+in the preferences, each drag instead turns about the surface point
+under the press, while the rotation center itself stays where it was. A
+marker shows the point being turned about.</p>
+<h3 id="zooming">Zooming</h3>
+<p>The wheel zooms about the point under the pointer by default; the
+preferences can make it zoom about the middle of the view, reverse its
+direction, and scale its step with the amount scrolled, which suits
+trackpads. A zoom drag zooms about the middle of the view by
+default.</p>
+<p>Zoom in and Zoom out can also be bound to a button, so that a press
+zooms one step and holding the button keeps zooming; a mouse's Back and
+Forward side buttons suit them. See <a
+href="#mouse-button-preferences">Mouse button preferences</a>.</p>
+<p>View &gt; Zoom Box (w) arms a one-time zoom box: the next left drag
+draws a rectangle, and the view zooms so the rectangle fills it. Esc
+gives the box up.</p>
+<h3 id="saved-views">Saved views</h3>
+<p>F1 to F4 recall four saved views; Shift with F1 to F4 saves the
+current view into that slot. The saved views last until OpenVSP closes.
+F5 to F12 show the standard views: top, front, left, left isometric,
+bottom, rear, right and right isometric.</p>
+<h3 id="rotatrix-trackball">Rotatrix trackball</h3>
+<p>When OpenVSP is built with the Rotatrix SDK and the Rotatrix host is
+running, the Rotatrix trackball moves the view. The trackball icon at
+the bottom left of the main window is lit while it is connected; its
+tooltip gives the status, and a click opens its preferences. View &gt;
+Rotatrix Trackball (d) turns it on or off. Rotatrix computes the motion
+with its own controls and chooses the point to turn about itself; View
+&gt; Lock Rotatrix Pivot (l) asks it to keep turning about the current
+one, and again frees it. In the turntable mode OpenVSP keeps Z upright
+as Rotatrix turns the view.</p>
+<h2 id="picking-and-selecting">Picking and selecting</h2>
+<p>Several tools ask for a point on the model and then wait for a click:
+Set Rotation Center (r), View Normal To (n), the rulers, probes and
+protractors of the Measure window, routing points, and the points of a
+Fit Model target. While one is waiting, a left press goes to it first,
+unless a binding listed before the one that gives presses to tool picks
+takes it: in OpenVSP's own scheme, a left press with Ctrl, Cmd or Alt,
+or with z held, still zooms, pans or rolls.</p>
+<p>There are two ways to select a Geom by clicking on it:</p>
+<ul>
+<li>Pick mode, on the Geom Browser's Pick button or Edit &gt; Toggle
+Pick Mode (p). While it is on, clicking a Geom makes it the only one
+selected.</li>
+<li>In every scheme but OpenVSP's own, a left click selects the Geom
+under it without any mode: on its own it makes that Geom the only one
+selected, with Shift it adds it, with Ctrl or Cmd it adds or removes it,
+and a click on the background clears the selection.</li>
+</ul>
+<p>Esc in the 3D window, when nothing is being dragged, clears the
+selection.</p>
+<h3 id="box-selection-in-fit-model">Box selection in Fit Model</h3>
+<p>While the Fit Model window is open, a left drag with Shift held, or
+any left drag with its Select Region button on, draws a rectangle and
+selects the target points inside it. This comes before every other use
+of the left button and cannot be changed in the preferences.</p>
+<h2 id="keyboard-in-the-3d-window">Keyboard in the 3D window</h2>
+<p>These keys act while the 3D window has the keyboard focus. Most are
+also in the View menu.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>t</td>
+<td>Turntable rotation</td>
+</tr>
+<tr>
+<td>b</td>
+<td>Ball rotation</td>
+</tr>
+<tr>
+<td>z (tap)</td>
+<td>Turn the view until Z points up</td>
+</tr>
+<tr>
+<td>z (held)</td>
+<td>With the left button in OpenVSP's scheme, roll</td>
+</tr>
+<tr>
+<td>w</td>
+<td>Arm a zoom box</td>
+</tr>
+<tr>
+<td>r</td>
+<td>Set the rotation center at the next click</td>
+</tr>
+<tr>
+<td>n</td>
+<td>View normal to the surface at the next click</td>
+</tr>
+<tr>
+<td>x</td>
+<td>View the front of the selected Geom</td>
+</tr>
+<tr>
+<td>c, C</td>
+<td>Center on the selected Geoms, or on all</td>
+</tr>
+<tr>
+<td>f, F</td>
+<td>Fit the selected Geoms, or all, on screen</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Reset all the views</td>
+</tr>
+<tr>
+<td>F1 to F4</td>
+<td>Recall a saved view; with Shift, save one</td>
+</tr>
+<tr>
+<td>F5 to F12</td>
+<td>Top, front, left, left isometric, bottom, rear, right, right
+isometric</td>
+</tr>
+<tr>
+<td>p</td>
+<td>Toggle Pick mode</td>
+</tr>
+<tr>
+<td>d</td>
+<td>Rotatrix trackball on or off (builds with Rotatrix only)</td>
+</tr>
+<tr>
+<td>l</td>
+<td>Lock or free the Rotatrix pivot (builds with Rotatrix only)</td>
+</tr>
+<tr>
+<td>Esc</td>
+<td>Cancel a drag or an armed zoom box; otherwise clear the
+selection</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3d-view-preferences">3D View preferences</h2>
+<p>File &gt; Preferences opens the preferences. Changes take effect at
+once, so they can be tried with the window still open. Revert puts back
+what was set when the window opened, Defaults sets OpenVSP's own, and
+Close keeps the changes.</p>
+<p>The 3D View tab:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Setting</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>Scheme</td>
+<td>Sets the mouse buttons and the settings below to those of a program;
+see <a href="#schemes">Schemes</a>. Changing any setting afterwards
+shows Custom.</td>
+</tr>
+<tr>
+<td>Rotation</td>
+<td>Start With</td>
+<td>Whether OpenVSP starts with the ball or the turntable. The View menu
+switches between them at any time.</td>
+</tr>
+<tr>
+<td></td>
+<td>Rotate About</td>
+<td>The rotation center, or the surface point under each drag's
+press.</td>
+</tr>
+<tr>
+<td>Ball</td>
+<td>Type</td>
+<td>Rounded Arcball, OpenVSP Classic, Trackball or Tumbler.</td>
+</tr>
+<tr>
+<td></td>
+<td>Speed</td>
+<td>How fast the ball turns, as a multiple from 0.1 to 2. At the
+default, 0.5, OpenVSP Classic turns as OpenVSP did through 3.55, the
+Trackball turns as it does near the middle of the view, and a drag
+across the whole Rounded Arcball turns the view 180 degrees.</td>
+</tr>
+<tr>
+<td></td>
+<td>Size</td>
+<td>The Rounded Arcball's sphere, as a fraction of the view. A drag that
+starts outside it rolls the view.</td>
+</tr>
+<tr>
+<td></td>
+<td>Outline</td>
+<td>Whether the Rounded Arcball's outline is drawn while it turns.</td>
+</tr>
+<tr>
+<td>Turntable and Tumbler</td>
+<td>Speed</td>
+<td>Degrees turned per point of mouse movement.</td>
+</tr>
+<tr>
+<td>Zoom</td>
+<td>Wheel Direction</td>
+<td>Whether rolling the wheel forward zooms in or out.</td>
+</tr>
+<tr>
+<td></td>
+<td>Wheel Zooms</td>
+<td>About the point under the pointer, or the middle of the view.</td>
+</tr>
+<tr>
+<td></td>
+<td>Wheel Step</td>
+<td>A fixed step per notch, or a step that grows with the amount
+scrolled.</td>
+</tr>
+<tr>
+<td></td>
+<td>Drag Direction</td>
+<td>Whether a zoom drag downward zooms in or out.</td>
+</tr>
+<tr>
+<td></td>
+<td>Drag Zooms</td>
+<td>About the middle of the view, or the point where the drag
+started.</td>
+</tr>
+<tr>
+<td></td>
+<td>Drag Step</td>
+<td>Classic, per event: a step for each mouse movement however small; or
+By distance: a zoom that grows with the distance moved.</td>
+</tr>
+<tr>
+<td></td>
+<td>Zoom Speed</td>
+<td>How fast the wheel by scroll amount and the drag by distance
+zoom.</td>
+</tr>
+<tr>
+<td>3D Device</td>
+<td>Rotatrix</td>
+<td>Whether to use the Rotatrix trackball when its host is running.</td>
+</tr>
+<tr>
+<td></td>
+<td>Status</td>
+<td>Whether OpenVSP is connected to the Rotatrix host.</td>
+</tr>
+</tbody>
+</table>
+<p>The Ball's Size and Outline are greyed out unless the Rounded Arcball
+is chosen, its Speed when the Tumbler is, which turns at the Turntable
+and Tumbler Speed, and Zoom Speed unless Wheel Step is By scroll amount
+or Drag Step is By distance. The Rotatrix settings appear only in builds
+with the Rotatrix SDK.</p>
+<h2 id="mouse-button-preferences">Mouse button preferences</h2>
+<p>The Mouse Buttons tab shows what each mouse press does, and lets any
+of it be changed.</p>
+<p>At the top are three settings for all the bindings:</p>
+<ul>
+<li>Drag Starts: how far the mouse must move before a press counts as a
+drag. Until then it may still be a click, so one button can drag and
+click to different effect, as a middle drag rotating and a middle click
+setting the rotation center. OpenVSP's own scheme starts every drag at
+once.</li>
+<li>Release One of Two: with two buttons held together, as left and
+right zoom in OpenVSP's scheme, letting go of one either goes on with
+what the other button does, as OpenVSP always has, or stops, as CAD
+programs do.</li>
+<li>Alt + Left: Alt with the left button can act as the middle button,
+for a mouse or trackpad without one. It applies only to presses no
+binding uses as they are.</li>
+</ul>
+<p>Below them is the list of bindings, tried from the top: the first
+that fits a press acts. A binding shown in red can never act, because
+those above it take every press it would. Add puts a copy of the
+selected binding above it, Delete removes it, and Up and Down move it.
+The selected binding's fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Action</td>
+<td>Rotate, Roll, Pan, Zoom, Zoom in, Zoom out, Zoom box, Rotation
+center, Select Geom, or Tool picks only, which gives the press to a
+waiting tool and does nothing else.</td>
+</tr>
+<tr>
+<td>On</td>
+<td>Whether the binding acts on a drag or on a click.</td>
+</tr>
+<tr>
+<td>Button</td>
+<td>The button that must be down: Left, Middle, Right, or a mouse's Back
+or Forward side button.</td>
+</tr>
+<tr>
+<td>With</td>
+<td>A second button that must be down with it, for a chord, or
+None.</td>
+</tr>
+<tr>
+<td>Shift, Ctrl, Alt, Cmd</td>
+<td>Whether each key must be up, down, or may be either.</td>
+</tr>
+<tr>
+<td>Other Buttons</td>
+<td>Whether buttons the binding does not need may also be down.</td>
+</tr>
+<tr>
+<td>Held Key</td>
+<td>A letter or digit that must be held, such as z for roll.</td>
+</tr>
+<tr>
+<td>Where</td>
+<td>Anywhere, only on the model, or only on the background.</td>
+</tr>
+<tr>
+<td>Tool Picks</td>
+<td>Whether a waiting tool pick takes the press first.</td>
+</tr>
+</tbody>
+</table>
+<p>Zoom in and Zoom out zoom one wheel notch, about the pointer or the
+middle of the view as Wheel Zooms is set. They act at the press, and
+again ten times a second while the button is held, however the mouse
+moves; On does not apply to them. A mouse's Back and Forward buttons
+bound to Zoom out and Zoom in zoom the view without the wheel.</p>
+<p>Rather than setting the fields by hand, press in the Try a Press box
+with the buttons and keys wanted: it shows what that press does now, and
+Use This Press for the Selected Binding copies it into the selected
+binding.</p>
+<h2 id="schemes">Schemes</h2>
+<p>A scheme sets the mouse buttons, and the rotation and zoom settings,
+to those of another program, so a user of that program finds the view
+moving as expected. None is an exact copy of its program. The Scheme
+menu lists each with other programs that work the same way, and its
+tooltip lists what the buttons do.</p>
+<p>In every scheme but OpenVSP's own, a left click selects the Geom
+under it, a left press goes first to a waiting tool pick, a press
+becomes a drag after the mouse moves 4 points, letting go of one of two
+buttons stops, the wheel and zoom drags go by distance, and on macOS Cmd
+works wherever Ctrl does.</p>
+<table>
+<thead>
+<tr>
+<th>Scheme</th>
+<th>Rotate</th>
+<th>Pan</th>
+<th>Zoom</th>
+<th>Also</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenVSP (also MATLAB)</td>
+<td>Left</td>
+<td>Alt + left, or right</td>
+<td>Middle, Ctrl + left, or left + right</td>
+<td>Roll: z + left</td>
+</tr>
+<tr>
+<td>SolidWorks (also ANSYS Mechanical, DesignModeler, Femap)</td>
+<td>Middle</td>
+<td>Ctrl + middle</td>
+<td>Shift + middle</td>
+<td>Roll: Alt + middle; rotation center: middle click; wheel
+reversed</td>
+</tr>
+<tr>
+<td>Creo, Blender (also Solid Edge, SketchUp, SpaceClaim, Patran)</td>
+<td>Middle</td>
+<td>Shift + middle</td>
+<td>Ctrl + middle</td>
+<td>Rotation center: Alt + middle click</td>
+</tr>
+<tr>
+<td>NX (also FreeCAD)</td>
+<td>Middle</td>
+<td>Middle + right, or Shift + middle</td>
+<td>Left + middle, or Ctrl + middle</td>
+<td></td>
+</tr>
+<tr>
+<td>CATIA (also 3DEXPERIENCE CATIA)</td>
+<td>Middle + left or right, or Alt + left + right</td>
+<td>Middle, or Alt + right</td>
+<td>Ctrl + middle, or Ctrl + Alt + right</td>
+<td>Rotation center: middle click</td>
+</tr>
+<tr>
+<td>Inventor, Fusion</td>
+<td>Shift + middle</td>
+<td>Middle</td>
+<td>Shift + Ctrl + middle</td>
+<td>Wheel reversed; Rounded Arcball</td>
+</tr>
+<tr>
+<td>3ds Max</td>
+<td>Alt + middle</td>
+<td>Middle</td>
+<td>Ctrl + Alt + middle</td>
+<td>Rounded Arcball</td>
+</tr>
+<tr>
+<td>Maya (also Blender's three-button emulation)</td>
+<td>Alt + left</td>
+<td>Alt + middle, or Shift + Alt + left</td>
+<td>Alt + right, or Ctrl + Alt + left</td>
+<td>Starts with the turntable</td>
+</tr>
+<tr>
+<td>Abaqus</td>
+<td>Ctrl + Alt + left</td>
+<td>Ctrl + Alt + middle</td>
+<td>Ctrl + Alt + right</td>
+<td>Rounded Arcball</td>
+</tr>
+<tr>
+<td>Rhino</td>
+<td>Right</td>
+<td>Shift + right</td>
+<td>Ctrl + right</td>
+<td>Starts with the turntable</td>
+</tr>
+<tr>
+<td>Onshape</td>
+<td>Right</td>
+<td>Ctrl + right, or middle</td>
+<td></td>
+<td>Turns about the point under the cursor</td>
+</tr>
+<tr>
+<td>Pointwise</td>
+<td>Ctrl + right</td>
+<td>Shift + right</td>
+<td>Middle</td>
+<td>Roll: Ctrl + middle; zoom box: Shift + middle; rotation center:
+Shift + Ctrl + right click; Tumbler</td>
+</tr>
+<tr>
+<td>HyperMesh before 2021</td>
+<td>Ctrl + left</td>
+<td>Ctrl + right</td>
+<td></td>
+<td>Zoom box: Ctrl + middle; rotation center: Ctrl + left click</td>
+</tr>
+<tr>
+<td>HyperWorks (HyperMesh 2021 and later)</td>
+<td>Middle</td>
+<td>Right, or left + right</td>
+<td></td>
+<td>Zoom box: Alt + middle; rotation center: Ctrl + middle click; turns
+about the point under the cursor; wheel reversed</td>
+</tr>
+<tr>
+<td>ParaView</td>
+<td>Left, or Shift or Ctrl + middle</td>
+<td>Middle, or Shift + right</td>
+<td>Right, or Ctrl + right</td>
+<td>Roll: Shift + left; wheel zooms about the middle of the view;
+Tumbler</td>
+</tr>
+<tr>
+<td>EnSight</td>
+<td>Left</td>
+<td>Middle, or Ctrl + right</td>
+<td>Right, or Ctrl + middle</td>
+<td>Roll: Ctrl + left; Tumbler</td>
+</tr>
+<tr>
+<td>STAR-CCM+</td>
+<td>Left</td>
+<td>Right</td>
+<td>Middle</td>
+<td>Roll: Ctrl + left; Tumbler</td>
+</tr>
+<tr>
+<td>Tecplot</td>
+<td>Ctrl + right</td>
+<td>Right</td>
+<td>Middle</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The schemes leave the Rotatrix settings alone. Changing anything
+after choosing a scheme makes it Custom; choosing the scheme again puts
+all of its settings back.</p>
+<h2 id="parm-controls">Parm controls</h2>
+<p>Each slider or value box has a button with the Parm's name to its
+left.</p>
+<ul>
+<li>Clicking the name button opens the Parm window: its description and
+limits, its attributes, and the links and advanced links it takes part
+in. The name is drawn in dark magenta when the Parm has attributes.</li>
+<li>Dragging the name button picks the Parm up, to drop where a Parm is
+wanted; see <a href="#dragging-and-dropping-parms">Dragging and dropping
+Parms</a>.</li>
+<li>A value box takes arithmetic: typing <code>180/6</code> sets 30. It
+understands <code>+ - * / ^</code>, brackets and exponents, but no
+functions or names. A value applies on Enter or when the box loses the
+focus.</li>
+<li>The small buttons at either end of a slider change its range. When
+the value is inside the range, the inward arrows halve the range about
+the value. When the value is at an end, the outward arrow extends the
+range by half and moves the value to the new end. A bar means the Parm's
+own limit has been reached. Typing a value outside the slider's range
+recenters the range on it.</li>
+<li>Clicking on a slider's track jumps the value there, and the arrow
+keys nudge a slider that has the focus by one hundredth of its
+range.</li>
+<li>Holding Alt while dragging a slider of a Geom's placement turns on
+Snap To's collision detection for that change, so the part stops at the
+clearance set in Model &gt; Snap To.</li>
+</ul>
+<h2 id="dragging-and-dropping-parms">Dragging and dropping Parms</h2>
+<p>Dragging a Parm's name button and dropping it is the quickest way to
+tell a window which Parm is meant. The drop can land anywhere in the
+area named below, not only on its Parm picker.</p>
+<table>
+<thead>
+<tr>
+<th>Window</th>
+<th>Drop on</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model &gt; Adv Link</td>
+<td>the Input or Output area</td>
+<td>Adds the Parm as an input or output variable; see <a
+href="AdvLink.html">Advanced Parameter Linking</a>.</td>
+</tr>
+<tr>
+<td>Model &gt; Link</td>
+<td>the Parm A or Parm B area</td>
+<td>Sets that end of the link.</td>
+</tr>
+<tr>
+<td>Model &gt; Design Variables</td>
+<td>the Pick tab</td>
+<td>Adds the Parm as a design variable.</td>
+</tr>
+<tr>
+<td>Model &gt; Fit Model</td>
+<td>the Pick Vars or Var Tree tab</td>
+<td>Adds the Parm as a fit variable.</td>
+</tr>
+<tr>
+<td>Model &gt; Variable Presets</td>
+<td>the Group tab</td>
+<td>Adds the Parm to the current group.</td>
+</tr>
+<tr>
+<td>Model &gt; Snap To</td>
+<td>the window</td>
+<td>Sets the Parm to move for collision detection.</td>
+</tr>
+<tr>
+<td>Model &gt; Attribute Explorer</td>
+<td>the Parm reference field</td>
+<td>Sets a Parm reference attribute.</td>
+</tr>
+</tbody>
+</table>
+<p>A dropped Parm is its ID as text, so it can also be dropped into any
+text box, such as an advanced link's code or a script, to paste the ID.
+On Linux it is also left for a middle-click paste.</p>
+<p>The edit curve and blade curve plots take a drag of their points, and
+the Wave Drag window's area plot takes a drag of its slicing line.</p>
+<h2 id="lists-and-trees">Lists and trees</h2>
+<ul>
+<li>Renaming: in the lists of names (Geoms, sets, links, advanced links,
+attributes, modes, measures, CFD sources, FEA parts and properties,
+variable presets, user Parms and more), a double-click on a name, or
+Enter or F2 with it selected, edits it in place. Enter or a click
+elsewhere keeps the new name. In the FEA structure's part list a
+double-click opens the part instead, and Enter or F2 renames it.</li>
+<li>Advanced Link: a double-click on an input or output variable copies
+its name to the clipboard, ready to paste into the code.</li>
+<li>Attributes: a double-click on an attribute in an attribute editor,
+on any tab, opens it in the Attribute Explorer.</li>
+<li>Column widths: in lists with column headings, dragging the line
+between two columns sets their width.</li>
+<li>Selecting several: Shift-click selects a range and Ctrl-click adds
+or removes one; dragging extends the selection. In the Geom Browser Ctrl
+is Ctrl even on macOS, and Alt-click also selects every Geom below the
+one clicked.</li>
+<li>Geom Browser icons: the eye shows or hides, and the surface icon
+steps the draw type through wire, hidden, shaded, textured and none.
+Both act on the whole selection when the clicked Geom is in it, and on
+the Geoms below a collapsed one; clicking the Vehicle's acts on every
+Geom. Names in italic are made automatically and cannot be renamed.</li>
+<li>Trees answer the arrow keys: up and down move, Shift extends, left
+and right collapse and expand, and Space selects.</li>
+<li>Tables of values, such as the Attribute Explorer's: typing starts
+editing a cell, a double-click edits it, and Ctrl+C and Ctrl+V (Cmd on
+macOS) copy and paste a block as text separated by tabs.</li>
+</ul>
+<h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
+<p>Ctrl is Cmd on macOS for the menu shortcuts; Cut, Copy and Paste
+answer Ctrl there as well.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ctrl+S</td>
+<td>File &gt; Save</td>
+</tr>
+<tr>
+<td>Ctrl+Z</td>
+<td>Edit &gt; Undo Parameter Change</td>
+</tr>
+<tr>
+<td>Ctrl+X, Ctrl+C, Ctrl+V</td>
+<td>Edit &gt; Cut, Copy and Paste the selected Geoms</td>
+</tr>
+<tr>
+<td>Ctrl+A</td>
+<td>Edit &gt; Select All</td>
+</tr>
+<tr>
+<td>p</td>
+<td>Edit &gt; Toggle Pick Mode</td>
+</tr>
+</tbody>
+</table>
+<p>The View menu's keys are listed under <a
+href="#keyboard-in-the-3d-window">Keyboard in the 3D window</a>.</p>
+<p>Other windows have keys of their own:</p>
+<ul>
+<li>Geom browser: Ctrl+X, Ctrl+C and Ctrl+V cut, copy and paste, as Cmd
+does on macOS.</li>
+<li>Geom browser and Geom windows: x views the front of the Geom,
+without leaving the window.</li>
+<li>Attribute Explorer: Ctrl+X, Ctrl+C, Ctrl+V and Delete, as its
+buttons show.</li>
+<li>Attribute text and Vehicle Notes: Enter keeps the text; Shift+Enter
+or Ctrl+Enter starts a new line.</li>
+<li>Esc in any window, when nothing there uses it, clears the
+selection.</li>
+</ul>
+</body>
+</html>
