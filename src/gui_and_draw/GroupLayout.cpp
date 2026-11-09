@@ -1035,9 +1035,10 @@ void GroupLayout::AddInput( StringInput& string_input, const char* label, int us
     assert( m_Group && m_Screen );
 
     //==== Button ====//
+    VspButton* button = nullptr;
     if ( m_ButtonWidth > 0 )
     {
-        AddParmButton( label );
+        button = AddParmButton( label );
     }
 
     //==== Add Text Input ====//
@@ -1055,7 +1056,7 @@ void GroupLayout::AddInput( StringInput& string_input, const char* label, int us
     AddY( m_StdHeight * nline );
     NewLineX();
 
-    string_input.Init( m_Screen, input );
+    string_input.Init( m_Screen, input, button );
 }
 
 //==== Create & Init Text Output without label ====//

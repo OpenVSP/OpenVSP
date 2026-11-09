@@ -2322,9 +2322,10 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 //===========      String Input                             ===========//
 //=====================================================================//
 
-void StringInput::Init( VspScreen* screen, Fl_Input* input )
+void StringInput::Init( VspScreen* screen, Fl_Input* input, VspButton* parm_button )
 {
     GuiDevice::Init( screen );
+    AddWidget( parm_button );
     AddWidget(input);
     m_Type = vsp::GDEV_STRING_INPUT;
     GuiDevice::Init( screen );
