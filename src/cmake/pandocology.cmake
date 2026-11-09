@@ -51,8 +51,9 @@ if(NOT EXISTS ${PANDOC_EXECUTABLE})
 endif()
 
 execute_process( COMMAND ${PANDOC_EXECUTABLE} --version OUTPUT_VARIABLE PANDOC_VERSION_RAW_OUTPUT )
-get_filename_component( PANDOC_EXE_NAME ${PANDOC_EXECUTABLE} NAME )
-string( REGEX REPLACE "^${PANDOC_EXE_NAME} ([^\n]+)\n.*" "\\1" PANDOC_VERSION "${PANDOC_VERSION_RAW_OUTPUT}" )
+# First line is the program name, as pandoc or pandoc.exe, then the version.
+string( REGEX MATCH "^[^ \r\n]+ ([0-9]+(\\.[0-9]+)*)" PANDOC_VERSION_LINE "${PANDOC_VERSION_RAW_OUTPUT}" )
+set( PANDOC_VERSION "${CMAKE_MATCH_1}" )
 find_package_handle_standard_args( pandoc REQUIRED_VARS PANDOC_EXECUTABLE PANDOC_VERSION VERSION_VAR PANDOC_VERSION )
 
 if(NOT EXISTS ${PP_EXECUTABLE})
