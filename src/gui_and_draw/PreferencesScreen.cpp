@@ -72,6 +72,7 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_BallTypeChoice.AddItem( "Rounded Arcball", VSPGUI::NAV_BALL_ROUNDED_ARCBALL );
     m_BallTypeChoice.AddItem( "OpenVSP Classic", VSPGUI::NAV_BALL_CLASSIC );
     m_BallTypeChoice.AddItem( "Trackball", VSPGUI::NAV_BALL_TRACKBALL );
+    m_BallTypeChoice.AddItem( "Tumbler", VSPGUI::NAV_BALL_TUMBLER );
     m_BallTypeChoice.UpdateItems();
     m_ViewLayout.AddChoice( m_BallTypeChoice, "Type" );
 
@@ -84,8 +85,8 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_BallSpeedSlider->bounds( BALL_SPEED_MIN, BALL_SPEED_MAX );
     m_BallSpeedSlider->callback( staticScreenCB, this );
     m_BallSpeedInput->callback( staticScreenCB, this );
-    m_BallSpeedSlider->tooltip( "How fast the ball turns, as a multiple." );
-    m_BallSpeedInput->tooltip( "How fast the ball turns, as a multiple." );
+    m_BallSpeedSlider->tooltip( "How fast the ball turns, as a multiple.  Not the Tumbler, which has its own speed." );
+    m_BallSpeedInput->tooltip( "How fast the ball turns, as a multiple.  Not the Tumbler, which has its own speed." );
 
     m_BallSizeChoice.AddItem( "60% of view", 0 );
     m_BallSizeChoice.AddItem( "75% of view", 1 );
@@ -97,7 +98,7 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
 
     m_ViewLayout.AddYGap();
 
-    m_ViewLayout.AddDividerBox( "Turntable" );
+    m_ViewLayout.AddDividerBox( "Turntable and Tumbler" );
 
     m_TurntableSpeedChoice.AddItem( "0.2 deg/point", 0 );
     m_TurntableSpeedChoice.AddItem( "0.3 deg/point", 1 );
@@ -189,6 +190,20 @@ void PreferencesScreen::ShowActive()
     else
     {
         m_BallSizeChoice.Deactivate();
+    }
+
+    // The Tumbler's speed is the one it shares with the Turntable.
+    if ( m_Nav.m_BallType == VSPGUI::NAV_BALL_TUMBLER )
+    {
+        m_BallSpeedLabel->deactivate();
+        m_BallSpeedSlider->deactivate();
+        m_BallSpeedInput->deactivate();
+    }
+    else
+    {
+        m_BallSpeedLabel->activate();
+        m_BallSpeedSlider->activate();
+        m_BallSpeedInput->activate();
     }
 
 }

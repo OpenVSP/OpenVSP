@@ -75,6 +75,10 @@ void NavSettings::Load()
     {
         m_BallType = NAV_BALL_CLASSIC;
     }
+    else if ( strcmp( buf, "Tumbler" ) == 0 )
+    {
+        m_BallType = NAV_BALL_TUMBLER;
+    }
 
     NavSettings def;
     grp.get( "BallSize", m_BallSize, def.m_BallSize );
@@ -128,7 +132,7 @@ void NavSettings::Save() const
     const char * rotate_names[] = { "Ball", "Turntable" };
     SaveName( grp, "StartupRotate", rotate_names[ m_StartupRotateMode ], rotate_names[ def.m_StartupRotateMode ] );
 
-    const char * ball_names[] = { "RoundedArcball", "Classic", "Trackball" };
+    const char * ball_names[] = { "RoundedArcball", "Classic", "Tumbler", "Trackball" };
     SaveName( grp, "BallType", ball_names[ m_BallType ], ball_names[ def.m_BallType ] );
 
     SaveDouble( grp, "BallSize", m_BallSize, def.m_BallSize );
@@ -186,6 +190,11 @@ VSPGraphic::RotationMethod * NavController::CurrentRotation()
     if ( m_Settings.m_BallType == NAV_BALL_TRACKBALL )
     {
         return &m_Trackball;
+    }
+    if ( m_Settings.m_BallType == NAV_BALL_TUMBLER )
+    {
+        m_Tumbler.setGain( gain );
+        return &m_Tumbler;
     }
     return &m_RoundedArcball;
 }

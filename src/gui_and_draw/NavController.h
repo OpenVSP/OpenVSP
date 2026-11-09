@@ -38,6 +38,7 @@ enum NavBallType
 {
     NAV_BALL_ROUNDED_ARCBALL,
     NAV_BALL_CLASSIC,
+    NAV_BALL_TUMBLER,
     NAV_BALL_TRACKBALL
 };
 
@@ -54,7 +55,7 @@ struct NavSettings
     int m_BallType;             // NavBallType.
     double m_BallSize;          // Ball diameter, fraction of the smaller viewport dimension.
     double m_BallBorder;        // Fillet width, fraction of the ball radius.
-    double m_BallSpeed;         // Multiplier on each ball type's turn, 0.1 to 2.
+    double m_BallSpeed;         // Multiplier on each ball type's turn, 0.1 to 2; not the Tumbler's.
     double m_TurntableGain;     // Degrees per screen point.
 
     NavProfile m_Profile;       // The mouse bindings.
@@ -119,6 +120,7 @@ private:
     VSPGraphic::ClassicBall m_ClassicBall;
     VSPGraphic::Trackball m_Trackball;
     VSPGraphic::RoundedArcball m_RoundedArcball;
+    VSPGraphic::Tumbler m_Tumbler;
     VSPGraphic::Turntable m_Turntable;
     VSPGraphic::RotationMethod * m_Rotation;
 
