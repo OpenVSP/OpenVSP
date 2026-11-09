@@ -1397,6 +1397,11 @@ void ManageGeomScreen::TriggerPickSwitch()
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+bool ManageGeomScreen::IsPicking()
+{
+    return m_PickButton.GetFlButton()->value() != 0;
+}
+
 void ManageGeomScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     UpdateDrawObjs();

@@ -9,6 +9,7 @@ obvious use, including where a Parm can be dragged and dropped.
 
 | Topic | Where |
 |---|---|
+| [Toolbar](#toolbar) | under the menu bar |
 | [Moving the view](#moving-the-view) | the 3D window |
 | [Picking and selecting](#picking-and-selecting) | the 3D window |
 | [Keyboard in the 3D window](#keyboard-in-the-3d-window) | the 3D window and View menu |
@@ -22,6 +23,26 @@ obvious use, including where a Parm can be dragged and dropped.
 
 On macOS, Option is the key other systems call Alt, and Cmd stands in for Ctrl in many shortcuts.  This page writes
 Alt for Alt or Option.
+
+## Toolbar
+
+The toolbar under the menu bar puts the commands used most a click away.  Each button does exactly what its menu
+command does, and its tooltip names the command and its key.  A button for something that is on, such as Pick mode,
+the rotation, the view layout, the axes or the border, is shown pressed in.  Every other button has a faint raised
+edge, raised fully while the mouse is over it.
+
+| Group | Buttons |
+|---|---|
+| Model | New, Open, Save, Undo |
+| Geometry | the Geometry browser, Pick mode |
+| View | Fit the selected Geoms, Fit everything, Zoom box, Center, and a menu of the standard views |
+| Rotation | Ball, Turntable, Z Up, Set Rotation Center, View Normal To |
+| Window | One view, two side by side, two one above the other, four views, the axes, the border |
+| Output | Screenshot, Vector screenshot |
+| At the right | Preferences, Help |
+
+Window > Toolbar hides or shows it.  File > Preferences > General > Main Window > Toolbar also hides it or sets its
+size: Small, Medium or Large.
 
 ## Moving the view
 

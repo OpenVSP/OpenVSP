@@ -43,6 +43,10 @@ public:
     int GetFCType();
     void SetFCType( int fc );
 
+    // The main window's toolbar size, a ToolbarSize.
+    int GetToolbarSize();
+    void SetToolbarSize( int size );
+
 protected:
 
     // Show m_Nav in the controls.
@@ -80,6 +84,7 @@ protected:
     // The settings when the window opened, for Revert.
     VSPGUI::NavSettings m_NavAtShow;
     int m_FCTypeAtShow;
+    int m_ToolbarAtShow;
 
     // Index of the selected binding, or -1.
     int m_SelBinding;
@@ -87,6 +92,7 @@ protected:
     // General tab.
     GroupLayout m_GenLayout;
     Choice m_FCTypeChoice;
+    Choice m_ToolbarChoice;
 
     // 3D View tab.
     GroupLayout m_ViewLayout;

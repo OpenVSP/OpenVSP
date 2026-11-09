@@ -171,6 +171,7 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
 {
     m_SelBinding = -1;
     m_FCTypeAtShow = vsp::FC_OPENVSP;
+    m_ToolbarAtShow = TOOLBAR_MEDIUM;
 
     //==== General ====//
     Fl_Group * gen_tab = AddTab( "General" );
@@ -185,6 +186,17 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_FCTypeChoice.UpdateItems();
 
     m_GenLayout.AddChoice( m_FCTypeChoice, "File Chooser" );
+
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddDividerBox( "Main Window" );
+
+    m_ToolbarChoice.AddItem( "Hidden", TOOLBAR_HIDDEN );
+    m_ToolbarChoice.AddItem( "Small", TOOLBAR_SMALL );
+    m_ToolbarChoice.AddItem( "Medium", TOOLBAR_MEDIUM );
+    m_ToolbarChoice.AddItem( "Large", TOOLBAR_LARGE );
+    m_ToolbarChoice.UpdateItems();
+    m_GenLayout.AddChoice( m_ToolbarChoice, "Toolbar" );
+    m_ToolbarChoice.GetFlChoice()->tooltip( "The row of buttons under the menu bar.  Window > Toolbar also shows or hides it." );
 
     //==== 3D View ====//
     Fl_Group * view_tab = AddTab( "3D View" );
@@ -536,9 +548,11 @@ void PreferencesScreen::Show()
     {
         m_FCTypeAtShow = GetFCType();
         m_NavAtShow.Load();
+        m_ToolbarAtShow = GetToolbarSize();
     }
 
     m_FCTypeChoice.SetVal( GetFCType() );
+    m_ToolbarChoice.SetVal( GetToolbarSize() );
 
     m_Nav.Load();
     ShowNav();
@@ -1167,10 +1181,16 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SetFCType( m_FCTypeChoice.GetVal() );
     }
+    else if ( device == &m_ToolbarChoice )
+    {
+        SetToolbarSize( m_ToolbarChoice.GetVal() );
+    }
     else if ( device == &m_DefaultsButton )
     {
         SetFCType( vsp::FC_OPENVSP );
         m_FCTypeChoice.SetVal( vsp::FC_OPENVSP );
+        SetToolbarSize( TOOLBAR_MEDIUM );
+        m_ToolbarChoice.SetVal( TOOLBAR_MEDIUM );
         m_Nav = VSPGUI::NavSettings();
         ShowNav();
         ApplyNav();
@@ -1179,6 +1199,8 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SetFCType( m_FCTypeAtShow );
         m_FCTypeChoice.SetVal( m_FCTypeAtShow );
+        SetToolbarSize( m_ToolbarAtShow );
+        m_ToolbarChoice.SetVal( m_ToolbarAtShow );
         m_Nav = m_NavAtShow;
         ShowNav();
         ApplyNav();
@@ -1210,6 +1232,25 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+int PreferencesScreen::GetToolbarSize()
+{
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( main )
+    {
+        return main->GetToolbarSize();
+    }
+    return TOOLBAR_MEDIUM;
+}
+
+void PreferencesScreen::SetToolbarSize( int size )
+{
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( main )
+    {
+        main->SetToolbarSize( size );
+    }
 }
 
 void PreferencesScreen::ApplyNav()

@@ -111,6 +111,9 @@ public:
     */
     void TriggerPickSwitch();
 
+    // Whether Pick mode is on.
+    bool IsPicking();
+
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
 protected:

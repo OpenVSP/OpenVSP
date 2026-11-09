@@ -20,6 +20,8 @@
 #include "FL/Fl_Button.H"
 #include "FL/Fl_SVG_Image.H"
 
+#include <vector>
+
 namespace VSPGUI
 {
 class VspGlWindow;
@@ -27,6 +29,15 @@ struct NavSettings;
 }
 
 class SelectFileScreen;
+
+// How large the main window's toolbar is drawn.
+enum ToolbarSize
+{
+    TOOLBAR_HIDDEN,
+    TOOLBAR_SMALL,
+    TOOLBAR_MEDIUM,
+    TOOLBAR_LARGE
+};
 
 #define GL_WINDOW_DX 0
 #define GL_WINDOW_DY 25
@@ -101,6 +112,10 @@ public:
 
     static Fl_SVG_Image * MakeIcon( const char * svg );
 
+    // The toolbar's size, a ToolbarSize, kept in the preferences.
+    void SetToolbarSize( int size );
+    int GetToolbarSize();
+
     void EnableStopGUIMenuItem();
     void DisableStopGUIMenuItem();
     void EnableExitMenuItem();
@@ -109,6 +124,16 @@ public:
 protected:
 
     virtual void ActionCB( void * data );
+
+    // The toolbar under the menu bar, at x, y, w wide and of a ToolbarSize; its buttons carry out
+    // menu commands.
+    Fl_Group * BuildToolbar( int x, int y, int w, int size );
+    void AddToolButton( int & x, int y, int h, int action, const char * svg, const string & tip );
+    void AddToolGap( int & x, int y, int h );
+    // Show the toolbar's toggles as the commands they stand for are.
+    void UpdateToolbar();
+    static void staticToolCB( Fl_Widget * w, void * data );
+    void ToolCB( Fl_Widget * w );
 
     void BoldEntries( const string &mpath );
 
@@ -169,6 +194,7 @@ protected:
     ActionMenuItem m_CenterMenuItem;
     ActionMenuItem m_CenterAllMenuItem;
     ScreenMenuItem m_AdjustMenuItem;
+    VSPCheckMenuItem m_ToolbarMenuItem;
     ActionMenuItem m_SetCORMenuItem;
     ActionMenuItem m_SetVNMenuItem;
     ActionMenuItem m_AlignGeomMenuItem;
@@ -224,6 +250,14 @@ protected:
     Fl_Box * m_TitleBox;
     Fl_Box * m_FileNameBox;
     Fl_Button * m_DeviceButton;
+
+    Fl_Group * m_Toolbar;
+    std::vector < Fl_Button * > m_ToolButtons;
+    std::vector < int > m_ToolActions;
+    int m_ToolbarSize;
+    int m_ShownToolbarSize;     // The size Window > Toolbar shows it at again.
+    int m_ToolW;
+    int m_ToolIcon;
     Fl_SVG_Image * m_DeviceIconOn;
     Fl_Image * m_DeviceIconOff;
     std::string m_DeviceTip;

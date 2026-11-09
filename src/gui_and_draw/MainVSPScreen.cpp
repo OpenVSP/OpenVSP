@@ -19,6 +19,7 @@
 #include "main.h"
 #include "MainVSPScreen.h"
 #include "NavIcons.h"
+#include "ToolbarIcons.h"
 #include "MainGLWindow.h"
 #include "ScreenMgr.h"
 #include "GraphicEngine.h"
@@ -28,6 +29,9 @@
 #include "Viewport.h"
 #include "Background.h"
 #include <FL/fl_ask.H>
+#include <FL/fl_draw.H>
+#include <FL/Fl_Menu_Item.H>
+#include <FL/Fl_Preferences.H>
 #include "CloneDeleteDialog.h"
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
@@ -178,6 +182,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_AxisMenuItem.Update( m_ShowXYZArrow );
     m_BorderMenuItem.Init( this, m_MenuBar, "Window/Border Toggle" );
     m_BorderMenuItem.Update( m_ShowBorder );
+    m_ToolbarMenuItem.Init( this, m_MenuBar, "Window/Toolbar" );
 
     m_TopMenuItem.Init( this, m_MenuBar, "View/Top", FL_F + 5 );
     m_FrontMenuItem.Init( this, m_MenuBar, "View/Front", FL_F + 6 );
@@ -259,6 +264,26 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     BoldEntries( "Undo" );
     BoldEntries( "Help" );
 
+    // The toolbar, under the menu bar, at the size last chosen.
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    Fl_Preferences app( prefs, "Application" );
+    app.get( "Toolbar_Size", m_ToolbarSize, TOOLBAR_MEDIUM );
+    if ( m_ToolbarSize < TOOLBAR_HIDDEN || m_ToolbarSize > TOOLBAR_LARGE )
+    {
+        m_ToolbarSize = TOOLBAR_MEDIUM;
+    }
+    m_ShownToolbarSize = TOOLBAR_MEDIUM;
+    m_ToolW = 0;
+    m_ToolIcon = 0;
+    m_Toolbar = nullptr;
+    if ( m_ToolbarSize != TOOLBAR_HIDDEN )
+    {
+        m_ShownToolbarSize = m_ToolbarSize;
+        m_Toolbar = BuildToolbar( m_GenLayout.GetX(), m_GenLayout.GetY(), m_GenLayout.GetW(), m_ToolbarSize );
+        m_GenLayout.GetGroup()->add( m_Toolbar );
+        m_GenLayout.AddY( m_Toolbar->h() );
+    }
+
     int glh = m_GenLayout.GetRemainY() - GL_WINDOW_DY;
     int glw = m_GenLayout.GetW() - GL_WINDOW_DX;
 
@@ -334,6 +359,9 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     UpdateDeviceButton();
 
+    m_ToolbarMenuItem.Update( m_ToolbarSize != TOOLBAR_HIDDEN );
+    UpdateToolbar();
+
     StartGesturePlayer( this );
 }
 
@@ -342,6 +370,411 @@ MainVSPScreen::~MainVSPScreen()
     m_GlWin->m_ViewChangedCB = nullptr;
     delete m_NavDevice;
     delete m_GlWin;
+}
+
+// The toolbar's height, its buttons' width and its icons' size, for each of its sizes.
+static const int TOOLBAR_HEIGHTS[] = { 0, 26, 32, 40 };
+static const int TOOL_WIDTHS[] = { 0, 24, 30, 38 };
+static const int TOOL_ICONS[] = { 0, 16, 22, 30 };
+
+#ifdef __APPLE__
+#define TOOL_CMD "Cmd"
+#else
+#define TOOL_CMD "Ctrl"
+#endif
+
+// What a toolbar button does.  Each stands for a menu command.
+enum MainTool
+{
+    TOOL_NEW,
+    TOOL_OPEN,
+    TOOL_SAVE,
+    TOOL_UNDO,
+    TOOL_GEOMS,
+    TOOL_PICK,
+    TOOL_FIT,
+    TOOL_FIT_ALL,
+    TOOL_ZOOM_BOX,
+    TOOL_CENTER,
+    TOOL_VIEWS,
+    TOOL_BALL,
+    TOOL_TURNTABLE,
+    TOOL_ZUP,
+    TOOL_ROTATION_CENTER,
+    TOOL_VIEW_NORMAL,
+    TOOL_LAYOUT_1,
+    TOOL_LAYOUT_2H,
+    TOOL_LAYOUT_2V,
+    TOOL_LAYOUT_4,
+    TOOL_AXES,
+    TOOL_BORDER,
+    TOOL_SCREENSHOT,
+    TOOL_VECTOR_SCREENSHOT,
+    TOOL_PREFERENCES,
+    TOOL_HELP
+};
+
+// A toolbar button with a faint raised edge, raised fully while the mouse is over it and pressed
+// in while its command is on.  The edge sits one pixel in, so neighbors stay apart.  It never takes
+// the keyboard focus, so keys keep reaching the 3D window.
+class ToolButton : public Fl_Button
+{
+public:
+    ToolButton( int x, int y, int w, int h ) : Fl_Button( x, y, w, h )
+    {
+        m_Hover = false;
+        box( FL_FLAT_BOX );
+        // A shade of the divider color, ( Fl_Color )12
+        selection_color( fl_color_average( ( Fl_Color )12, FL_BACKGROUND_COLOR, 0.35f ) );
+        clear_visible_focus();
+    }
+
+    virtual int handle( int event )
+    {
+        if ( event == FL_ENTER || event == FL_LEAVE )
+        {
+            m_Hover = ( event == FL_ENTER );
+            redraw();
+            Fl_Button::handle( event );
+            return 1;
+        }
+        return Fl_Button::handle( event );
+    }
+
+    virtual void draw()
+    {
+        draw_box( FL_FLAT_BOX, color() );
+
+        int bx = x() + 1;
+        int by = y() + 1;
+        int bw = w() - 2;
+        int bh = h() - 2;
+
+        if ( value() )
+        {
+            draw_box( FL_THIN_DOWN_BOX, bx, by, bw, bh, selection_color() );
+        }
+        else if ( m_Hover && active_r() )
+        {
+            draw_box( FL_THIN_UP_BOX, bx, by, bw, bh, color() );
+        }
+        else
+        {
+            // Light at the top and left, dark at the bottom and right, the corners left open
+            fl_color( fl_color_average( FL_WHITE, color(), 0.5f ) );
+            fl_xyline( bx + 1, by, bx + bw - 2 );
+            fl_yxline( bx, by + 1, by + bh - 2 );
+            fl_color( fl_color_average( FL_BLACK, color(), 0.25f ) );
+            fl_xyline( bx + 1, by + bh - 1, bx + bw - 2 );
+            fl_yxline( bx + bw - 1, by + 1, by + bh - 2 );
+        }
+        draw_label();
+    }
+
+private:
+    bool m_Hover;
+};
+
+Fl_Group * MainVSPScreen::BuildToolbar( int x, int y, int w, int size )
+{
+    m_ToolW = TOOL_WIDTHS[ size ];
+    m_ToolIcon = TOOL_ICONS[ size ];
+    int h = TOOLBAR_HEIGHTS[ size ];
+
+    Fl_Group * bar = new Fl_Group( x, y, w, h );
+    bar->box( FL_FLAT_BOX );
+
+    int bx = x + 4;
+    int by = y + 1;
+
+    AddToolButton( bx, by, h, TOOL_NEW, svg_tb_new, "New model" );
+    AddToolButton( bx, by, h, TOOL_OPEN, svg_tb_open, "Open a model" );
+    AddToolButton( bx, by, h, TOOL_SAVE, svg_tb_save, "Save (" TOOL_CMD "+S)" );
+    AddToolButton( bx, by, h, TOOL_UNDO, svg_tb_undo, "Undo a parameter change (" TOOL_CMD "+Z)" );
+    AddToolGap( bx, by, h );
+
+    AddToolButton( bx, by, h, TOOL_GEOMS, svg_tb_geoms, "Geometry browser" );
+    AddToolButton( bx, by, h, TOOL_PICK, svg_tb_pick, "Pick mode: click a Geom to select it (p)" );
+    AddToolGap( bx, by, h );
+
+    AddToolButton( bx, by, h, TOOL_FIT, svg_tb_fit, "Fit the selected Geoms on screen (f)" );
+    AddToolButton( bx, by, h, TOOL_FIT_ALL, svg_tb_fit_all, "Fit everything on screen (F)" );
+    AddToolButton( bx, by, h, TOOL_ZOOM_BOX, svg_tb_zoom_box, "Zoom box: drag a rectangle to fill the view (w)" );
+    AddToolButton( bx, by, h, TOOL_CENTER, svg_tb_center, "Center on the selected Geoms (c)" );
+    AddToolButton( bx, by, h, TOOL_VIEWS, svg_tb_views, "Standard views (F5 to F12)" );
+    AddToolGap( bx, by, h );
+
+    AddToolButton( bx, by, h, TOOL_BALL, svg_tb_ball, "Ball rotation: turn freely (b)" );
+    AddToolButton( bx, by, h, TOOL_TURNTABLE, svg_tb_turntable, "Turntable rotation: keep Z upright (t)" );
+    AddToolButton( bx, by, h, TOOL_ZUP, svg_tb_zup, "Turn the view until Z points up (z)" );
+    AddToolButton( bx, by, h, TOOL_ROTATION_CENTER, svg_tb_rotation_center, "Rotation center: click on the model (r)" );
+    AddToolButton( bx, by, h, TOOL_VIEW_NORMAL, svg_tb_view_normal, "View normal to the surface: click on the model (n)" );
+    AddToolGap( bx, by, h );
+
+    AddToolButton( bx, by, h, TOOL_LAYOUT_1, svg_tb_layout_1, "One view" );
+    AddToolButton( bx, by, h, TOOL_LAYOUT_2H, svg_tb_layout_2h, "Two views, side by side" );
+    AddToolButton( bx, by, h, TOOL_LAYOUT_2V, svg_tb_layout_2v, "Two views, one above the other" );
+    AddToolButton( bx, by, h, TOOL_LAYOUT_4, svg_tb_layout_4, "Four views" );
+    AddToolButton( bx, by, h, TOOL_AXES, svg_tb_axes, "Show the axes" );
+    AddToolButton( bx, by, h, TOOL_BORDER, svg_tb_border, "Show the border of the selected view" );
+    AddToolGap( bx, by, h );
+
+    AddToolButton( bx, by, h, TOOL_SCREENSHOT, svg_tb_screenshot, "Screenshot" );
+    AddToolButton( bx, by, h, TOOL_VECTOR_SCREENSHOT, svg_tb_vector_screenshot, "Vector screenshot: SVG or PDF" );
+
+    // Preferences and help keep to the right as the window widens.
+    int rx = x + w - 4 - 2 * m_ToolW;
+    Fl_Box * stretch = new Fl_Box( bx, by, rx - bx, h - 2 );
+    bar->resizable( stretch );
+    AddToolButton( rx, by, h, TOOL_PREFERENCES, svg_tb_preferences, "Preferences: mouse, keyboard, toolbar and more" );
+    AddToolButton( rx, by, h, TOOL_HELP, svg_tb_help, "Help" );
+
+    bar->end();
+    return bar;
+}
+
+void MainVSPScreen::AddToolButton( int & x, int y, int h, int action, const char * svg, const string & tip )
+{
+    ToolButton * b = new ToolButton( x, y, m_ToolW, h - 2 );
+
+    Fl_SVG_Image * icon = new Fl_SVG_Image( nullptr, svg );
+    icon->resize( m_ToolIcon, m_ToolIcon );
+    b->image( icon );
+    Fl_Image * grey = icon->copy();
+    grey->desaturate();
+    grey->color_average( FL_BACKGROUND_COLOR, 0.5 );
+    b->deimage( grey );
+
+    b->copy_tooltip( tip.c_str() );
+    b->callback( staticToolCB, this );
+
+    m_ToolButtons.push_back( b );
+    m_ToolActions.push_back( action );
+    x += m_ToolW;
+}
+
+// An etched rule between groups of buttons.
+void MainVSPScreen::AddToolGap( int & x, int y, int h )
+{
+    Fl_Box * rule = new Fl_Box( x + 5, y + 3, 2, h - 8 );
+    rule->box( FL_THIN_DOWN_BOX );
+    rule->color( fl_rgb_color( 120, 120, 120 ) );
+    x += 12;
+}
+
+void MainVSPScreen::UpdateToolbar()
+{
+    ManageGeomScreen * geomScreen = dynamic_cast < ManageGeomScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+    bool picking = geomScreen && geomScreen->IsPicking();
+    int mode = m_GlWin->GetNav().GetRotateMode();
+    VSPGraphic::LayoutMgr * layout = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr();
+    int rows = layout->row();
+    int cols = layout->column();
+
+    for ( int i = 0; i < ( int )m_ToolButtons.size(); i++ )
+    {
+        int on = -1;
+        switch ( m_ToolActions[i] )
+        {
+        case TOOL_PICK:
+            on = picking;
+            break;
+        case TOOL_BALL:
+            on = ( mode == VSPGUI::NAV_ROTATE_BALL );
+            break;
+        case TOOL_TURNTABLE:
+            on = ( mode == VSPGUI::NAV_ROTATE_TURNTABLE );
+            break;
+        case TOOL_LAYOUT_1:
+            on = ( rows == 1 && cols == 1 );
+            break;
+        case TOOL_LAYOUT_2H:
+            on = ( rows == 1 && cols == 2 );
+            break;
+        case TOOL_LAYOUT_2V:
+            on = ( rows == 2 && cols == 1 );
+            break;
+        case TOOL_LAYOUT_4:
+            on = ( rows == 2 && cols == 2 );
+            break;
+        case TOOL_AXES:
+            on = m_ShowXYZArrow;
+            break;
+        case TOOL_BORDER:
+            on = m_ShowBorder;
+            break;
+        }
+
+        if ( on >= 0 && m_ToolButtons[i]->value() != on )
+        {
+            m_ToolButtons[i]->value( on );
+        }
+    }
+}
+
+void MainVSPScreen::staticToolCB( Fl_Widget * w, void * data )
+{
+    static_cast < MainVSPScreen * > ( data )->ToolCB( w );
+}
+
+void MainVSPScreen::ToolCB( Fl_Widget * w )
+{
+    std::vector < Fl_Button * >::iterator it = std::find( m_ToolButtons.begin(), m_ToolButtons.end(), w );
+    if ( it == m_ToolButtons.end() )
+    {
+        return;
+    }
+
+    switch ( m_ToolActions[ it - m_ToolButtons.begin() ] )
+    {
+    case TOOL_NEW:
+        ActionCB( &m_NewMenuItem );
+        break;
+    case TOOL_OPEN:
+        ActionCB( &m_OpenMenuItem );
+        break;
+    case TOOL_SAVE:
+        ActionCB( &m_SaveMenuItem );
+        break;
+    case TOOL_UNDO:
+        ActionCB( &m_UndoMenuItem );
+        break;
+    case TOOL_GEOMS:
+        m_GeomMenuItem.ShowScreenCallBack( nullptr );
+        break;
+    case TOOL_PICK:
+        ActionCB( &m_PickMenuItem );
+        break;
+    case TOOL_FIT:
+        ActionCB( &m_FitViewMenuItem );
+        break;
+    case TOOL_FIT_ALL:
+        ActionCB( &m_FitAllViewMenuItem );
+        break;
+    case TOOL_ZOOM_BOX:
+        ActionCB( &m_ZoomBoxMenuItem );
+        break;
+    case TOOL_CENTER:
+        ActionCB( &m_CenterMenuItem );
+        break;
+    case TOOL_VIEWS:
+    {
+        Fl_Menu_Item views[] =
+        {
+            { "Top", FL_F + 5, nullptr, &m_TopMenuItem },
+            { "Front", FL_F + 6, nullptr, &m_FrontMenuItem },
+            { "Left", FL_F + 7, nullptr, &m_LeftSideMenuItem },
+            { "Left Iso", FL_F + 8, nullptr, &m_LeftIsoMenuItem },
+            { "Bottom", FL_F + 9, nullptr, &m_BottomMenuItem },
+            { "Rear", FL_F + 10, nullptr, &m_RearMenuItem },
+            { "Right", FL_F + 11, nullptr, &m_RightSideMenuItem },
+            { "Right Iso", FL_F + 12, nullptr, &m_RightIsoMenuItem },
+            { nullptr }
+        };
+        const Fl_Menu_Item * picked = views->popup( w->x(), w->y() + w->h() );
+        if ( picked )
+        {
+            ActionCB( picked->user_data() );
+        }
+        break;
+    }
+    case TOOL_BALL:
+        ActionCB( &m_BallMenuItem );
+        break;
+    case TOOL_TURNTABLE:
+        ActionCB( &m_TurntableMenuItem );
+        break;
+    case TOOL_ZUP:
+        ActionCB( &m_ZUpMenuItem );
+        break;
+    case TOOL_ROTATION_CENTER:
+        ActionCB( &m_SetCORMenuItem );
+        break;
+    case TOOL_VIEW_NORMAL:
+        ActionCB( &m_SetVNMenuItem );
+        break;
+    case TOOL_LAYOUT_1:
+        ActionCB( &m_OneMenuItem );
+        break;
+    case TOOL_LAYOUT_2H:
+        ActionCB( &m_TwoHMenuItem );
+        break;
+    case TOOL_LAYOUT_2V:
+        ActionCB( &m_TwoVMenuItem );
+        break;
+    case TOOL_LAYOUT_4:
+        ActionCB( &m_FourMenuItem );
+        break;
+    case TOOL_AXES:
+        ActionCB( &m_AxisMenuItem );
+        break;
+    case TOOL_BORDER:
+        ActionCB( &m_BorderMenuItem );
+        break;
+    case TOOL_SCREENSHOT:
+        m_ScreenshotMenuItem.ShowScreenCallBack( nullptr );
+        break;
+    case TOOL_VECTOR_SCREENSHOT:
+        m_VectorScreenshotMenuItem.ShowScreenCallBack( nullptr );
+        break;
+    case TOOL_PREFERENCES:
+        m_PreferencesMenuItem.ShowScreenCallBack( nullptr );
+        break;
+    case TOOL_HELP:
+        ActionCB( &m_OnlineHelpMenuItem );
+        break;
+    }
+
+    UpdateToolbar();
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void MainVSPScreen::SetToolbarSize( int size )
+{
+    if ( size < TOOLBAR_HIDDEN || size > TOOLBAR_LARGE )
+    {
+        size = TOOLBAR_MEDIUM;
+    }
+
+    // The toolbar is built again at its new size, in the place above the 3D window.
+    int oldh = 0;
+    if ( m_Toolbar )
+    {
+        oldh = m_Toolbar->h();
+        m_GenLayout.GetGroup()->remove( m_Toolbar );
+        delete m_Toolbar;
+        m_Toolbar = nullptr;
+        m_ToolButtons.clear();
+        m_ToolActions.clear();
+    }
+
+    int top = m_GlWin->y() - oldh;
+    int newh = 0;
+    if ( size != TOOLBAR_HIDDEN )
+    {
+        m_Toolbar = BuildToolbar( m_GlWin->x(), top, m_GlWin->w(), size );
+        m_GenLayout.GetGroup()->add( m_Toolbar );
+        newh = m_Toolbar->h();
+        m_ShownToolbarSize = size;
+    }
+    m_ToolbarSize = size;
+
+    // The 3D window takes the rest.
+    m_GlWin->resize( m_GlWin->x(), top + newh, m_GlWin->w(), m_GlWin->h() + oldh - newh );
+    m_GenLayout.GetGroup()->init_sizes();
+    m_FLTK_Window->redraw();
+
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    Fl_Preferences app( prefs, "Application" );
+    app.set( "Toolbar_Size", size );
+
+    m_ToolbarMenuItem.Update( size != TOOLBAR_HIDDEN );
+    UpdateToolbar();
+}
+
+int MainVSPScreen::GetToolbarSize()
+{
+    return m_ToolbarSize;
 }
 
 // An SVG icon sized for a bottom strip button.  It lives as long as the program.
@@ -463,6 +896,7 @@ bool MainVSPScreen::Update()
     m_BorderMenuItem.Update( m_ShowBorder );
 
     SetRotateMode( m_GlWin->GetNav().GetRotateMode() );
+    UpdateToolbar();
 
     m_FLTK_Window->redraw();
     return true;
@@ -531,6 +965,7 @@ void MainVSPScreen::SetRotateMode( int mode )
 
     m_TurntableMenuItem.Update( mode == VSPGUI::NAV_ROTATE_TURNTABLE );
     m_BallMenuItem.Update( mode == VSPGUI::NAV_ROTATE_BALL );
+    UpdateToolbar();
 }
 
 void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
@@ -937,6 +1372,17 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_ResetAllViewMenuItem )
     {
         ResetViews();
+    }
+    else if ( data == &m_ToolbarMenuItem )
+    {
+        if ( m_ToolbarSize == TOOLBAR_HIDDEN )
+        {
+            SetToolbarSize( m_ShownToolbarSize );
+        }
+        else
+        {
+            SetToolbarSize( TOOLBAR_HIDDEN );
+        }
     }
     else if ( data == &m_OnlineHelpMenuItem )
     {
