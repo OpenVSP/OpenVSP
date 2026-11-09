@@ -20,14 +20,14 @@ INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION help )
 ADD_CUSTOM_TARGET ( copy_css ALL
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css
-        ${VSP_BINARY_DIR}/vsp/help/${conf_suffix}$ )
+        ${VSP_BINARY_DIR}/vsp/help/${conf_suffix}github-pandoc.css )
 
 INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help DESTINATION help )
 
 ADD_CUSTOM_TARGET ( copy_help_marker ALL
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help
-        ${VSP_BINARY_DIR}/vsp/help/${conf_suffix}$ )
+        ${VSP_BINARY_DIR}/vsp/help/${conf_suffix}vsp_help )
 
 IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
     INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION python/openvsp/openvsp/help_vsp/images )
