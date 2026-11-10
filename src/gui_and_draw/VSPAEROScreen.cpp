@@ -2563,7 +2563,7 @@ void VSPAEROScreen::UpdateCpSliceBrowser()
 
 void VSPAEROScreen::SelectCpSliceBrowser( int cur_index )
 {
-    if ( cur_index > 0 )
+    if ( cur_index > 1 )
     {
         //==== Select If Match ====//
         m_CpSliceBrowser->select( cur_index );
@@ -2685,7 +2685,8 @@ void VSPAEROScreen::UpdateUnsteadyGroupBrowser()
 }
 void VSPAEROScreen::SelectUnsteadyGroupBrowser( int cur_index )
 {
-    if ( cur_index > 0 )
+    // line 1 is the header
+    if ( cur_index > 1 )
     {
         //==== Select If Match ====//
         m_UnsteadyGroupBrowser->select( cur_index );
