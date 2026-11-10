@@ -520,6 +520,7 @@ bool ManageMeasureScreen::Update()
     m_ProbeLengthUnitChoice.Update( vPtr->m_MeasureLenUnit.GetID() );
     m_RSTProbeLengthUnitChoice.Update( vPtr->m_MeasureLenUnit.GetID() );
 
+    int ruler_v_pos = m_RulerBrowser->vposition();
     m_RulerBrowser->clear();
     // Add rulers to browser.
     for( int i = 0; i < ( int )rulers.size(); i++ )
@@ -533,6 +534,8 @@ bool ManageMeasureScreen::Update()
 
         m_RulerBrowser->add( rulerName.c_str() );
     }
+
+    m_RulerBrowser->vposition( ruler_v_pos );
 
     //==== Sync selection with current ruler, which may be changed outside this browser ====//
     int index = MeasureMgr.GetCurrRulerIndex();
@@ -687,6 +690,7 @@ bool ManageMeasureScreen::Update()
 
     std::vector < Probe * > probes = MeasureMgr.GetProbeVec();
 
+    int probe_v_pos = m_ProbeBrowser->vposition();
     m_ProbeBrowser->clear();
     // Add probes to browser.
     for( int i = 0; i < ( int )probes.size(); i++ )
@@ -700,6 +704,8 @@ bool ManageMeasureScreen::Update()
 
         m_ProbeBrowser->add( probeName.c_str() );
     }
+
+    m_ProbeBrowser->vposition( probe_v_pos );
 
     //==== Sync selection with current probe, which may be changed outside this browser ====//
     index = MeasureMgr.GetCurrProbeIndex();
@@ -845,6 +851,7 @@ bool ManageMeasureScreen::Update()
 
     std::vector < RSTProbe * > RSTprobes = MeasureMgr.GetRSTProbeVec();
 
+    int rst_v_pos = m_RSTProbeBrowser->vposition();
     m_RSTProbeBrowser->clear();
     // Add probes to browser.
     for( int i = 0; i < ( int )RSTprobes.size(); i++ )
@@ -858,6 +865,8 @@ bool ManageMeasureScreen::Update()
 
         m_RSTProbeBrowser->add( rstName.c_str() );
     }
+
+    m_RSTProbeBrowser->vposition( rst_v_pos );
 
     //==== Sync selection with current RST probe, which may be changed outside this browser ====//
     index = MeasureMgr.GetCurrRSTProbeIndex();
@@ -1003,6 +1012,7 @@ bool ManageMeasureScreen::Update()
 
     std::vector < Protractor * > protractors = MeasureMgr.GetProtractorVec();
 
+    int prot_v_pos = m_ProtractorBrowser->vposition();
     m_ProtractorBrowser->clear();
     // Add protractors to browser.
     for( int i = 0; i < ( int )protractors.size(); i++ )
@@ -1016,6 +1026,8 @@ bool ManageMeasureScreen::Update()
 
         m_ProtractorBrowser->add( protName.c_str() );
     }
+
+    m_ProtractorBrowser->vposition( prot_v_pos );
 
     //==== Sync selection with current protractor, which may be changed outside this browser ====//
     index = MeasureMgr.GetCurrProtractorIndex();

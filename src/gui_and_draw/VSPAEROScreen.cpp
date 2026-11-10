@@ -2085,6 +2085,7 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
     char str[256];
     int curr_cs_index = VSPAEROMgr.GetCurrentCSGroupIndex();
     vector < ControlSurfaceGroup* > cs_group_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
+    int v_pos = m_CSGroupBrowser->vposition();
     m_CSGroupBrowser->clear();
     for (size_t i = 0; i < cs_group_vec.size(); ++i)
     {
@@ -2118,6 +2119,8 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
             m_CSGroupBrowser->select( m_CSGroupSelVec[i] + 1 );
         }
     }
+    // keep the prior view, then scroll only as far as needed to show the current group
+    m_CSGroupBrowser->vposition( v_pos );
     SelectControlSurfaceBrowser(curr_cs_index + 1);
 
     m_GroupedCSBrowser->clear();

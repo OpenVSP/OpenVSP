@@ -956,6 +956,7 @@ bool CfdMeshScreen::Update()
     //==== Load Up Source Browser ====//
     int currSourceID = -1;
 
+    int v_pos = m_SourceBrowser->vposition();
     m_SourceBrowser->clear();
     m_SourcesSelectSurface.ClearItems();
 
@@ -975,6 +976,8 @@ bool CfdMeshScreen::Update()
             m_SourceBrowser->select( m_SelVec[i] + 1 );
         }
 
+        // keep the prior view, then scroll only as far as needed to show the selected source
+        m_SourceBrowser->vposition( v_pos );
         if ( m_SelVec.size() == 1 )
         {
             m_SourceBrowser->ScrollToLine( m_SelVec[0] + 1 );
@@ -1709,11 +1712,13 @@ void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )
         int id = m_SourcesSelectComp.GetVal();
         CfdMeshMgr.SetCurrSourceGeomID( m_GeomVec[ id ] );
         CfdMeshMgr.SetCurrMainSurfIndx( 0 );
+        m_SourceBrowser->vposition( 0 );
     }
     else if ( device == &m_SourcesSelectSurface )
     {
         int id = m_SourcesSelectSurface.GetVal();
         CfdMeshMgr.SetCurrMainSurfIndx( id );
+        m_SourceBrowser->vposition( 0 );
     }
     else if ( device == &m_SourceName )
     {

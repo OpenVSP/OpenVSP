@@ -393,6 +393,7 @@ bool AdvLinkScreen::Update()
     m_ParmPicker.Update();
 
     //==== Update Link Browser ====//
+    int v_pos = m_LinkBrowser->vposition();
     m_LinkBrowser->clear();
     vector< AdvLink* > link_vec = AdvLinkMgr.GetLinks();
     for ( int i = 0 ; i < (int)link_vec.size() ; i++ )
@@ -436,6 +437,8 @@ bool AdvLinkScreen::Update()
         m_LinkBrowser->select( m_LinkSelVec[i] + 1 );
     }
 
+    // keep the prior view, then scroll only as far as needed to show the selected link
+    m_LinkBrowser->vposition( v_pos );
     if ( m_LinkSelVec.size() == 1 )
     {
         m_LinkBrowser->ScrollToLine( m_LinkSelVec[0] + 1 );
