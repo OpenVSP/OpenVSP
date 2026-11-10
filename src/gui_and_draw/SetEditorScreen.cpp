@@ -71,6 +71,14 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 560, 
 
     //We add the m_SetSelectBrowser to the m_RightLayout
     m_SetSelectBrowser = m_RightLayout.AddCheckBrowser( browserHeight );
+
+    // A taller window lengthens both lists
+    SetGrowWidget( m_SetBrowser, m_LeftLayout.GetGroup() );
+    SetGrowWidget( m_SetSelectBrowser, m_RightLayout.GetGroup() );
+    Fl_Group* border = m_BorderLayout.GetGroup();
+    AddGrowBox( border, border->x(), m_SetBrowser->y(), border->w(), browserHeight );
+    SetGrowWidget( border );
+
     //This sets the m_BorderLayout y position to line up with bottom of m_SetSelectBrowser
     m_BorderLayout.AddY( browserHeight );
     //Adds small gap at bottom of the browser areas

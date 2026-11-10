@@ -113,8 +113,6 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     // Set up Table Layout in Persistent Space to the Right
     m_PersistenceLayout.AddSubGroupLayout( m_TableLayout, DRAG_TABLE_WIDTH - m_TableCompNamesLayout.GetW(), layoutHeight );
 
-    // Set the Main Table as the Resizable Portion
-    m_FLTK_Window->resizable( m_TableLayout.GetGroup() );
     m_FLTK_Window->size_range( m_FLTK_Window->w(), m_FLTK_Window->h() );
     m_TableLayout.SetSameLineFlag( false );
 
@@ -640,6 +638,28 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_DocumentationLayout.AddYGap();
 
     m_DocumentationLayout.AddButton( m_EqnDocumentation, "Link to Complete Wiki Parasite Drag Documentation" );
+
+    // A taller window shows more rows of the table, each its own height, and lengthens the excrescence list and the
+    // documentation.  The options, the table's column labels and its totals keep their size.
+    SetGrowWidget( outputs_group, m_MenuTabs );
+    outputs_group->resizable( nullptr );
+    SetGrowWidget( m_ExcresBrowser, m_ExcrescenceListLayout.GetGroup() );
+    AddGrowBox( excrescence_group, excrescence_group->x(), m_ExcresBrowser->y(), excrescence_group->w(),
+                m_ExcresBrowser->h() );
+    SetGrowWidget( excrescence_group, m_MenuTabs );
+    SetGrowWidget( m_TextDisplay, m_MenuTabs );
+
+    SetGrowWidget( m_MainTableCompNamesScrollGroup, m_TableCompNamesLayout.GetGroup() );
+    SetGrowWidget( m_MainTableScrollGroup, m_TableLayout.GetGroup() );
+    SetGrowWidget( m_ConstantTableScrollGroup, m_ConstantViewLayout.GetGroup() );
+
+    // The column labels keep their height; those of the main table widen with it
+    m_ComponentLabelLayout.GetGroup()->resizable( nullptr );
+    m_ConstantTableLabelsLayout.GetGroup()->resizable( nullptr );
+    KeepHeights( m_MainTableLabelsLayout.GetGroup() );
+
+    AddGrowBox( m_FLTK_Window, m_MainTableScrollGroup->x(), m_MainTableScrollGroup->y(), m_MainTableScrollGroup->w(),
+                m_MainTableScrollGroup->h() );
 }
 
 ParasiteDragScreen::~ParasiteDragScreen()

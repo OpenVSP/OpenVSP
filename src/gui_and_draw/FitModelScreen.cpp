@@ -114,6 +114,15 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 525, 469 + 10
     m_TargetPtBrowser = m_TargetPtBrowserLayout.AddColResizeBrowser( target_col_widths, 10, browser_h );
     m_TargetPtBrowser->callback( staticScreenCB, this );
 
+    // A taller window lengthens the list, with the buttons that move a point at its top and bottom
+    SetGrowWidget( m_TargetPtBrowser, m_TargetPtBrowserLayout.GetGroup() );
+    Fl_Group* move_group = m_MoveTargetPtLayout.GetGroup();
+    int move_gap_y = m_MoveTargetPtUpButton.GetFlButton()->y() + m_MoveTargetPtUpButton.GetFlButton()->h();
+    AddGrowBox( move_group, move_group->x(), move_gap_y, move_group->w(),
+                m_MoveTargetPtDownButton.GetFlButton()->y() - move_gap_y );
+    AddGrowBox( pts_group, pts_group->x(), start_y, pts_group->w(), browser_h );
+    SetGrowWidget( pts_group );
+
     m_PickPtsLayout.SetX( start_x );
 
     m_PickPtsLayout.SetFitWidthFlag( false );
@@ -322,6 +331,13 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 525, 469 + 10
     m_FitModelLayout.SetSameLineFlag( false );
 
     m_FitModelLayout.AddButton(m_Load, "Import");
+
+    // A taller window lengthens the lists and the variable sliders; the Save/Import tab stays as it is
+    SetGrowWidget( m_VarBrowser );
+    SetGrowWidget( m_ParmTreePicker.GetTree() );
+    SetGrowWidget( m_FitScrollGroup );
+    SetGrowWidget( saveLoad_group );
+    KeepHeights( saveLoad_group );
 }
 
 FitModelScreen::~FitModelScreen()

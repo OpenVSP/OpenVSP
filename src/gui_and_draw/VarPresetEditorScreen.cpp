@@ -145,7 +145,16 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_SettingLayout.SetY( m_SettingLayout.GetY() + m_AdjustLayout.GetY() );
     m_SettingLayout.AddYGap();
+    int setting_attr_y = m_SettingLayout.GetY();
     m_SettingAttrEditor.Init( &m_SettingLayout, m_SettingLayout.GetGroup(), this, staticScreenCB, false, 0, m_SettingLayout.GetRemainY() );
+
+    // A taller window lengthens the variable list and the variable sliders; the Apply tab stays as it is
+    SetGrowWidget( apply_group );
+    KeepHeights( apply_group );
+    SetGrowWidget( m_VarBrowser );
+    int adjust_y = m_AdjustScrollGroup->y();
+    AddGrowBox( setting_group, setting_group->x(), adjust_y, setting_group->w(), setting_attr_y - adjust_y );
+    SetGrowWidget( setting_group );
 
     apply_tab->show();
 

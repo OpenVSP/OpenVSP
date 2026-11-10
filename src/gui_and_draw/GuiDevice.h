@@ -1140,6 +1140,11 @@ public:
     void Activate();
     void Deactivate();
 
+    Fl_Tree* GetTree()
+    {
+        return m_ParmTree;
+    }
+
     int GetEventType()
     {
         return m_EventType;

@@ -87,6 +87,10 @@ public:
     virtual bool Update();
     virtual void GetCollIDs( vector < string > &collIDVec ) {};
 
+    void SetGrowWidget( Fl_Widget* w, Fl_Group* top = nullptr );
+    Fl_Box* AddGrowBox( Fl_Group* g, int x, int y, int w, int h );
+    void KeepHeights( Fl_Group* g );
+
     ScreenMgr* GetScreenMgr()
     {
         return m_ScreenMgr;

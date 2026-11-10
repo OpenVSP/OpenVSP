@@ -95,6 +95,12 @@ ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 700, "Re
 
     m_DoubleMatrixSpreadSheet = m_DoubleMatrixLayout.AddSpreadSheet< vector < double > > ( m_DoubleMatrixLayout.GetRemainY(), " %7.5f");
 
+    // A taller window grows the data shown, which lies in one place for every type
+    SetGrowWidget( m_IntVectorSpreadColumn );
+    SetGrowWidget( m_DoubleVectorSpreadColumn );
+    SetGrowWidget( m_StringVectorSpreadColumn );
+    SetGrowWidget( m_Vec3dVectorSpreadColumn );
+    SetGrowWidget( m_DoubleMatrixSpreadSheet );
 
 
     m_ResultsViewerSelect = -1;

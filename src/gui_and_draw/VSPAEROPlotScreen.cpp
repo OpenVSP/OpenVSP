@@ -628,6 +628,18 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_UnsteadyPlotCanvas->current_x()->label_format( "%g" );
     m_UnsteadyPlotCanvas->current_y()->label_format( "%g" );
 
+    // A taller window grows each plot, and the flow condition list beside it
+    SetGrowWidget( m_ConvergencePlotCanvas );
+    SetGrowWidget( m_ConvergenceFlowConditionBrowser, m_ConvergenceControlLayout.GetGroup() );
+    SetGrowWidget( m_LoadDistPlotCanvas );
+    SetGrowWidget( m_LoadDistFlowConditionBrowser, m_LoadDistControlLayout.GetGroup() );
+    SetGrowWidget( m_SweepPlotCanvas );
+    SetGrowWidget( m_SweepFlowConditionBrowser, m_SweepControlLayout.GetGroup() );
+    SetGrowWidget( m_CpSlicePlotCanvas );
+    SetGrowWidget( m_CpSliceCaseBrowser, m_CpSliceControlLayout.GetGroup() );
+    SetGrowWidget( m_UnsteadyPlotCanvas );
+    SetGrowWidget( m_UnsteadyFlowConditionBrowser, m_UnsteadyControlLayout.GetGroup() );
+
     SetDefaultView();
 
     m_PercentLegendColor = 0.8;

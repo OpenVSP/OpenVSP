@@ -132,6 +132,10 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615 + 
     m_LinkBrowser->callback( staticScreenCB, this );
     m_LinkBrowser->type( FL_MULTI_BROWSER );
 
+    // A taller window lengthens the list.  The buttons above it, whose group reaches the list, keep their height.
+    SetGrowWidget( m_LinkBrowser );
+    KeepHeights( m_ConstraintsButtons.GetGroup() );
+
     m_GenLayout.AddYGap();
     m_LinkAttrEditor.Init( &m_GenLayout, m_FLTK_Window, this , staticScreenCB, true , m_GenLayout.GetY(), m_GenLayout.GetRemainY() );
 }

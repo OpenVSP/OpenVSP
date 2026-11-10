@@ -272,8 +272,9 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
     m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( true );
 
-    m_FLTK_Window->resizable( m_MainLayout.GetGroup() );
+    // The view takes the window's growth; the tabs beside it keep their widgets as they are
     m_FLTK_Window->resizable( m_XSecGlWin );
+    m_MenuTabs->resizable( nullptr );
 
     // Placeholder Canvas pointer - required for Ca_X_Axis and Ca_Y_Axis but not shown in GUI
     // The canvas is hidden behind the VspGlWindow
@@ -330,8 +331,6 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_PtScroll = m_PtLayout.AddFlScroll( m_PtLayout.GetRemainY() );
     m_PtScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     m_PtScroll->box( FL_BORDER_BOX );
-
-    m_FLTK_Window->resizable(m_PtScroll);
 
     //==== Initialize Member Variables ====//
     m_FreezeAxis = false;

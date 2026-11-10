@@ -86,6 +86,51 @@ void VspScreen::Hide()
     m_FLTK_Window->hide();
 }
 
+//==== Grow One Widget ====//
+// Each group from the widget up to top, or up to the window, resizes through the child that holds the widget, so the
+// widget takes the group's growth.  Widgets beside it in a group still stretch with it, unless their own group keeps
+// them fixed.
+void VspScreen::SetGrowWidget( Fl_Widget* w, Fl_Group* top )
+{
+    assert( m_FLTK_Window );
+    if ( !top )
+    {
+        top = m_FLTK_Window;
+    }
+    while ( w && w != top )
+    {
+        Fl_Group* p = w->parent();
+        if ( !p )
+        {
+            break;
+        }
+        p->resizable( w );
+        p->init_sizes();
+        w = p;
+    }
+}
+
+//==== Grow A Box Of A Group ====//
+// An invisible box in the group takes the group's growth: widgets within its span grow, those past it move, and those
+// before it stay as they are.
+Fl_Box* VspScreen::AddGrowBox( Fl_Group* g, int x, int y, int w, int h )
+{
+    Fl_Box* box = new Fl_Box( x, y, w, h );
+    box->box( FL_NO_BOX );
+    g->add( box );
+    g->resizable( box );
+    g->init_sizes();
+    return box;
+}
+
+//==== Keep A Group's Widgets Their Height ====//
+// A box along the bottom of the group, below its widgets, takes its growth in height; across, the widgets grow as the
+// group does.
+void VspScreen::KeepHeights( Fl_Group* g )
+{
+    AddGrowBox( g, g->x(), g->y() + g->h() - 1, g->w(), 1 );
+}
+
 bool VspScreen::Update()
 {
     if ( m_ScreenType > 0 && m_ScreenType != VSP_COR_SCREEN )
@@ -7208,6 +7253,9 @@ XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 600, "
 
     m_Image.GetFlButton()->value( 0 );
     m_PreserveAspect.GetFlButton()->value( 1 );
+
+    // The view takes the window's growth
+    SetGrowWidget( m_GlWin );
 
     m_XSecCurveID = string();
 }

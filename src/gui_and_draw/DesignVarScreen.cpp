@@ -84,6 +84,9 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 450, 463 + 
     m_VarBrowser = m_PickLayout.AddColResizeBrowser( col_widths, 6, browser_h );
     m_VarBrowser->callback( staticScreenCB, this );
 
+    // A taller window lengthens the list, and the sliders of the Adjust tab
+    SetGrowWidget( m_VarBrowser );
+
     m_PickLayout.AddYGap();
 
     m_PickLayout.AddDividerBox( "Design File" );
@@ -102,6 +105,7 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 450, 463 + 
     pick_tab->show();
 
     m_AdjustLayout.SetGroupAndScreen( m_AdjustGroup, this );
+    SetGrowWidget( m_AdjustGroup );
 }
 
 DesignVarScreen::~DesignVarScreen()
