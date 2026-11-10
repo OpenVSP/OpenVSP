@@ -331,7 +331,7 @@ void AeroStructScreen::Show()
 //==== Hide Screen ====//
 void AeroStructScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

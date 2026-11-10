@@ -372,7 +372,7 @@ void ModeEditorScreen::Show()
 //==== Hide Screen ====//
 void ModeEditorScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

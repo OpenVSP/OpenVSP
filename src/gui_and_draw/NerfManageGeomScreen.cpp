@@ -176,7 +176,7 @@ void NerfManageGeomScreen::Show()
 //==== Hide Screen ====//
 void NerfManageGeomScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
 }
 
 //==== Load Geom Browser ====//

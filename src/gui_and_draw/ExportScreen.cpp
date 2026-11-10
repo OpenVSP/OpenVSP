@@ -173,7 +173,7 @@ void ExportScreen::Show()
 //==== Hide Screen ====//
 void ExportScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

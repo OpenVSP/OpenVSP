@@ -229,7 +229,7 @@ void ManageGeomScreen::Show()
 //==== Hide Screen ====//
 void ManageGeomScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
 }
 
 //==== Load Geom Browser ====//

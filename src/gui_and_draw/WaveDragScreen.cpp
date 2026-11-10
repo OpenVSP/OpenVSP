@@ -461,7 +461,7 @@ void WaveDragScreen::Show()
 
 void WaveDragScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -744,7 +744,7 @@ void WaveDragScreen::RedrawPlot()
 
 void WaveDragScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    if( m_FLTK_Window->visible() )
+    if( IsShown() )
     {
         if ( WaveDragMgr.m_PlaneFlag.Get() )
         {

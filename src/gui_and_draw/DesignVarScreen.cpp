@@ -241,7 +241,7 @@ void DesignVarScreen::Show()
 
 void DesignVarScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

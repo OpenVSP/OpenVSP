@@ -594,7 +594,7 @@ void FitModelScreen::Show()
 
 void FitModelScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     FitModelMgr.SetGUIShown( false );
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -830,7 +830,7 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
 
 bool FitModelScreen::IsVisible()
 {
-    return m_FLTK_Window->visible();
+    return IsShown();
 }
 
 void FitModelScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )

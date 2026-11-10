@@ -125,7 +125,7 @@ void CompGeomScreen::Show()
 
 void CompGeomScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

@@ -574,7 +574,7 @@ void VarPresetEditorScreen::Show()
 
 void VarPresetEditorScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
 }
 
 void VarPresetEditorScreen::CallBack( Fl_Widget* w )

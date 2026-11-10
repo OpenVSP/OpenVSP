@@ -81,13 +81,13 @@ bool PickSetScreen::Update()
 void PickSetScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    VspScreen::Show();
 }
 
 //==== Hide Screen ====//
 void PickSetScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

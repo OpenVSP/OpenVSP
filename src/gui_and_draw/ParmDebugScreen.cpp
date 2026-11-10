@@ -83,7 +83,7 @@ void ParmDebugScreen::Show()
 
 void ParmDebugScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

@@ -109,7 +109,7 @@ void SelectFileScreen::Hide()
 {
     //This helps FileChooser() know screen was closed
     m_SelectFileScreenIsOpen = false;
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

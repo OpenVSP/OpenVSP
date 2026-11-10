@@ -239,7 +239,7 @@ void ParmScreen::Show()
 //==== Hide Screen ====//
 void ParmScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
 }
 
 

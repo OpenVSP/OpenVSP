@@ -117,7 +117,7 @@ void ManageTextureScreen::Show()
 
 void ManageTextureScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

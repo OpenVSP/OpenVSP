@@ -53,7 +53,7 @@ void CobraScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        VspScreen::Show();
     }
 }
 

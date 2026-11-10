@@ -103,7 +103,7 @@ void ManageViewScreen::Show()
 
 void ManageViewScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

@@ -1123,7 +1123,7 @@ void VSPAEROScreen::Show()
 
 void VSPAEROScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -2428,7 +2428,7 @@ void VSPAEROScreen::SelectGroupedListBrowser( int cur_index )
 
 void VSPAEROScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    if( m_FLTK_Window->visible() )
+    if( IsShown() )
     {
         VSPAEROMgr.LoadDrawObjs( draw_obj_vec );
     }

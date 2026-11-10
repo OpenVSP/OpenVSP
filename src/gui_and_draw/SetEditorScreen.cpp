@@ -222,7 +222,7 @@ void SetEditorScreen::Show()
 void SetEditorScreen::Hide()
 {
     m_SetBrowser->HidePopupInput();
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 

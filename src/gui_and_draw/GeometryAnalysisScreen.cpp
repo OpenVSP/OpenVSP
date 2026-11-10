@@ -1301,7 +1301,7 @@ void GeometryAnalysisScreen::Show()
 //==== Hide Screen ====//
 void GeometryAnalysisScreen::Hide()
 {
-    m_FLTK_Window->hide();
+    VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
