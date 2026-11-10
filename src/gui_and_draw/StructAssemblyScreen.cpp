@@ -102,6 +102,7 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 5
     int browser_h = 120;
     m_AssemblySelectBrowser = m_AssemblyTabLayout.AddColResizeBrowser( assy_col_widths, 1, browser_h );
     m_AssemblySelectBrowser->Init( this, m_AssemblyTabLayout.GetGroup() );
+    m_AssemblySelectBrowser->type( FL_MULTI_BROWSER );
 
     int buttonwidth = m_AssemblyTabLayout.GetButtonWidth();
 
@@ -135,6 +136,7 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 5
 
     m_StructureSelectBrowser = m_StructureTabLayout.AddColResizeBrowser( struct_col_widths, 2, browser_h );
     m_StructureSelectBrowser->callback( staticScreenCB, this );
+    m_StructureSelectBrowser->type( FL_MULTI_BROWSER );
 
     m_StructureTabLayout.AddChoice( m_FeaStructureChoice, "Structure" );
 
@@ -456,10 +458,34 @@ void StructAssemblyScreen::UpdateAssemblyTab()
             m_AssemblyIDs.push_back( assy_vec[i]->GetID() );
         }
 
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        //==== Sync selection with current assembly, which may be changed outside this browser ====//
+        int index = StructureMgr.GetCurrAssemblyIndex();
+        if ( StructureMgr.ValidFeaAssemblyInd( index ) )
         {
-            m_AssemblySelectBrowser->select( StructureMgr.GetCurrAssemblyIndex() + 2 );
+            if ( m_AssemblySelVec.size() != 1 || m_AssemblySelVec[0] != index )
+            {
+                m_AssemblySelVec.clear();
+                m_AssemblySelVec.push_back( index );
+            }
         }
+        else if ( m_AssemblySelVec.size() == 1 )
+        {
+            m_AssemblySelVec.clear();
+        }
+
+        //==== Repopulate browser with existing selection ====//
+        for ( int i = 0; i < ( int )m_AssemblySelVec.size(); i++ )
+        {
+            if ( StructureMgr.ValidFeaAssemblyInd( m_AssemblySelVec[i] ) )
+            {
+                // offset by +2 to convert to browser indexing past header row
+                m_AssemblySelectBrowser->select( m_AssemblySelVec[i] + 2 );
+            }
+        }
+    }
+    else
+    {
+        m_AssemblySelVec.clear();
     }
 
     m_AssemblySelectBrowser->vposition( scroll_pos );
@@ -543,7 +569,30 @@ void StructAssemblyScreen::UpdateStructTab()
         }
     }
 
-    m_StructureSelectBrowser->select( m_StructureBrowserIndex + 2 );
+    //==== Sync selection with current structure index, which may be changed outside this browser ====//
+    int nstruct = m_StructureSelectBrowser->size() - 1;
+    if ( m_StructureBrowserIndex >= 0 && m_StructureBrowserIndex < nstruct )
+    {
+        if ( m_StructureSelVec.size() != 1 || m_StructureSelVec[0] != m_StructureBrowserIndex )
+        {
+            m_StructureSelVec.clear();
+            m_StructureSelVec.push_back( m_StructureBrowserIndex );
+        }
+    }
+    else if ( m_StructureSelVec.size() == 1 )
+    {
+        m_StructureSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_StructureSelVec.size(); i++ )
+    {
+        if ( m_StructureSelVec[i] >= 0 && m_StructureSelVec[i] < nstruct )
+        {
+            // offset by +2 to convert to browser indexing past header row
+            m_StructureSelectBrowser->select( m_StructureSelVec[i] + 2 );
+        }
+    }
 
     m_StructureSelectBrowser->vposition( scroll_pos );
     m_StructureSelectBrowser->hposition( h_pos );
@@ -758,8 +807,33 @@ void StructAssemblyScreen::CallBack( Fl_Widget* w )
             }
         }
 
-        // Select new assy
-        StructureMgr.SetCurrAssemblyIndex( m_AssemblySelectBrowser->value() - 2 );
+        // Select new assy(s)
+        m_AssemblySelectBrowser->GetSelected( m_AssemblySelVec );
+        for ( int i = ( int )m_AssemblySelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_AssemblySelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_AssemblySelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_AssemblySelVec.erase( m_AssemblySelVec.begin() + i );
+            }
+        }
+
+        if ( m_AssemblySelVec.size() == 1 )
+        {
+            StructureMgr.SetCurrAssemblyIndex( m_AssemblySelVec[0] );
+        }
+        else
+        {
+            StructureMgr.SetCurrAssemblyIndex( -1 );
+        }
+
+        // structure multi-selection belongs to the previous assembly
+        m_StructureSelVec.clear();
         MarkDOChanged();
 
 
@@ -776,7 +850,26 @@ void StructAssemblyScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_StructureSelectBrowser )
     {
-        m_StructureBrowserIndex = m_StructureSelectBrowser->value() - 2;
+        m_StructureSelectBrowser->GetSelected( m_StructureSelVec );
+        for ( int i = ( int )m_StructureSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_StructureSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_StructureSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_StructureSelVec.erase( m_StructureSelVec.begin() + i );
+            }
+        }
+
+        m_StructureBrowserIndex = -1;
+        if ( m_StructureSelVec.size() == 1 )
+        {
+            m_StructureBrowserIndex = m_StructureSelVec[0];
+        }
     }
     else if ( w == m_ConnectionSelectBrowser )
     {
@@ -897,18 +990,29 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DelAssemblyButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( !m_AssemblySelVec.empty() )
         {
-            StructureMgr.DeleteFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_AssemblySelVec.size() - 1; i >= 0; i-- )
+            {
+                StructureMgr.DeleteFeaAssembly( m_AssemblySelVec[i] );
+            }
 
-            StructureMgr.SetCurrAssemblyIndex( StructureMgr.GetCurrAssemblyIndex() - 1 );
-            MarkDOChanged();
+            // select the assembly that shifts into the first deleted slot, or the new last assembly
+            int index = min( m_AssemblySelVec[0], StructureMgr.NumFeaAssembly() - 1 );
+            StructureMgr.SetCurrAssemblyIndex( index );
+            m_AssemblySelVec.clear();
+            if ( index > -1 )
+            {
+                m_AssemblySelVec.push_back( index );
+            }
         }
         else
         {
             StructureMgr.SetCurrAssemblyIndex( -1 );
-            MarkDOChanged();
         }
+        m_StructureSelVec.clear();
+        MarkDOChanged();
     }
     else if ( device == &m_AssemblyNameInput )
     {
@@ -952,9 +1056,30 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            if ( m_StructureBrowserIndex < curr_assy->m_StructIDVec.size() )
+            if ( !m_StructureSelVec.empty() )
             {
-                curr_assy->DelStructure( curr_assy->m_StructIDVec[ m_StructureBrowserIndex ] );
+                // collect IDs before deleting so indices stay valid
+                vector < string > del_ids;
+                for ( int i = 0; i < ( int )m_StructureSelVec.size(); i++ )
+                {
+                    if ( m_StructureSelVec[i] >= 0 && m_StructureSelVec[i] < ( int )curr_assy->m_StructIDVec.size() )
+                    {
+                        del_ids.push_back( curr_assy->m_StructIDVec[ m_StructureSelVec[i] ] );
+                    }
+                }
+
+                for ( int i = 0; i < ( int )del_ids.size(); i++ )
+                {
+                    curr_assy->DelStructure( del_ids[i] );
+                }
+
+                // select the structure that shifts into the first deleted slot, or the new last structure
+                m_StructureBrowserIndex = min( m_StructureSelVec[0], ( int )curr_assy->m_StructIDVec.size() - 1 );
+                m_StructureSelVec.clear();
+                if ( m_StructureBrowserIndex > -1 )
+                {
+                    m_StructureSelVec.push_back( m_StructureBrowserIndex );
+                }
             }
         }
     }

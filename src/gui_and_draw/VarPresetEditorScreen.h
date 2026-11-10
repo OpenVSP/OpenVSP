@@ -65,6 +65,7 @@ protected:
     // Group tab
     StringInput m_GroupInput;
     VspBrowser* m_GroupBrowser;
+    vector < int > m_GroupSelVec;
 
     TriggerButton m_AddGroupButton;
     TriggerButton m_DeleteGroupButton;
@@ -89,6 +90,7 @@ protected:
 
     StringInput m_SettingInput;
     VspBrowser* m_SettingBrowser;
+    vector < int > m_SettingSelVec;
 
     TriggerButton m_Apply2Button;
     TriggerButton m_AddSettingButton;

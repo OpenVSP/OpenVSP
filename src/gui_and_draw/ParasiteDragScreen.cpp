@@ -464,6 +464,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_ExcresBrowser = m_ExcrescenceListLayout.AddColResizeBrowser( col_widths, 3, excrescence_browser_height );
     m_ExcresBrowser->Init( this, m_ExcrescenceListLayout.GetGroup() );
+    m_ExcresBrowser->type( FL_MULTI_BROWSER );
 
     m_ExcrescenceListLayout.AddYGap();
 
@@ -1041,6 +1042,31 @@ void ParasiteDragScreen::UpdateExcresTab()
     }
     m_excresTypeChoice.SetVal( ParasiteDragMgr.m_ExcresType() );
 
+    //==== Sync selection with current excres, which may be changed outside this browser ====//
+    int index = ParasiteDragMgr.GetCurrExcresIndex();
+    if ( index >= 0 && index < ( int )excresVec.size() )
+    {
+        if ( m_ExcresSelVec.size() != 1 || m_ExcresSelVec[0] != index )
+        {
+            m_ExcresSelVec.clear();
+            m_ExcresSelVec.push_back( index );
+        }
+    }
+    else if ( m_ExcresSelVec.size() == 1 )
+    {
+        m_ExcresSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_ExcresSelVec.size(); i++ )
+    {
+        if ( m_ExcresSelVec[i] >= 0 && m_ExcresSelVec[i] < ( int )excresVec.size() )
+        {
+            // offset by +2 to convert to browser indexing past header row
+            m_ExcresBrowser->select( m_ExcresSelVec[i] + 2 );
+        }
+    }
+
     // Select Current Excres
     if ( ParasiteDragMgr.GetCurrExcresIndex() != -1 )
     {
@@ -1327,8 +1353,25 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_excresDelete )
     {
-        // Delete Excrescence from Table
-        ParasiteDragMgr.DeleteExcrescence();
+        // Delete Excrescence(s) from Table
+        if ( !m_ExcresSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_ExcresSelVec.size() - 1; i >= 0; i-- )
+            {
+                ParasiteDragMgr.DeleteExcrescence( m_ExcresSelVec[i] );
+            }
+
+            // select the excres that shifts into the first deleted slot, or the new last excres
+            int index = min( m_ExcresSelVec[0], ( int )ParasiteDragMgr.GetExcresVec().size() - 1 );
+            ParasiteDragMgr.SetCurrExcresIndex( index );
+            m_ExcresSelVec.clear();
+            if ( index > -1 )
+            {
+                m_ExcresSelVec.push_back( index );
+                ParasiteDragMgr.UpdateCurrentExcresVal();
+            }
+        }
         UpdateExcrescenceSliderLimits();
     }
     else if ( device == &m_excresNameInput )
@@ -2570,13 +2613,28 @@ void ParasiteDragScreen::UpdateReynoldsLabel()
 
 void ParasiteDragScreen::ExresBrowserCallback()
 {
-    int last = m_ExcresBrowser->value();
-    if ( last >= 2 )
+    m_ExcresBrowser->GetSelected( m_ExcresSelVec );
+    for ( int i = ( int )m_ExcresSelVec.size() - 1; i >= 0; i-- )
     {
-        if ( ParasiteDragMgr.GetCurrExcresIndex() != last - 2 )
+        if ( m_ExcresSelVec[i] > 0 )
         {
-            ParasiteDragMgr.SetCurrExcresIndex( last - 2 );
+            // offset by -1 to skip header row
+            m_ExcresSelVec[i]--;
         }
+        else
+        {
+            // erase index if <= 0 as this is at or below header row
+            m_ExcresSelVec.erase( m_ExcresSelVec.begin() + i );
+        }
+    }
+
+    if ( m_ExcresSelVec.size() == 1 )
+    {
+        ParasiteDragMgr.SetCurrExcresIndex( m_ExcresSelVec[0] );
+    }
+    else
+    {
+        ParasiteDragMgr.SetCurrExcresIndex( -1 );
     }
 }
 

@@ -136,6 +136,7 @@ private:
     TriggerButton m_DelFeaStructButton;
 
     ColResizeBrowser* m_StructureSelectBrowser;
+    vector < int > m_StructureSelVec;
     vector < string > m_StructIDs;
 
     StringInput m_FeaStructNameInput;
@@ -170,6 +171,7 @@ private:
     TriggerButton m_DelFeaMaterialButton;
 
     VspBrowser* m_FeaMaterialSelectBrowser;
+    vector < int > m_FeaMaterialSelVec;
     vector < string > m_FeaMaterialIDVec;
 
     GroupLayout m_MaterialEditSubGroup;
@@ -302,6 +304,7 @@ private:
     TriggerButton m_DelFeaPropertyButton;
 
     ColResizeBrowser* m_FeaPropertySelectBrowser;
+    vector < int > m_FeaPropertySelVec;
 
     Choice m_FeaPropertyType;
 

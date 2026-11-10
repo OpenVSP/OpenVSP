@@ -59,6 +59,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_GeometryAnalysisBrowser = m_BorderLayout.AddColResizeBrowser( out_col_widths, 4, 200 );
     m_GeometryAnalysisBrowser->Init( this, m_BorderLayout.GetGroup() );
+    m_GeometryAnalysisBrowser->type( FL_MULTI_BROWSER );
 
 
     m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 2 );
@@ -1103,10 +1104,29 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
         snprintf( str, sizeof( str ),  "%s:%s:%s:%f: \n", gcases[i]->GetName().c_str(), gcases[i]->GetPrimaryName().c_str(), secondary.c_str(), gcases[i]->m_LastResultValue() );
         m_GeometryAnalysisBrowser->add( str );
     }
+    //==== Sync selection with active analysis, which may be changed outside this browser ====//
     int active_indx = GeometryAnalysisMgr.GetGeometryAnalysisIndex( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
     if ( active_indx >= 0 && active_indx < (int)gcases.size() )
     {
-        m_GeometryAnalysisBrowser->select( active_indx + 2 );
+        if ( m_GeometryAnalysisSelVec.size() != 1 || m_GeometryAnalysisSelVec[0] != active_indx )
+        {
+            m_GeometryAnalysisSelVec.clear();
+            m_GeometryAnalysisSelVec.push_back( active_indx );
+        }
+    }
+    else if ( m_GeometryAnalysisSelVec.size() == 1 )
+    {
+        m_GeometryAnalysisSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_GeometryAnalysisSelVec.size(); i++ )
+    {
+        if ( m_GeometryAnalysisSelVec[i] >= 0 && m_GeometryAnalysisSelVec[i] < (int)gcases.size() )
+        {
+            // offset by +2 to convert to browser indexing past header row
+            m_GeometryAnalysisBrowser->select( m_GeometryAnalysisSelVec[i] + 2 );
+        }
     }
 
     m_GeometryAnalysisBrowser->vposition( scroll_pos );
@@ -1382,11 +1402,28 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
             }
         }
 
-        // Select new geom analysis case
-        int sel = m_GeometryAnalysisBrowser->value();
+        // Select new geom analysis case(s)
+        m_GeometryAnalysisBrowser->GetSelected( m_GeometryAnalysisSelVec );
+        for ( int i = ( int )m_GeometryAnalysisSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_GeometryAnalysisSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_GeometryAnalysisSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_GeometryAnalysisSelVec.erase( m_GeometryAnalysisSelVec.begin() + i );
+            }
+        }
 
-        // Map the clicked browser line to a case and record it as the active case.
-        GeometryAnalysisCase* selcase = GeometryAnalysisMgr.GetGeometryAnalysis( sel - 2 );
+        // Map a single selected browser line to a case and record it as the active case.
+        GeometryAnalysisCase* selcase = nullptr;
+        if ( m_GeometryAnalysisSelVec.size() == 1 )
+        {
+            selcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryAnalysisSelVec[0] );
+        }
         if ( selcase )
         {
             GeometryAnalysisMgr.SetActiveGeometryAnalysisID( selcase->GetID() );
@@ -1476,28 +1513,33 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_DelGeometryAnalysis )
     {
-        int del_indx = GeometryAnalysisMgr.GetGeometryAnalysisIndex( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
-        GeometryAnalysisMgr.DeleteGeometryAnalysis( del_indx );
+        if ( !m_GeometryAnalysisSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_GeometryAnalysisSelVec.size() - 1; i >= 0; i-- )
+            {
+                GeometryAnalysisMgr.DeleteGeometryAnalysis( m_GeometryAnalysisSelVec[i] );
+            }
 
-        // Reselect the case that shifted into the deleted slot, clamped to the last.
-        int nleft = (int)GeometryAnalysisMgr.GetAllGeometryAnalyses().size();
-        if ( del_indx > nleft - 1 )
-        {
-            del_indx = nleft - 1;
-        }
-        GeometryAnalysisCase* newsel = GeometryAnalysisMgr.GetGeometryAnalysis( del_indx );
-        if ( newsel )
-        {
-            GeometryAnalysisMgr.SetActiveGeometryAnalysisID( newsel->GetID() );
-        }
-        else
-        {
-            GeometryAnalysisMgr.SetActiveGeometryAnalysisID( "" );
+            // Reselect the case that shifted into the first deleted slot, clamped to the last.
+            int index = min( m_GeometryAnalysisSelVec[0], (int)GeometryAnalysisMgr.GetAllGeometryAnalyses().size() - 1 );
+            GeometryAnalysisCase* newsel = GeometryAnalysisMgr.GetGeometryAnalysis( index );
+            m_GeometryAnalysisSelVec.clear();
+            if ( newsel )
+            {
+                GeometryAnalysisMgr.SetActiveGeometryAnalysisID( newsel->GetID() );
+                m_GeometryAnalysisSelVec.push_back( index );
+            }
+            else
+            {
+                GeometryAnalysisMgr.SetActiveGeometryAnalysisID( "" );
+            }
         }
     }
     else if ( gui_device == &m_DelAllGeometryAnalyses )
     {
         GeometryAnalysisMgr.DeleteAllGeometryAnalyses();
+        m_GeometryAnalysisSelVec.clear();
     }
     else if ( gui_device == & m_GANameInput )
     {

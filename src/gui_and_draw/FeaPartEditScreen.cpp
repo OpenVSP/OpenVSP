@@ -1995,8 +1995,6 @@ bool FeaPartEditScreen::Update()
                             m_PolySparPointU0NToggle.Activate();
                             m_PolySparPointEtaToggle.Activate();
 
-                            m_DelPolySparPoint.Activate();
-
                             m_PolySparPtNameInput.Activate();
 
                             if ( spt->m_SpanMode() == vsp::POLY_SPAR_POINT_U01 )
@@ -2032,7 +2030,14 @@ bool FeaPartEditScreen::Update()
                             m_PolySparPointU01Toggle.Deactivate();
                             m_PolySparPointU0NToggle.Deactivate();
                             m_PolySparPointEtaToggle.Deactivate();
+                        }
 
+                        if ( !m_PolySparPointSelVec.empty() )
+                        {
+                            m_DelPolySparPoint.Activate();
+                        }
+                        else
+                        {
                             m_DelPolySparPoint.Deactivate();
                         }
 
@@ -3576,10 +3581,21 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
             else if ( device == &m_DelPolySparPoint )
             {
-                polyspar->DelPt( m_PolySparPointBrowserSelect );
-                if ( m_PolySparPointBrowserSelect > polyspar->GetNumPt() - 1 )
+                if ( !m_PolySparPointSelVec.empty() )
                 {
-                    m_PolySparPointBrowserSelect = polyspar->GetNumPt() - 1;
+                    // delete in descending index order so remaining selected indices stay valid
+                    for ( int i = ( int )m_PolySparPointSelVec.size() - 1; i >= 0; i-- )
+                    {
+                        polyspar->DelPt( m_PolySparPointSelVec[i] );
+                    }
+
+                    // select the point that shifts into the first deleted slot, or the new last point
+                    m_PolySparPointBrowserSelect = min( m_PolySparPointSelVec[0], polyspar->GetNumPt() - 1 );
+                    m_PolySparPointSelVec.clear();
+                    if ( m_PolySparPointBrowserSelect > -1 )
+                    {
+                        m_PolySparPointSelVec.push_back( m_PolySparPointBrowserSelect );
+                    }
                 }
                 polyspar->m_SurfDirty = true;
             }
@@ -3588,6 +3604,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                 polyspar->DelAllPt();
                 polyspar->m_SurfDirty = true;
                 m_PolySparPointBrowserSelect = -1;
+                m_PolySparPointSelVec.clear();
             }
             else if ( device == &m_PolySparPtNameInput )
             {
@@ -3708,7 +3725,25 @@ void FeaPartEditScreen::CallBack( Fl_Widget* w )
         }
 
         // Change point selection
-        m_PolySparPointBrowserSelect = m_PolySparPointBrowser->value() - 2;
+        m_PolySparPointBrowser->GetSelected( m_PolySparPointSelVec );
+        for ( int i = ( int )m_PolySparPointSelVec.size() - 1; i >= 0; i-- )
+        {
+            // offset by -1 to skip header row
+            if ( m_PolySparPointSelVec[i] > 0 )
+            {
+                m_PolySparPointSelVec[i] = m_PolySparPointSelVec[i] - 1;
+            }
+            else
+            {
+                m_PolySparPointSelVec.erase( m_PolySparPointSelVec.begin() + i );
+            }
+        }
+
+        m_PolySparPointBrowserSelect = -1;
+        if ( m_PolySparPointSelVec.size() == 1 )
+        {
+            m_PolySparPointBrowserSelect = m_PolySparPointSelVec[0];
+        }
 
         // Make new popup if double clicked
         if ( m_PolySparPointBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -4316,9 +4351,35 @@ void FeaPartEditScreen::UpdatePolySparPointBrowser( FeaPolySpar* polyspar )
             m_PolySparPointBrowser->add( str );
         }
 
+        // A selection made on another PolySpar does not carry over
+        if ( polyspar->GetID() != m_PolySparPointSelID )
+        {
+            m_PolySparPointSelVec.clear();
+            m_PolySparPointSelID = polyspar->GetID();
+        }
+
+        //==== Sync selection with current point, which may be changed outside this browser ====//
         if ( m_PolySparPointBrowserSelect >= 0 && m_PolySparPointBrowserSelect < (int)pt_vec.size() )
         {
-            m_PolySparPointBrowser->select( m_PolySparPointBrowserSelect + 2 );
+            if ( m_PolySparPointSelVec.size() != 1 || m_PolySparPointSelVec[0] != m_PolySparPointBrowserSelect )
+            {
+                m_PolySparPointSelVec.clear();
+                m_PolySparPointSelVec.push_back( m_PolySparPointBrowserSelect );
+            }
+        }
+        else if ( m_PolySparPointSelVec.size() == 1 )
+        {
+            m_PolySparPointSelVec.clear();
+        }
+
+        //==== Repopulate browser with existing selection ====//
+        for ( int i = 0; i < ( int )m_PolySparPointSelVec.size(); i++ )
+        {
+            if ( m_PolySparPointSelVec[i] >= 0 && m_PolySparPointSelVec[i] < (int)pt_vec.size() )
+            {
+                // offset by +2 to convert to browser indexing past header row
+                m_PolySparPointBrowser->select( m_PolySparPointSelVec[i] + 2 );
+            }
         }
 
         m_PolySparPointBrowser->hposition( input_h_pos );

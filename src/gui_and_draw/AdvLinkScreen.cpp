@@ -40,6 +40,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
 
     m_LinkBrowser = m_LinkBrowserGroup.AddVspBrowser( 70 );
     m_LinkBrowser->Init( this, m_LinkBrowserGroup.GetGroup() );
+    m_LinkBrowser->type( FL_MULTI_BROWSER );
 
     m_LinkBrowserGroup.AddInput( m_NameInput, "Name:" );
 
@@ -265,8 +266,55 @@ bool AdvLinkScreen::Update()
 
     AdvLinkMgr.CheckLinks();
 
-    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
+    //==== Sync selection with the edit link, which may be changed outside this browser ====//
+    int nlink = ( int )AdvLinkMgr.GetLinks().size();
+    int mgr_index = AdvLinkMgr.GetEditLinkIndex();
+    if ( mgr_index >= 0 && mgr_index < nlink )
+    {
+        if ( m_LinkSelVec.size() != 1 || m_LinkSelVec[0] != mgr_index )
+        {
+            m_LinkSelVec.clear();
+            m_LinkSelVec.push_back( mgr_index );
+        }
+    }
+    else if ( m_LinkSelVec.size() == 1 )
+    {
+        m_LinkSelVec.clear();
+    }
+
+    // A file read or the API may leave fewer links than were selected.
+    for ( int i = ( int )m_LinkSelVec.size() - 1; i >= 0; i-- )
+    {
+        if ( m_LinkSelVec[i] < 0 || m_LinkSelVec[i] >= nlink )
+        {
+            m_LinkSelVec.erase( m_LinkSelVec.begin() + i );
+        }
+    }
+
+    int edit_link_index = -1;
+    if ( m_LinkSelVec.size() == 1 )
+    {
+        edit_link_index = m_LinkSelVec[0];
+    }
     AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
+
+    if ( !m_LinkSelVec.empty() )
+    {
+        m_DelLink.Activate();
+    }
+    else
+    {
+        m_DelLink.Deactivate();
+    }
+
+    if ( nlink > 0 )
+    {
+        m_DelAllLink.Activate();
+    }
+    else
+    {
+        m_DelAllLink.Deactivate();
+    }
 
     if ( edit_link )
     {
@@ -274,8 +322,6 @@ bool AdvLinkScreen::Update()
         m_NameInput.Activate();
         m_ParmPicker.Activate();
         m_NameInput.Activate();
-        m_DelLink.Activate();
-        m_DelAllLink.Activate();
         m_VarNameInput.Activate();
         m_PickInput.Activate();
         m_PickOutput.Activate();
@@ -312,8 +358,6 @@ bool AdvLinkScreen::Update()
         m_NameInput.Deactivate();
         m_ParmPicker.Deactivate();
         m_NameInput.Deactivate();
-        m_DelLink.Deactivate();
-        m_DelAllLink.Deactivate();
         m_VarNameInput.Deactivate();
         m_PickInput.Deactivate();
         m_PickOutput.Deactivate();
@@ -386,10 +430,10 @@ bool AdvLinkScreen::Update()
         }
     }
 
-    //==== Set Current Link ====//
-    if ( edit_link_index >= 0 && edit_link_index < (int)link_vec.size() )
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < m_LinkSelVec.size(); i++ )
     {
-        m_LinkBrowser->select( edit_link_index + 1 );
+        m_LinkBrowser->select( m_LinkSelVec[i] + 1 );
     }
 
     //==== Input and Output Browsers ====//
@@ -541,8 +585,13 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
-    AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
+    AdvLink* edit_link = nullptr;
+    int edit_link_index = -1;
+    if ( m_LinkSelVec.size() == 1 )
+    {
+        edit_link_index = m_LinkSelVec[0];
+    }
+    edit_link = AdvLinkMgr.GetLink( edit_link_index );
 
     m_LinkBrowser->HidePopupInput();
 
@@ -559,13 +608,18 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
         }
 
         // Select new advlink
-        int sel = m_LinkBrowser->value();
-        AdvLinkMgr.SetEditLinkIndex( sel - 1 );
+        m_LinkBrowser->GetSelected( m_LinkSelVec );
+        if ( m_LinkSelVec.size() == 1 )
+        {
+            edit_link_index = m_LinkSelVec[0];
+        }
+
+        AdvLinkMgr.SetEditLinkIndex( edit_link_index );
+        edit_link = AdvLinkMgr.GetLink( edit_link_index );
 
         // Open up popup input if double clicked
         if ( m_LinkBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
         {
-            edit_link = AdvLinkMgr.GetLink(edit_link_index);
             if ( edit_link )
             {
                 m_LinkBrowser->InsertPopupInput( edit_link->GetName(), m_LinkBrowser->value() );
@@ -757,7 +811,11 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
+    int edit_link_index = -1;
+    if ( m_LinkSelVec.size() == 1 )
+    {
+        edit_link_index = m_LinkSelVec[0];
+    }
     AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
 
     m_LinkBrowser->HidePopupInput();
@@ -851,14 +909,25 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_AddLink )
     {
          AdvLinkMgr.AddLink( "" );
+         m_LinkSelVec.clear();
+         m_LinkSelVec.push_back(AdvLinkMgr.GetEditLinkIndex());
     }
     else if ( gui_device == &m_DelLink )
     {
-        AdvLinkMgr.DelLink( edit_link );
+        AdvLinkMgr.DelLink( m_LinkSelVec );
+        int old_index = *min_element( m_LinkSelVec.begin(), m_LinkSelVec.end() );
+        int max_index = AdvLinkMgr.GetLinks().size() - 1;
+        AdvLinkMgr.SetEditLinkIndex( min( old_index , max_index ) );
+        m_LinkSelVec.clear();
+        if ( AdvLinkMgr.GetEditLinkIndex() > -1 )
+        {
+            m_LinkSelVec.push_back( AdvLinkMgr.GetEditLinkIndex() );
+        }
     }
     else if ( gui_device == &m_DelAllLink )
     {
         AdvLinkMgr.DelAllLinks();
+        m_LinkSelVec.clear();
     }
     else if ( gui_device == &m_DelInput )
     {

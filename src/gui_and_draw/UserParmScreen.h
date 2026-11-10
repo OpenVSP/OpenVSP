@@ -74,7 +74,7 @@ protected:
     string m_GroupText;
     string m_DescText;
 
-    int m_UserBrowserSelection;
+    vector < int > m_UserBrowserVec;
 
     int m_NumParmsLast;
     void RebuildAdjustGroup();

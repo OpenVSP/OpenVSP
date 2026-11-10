@@ -46,10 +46,12 @@ protected:
     int m_SelectedModeIndex;
     string m_PrevMID;
     ColResizeBrowser* m_ModeBrowser;
+    vector < int > m_ModeSelVec;
     vector < string > m_ModeIDs;
 
     int m_SelectedSettingIndex;
     ColResizeBrowser* m_SettingBrowser;
+    vector < int > m_SettingSelVec;
     int m_NumSetting;
 
     GroupLayout m_MainLayout;

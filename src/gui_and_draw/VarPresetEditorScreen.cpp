@@ -54,6 +54,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_GroupBrowser = m_GroupsLayout.AddVspBrowser( browser_h );
     m_GroupBrowser->Init( this, m_GroupsLayout.GetGroup() );
+    m_GroupBrowser->type( FL_MULTI_BROWSER );
 
     m_GroupsLayout.AddInput( m_GroupInput, "Group" );
 
@@ -108,6 +109,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_SettingBrowser = m_SettingLayout.AddVspBrowser( browser_h );
     m_SettingBrowser->Init( this, m_SettingLayout.GetGroup() );
+    m_SettingBrowser->type( FL_MULTI_BROWSER );
 
 
     m_SettingLayout.AddInput( m_SettingInput, "Setting" );
@@ -229,6 +231,7 @@ bool VarPresetEditorScreen::Update()
         {
             m_PrevGID = sg->GetID();
             m_SettingIndex = 0;
+            m_SettingSelVec.clear();
             m_PrevSID = "";
         }
     }
@@ -344,7 +347,30 @@ void VarPresetEditorScreen::RebuildMenus()
     m_GroupChoice.UpdateItems();
 
     m_GroupChoice.SetVal( m_GroupIndex );
-    m_GroupBrowser->select( m_GroupIndex + 1 );
+
+    //==== Sync selection with current group, which may be changed outside this browser ====//
+    if ( ValidGroup() )
+    {
+        if ( m_GroupSelVec.size() != 1 || m_GroupSelVec[0] != m_GroupIndex )
+        {
+            m_GroupSelVec.clear();
+            m_GroupSelVec.push_back( m_GroupIndex );
+        }
+    }
+    else if ( m_GroupSelVec.size() == 1 )
+    {
+        m_GroupSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_GroupSelVec.size(); i++ )
+    {
+        if ( m_GroupSelVec[i] >= 0 && m_GroupSelVec[i] < ( int )m_GroupIDs.size() )
+        {
+            // offset by +1 to convert to browser indexing
+            m_GroupBrowser->select( m_GroupSelVec[i] + 1 );
+        }
+    }
 
     m_GroupBrowser->hposition( h_pos );
     m_GroupBrowser->vposition( v_pos );
@@ -385,7 +411,30 @@ void VarPresetEditorScreen::RebuildMenus()
     m_SettingChoice.UpdateItems();
 
     m_SettingChoice.SetVal( m_SettingIndex );
-    m_SettingBrowser->select( m_SettingIndex + 1 );
+
+    //==== Sync selection with current setting, which may be changed outside this browser ====//
+    if ( ValidSetting() )
+    {
+        if ( m_SettingSelVec.size() != 1 || m_SettingSelVec[0] != m_SettingIndex )
+        {
+            m_SettingSelVec.clear();
+            m_SettingSelVec.push_back( m_SettingIndex );
+        }
+    }
+    else if ( m_SettingSelVec.size() == 1 || m_SettingIDs.empty() )
+    {
+        m_SettingSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_SettingSelVec.size(); i++ )
+    {
+        if ( m_SettingSelVec[i] >= 0 && m_SettingSelVec[i] < ( int )m_SettingIDs.size() )
+        {
+            // offset by +1 to convert to browser indexing
+            m_SettingBrowser->select( m_SettingSelVec[i] + 1 );
+        }
+    }
 
     m_SettingBrowser->hposition( h_pos );
     m_SettingBrowser->vposition( v_pos );
@@ -546,30 +595,44 @@ void VarPresetEditorScreen::EnableDisableWidgets()
         m_DelVarButton.Deactivate();
     }
 
+    if ( !m_GroupSelVec.empty() )
+    {
+        m_DeleteGroupButton.Activate();
+    }
+    else
+    {
+        m_DeleteGroupButton.Deactivate();
+    }
+
     if ( sg )
     {
         m_GroupInput.Activate();
-        m_DeleteGroupButton.Activate();
         m_AddSettingButton.Activate();
     }
     else
     {
         m_GroupInput.Update("");
         m_GroupInput.Deactivate();
-        m_DeleteGroupButton.Deactivate();
         m_AddSettingButton.Deactivate();
+    }
+
+    if ( sg && !m_SettingSelVec.empty() )
+    {
+        m_DeleteSettingButton.Activate();
+    }
+    else
+    {
+        m_DeleteSettingButton.Deactivate();
     }
 
     if ( s )
     {
         m_SettingInput.Activate();
-        m_DeleteSettingButton.Activate();
     }
     else
     {
         m_SettingInput.Update("");
         m_SettingInput.Deactivate();
-        m_DeleteSettingButton.Deactivate();
     }
 }
 
@@ -624,21 +687,26 @@ void VarPresetEditorScreen::CallBack( Fl_Widget* w )
         // first check if popup input has a callback to enter the a new name on the previously selected setting group
         if ( m_GroupBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
         {
-            string gid = m_GroupIDs[ m_GroupIndex ];
-            SettingGroup* sg = VarPresetMgr.FindSettingGroup( gid );
-            if ( sg )
+            if ( ValidGroup() )
             {
-                // set new group name
-                if ( ValidGroup() )
+                string gid = m_GroupIDs[ m_GroupIndex ];
+                SettingGroup* sg = VarPresetMgr.FindSettingGroup( gid );
+                if ( sg )
                 {
+                    // set new group name
                     string sg_name = m_GroupBrowser->GetPopupValue();
                     sg->SetName( sg_name.c_str() );
                 }
             }
         }
 
-        // Select new Group setting
-        m_GroupIndex = m_GroupBrowser->value() - 1;
+        // Select new Group setting(s)
+        m_GroupBrowser->GetSelected( m_GroupSelVec );
+        m_GroupIndex = -1;
+        if ( m_GroupSelVec.size() == 1 )
+        {
+            m_GroupIndex = m_GroupSelVec[0];
+        }
 
         // then if new setting is double clicked and valid, open up a popup input
         if ( m_GroupBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -673,7 +741,7 @@ void VarPresetEditorScreen::CallBack( Fl_Widget* w )
         }
 
         // Set name if popup callback on previously clicked setting
-        if ( m_SettingBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        if ( m_SettingBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER && m_SettingSelVec.size() == 1 )
         {
             if ( s )
             {
@@ -683,7 +751,13 @@ void VarPresetEditorScreen::CallBack( Fl_Widget* w )
         }
 
         // Change setting index
-        m_SettingIndex = m_SettingBrowser->value() - 1;
+        m_SettingBrowser->GetSelected( m_SettingSelVec );
+        m_SettingIndex = -1;
+        if ( m_SettingSelVec.size() == 1 )
+        {
+            m_SettingIndex = m_SettingSelVec[0];
+        }
+        s = nullptr;
 
         if ( ValidSetting() )
         {
@@ -822,20 +896,30 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DeleteGroupButton )
     {
-        if ( ValidGroup() )
+        if ( !m_GroupSelVec.empty() )
         {
-            string gid = m_GroupIDs[ m_GroupIndex ];
-
-            VarPresetMgr.DeleteSettingGroup( gid );
-            if ( m_GroupIndex > m_GroupIDs.size() - 2 )
+            for ( int i = ( int )m_GroupSelVec.size() - 1; i >= 0 ; i-- )
             {
-                m_GroupIndex = m_GroupIDs.size() - 2;
+                if ( m_GroupSelVec[i] >= 0 && m_GroupSelVec[i] < ( int )m_GroupIDs.size() )
+                {
+                    VarPresetMgr.DeleteSettingGroup( m_GroupIDs[ m_GroupSelVec[i] ] );
+                }
+            }
+
+            // select the group that shifts into the first deleted slot, or the new last group
+            int nleft = ( int )m_GroupIDs.size() - ( int )m_GroupSelVec.size();
+            m_GroupIndex = min( m_GroupSelVec[0], nleft - 1 );
+            m_GroupSelVec.clear();
+            if ( m_GroupIndex > -1 )
+            {
+                m_GroupSelVec.push_back( m_GroupIndex );
             }
         }
     }
     else if ( device == &m_ClearGroupsButton )
     {
         VarPresetMgr.DeleteAllSettingGroups();
+        m_GroupSelVec.clear();
     }
     else if ( device == &m_GroupInput )
     {
@@ -853,15 +937,25 @@ void VarPresetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DeleteSettingButton )
     {
-        if ( ValidGroup() && ValidSetting() )
+        if ( ValidGroup() && !m_SettingSelVec.empty() )
         {
             string gid = m_GroupIDs[ m_GroupIndex ];
-            string sid = m_SettingIDs[ m_SettingIndex ];
 
-            VarPresetMgr.DeleteSetting( gid, sid );
-            if ( m_SettingIndex > m_SettingIDs.size() - 2 )
+            for ( int i = (int)m_SettingSelVec.size() - 1; i >= 0; i-- )
             {
-                m_SettingIndex = m_SettingIDs.size() - 2;
+                if ( m_SettingSelVec[i] >= 0 && m_SettingSelVec[i] < ( int )m_SettingIDs.size() )
+                {
+                    VarPresetMgr.DeleteSetting( gid, m_SettingIDs[ m_SettingSelVec[i] ] );
+                }
+            }
+
+            // select the setting that shifts into the first deleted slot, or the new last setting
+            int nleft = ( int )m_SettingIDs.size() - ( int )m_SettingSelVec.size();
+            m_SettingIndex = min( m_SettingSelVec[0], nleft - 1 );
+            m_SettingSelVec.clear();
+            if ( m_SettingIndex > -1 )
+            {
+                m_SettingSelVec.push_back( m_SettingIndex );
             }
         }
     }

@@ -247,6 +247,7 @@ protected:
     GroupLayout m_ExcrescenceListLayout;
     GroupLayout m_ExcrescenceItemLayout;
     ColResizeBrowser* m_ExcresBrowser;
+    vector < int > m_ExcresSelVec;
 
     // Excrescence Inputs
     StringInput m_excresNameInput;

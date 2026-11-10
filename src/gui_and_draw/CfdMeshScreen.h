@@ -311,6 +311,7 @@ private:
 
     Vehicle* m_Vehicle;
 
+    vector< int > m_SelVec;
     vector< string > m_GeomVec;
     vector< string > m_WingGeomVec;
 

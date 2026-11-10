@@ -1304,6 +1304,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SubSurfBrowser = m_SSBrowserLayoutMain.AddColResizeBrowser( col_widths, 3, browser_h );
     m_SubSurfBrowser->Init( this, m_SSBrowserLayoutMain.GetGroup() );
+    m_SubSurfBrowser->type( FL_MULTI_BROWSER );
 
     m_SSBrowserLayoutSide.SetStdHeight( int ( browser_h / 4 ) );
     m_SSBrowserLayoutSide.AddButton( m_SSMoveTopButton , "@2<<");
@@ -3169,9 +3170,36 @@ bool GeomScreen::Update()
         m_SubSurfBrowser->add( str );
     }
 
-    if ( geom_ptr->ValidSubSurfInd( SubSurfaceMgr.GetCurrSurfInd() ) )
+    // A selection made on another geom does not carry over
+    if ( geom_ptr->GetID() != m_SubSurfSelGeomID )
     {
-        m_SubSurfBrowser->select( SubSurfaceMgr.GetCurrSurfInd() + 2 );
+        m_SubSurfSelVec.clear();
+        m_SubSurfSelGeomID = geom_ptr->GetID();
+    }
+
+    //==== Sync selection with current subsurf, which may be changed outside this browser ====//
+    int curr_ss_ind = SubSurfaceMgr.GetCurrSurfInd();
+    if ( geom_ptr->ValidSubSurfInd( curr_ss_ind ) )
+    {
+        if ( m_SubSurfSelVec.size() != 1 || m_SubSurfSelVec[0] != curr_ss_ind )
+        {
+            m_SubSurfSelVec.clear();
+            m_SubSurfSelVec.push_back( curr_ss_ind );
+        }
+    }
+    else if ( m_SubSurfSelVec.size() == 1 )
+    {
+        m_SubSurfSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_SubSurfSelVec.size(); i++ )
+    {
+        if ( geom_ptr->ValidSubSurfInd( m_SubSurfSelVec[i] ) )
+        {
+            // offset by +2 to convert to browser indexing past header row
+            m_SubSurfBrowser->select( m_SubSurfSelVec[i] + 2 );
+        }
     }
 
     m_SubSurfBrowser->hposition( h_pos );
@@ -3286,9 +3314,24 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DelSubSurfButton )
     {
-        geom_ptr->DelSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
-        geom_ptr->Update();
-        SetCurrSubSurf( geom_ptr->NumSubSurfs() - 1 );
+        if ( !m_SubSurfSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_SubSurfSelVec.size() - 1; i >= 0; i-- )
+            {
+                geom_ptr->DelSubSurf( m_SubSurfSelVec[i] );
+            }
+            geom_ptr->Update();
+
+            // select the subsurf that shifts into the first deleted slot, or the new last subsurf
+            int index = min( m_SubSurfSelVec[0], geom_ptr->NumSubSurfs() - 1 );
+            SetCurrSubSurf( index );
+            m_SubSurfSelVec.clear();
+            if ( index > -1 )
+            {
+                m_SubSurfSelVec.push_back( index );
+            }
+        }
     }
     else if ( device == &m_SSMoveTopButton )
     {
@@ -3850,8 +3893,30 @@ void GeomScreen::CallBack( Fl_Widget *w )
             }
         }
 
-        // select new subsurf from browser
-        SetCurrSubSurf( m_SubSurfBrowser->value() - 2 );
+        // select new subsurf(s) from browser
+        m_SubSurfBrowser->GetSelected( m_SubSurfSelVec );
+        for ( int i = ( int )m_SubSurfSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_SubSurfSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_SubSurfSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_SubSurfSelVec.erase( m_SubSurfSelVec.begin() + i );
+            }
+        }
+
+        if ( m_SubSurfSelVec.size() == 1 )
+        {
+            SetCurrSubSurf( m_SubSurfSelVec[0] );
+        }
+        else
+        {
+            SetCurrSubSurf( -1 );
+        }
         SubSurface* sub_surf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
         if ( sub_surf )
         {

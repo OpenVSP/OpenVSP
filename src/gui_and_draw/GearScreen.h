@@ -92,6 +92,9 @@ protected:
     StringInput m_BogieNameInput;
 
     ColResizeBrowser* m_BogieBrowser;
+    vector < int > m_BogieSelVec;
+    // The gear the bogie selection was made on
+    string m_BogieSelGeomID;
 
     ToggleButton m_SymmetricalButton;
 

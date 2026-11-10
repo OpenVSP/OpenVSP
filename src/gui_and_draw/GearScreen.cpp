@@ -121,6 +121,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear", "G
 
     m_BogieBrowser = m_BogieLayout.AddColResizeBrowser( bogie_widths, 3, 100 );
     m_BogieBrowser->Init( this, m_BogieLayout.GetGroup() );
+    m_BogieBrowser->type( FL_MULTI_BROWSER );
     m_BogieLayout.AddInput( m_BogieNameInput, "Name:" );
 
     m_BogieLayout.SetSameLineFlag( true );
@@ -944,14 +945,26 @@ bool GearScreen::Update()
     UpdateMechSurfChoice();
 
 
-    Bogie* bogie_ptr = gear_ptr->GetCurrentBogie();
+    Bogie* bogie_ptr = nullptr;
+    if ( m_BogieSelVec.size() == 1 )
+    {
+        bogie_ptr = gear_ptr->GetCurrentBogie();
+    }
+
+    if ( !m_BogieSelVec.empty() )
+    {
+        m_RemoveBogieButton.Activate();
+    }
+    else
+    {
+        m_RemoveBogieButton.Deactivate();
+    }
 
     if ( bogie_ptr )
     {
         // Bogie
         m_BogieNameInput.Update( bogie_ptr->GetName() );
 
-        m_RemoveBogieButton.Activate();
         m_SymmetricalButton.Activate();
         m_NAcrossSlider.Activate();
         m_NTandemSlider.Activate();
@@ -1776,7 +1789,6 @@ bool GearScreen::Update()
         m_StowGeomPicker.SetGeomChoice( "" );
         m_MechGeomPicker.SetGeomChoice( "" );
 
-        m_RemoveBogieButton.Deactivate();
         m_SymmetricalButton.Deactivate();
         m_NAcrossSlider.Deactivate();
         m_NTandemSlider.Deactivate();
@@ -1881,12 +1893,38 @@ void GearScreen::UpdateBogieBrowser()
     m_TireBogieChoice.UpdateItems();
     m_RetBogieChoice.UpdateItems();
 
+    // A selection made on another gear does not carry over
+    if ( gear_ptr->GetID() != m_BogieSelGeomID )
+    {
+        m_BogieSelVec.clear();
+        m_BogieSelGeomID = gear_ptr->GetID();
+    }
+
+    //==== Sync selection with current bogie, which may be changed outside this browser ====//
     int index = gear_ptr->GetCurrBogieIndex();
     if ( index >= 0 && index < ( int )bogies.size() )
     {
-        m_BogieBrowser->select( index + 2 );
+        if ( m_BogieSelVec.size() != 1 || m_BogieSelVec[0] != index )
+        {
+            m_BogieSelVec.clear();
+            m_BogieSelVec.push_back( index );
+        }
         m_TireBogieChoice.SetVal( index );
         m_RetBogieChoice.SetVal( index );
+    }
+    else if ( m_BogieSelVec.size() == 1 )
+    {
+        m_BogieSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_BogieSelVec.size(); i++ )
+    {
+        if ( m_BogieSelVec[i] >= 0 && m_BogieSelVec[i] < ( int )bogies.size() )
+        {
+            // offset by +2 to convert to browser indexing past header row, +1 more than usual
+            m_BogieBrowser->select( m_BogieSelVec[i] + 2 );
+        }
     }
     m_BogieBrowser->hposition( h_pos );
     m_BogieBrowser->vposition( v_pos );
@@ -1996,9 +2034,29 @@ void GearScreen::CallBack( Fl_Widget *w )
             }
         }
 
-        //==== Select new Bogie ====//
-        int sel = m_BogieBrowser->value();
-        gear_ptr->SetCurrBogieIndex( sel - 2 );
+        m_BogieBrowser->GetSelected( m_BogieSelVec );
+        for ( int i = ( int )m_BogieSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_BogieSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_BogieSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_BogieSelVec.erase( m_BogieSelVec.begin() + i );
+            }
+        }
+
+        if ( m_BogieSelVec.size() == 1 )
+        {
+            gear_ptr->SetCurrBogieIndex( m_BogieSelVec[0] );
+        }
+        else
+        {
+            gear_ptr->SetCurrBogieIndex( -1 );
+        }
 
         Bogie * bogie = gear_ptr->GetCurrentBogie();
 
@@ -2036,12 +2094,29 @@ void GearScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RemoveBogieButton )
     {
-        gear_ptr->DelBogie( gear_ptr->GetCurrBogieIndex() );
+        if ( !m_BogieSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_BogieSelVec.size() - 1; i >= 0; i-- )
+            {
+                gear_ptr->DelBogie( m_BogieSelVec[i] );
+            }
+
+            // select the bogie that shifts into the first deleted slot, or the new last bogie
+            int index = min( m_BogieSelVec[0], ( int )gear_ptr->GetBogieVec().size() - 1 );
+            gear_ptr->SetCurrBogieIndex( index );
+            m_BogieSelVec.clear();
+            if ( index > -1 )
+            {
+                m_BogieSelVec.push_back( index );
+            }
+        }
         gear_ptr->Update();
     }
     else if ( device == &m_RemoveAllBogiesButton )
     {
         gear_ptr->DelAllBogies();
+        m_BogieSelVec.clear();
         gear_ptr->Update();
     }
     else if ( device == &m_BogieNameInput )

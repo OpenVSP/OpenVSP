@@ -582,6 +582,7 @@ void CfdMeshScreen::CreateSourcesTab()
 
     m_SourceBrowser = m_SourcesRight.AddVspBrowser(75);
     m_SourceBrowser->Init( this, m_SourcesRight.GetGroup() );
+    m_SourceBrowser->type( FL_MULTI_BROWSER );
 
     m_SourcesTabLayout.ForceNewLine();
     m_SourcesTabLayout.ForceNewLine();
@@ -946,7 +947,11 @@ bool CfdMeshScreen::Update()
     m_Comp.SetVal( wingCompIDMap[ wakeGeomID ] );
 
     //===== Update Sources =====//
-    BaseSource* source = CfdMeshMgr.GetCurrSource();
+    BaseSource* source = nullptr;
+    if ( m_SelVec.size() == 1 )
+    {
+        source = CfdMeshMgr.GetCurrSource();
+    }
 
     //==== Load Up Source Browser ====//
     int currSourceID = -1;
@@ -965,9 +970,9 @@ bool CfdMeshScreen::Update()
             }
             m_SourceBrowser->add( sVec[i]->GetName().c_str() );
         }
-        if ( currSourceID >= 0 && currSourceID < ( int )sVec.size() )
+        for ( int i = 0 ; i < ( int )m_SelVec.size() ; ++i )
         {
-            m_SourceBrowser->select( currSourceID + 1 );
+            m_SourceBrowser->select( m_SelVec[i] + 1 );
         }
 
         int nmain = currGeom->GetNumMainSurfs();
@@ -1254,6 +1259,8 @@ void CfdMeshScreen::UpdateSourcesTab( BaseSource* source )
     }
     else
     {
+        m_SourceName.Update( string() );
+
         m_SourceLen1.Deactivate();
         m_SourceRad1.Deactivate();
         m_SourceLen2.Deactivate();
@@ -1435,7 +1442,15 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         }
 
         // Set new source index from SourceBrowser
-        CfdMeshMgr.GUI_Val( "SourceID", m_SourceBrowser->value() - 1 );
+        m_SourceBrowser->GetSelected( m_SelVec );
+        if ( m_SelVec.size() == 1 )
+        {
+            CfdMeshMgr.GUI_Val( "SourceID", m_SelVec[0] );
+        }
+        else
+        {
+            CfdMeshMgr.GUI_Val( "SourceID", -1 );
+        }
 
         // // Open up popup input if double clicked
         if ( m_SourceBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -1655,12 +1670,6 @@ void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )
     }
     else if ( device == &m_DeleteSource )
     {
-        // get current source pointer
-        BaseSource* source = CfdMeshMgr.GetCurrSource();
-
-        // get source vec associated with parent geom to determine index in vector
-        int index = -1;
-
         string gid = CfdMeshMgr.GetCurrSourceGeomID();
         Vehicle* veh = VehicleMgr.GetVehicle();
         Geom* g = nullptr;
@@ -1668,30 +1677,25 @@ void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )
         {
             g = veh->FindGeom( gid );
         }
-        if ( g && source )
+        if ( g && !m_SelVec.empty() )
         {
-            vector< BaseSource* > svec = g->GetCfdMeshMainSourceVec();
-
-            // default index to 2nd to last place
-            index = svec.size() - 2;
-
-            // count up to n-1 for length of source vector
-            for ( int i = 0; i < svec.size() - 1; i++ )
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_SelVec.size() - 1; i >= 0; i-- )
             {
-                if ( svec[i] == source )
-                {
-                    // set index to match, if any
-                    index = i;
-                }
+                g->SetCurrSourceID( m_SelVec[i] );
+                CfdMeshMgr.DeleteCurrSource();
             }
-            // if no match before n-1 place in source vector, default to 2nd to last; assumes final index is match and must reduce index with deletion
-        }
 
-        CfdMeshMgr.DeleteCurrSource();
+            // select the source that shifts into the first deleted slot, or the new last source
+            int nsource = g->GetCfdMeshMainSourceVec().size();
+            int index = min( m_SelVec[0], nsource - 1 );
 
-        if ( index > -1 )
-        {
-            CfdMeshMgr.GUI_Val( "SourceID", index );
+            m_SelVec.clear();
+            if ( index > -1 )
+            {
+                m_SelVec.push_back( index );
+                CfdMeshMgr.GUI_Val( "SourceID", index );
+            }
         }
     }
     else if ( device == &m_SourcesSelectComp )

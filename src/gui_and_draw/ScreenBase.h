@@ -544,6 +544,9 @@ public:
     int m_SubSurfTab_ind;
     GroupLayout* m_CurSubDispGroup;
     ColResizeBrowser* m_SubSurfBrowser;
+    vector < int > m_SubSurfSelVec;
+    // The geom the sub-surface selection was made on
+    string m_SubSurfSelGeomID;
     TriggerButton m_SSMoveTopButton;
     TriggerButton m_SSMoveUpButton;
     TriggerButton m_SSMoveDownButton;

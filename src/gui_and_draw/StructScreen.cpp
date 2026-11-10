@@ -152,6 +152,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     int browser_h = 150;
     m_StructureSelectBrowser = m_StructureTabLayout.AddColResizeBrowser( struct_col_widths, 3, browser_h );
     m_StructureSelectBrowser->Init( this, m_StructureTabLayout.GetGroup() );
+    m_StructureSelectBrowser->type( FL_MULTI_BROWSER );
 
     int buttonwidth = m_StructureTabLayout.GetButtonWidth();
 
@@ -312,6 +313,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_FeaMaterialSelectBrowser->labelfont( 13 );
     m_FeaMaterialSelectBrowser->labelsize( 12 );
     m_FeaMaterialSelectBrowser->Init( this, m_MaterialEditGroup.GetGroup() );
+    m_FeaMaterialSelectBrowser->type( FL_MULTI_BROWSER );
 
     m_MaterialEditGroup.SetSameLineFlag( true );
     m_MaterialEditGroup.SetFitWidthFlag( false );
@@ -970,6 +972,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddColResizeBrowser( prop_col_widths, 4, browser_h - 20 );
     m_FeaPropertySelectBrowser->Init( this, m_PropertyEditGroup.GetGroup() );
+    m_FeaPropertySelectBrowser->type( FL_MULTI_BROWSER );
 
     m_PropertyEditGroup.SetChoiceButtonWidth( buttonwidth );
 
@@ -2191,11 +2194,35 @@ void StructScreen::UpdateStructBrowser()
         }
         m_CurrFeaMeshChoice.UpdateItems();
 
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        //==== Sync selection with current structure, which may be changed outside this browser ====//
+        int index = StructureMgr.m_CurrStructIndex();
+        if ( StructureMgr.ValidTotalFeaStructInd( index ) )
         {
-            m_StructureSelectBrowser->select( StructureMgr.m_CurrStructIndex() + 2 );
+            if ( m_StructureSelVec.size() != 1 || m_StructureSelVec[0] != index )
+            {
+                m_StructureSelVec.clear();
+                m_StructureSelVec.push_back( index );
+            }
             m_CurrFeaMeshChoice.Update( StructureMgr.m_CurrStructIndex.GetID() );
         }
+        else if ( m_StructureSelVec.size() == 1 )
+        {
+            m_StructureSelVec.clear();
+        }
+
+        //==== Repopulate browser with existing selection ====//
+        for ( int i = 0; i < ( int )m_StructureSelVec.size(); i++ )
+        {
+            if ( StructureMgr.ValidTotalFeaStructInd( m_StructureSelVec[i] ) )
+            {
+                // offset by +2 to convert to browser indexing past header row
+                m_StructureSelectBrowser->select( m_StructureSelVec[i] + 2 );
+            }
+        }
+    }
+    else
+    {
+        m_StructureSelVec.clear();
     }
 
     // Make sure FeaMeshMgr is consistent.
@@ -2331,6 +2358,22 @@ void StructScreen::UpdateFeaPartBrowser()
             m_FeaPartSelectBrowser->add( str );
         }
 
+        //==== Sync selection with current part, which may be changed outside this browser ====//
+        int curr_part_ind = StructureMgr.GetCurrPartIndex();
+        if ( curr_part_ind >= 0 && curr_part_ind < structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() + structVec[StructureMgr.m_CurrStructIndex()]->NumFeaSubSurfs() )
+        {
+            if ( m_SelectedPartIndexVec.size() != 1 || m_SelectedPartIndexVec[0] != curr_part_ind )
+            {
+                m_SelectedPartIndexVec.clear();
+                m_SelectedPartIndexVec.push_back( curr_part_ind );
+            }
+        }
+        else if ( m_SelectedPartIndexVec.size() == 1 )
+        {
+            m_SelectedPartIndexVec.clear();
+        }
+
+        //==== Repopulate browser with existing selection ====//
         for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
         {
             if ( structVec[StructureMgr.m_CurrStructIndex()]->ValidFeaPartInd( m_SelectedPartIndexVec[i] ) ||
@@ -2526,9 +2569,29 @@ void StructScreen::UpdateFeaPropertyBrowser()
         m_FeaPropertySelectBrowser->add( str );
     }
 
-    if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
+    //==== Sync selection with current property, which may be changed outside this browser ====//
+    int index = StructureMgr.GetCurrPropertyIndex();
+    if ( StructureMgr.ValidFeaPropertyInd( index ) )
     {
-        m_FeaPropertySelectBrowser->select( StructureMgr.GetCurrPropertyIndex() + 2 );
+        if ( m_FeaPropertySelVec.size() != 1 || m_FeaPropertySelVec[0] != index )
+        {
+            m_FeaPropertySelVec.clear();
+            m_FeaPropertySelVec.push_back( index );
+        }
+    }
+    else if ( m_FeaPropertySelVec.size() == 1 )
+    {
+        m_FeaPropertySelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_FeaPropertySelVec.size(); i++ )
+    {
+        if ( StructureMgr.ValidFeaPropertyInd( m_FeaPropertySelVec[i] ) )
+        {
+            // offset by +2 to convert to browser indexing past header row
+            m_FeaPropertySelectBrowser->select( m_FeaPropertySelVec[i] + 2 );
+        }
     }
 
     m_FeaPropertySelectBrowser->vposition( scroll_pos );
@@ -2551,14 +2614,34 @@ void StructScreen::UpdateFeaMaterialBrowser()
         m_FeaMaterialSelectBrowser->add( mat_name.c_str() );
     }
 
-    if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
+    //==== Sync selection with current material, which may be changed outside this browser ====//
+    int index = StructureMgr.GetCurrMaterialIndex();
+    if ( StructureMgr.ValidFeaMaterialInd( index ) )
     {
         m_MaterialEditSubGroup.Show();
-        m_FeaMaterialSelectBrowser->select( StructureMgr.GetCurrMaterialIndex() + 1 );
+        if ( m_FeaMaterialSelVec.size() != 1 || m_FeaMaterialSelVec[0] != index )
+        {
+            m_FeaMaterialSelVec.clear();
+            m_FeaMaterialSelVec.push_back( index );
+        }
     }
     else
     {
         m_MaterialEditSubGroup.Hide();
+        if ( m_FeaMaterialSelVec.size() == 1 )
+        {
+            m_FeaMaterialSelVec.clear();
+        }
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_FeaMaterialSelVec.size(); i++ )
+    {
+        if ( StructureMgr.ValidFeaMaterialInd( m_FeaMaterialSelVec[i] ) )
+        {
+            // offset by +1 to convert to browser indexing
+            m_FeaMaterialSelectBrowser->select( m_FeaMaterialSelVec[i] + 1 );
+        }
     }
 
     m_FeaMaterialSelectBrowser->vposition( scroll_pos );
@@ -4053,7 +4136,7 @@ void StructScreen::CallBack( Fl_Widget* w )
                 else if ( slow_double_click_flag || m_FeaPartSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
                 {
                     FeaStructure* feastruct = structVec[StructureMgr.m_CurrStructIndex()];
-                    if ( feastruct )
+                    if ( feastruct && m_SelectedPartIndexVec.size() > 0 )
                     {
                         FeaPart* feaprt = feastruct->GetFeaPart( m_SelectedPartIndexVec[0] );
                         if ( feaprt )
@@ -4088,14 +4171,41 @@ void StructScreen::CallBack( Fl_Widget* w )
                 }
             }
 
-            // Select new structure from browser
-            int indx = m_StructureSelectBrowser->value() - 2;
-            if ( StructureMgr.ValidTotalFeaStructInd( indx  ) )
+            // Select new structure(s) from browser
+            m_StructureSelectBrowser->GetSelected( m_StructureSelVec );
+            for ( int i = ( int )m_StructureSelVec.size() - 1; i >= 0; i-- )
             {
-                StructureMgr.m_CurrStructIndex.Set( indx );
-                MarkDOChanged();
+                if ( m_StructureSelVec[i] > 0 )
+                {
+                    // offset by -1 to skip header row
+                    m_StructureSelVec[i]--;
+                }
+                else
+                {
+                    // erase index if <= 0 as this is at or below header row
+                    m_StructureSelVec.erase( m_StructureSelVec.begin() + i );
+                }
+            }
+
+            int prev_struct_index = StructureMgr.m_CurrStructIndex();
+
+            if ( m_StructureSelVec.size() == 1 && StructureMgr.ValidTotalFeaStructInd( m_StructureSelVec[0] ) )
+            {
+                StructureMgr.m_CurrStructIndex.Set( m_StructureSelVec[0] );
                 FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
             }
+            else
+            {
+                StructureMgr.m_CurrStructIndex.Set( -1 );
+            }
+
+            // part multi-selection belongs to the previous structure
+            if ( StructureMgr.m_CurrStructIndex() != prev_struct_index )
+            {
+                m_SelectedPartIndexVec.clear();
+                StructureMgr.SetCurrPartIndex( -1 );
+            }
+            MarkDOChanged();
 
             // Draw new popup over selected structure
             if ( m_StructureSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -4156,8 +4266,30 @@ void StructScreen::CallBack( Fl_Widget* w )
                 }
             }
 
-            // set new fea property from browser
-            StructureMgr.SetCurrPropertyIndex( m_FeaPropertySelectBrowser->value() - 2 );
+            // set new fea property(s) from browser
+            m_FeaPropertySelectBrowser->GetSelected( m_FeaPropertySelVec );
+            for ( int i = ( int )m_FeaPropertySelVec.size() - 1; i >= 0; i-- )
+            {
+                if ( m_FeaPropertySelVec[i] > 0 )
+                {
+                    // offset by -1 to skip header row
+                    m_FeaPropertySelVec[i]--;
+                }
+                else
+                {
+                    // erase index if <= 0 as this is at or below header row
+                    m_FeaPropertySelVec.erase( m_FeaPropertySelVec.begin() + i );
+                }
+            }
+
+            if ( m_FeaPropertySelVec.size() == 1 )
+            {
+                StructureMgr.SetCurrPropertyIndex( m_FeaPropertySelVec[0] );
+            }
+            else
+            {
+                StructureMgr.SetCurrPropertyIndex( -1 );
+            }
 
             // make new popup over new fea property
             if ( m_FeaPropertySelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -4182,8 +4314,16 @@ void StructScreen::CallBack( Fl_Widget* w )
                 }
             }
 
-            // Select new material from browser
-            StructureMgr.SetCurrMaterialIndex( m_FeaMaterialSelectBrowser->value() - 1 );
+            // Select new material(s) from browser
+            m_FeaMaterialSelectBrowser->GetSelected( m_FeaMaterialSelVec );
+            if ( m_FeaMaterialSelVec.size() == 1 )
+            {
+                StructureMgr.SetCurrMaterialIndex( m_FeaMaterialSelVec[0] );
+            }
+            else
+            {
+                StructureMgr.SetCurrMaterialIndex( -1 );
+            }
 
             // Open up new popup input over currently selected material
             if ( m_FeaMaterialSelectBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -4346,6 +4486,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 StructureMgr.InitFeaProperties(); // Add default FeaProperties if none available
 
                 StructureMgr.m_CurrStructIndex.Set( StructureMgr.GetTotFeaStructIndex( newstruct ) );
+                m_SelectedPartIndexVec.clear();
+                StructureMgr.SetCurrPartIndex( -1 );
             }
         }
     }
@@ -4353,34 +4495,50 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        if ( !m_StructureSelVec.empty() )
         {
-            FeaStructure* delstruct = structvec[StructureMgr.m_CurrStructIndex()];
-
-            if ( delstruct )
+            // structvec is a copy taken before deleting, so selected indices stay valid against it
+            for ( int j = 0; j < ( int )m_StructureSelVec.size(); j++ )
             {
-                Geom* currgeom = veh->FindGeom( delstruct->GetParentGeomID() );
-
-                if ( currgeom )
+                FeaStructure* delstruct = nullptr;
+                if ( m_StructureSelVec[j] >= 0 && m_StructureSelVec[j] < ( int )structvec.size() )
                 {
-                    vector < FeaStructure* > geomstructvec = currgeom->GetFeaStructVec();
+                    delstruct = structvec[ m_StructureSelVec[j] ];
+                }
 
-                    for ( unsigned int i = 0; i < geomstructvec.size(); i++ )
+                if ( delstruct )
+                {
+                    Geom* currgeom = veh->FindGeom( delstruct->GetParentGeomID() );
+
+                    if ( currgeom )
                     {
-                        if ( geomstructvec[i] == delstruct )
+                        vector < FeaStructure* > geomstructvec = currgeom->GetFeaStructVec();
+
+                        for ( unsigned int i = 0; i < geomstructvec.size(); i++ )
                         {
-                            currgeom->DeleteFeaStruct( i );
+                            if ( geomstructvec[i] == delstruct )
+                            {
+                                currgeom->DeleteFeaStruct( i );
+                            }
                         }
                     }
                 }
             }
-        }
 
-        StructureMgr.m_CurrStructIndex.Set( StructureMgr.m_CurrStructIndex() - 1 );
-
-        if ( !StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            StructureMgr.m_CurrStructIndex.Set( -1 );
+            // select the structure that shifts into the first deleted slot, or the new last structure
+            int index = min( m_StructureSelVec[0], ( int )StructureMgr.GetAllFeaStructs().size() - 1 );
+            m_StructureSelVec.clear();
+            m_SelectedPartIndexVec.clear();
+            StructureMgr.SetCurrPartIndex( -1 );
+            if ( StructureMgr.ValidTotalFeaStructInd( index ) )
+            {
+                StructureMgr.m_CurrStructIndex.Set( index );
+                m_StructureSelVec.push_back( index );
+            }
+            else
+            {
+                StructureMgr.m_CurrStructIndex.Set( -1 );
+            }
         }
     }
     else if ( device == &m_FeaStructNameInput )
@@ -4560,12 +4718,14 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( first_selection != -1 )
                 {
-                    if ( structvec[StructureMgr.m_CurrStructIndex()]->ValidFeaPartInd( first_selection - 1 ) )
+                    // select the part that shifts into the first deleted slot, or the new last part
+                    int index = min( first_selection, structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() + structvec[StructureMgr.m_CurrStructIndex()]->NumFeaSubSurfs() - 1 );
+                    m_SelectedPartIndexVec.clear();
+                    if ( index > -1 )
                     {
-                        m_SelectedPartIndexVec.clear();
-                        m_SelectedPartIndexVec.push_back( first_selection - 1 );
-                        StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
+                        m_SelectedPartIndexVec.push_back( index );
                     }
+                    StructureMgr.SetCurrPartIndex( index );
                 }
             }
         }
@@ -4727,12 +4887,25 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DelFeaPropertyButton )
     {
-        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
-
-        if ( fea_prop )
+        if ( !m_FeaPropertySelVec.empty() )
         {
-            StructureMgr.DeleteFeaProperty( fea_prop->GetID() );
-            StructureMgr.SetCurrPropertyIndex( StructureMgr.GetCurrPropertyIndex() - 1 );
+            vector < FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
+            for ( int i = ( int )m_FeaPropertySelVec.size() - 1; i >= 0; i-- )
+            {
+                if ( StructureMgr.ValidFeaPropertyInd( m_FeaPropertySelVec[i] ) )
+                {
+                    StructureMgr.DeleteFeaProperty( property_vec[ m_FeaPropertySelVec[i] ]->GetID() );
+                }
+            }
+
+            // select the property that shifts into the first deleted slot, or the new last property
+            int index = min( m_FeaPropertySelVec[0], StructureMgr.NumFeaProperties() - 1 );
+            StructureMgr.SetCurrPropertyIndex( index );
+            m_FeaPropertySelVec.clear();
+            if ( index > -1 )
+            {
+                m_FeaPropertySelVec.push_back( index );
+            }
         }
         else
         {
@@ -4755,13 +4928,24 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DelFeaMaterialButton )
     {
-        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
-
-        if ( fea_mat )
+        if ( !m_FeaMaterialSelVec.empty() )
         {
-            if ( StructureMgr.DeleteFeaMaterial( fea_mat->GetID() ) )
+            vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
+            for ( int i = (int)m_FeaMaterialSelVec.size() - 1; i >= 0; i-- )
             {
-                StructureMgr.SetCurrMaterialIndex( StructureMgr.GetCurrMaterialIndex() - 1 );
+                if ( StructureMgr.ValidFeaMaterialInd( m_FeaMaterialSelVec[i] ) )
+                {
+                    StructureMgr.DeleteFeaMaterial( material_vec[ m_FeaMaterialSelVec[i] ]->GetID() );
+                }
+            }
+
+            // select the material that shifts into the first deleted slot, or the new last material
+            int index = min( m_FeaMaterialSelVec[0], StructureMgr.NumFeaMaterials() - 1 );
+            StructureMgr.SetCurrMaterialIndex( index );
+            m_FeaMaterialSelVec.clear();
+            if ( index > -1 )
+            {
+                m_FeaMaterialSelVec.push_back( index );
             }
         }
         else

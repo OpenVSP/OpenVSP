@@ -61,6 +61,8 @@ protected:
     Fl_Text_Editor* m_CodeEditor;
     Fl_Text_Buffer* m_CodeBuffer;
 
+    vector < int > m_LinkSelVec;
+
     int m_CharWidth;
 
     

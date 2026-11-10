@@ -85,6 +85,7 @@ protected:
     GroupLayout m_AeroCenterLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
+    vector < int > m_GeometryAnalysisSelVec;
 
 
     TriggerButton m_AddGeometryAnalysis;

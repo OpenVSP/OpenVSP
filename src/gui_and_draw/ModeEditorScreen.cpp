@@ -40,6 +40,7 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 775
 
     m_ModeBrowser = m_GenLayout.AddColResizeBrowser( mode_widths, 4, browserHeight );
     m_ModeBrowser->Init( this, m_GenLayout.GetGroup() );
+    m_ModeBrowser->type( FL_MULTI_BROWSER );
 
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.AddX( m_GenLayout.GetW() * 0.25 );
@@ -88,6 +89,7 @@ ModeEditorScreen::ModeEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 600, 775
 
     m_SettingBrowser = m_GenLayout.AddColResizeBrowser( setting_widths, 2, browserHeight );
     m_SettingBrowser->callback( staticScreenCB, this );
+    m_SettingBrowser->type( FL_MULTI_BROWSER );
 
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetFitWidthFlag( true );
@@ -152,10 +154,18 @@ bool ModeEditorScreen::Update()
         m_DeleteAllModes.Activate();
     }
 
+    if ( !m_ModeSelVec.empty() )
+    {
+        m_DeleteMode.Activate();
+    }
+    else
+    {
+        m_DeleteMode.Deactivate();
+    }
+
     if ( mod )
     {
         m_ApplyAndShowOnlyMode.Activate();
-        m_DeleteMode.Activate();
         m_NormalSetChoice.Activate();
         m_DegenSetChoice.Activate();
         m_GroupChoice.Activate();
@@ -165,7 +175,6 @@ bool ModeEditorScreen::Update()
     else
     {
         m_ApplyAndShowOnlyMode.Deactivate();
-        m_DeleteMode.Deactivate();
         m_NormalSetChoice.Deactivate();
         m_DegenSetChoice.Deactivate();
         m_GroupChoice.Deactivate();
@@ -182,7 +191,7 @@ bool ModeEditorScreen::Update()
         m_DeleteAllSettings.Activate();
     }
 
-    if ( mod && m_SelectedSettingIndex >= 0 && m_SelectedSettingIndex < m_NumSetting )
+    if ( mod && !m_SettingSelVec.empty() )
     {
         m_DeleteSetting.Activate();
     }
@@ -253,9 +262,28 @@ void ModeEditorScreen::UpdateModeBrowser()
         }
     }
 
+    //==== Sync selection with current mode, which may be changed outside this browser ====//
     if ( m_SelectedModeIndex >= 0 && m_SelectedModeIndex < (int)m_ModeIDs.size() )
     {
-        m_ModeBrowser->select( m_SelectedModeIndex + 2 );
+        if ( m_ModeSelVec.size() != 1 || m_ModeSelVec[0] != m_SelectedModeIndex )
+        {
+            m_ModeSelVec.clear();
+            m_ModeSelVec.push_back( m_SelectedModeIndex );
+        }
+    }
+    else if ( m_ModeSelVec.size() == 1 )
+    {
+        m_ModeSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_ModeSelVec.size(); i++ )
+    {
+        if ( m_ModeSelVec[i] >= 0 && m_ModeSelVec[i] < (int)m_ModeIDs.size() )
+        {
+            // offset by +2 to convert to browser indexing past header row
+            m_ModeBrowser->select( m_ModeSelVec[i] + 2 );
+        }
     }
 
     m_ModeBrowser->hposition( input_h_pos );
@@ -304,10 +332,33 @@ void ModeEditorScreen::UpdateSettingBrowser()
             }
         }
 
+        //==== Sync selection with current setting, which may be changed outside this browser ====//
         if ( m_SelectedSettingIndex >= 0 && m_SelectedSettingIndex < m_NumSetting )
         {
-            m_SettingBrowser->select( m_SelectedSettingIndex + 2 );
+            if ( m_SettingSelVec.size() != 1 || m_SettingSelVec[0] != m_SelectedSettingIndex )
+            {
+                m_SettingSelVec.clear();
+                m_SettingSelVec.push_back( m_SelectedSettingIndex );
+            }
         }
+        else if ( m_SettingSelVec.size() == 1 )
+        {
+            m_SettingSelVec.clear();
+        }
+
+        //==== Repopulate browser with existing selection ====//
+        for ( int i = 0; i < ( int )m_SettingSelVec.size(); i++ )
+        {
+            if ( m_SettingSelVec[i] >= 0 && m_SettingSelVec[i] < m_NumSetting )
+            {
+                // offset by +2 to convert to browser indexing past header row
+                m_SettingBrowser->select( m_SettingSelVec[i] + 2 );
+            }
+        }
+    }
+    else
+    {
+        m_SettingSelVec.clear();
     }
 
 
@@ -405,7 +456,29 @@ void ModeEditorScreen::CallBack( Fl_Widget *w )
         }
 
         // update selection per GUI input
-        m_SelectedModeIndex = m_ModeBrowser->value() - 2;
+        m_ModeBrowser->GetSelected( m_ModeSelVec );
+        for ( int i = ( int )m_ModeSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_ModeSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_ModeSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_ModeSelVec.erase( m_ModeSelVec.begin() + i );
+            }
+        }
+
+        m_SelectedModeIndex = -1;
+        if ( m_ModeSelVec.size() == 1 )
+        {
+            m_SelectedModeIndex = m_ModeSelVec[0];
+        }
+
+        // setting multi-selection belongs to the previous mode; single selection is restored on update
+        m_SettingSelVec.clear();
 
         Mode *mod = ModeMgr.GetMode( m_SelectedModeIndex );
         changed = true;
@@ -422,7 +495,26 @@ void ModeEditorScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_SettingBrowser )
     {
-        m_SelectedSettingIndex = m_SettingBrowser->value() - 2;
+        m_SettingBrowser->GetSelected( m_SettingSelVec );
+        for ( int i = ( int )m_SettingSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_SettingSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_SettingSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_SettingSelVec.erase( m_SettingSelVec.begin() + i );
+            }
+        }
+
+        m_SelectedSettingIndex = -1;
+        if ( m_SettingSelVec.size() == 1 )
+        {
+            m_SelectedSettingIndex = m_SettingSelVec[0];
+        }
         changed = true;
     }
 
@@ -477,14 +569,28 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DeleteMode )
     {
-        if ( mod )
+        if ( !m_ModeSelVec.empty() )
         {
-            ModeMgr.DelMode( m_SelectedModeIndex );
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_ModeSelVec.size() - 1; i >= 0; i-- )
+            {
+                ModeMgr.DelMode( m_ModeSelVec[i] );
+            }
+
+            // select the mode that shifts into the first deleted slot, or the new last mode
+            m_SelectedModeIndex = min( m_ModeSelVec[0], ModeMgr.GetNumModes() - 1 );
+            m_ModeSelVec.clear();
+            m_SettingSelVec.clear();
+            if ( m_SelectedModeIndex > -1 )
+            {
+                m_ModeSelVec.push_back( m_SelectedModeIndex );
+            }
         }
     }
     else if ( device == &m_DeleteAllModes )
     {
         ModeMgr.DelAllModes();
+        m_ModeSelVec.clear();
     }
     else if ( device == &m_ModeNameInput )
     {
@@ -513,9 +619,21 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DeleteSetting )
     {
-        if ( mod && m_SelectedSettingIndex >= 0 && m_SelectedSettingIndex < m_NumSetting )
+        if ( mod && !m_SettingSelVec.empty() )
         {
-            mod->RemoveSetting( m_SelectedSettingIndex );
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_SettingSelVec.size() - 1; i >= 0; i-- )
+            {
+                mod->RemoveSetting( m_SettingSelVec[i] );
+            }
+
+            // select the setting that shifts into the first deleted slot, or the new last setting
+            m_SelectedSettingIndex = min( m_SettingSelVec[0], ( int )mod->GetAllGroupSettings().size() - 1 );
+            m_SettingSelVec.clear();
+            if ( m_SelectedSettingIndex > -1 )
+            {
+                m_SettingSelVec.push_back( m_SelectedSettingIndex );
+            }
         }
     }
     else if ( device == &m_DeleteAllSettings )
@@ -523,6 +641,7 @@ void ModeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( mod )
         {
             mod->RemoveAllSettings();
+            m_SettingSelVec.clear();
         }
     }
     else if ( device == &m_ApplyAndShowOnlyMode )

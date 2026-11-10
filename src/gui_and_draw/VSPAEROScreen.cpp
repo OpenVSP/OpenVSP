@@ -607,6 +607,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CpSliceBrowser = m_CpSlicerLayout.AddColResizeBrowser( cp_col_widths, 3, CpBrowserHeight );
     m_CpSliceBrowser->Init( this, m_CpSlicerLayout.GetGroup() );
+    m_CpSliceBrowser->type( FL_MULTI_BROWSER );
 
     m_CpSlicerLayout.SetSameLineFlag( true );
     m_CpSlicerLayout.SetFitWidthFlag( false );
@@ -694,6 +695,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CSGroupBrowser->labelfont( 13 );
     m_CSGroupBrowser->textsize( 12 );
     m_CSGroupBrowser->Init( this, m_CSGroupingLayout.GetGroup() );
+    m_CSGroupBrowser->type( FL_MULTI_BROWSER );
 
     m_CSGroupingLayout.AddX( main_browser_w );
     m_CSGroupingLayout.AddX( main_browser_spacing ); // Space Between Main Browser and Available Items Browser
@@ -1506,25 +1508,29 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_DeleteCpSliceButton )
         {
-            VSPAEROMgr.DelCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+            if ( !m_CpSliceSelVec.empty() )
+            {
+                // delete in descending index order so remaining selected indices stay valid
+                for ( int i = ( int )m_CpSliceSelVec.size() - 1; i >= 0; i-- )
+                {
+                    VSPAEROMgr.DelCpSlice( m_CpSliceSelVec[i] );
+                }
 
-            if ( VSPAEROMgr.GetCurrentCpSliceIndex() > VSPAEROMgr.GetCpSliceVec().size() - 1 )
-            {
-                VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCpSliceVec().size() - 1 );
-            }
-            else if ( VSPAEROMgr.ValidCpSliceInd( VSPAEROMgr.GetCurrentCpSliceIndex() - 1 ) )
-            {
-                VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCurrentCpSliceIndex() );
-            }
-            else
-            {
-                VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
+                // select the slice that shifts into the first deleted slot, or the new last slice
+                int index = min( m_CpSliceSelVec[0], ( int )VSPAEROMgr.GetCpSliceVec().size() - 1 );
+                VSPAEROMgr.SetCurrentCpSliceIndex( index );
+                m_CpSliceSelVec.clear();
+                if ( index > -1 )
+                {
+                    m_CpSliceSelVec.push_back( index );
+                }
             }
         }
         else if ( device == &m_DeleteAllCpSliceButton )
         {
             VSPAEROMgr.ClearCpSliceVec();
             VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
+            m_CpSliceSelVec.clear();
         }
         else if ( device == &m_CpSliceNameInput )
         {
@@ -1544,7 +1550,25 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_RemoveCSGroupButton )
         {
-            VSPAEROMgr.RemoveControlSurfaceGroup();
+            if ( !m_CSGroupSelVec.empty() )
+            {
+                // delete in descending index order so remaining selected indices stay valid
+                for ( int i = ( int )m_CSGroupSelVec.size() - 1; i >= 0; i-- )
+                {
+                    // RemoveControlSurfaceGroup acts on the current group and its active surface vec
+                    VSPAEROMgr.SetCurrentCSGroupIndex( m_CSGroupSelVec[i] );
+                    VSPAEROMgr.RemoveControlSurfaceGroup();
+                }
+
+                // select the group that shifts into the first deleted slot, or the new last group
+                int index = min( m_CSGroupSelVec[0], ( int )VSPAEROMgr.GetControlSurfaceGroupVec().size() - 1 );
+                VSPAEROMgr.SetCurrentCSGroupIndex( index );
+                m_CSGroupSelVec.clear();
+                if ( index > -1 )
+                {
+                    m_CSGroupSelVec.push_back( index );
+                }
+            }
         }
         else if ( device == &m_AddSelectedCSButton )
         {
@@ -2071,6 +2095,29 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
             m_CSGroupBrowser->add( str );
         }
     }
+    //==== Sync selection with current group, which may be changed outside this browser ====//
+    if ( curr_cs_index >= 0 && curr_cs_index < ( int )cs_group_vec.size() )
+    {
+        if ( m_CSGroupSelVec.size() != 1 || m_CSGroupSelVec[0] != curr_cs_index )
+        {
+            m_CSGroupSelVec.clear();
+            m_CSGroupSelVec.push_back( curr_cs_index );
+        }
+    }
+    else if ( m_CSGroupSelVec.size() == 1 )
+    {
+        m_CSGroupSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_CSGroupSelVec.size(); i++ )
+    {
+        if ( m_CSGroupSelVec[i] >= 0 && m_CSGroupSelVec[i] < ( int )cs_group_vec.size() )
+        {
+            // offset by +1 to convert to browser indexing
+            m_CSGroupBrowser->select( m_CSGroupSelVec[i] + 1 );
+        }
+    }
     SelectControlSurfaceBrowser(curr_cs_index + 1);
 
     m_GroupedCSBrowser->clear();
@@ -2329,14 +2376,17 @@ void VSPAEROScreen::ControlSurfaceGroupBrowserCallback()
     }
 
     // Perform standard CSGroupBrowserCallback
-    int last = m_CSGroupBrowser->value();
-    if ( last >= 1 )
+    m_CSGroupBrowser->GetSelected( m_CSGroupSelVec );
+    int new_index = -1;
+    if ( m_CSGroupSelVec.size() == 1 )
     {
-        if ( VSPAEROMgr.GetCurrentCSGroupIndex() != last - 1 )
-        {
-            VSPAEROMgr.SetCurrentCSGroupIndex( last - 1 );
-            VSPAEROMgr.m_SelectedGroupedCS.clear();
-        }
+        new_index = m_CSGroupSelVec[0];
+    }
+
+    if ( VSPAEROMgr.GetCurrentCSGroupIndex() != new_index )
+    {
+        VSPAEROMgr.SetCurrentCSGroupIndex( new_index );
+        VSPAEROMgr.m_SelectedGroupedCS.clear();
     }
     VSPAEROMgr.HighlightSelected( VSPAEROMgr.CONTROL_SURFACE );
 
@@ -2555,7 +2605,31 @@ void VSPAEROScreen::UpdateCpSliceBrowser()
         }
     }
 
-    SelectCpSliceBrowser( VSPAEROMgr.GetCurrentCpSliceIndex() + 2 );
+    //==== Sync selection with current slice, which may be changed outside this browser ====//
+    int index = VSPAEROMgr.GetCurrentCpSliceIndex();
+    if ( VSPAEROMgr.ValidCpSliceInd( index ) )
+    {
+        if ( m_CpSliceSelVec.size() != 1 || m_CpSliceSelVec[0] != index )
+        {
+            m_CpSliceSelVec.clear();
+            m_CpSliceSelVec.push_back( index );
+        }
+    }
+    else if ( m_CpSliceSelVec.size() == 1 )
+    {
+        m_CpSliceSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_CpSliceSelVec.size(); i++ )
+    {
+        if ( VSPAEROMgr.ValidCpSliceInd( m_CpSliceSelVec[i] ) )
+        {
+            // offset by +2 to convert to browser indexing past header row
+            m_CpSliceBrowser->select( m_CpSliceSelVec[i] + 2 );
+        }
+    }
+    SelectCpSliceBrowser( index + 2 );
 
     m_CpSliceBrowser->hposition( h_pos );
     m_CpSliceBrowser->vposition( v_pos );
@@ -2575,11 +2649,29 @@ void VSPAEROScreen::SelectCpSliceBrowser( int cur_index )
 
 void VSPAEROScreen::CpSliceBrowserCallback()
 {
-    //==== Find Last Selected CpSlice ====//
-    int last = m_CpSliceBrowser->value();
-    if ( last >= 2 )
+    //==== Find Selected CpSlice(s) ====//
+    m_CpSliceBrowser->GetSelected( m_CpSliceSelVec );
+    for ( int i = ( int )m_CpSliceSelVec.size() - 1; i >= 0; i-- )
     {
-        VSPAEROMgr.SetCurrentCpSliceIndex( last - 2 );
+        if ( m_CpSliceSelVec[i] > 0 )
+        {
+            // offset by -1 to skip header row
+            m_CpSliceSelVec[i]--;
+        }
+        else
+        {
+            // erase index if <= 0 as this is at or below header row
+            m_CpSliceSelVec.erase( m_CpSliceSelVec.begin() + i );
+        }
+    }
+
+    if ( m_CpSliceSelVec.size() == 1 )
+    {
+        VSPAEROMgr.SetCurrentCpSliceIndex( m_CpSliceSelVec[0] );
+    }
+    else
+    {
+        VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
     }
 }
 

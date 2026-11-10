@@ -246,6 +246,7 @@ protected:
     ToggleButton m_CpSlicerActivateToggle;
     TriggerButton m_CpSliceLastADBButton;
     ColResizeBrowser* m_CpSliceBrowser;
+    vector < int > m_CpSliceSelVec;
     TriggerButton m_AddCpSliceButton;
     TriggerButton m_DeleteCpSliceButton;
     TriggerButton m_DeleteAllCpSliceButton;
@@ -290,6 +291,7 @@ protected:
     GroupLayout m_CSGroupDetailsLayout;
     GroupLayout m_CSGroupGainScrollLayout;
     VspBrowser* m_CSGroupBrowser;
+    vector < int > m_CSGroupSelVec;
     VspBrowser* m_UngroupedCSBrowser;
     VspBrowser* m_GroupedCSBrowser;
 

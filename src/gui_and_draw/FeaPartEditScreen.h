@@ -140,6 +140,9 @@ private:
     //===== PolySpar =====//
     ColResizeBrowser* m_PolySparPointBrowser;
     int m_PolySparPointBrowserSelect;
+    vector < int > m_PolySparPointSelVec;
+    // The PolySpar the point selection was made on
+    string m_PolySparPointSelID;
 
     TriggerButton m_AddPolySparPoint;
     TriggerButton m_InsertPolySparPoint;

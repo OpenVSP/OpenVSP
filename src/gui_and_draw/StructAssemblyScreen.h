@@ -86,6 +86,7 @@ private:
     TriggerButton m_DelAssemblyButton;
 
     ColResizeBrowser* m_AssemblySelectBrowser;
+    vector < int > m_AssemblySelVec;
     vector < string > m_AssemblyIDs;
 
     StringInput m_AssemblyNameInput;
@@ -93,6 +94,7 @@ private:
     //===== Structure Tab Items =====//
     ColResizeBrowser* m_StructureSelectBrowser;
     int m_StructureBrowserIndex;
+    vector < int > m_StructureSelVec;
 
     Choice m_FeaStructureChoice;
     int m_StructureChoiceIndex;

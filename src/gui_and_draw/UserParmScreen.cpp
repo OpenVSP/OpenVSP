@@ -17,7 +17,6 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
 
     //==== Variables =====//
     m_NumParmsLast = 0;
-    m_UserBrowserSelection = 0;
     m_NameText = "Default_Name";
     m_GroupText = "Default_Group";
     m_DescText = "Default_Desc";
@@ -68,7 +67,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
 
     m_CreateGroup.SetButtonWidth( 170 );
     m_CreateGroup.AddX( 95 );
-    m_CreateGroup.AddButton( m_DeleteParm, "Delete" );
+    m_CreateGroup.AddButton( m_DeleteParm, "DeleteSelected" );
     m_CreateGroup.AddX( 40 );
     m_CreateGroup.AddButton( m_DeleteAllParm, "DeleteAll" );
 
@@ -88,6 +87,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     m_CreateGroup.AddInput( m_EditParmMaxInput, "Max:" );
 
     m_UserDefinedBrowser->Init( this, m_CreateGroup.GetGroup() );
+    m_UserDefinedBrowser->type( FL_MULTI_BROWSER );
 
     //==== Adjust ====//
     m_AdjustScroll = AddSubScroll( adj_tab, 5 );
@@ -150,11 +150,24 @@ bool UserParmScreen::Update()
             }
         }
     }
-    m_UserDefinedBrowser->select( m_UserBrowserSelection );
+    for ( int i = 0; i < m_UserBrowserVec.size(); i++ )
+    {
+        // offset by +1 to convert to browser indexing
+        m_UserDefinedBrowser->select( m_UserBrowserVec[i] + 1 );
+    }
 
     //==== Set Inputs ====//
     Parm* user_parm_ptr = nullptr;
-    int index = m_UserBrowserSelection - 1;
+    int index = -1;
+    if ( m_UserBrowserVec.size() == 1 )
+    {
+        index = m_UserBrowserVec[0];
+        m_EditParmNameInput.Activate();
+    }
+    else
+    {
+        m_EditParmNameInput.Deactivate();
+    }
     if ( index >= 0 && index < (int)m_UserParmBrowserVec.size() )
     {
         user_parm_ptr = ParmMgr.FindParm(  m_UserParmBrowserVec[index] );
@@ -190,6 +203,34 @@ bool UserParmScreen::Update()
         m_EditParmDescInput.Update( "" );
         m_EditParmMinInput.Update( "" );
         m_EditParmMaxInput.Update( "" );
+    }
+
+    // Activate/Disable Delete Buttons depending on selection and parm vector lengths.
+    // Group, description and limits apply to every selected parm; a name only to one.
+    if ( !m_UserBrowserVec.empty() )
+    {
+        m_DeleteParm.Activate();
+        m_EditParmGroupInput.Activate();
+        m_EditParmDescInput.Activate();
+        m_EditParmMinInput.Activate();
+        m_EditParmMaxInput.Activate();
+    }
+    else
+    {
+        m_DeleteParm.Deactivate();
+        m_EditParmNameInput.Deactivate();
+        m_EditParmGroupInput.Deactivate();
+        m_EditParmDescInput.Deactivate();
+        m_EditParmMinInput.Deactivate();
+        m_EditParmMaxInput.Deactivate();
+    }
+    if ( !m_UserParmBrowserVec.empty() )
+    {
+        m_DeleteAllParm.Activate();
+    }
+    else
+    {
+        m_DeleteAllParm.Deactivate();
     }
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
@@ -287,9 +328,9 @@ void UserParmScreen::CallBack( Fl_Widget *w )
     if ( w == m_UserDefinedBrowser )
     {
         //==== Apply popup rename to prev selection ====//
-        if ( m_UserDefinedBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
+        if ( m_UserDefinedBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER && m_UserBrowserVec.size() == 1 )
         {
-            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[ m_UserBrowserSelection - 1 ] );
+            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[ m_UserBrowserVec[0] ] );
             if ( p )
             {
                 string pname = m_UserDefinedBrowser->GetPopupValue();
@@ -298,12 +339,12 @@ void UserParmScreen::CallBack( Fl_Widget *w )
         }
 
         //==== Load User Parm Edit Names/Desc ====//
-        m_UserBrowserSelection = m_UserDefinedBrowser->value();
+        m_UserDefinedBrowser->GetSelected( m_UserBrowserVec );
 
         //==== Open up popup over new selection ====//
-        if ( m_UserDefinedBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
+        if ( m_UserDefinedBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN && m_UserBrowserVec.size() == 1 )
         {
-            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[ m_UserBrowserSelection - 1 ] );
+            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[ m_UserBrowserVec[0] ] );
             // double click open the popup input
             if ( p )
             {
@@ -347,22 +388,34 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             pptr->SetLowerUpperLimits( veh->m_UserParmMin(), veh->m_UserParmMax() );
             pptr->Set( veh->m_UserParmVal() );
         }
-        m_UserBrowserSelection = -1;
         RebuildAdjustGroup();
+        m_UserBrowserVec.clear();
      }
     else if ( gui_device == &m_DeleteParm )
     {
-        int index = m_UserDefinedBrowser->value() - 1;
         int num_predef = LinkMgr.GetNumPredefinedUserParms();
-        LinkMgr.DeleteUserParm( index +  num_predef );
+        vector < int > delete_vec;
+        for ( int i = 0; i < m_UserBrowserVec.size(); i++ )
+        {
+            delete_vec.push_back( m_UserBrowserVec[i] + num_predef );
+        }
+        LinkMgr.DeleteUserParm( delete_vec );
         RebuildAdjustGroup();
-        m_UserBrowserSelection = -1;
+
+        int old_index = *min_element( m_UserBrowserVec.begin(), m_UserBrowserVec.end() );
+        int max_index = LinkMgr.GetNumUserParms() - num_predef - 1;
+
+        m_UserBrowserVec.clear();
+        if ( max_index >= 0 )
+        {
+            m_UserBrowserVec.push_back( min( old_index , max_index ) );
+        }
     }
     else if ( gui_device == &m_DeleteAllParm )
     {
         LinkMgr.DeleteAllUserParm( );
         RebuildAdjustGroup();
-        m_UserBrowserSelection = -1;
+        m_UserBrowserVec.clear();
     }
     else if ( gui_device == &m_EditParmNameInput ||
               gui_device == &m_EditParmGroupInput ||
@@ -370,32 +423,35 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
               gui_device == &m_EditParmMinInput ||
               gui_device == &m_EditParmMaxInput )
     {
-        int index = m_UserDefinedBrowser->value() - 1;
-        if ( index >= 0 && index < (int)m_UserParmBrowserVec.size() )
+        for ( int i = 0; i < m_UserBrowserVec.size(); i++ )
         {
-            Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[index] );
-            if ( p )
+            int index = m_UserBrowserVec[i];
+            if ( index >= 0 && index < (int)m_UserParmBrowserVec.size() )
             {
-                if ( gui_device == &m_EditParmNameInput )
-                    p->SetName( m_EditParmNameInput.GetString() );
-                else if ( gui_device == &m_EditParmGroupInput )
-                    p->SetGroupName( m_EditParmGroupInput.GetString() );
-                else if ( gui_device == &m_EditParmDescInput )
-                    p->SetDescript( m_EditParmDescInput.GetString() );
-                else if ( gui_device == &m_EditParmMinInput )
-                    p->SetLowerLimit( atof( m_EditParmMinInput.GetString().c_str() ) );
-                else if ( gui_device == &m_EditParmMaxInput )
-                    p->SetUpperLimit( atof( m_EditParmMaxInput.GetString().c_str() ) );
-
-                //==== Load User Parms Into Browser ====//
-                m_UserDefinedBrowser->clear();
-                for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
+                Parm* p = ParmMgr.FindParm(  m_UserParmBrowserVec[index] );
+                if ( p )
                 {
-                    Parm* p2 = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
-                    if ( p2 )
+                    if ( gui_device == &m_EditParmNameInput && m_UserBrowserVec.size() == 1 )
+                        p->SetName( m_EditParmNameInput.GetString() );
+                    else if ( gui_device == &m_EditParmGroupInput )
+                        p->SetGroupName( m_EditParmGroupInput.GetString() );
+                    else if ( gui_device == &m_EditParmDescInput )
+                        p->SetDescript( m_EditParmDescInput.GetString() );
+                    else if ( gui_device == &m_EditParmMinInput )
+                        p->SetLowerLimit( atof( m_EditParmMinInput.GetString().c_str() ) );
+                    else if ( gui_device == &m_EditParmMaxInput )
+                        p->SetUpperLimit( atof( m_EditParmMaxInput.GetString().c_str() ) );
+
+                    //==== Load User Parms Into Browser ====//
+                    m_UserDefinedBrowser->clear();
+                    for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
                     {
-                        string pname = p2->GetName();
-                        m_UserDefinedBrowser->add( pname.c_str() );
+                        Parm* p2 = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
+                        if ( p2 )
+                        {
+                            string pname = p2->GetName();
+                            m_UserDefinedBrowser->add( pname.c_str() );
+                        }
                     }
                 }
                 RebuildAdjustGroup();

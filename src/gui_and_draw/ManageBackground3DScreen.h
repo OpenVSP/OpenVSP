@@ -34,6 +34,7 @@ protected:
     GroupLayout m_BorderLayout;
 
     ColResizeBrowser* m_Background3DBrowser;
+    vector < int > m_Background3DSelVec;
 
     TriggerButton m_AddBackground3DButton;
     TriggerButton m_RemoveBackground3DButton;

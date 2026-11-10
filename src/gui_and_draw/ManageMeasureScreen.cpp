@@ -40,6 +40,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_RulerBrowser = m_RulerLayout.AddVspBrowser( 75 );
     m_RulerBrowser->Init( this, m_RulerLayout.GetGroup() );
+    m_RulerBrowser->type( FL_MULTI_BROWSER );
 
     m_RulerLayout.AddYGap();
 
@@ -162,6 +163,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_ProbeBrowser = m_ProbeLayout.AddVspBrowser( 75 );
     m_ProbeBrowser->Init( this, m_ProbeLayout.GetGroup() );
+    m_ProbeBrowser->type( FL_MULTI_BROWSER );
 
     m_ProbeLayout.AddYGap();
 
@@ -272,6 +274,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_RSTProbeBrowser = m_RSTProbeLayout.AddVspBrowser( 75 );
     m_RSTProbeBrowser->Init( this, m_RSTProbeLayout.GetGroup() );
+    m_RSTProbeBrowser->type( FL_MULTI_BROWSER );
 
     m_RSTProbeLayout.AddYGap();
 
@@ -374,6 +377,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_ProtractorBrowser = m_ProtractorLayout.AddVspBrowser( 75 );
     m_ProtractorBrowser->Init( this, m_ProtractorLayout.GetGroup() );
+    m_ProtractorBrowser->type( FL_MULTI_BROWSER );
 
     m_ProtractorLayout.AddYGap();
 
@@ -530,10 +534,29 @@ bool ManageMeasureScreen::Update()
         m_RulerBrowser->add( rulerName.c_str() );
     }
 
+    //==== Sync selection with current ruler, which may be changed outside this browser ====//
     int index = MeasureMgr.GetCurrRulerIndex();
     if ( index >= 0 && index < ( int )rulers.size() )
     {
-        m_RulerBrowser->select( index + 1 );
+        if ( m_RulerSelVec.size() != 1 || m_RulerSelVec[0] != index )
+        {
+            m_RulerSelVec.clear();
+            m_RulerSelVec.push_back( index );
+        }
+    }
+    else if ( m_RulerSelVec.size() == 1 )
+    {
+        m_RulerSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_RulerSelVec.size(); i++ )
+    {
+        if ( m_RulerSelVec[i] >= 0 && m_RulerSelVec[i] < ( int )rulers.size() )
+        {
+            // offset by +1 to convert to browser indexing
+            m_RulerBrowser->select( m_RulerSelVec[i] + 1 );
+        }
     }
 
 
@@ -677,10 +700,29 @@ bool ManageMeasureScreen::Update()
         m_ProbeBrowser->add( probeName.c_str() );
     }
 
+    //==== Sync selection with current probe, which may be changed outside this browser ====//
     index = MeasureMgr.GetCurrProbeIndex();
     if ( index >= 0 && index < ( int )probes.size() )
     {
-        m_ProbeBrowser->select( index + 1 );
+        if ( m_ProbeSelVec.size() != 1 || m_ProbeSelVec[0] != index )
+        {
+            m_ProbeSelVec.clear();
+            m_ProbeSelVec.push_back( index );
+        }
+    }
+    else if ( m_ProbeSelVec.size() == 1 )
+    {
+        m_ProbeSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_ProbeSelVec.size(); i++ )
+    {
+        if ( m_ProbeSelVec[i] >= 0 && m_ProbeSelVec[i] < ( int )probes.size() )
+        {
+            // offset by +1 to convert to browser indexing
+            m_ProbeBrowser->select( m_ProbeSelVec[i] + 1 );
+        }
     }
 
 
@@ -815,10 +857,29 @@ bool ManageMeasureScreen::Update()
         m_RSTProbeBrowser->add( rstName.c_str() );
     }
 
+    //==== Sync selection with current RST probe, which may be changed outside this browser ====//
     index = MeasureMgr.GetCurrRSTProbeIndex();
     if ( index >= 0 && index < ( int )RSTprobes.size() )
     {
-        m_RSTProbeBrowser->select( index + 1 );
+        if ( m_RSTProbeSelVec.size() != 1 || m_RSTProbeSelVec[0] != index )
+        {
+            m_RSTProbeSelVec.clear();
+            m_RSTProbeSelVec.push_back( index );
+        }
+    }
+    else if ( m_RSTProbeSelVec.size() == 1 )
+    {
+        m_RSTProbeSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_RSTProbeSelVec.size(); i++ )
+    {
+        if ( m_RSTProbeSelVec[i] >= 0 && m_RSTProbeSelVec[i] < ( int )RSTprobes.size() )
+        {
+            // offset by +1 to convert to browser indexing
+            m_RSTProbeBrowser->select( m_RSTProbeSelVec[i] + 1 );
+        }
     }
 
 
@@ -953,10 +1014,29 @@ bool ManageMeasureScreen::Update()
         m_ProtractorBrowser->add( protName.c_str() );
     }
 
+    //==== Sync selection with current protractor, which may be changed outside this browser ====//
     index = MeasureMgr.GetCurrProtractorIndex();
     if ( index >= 0 && index < ( int )protractors.size() )
     {
-        m_ProtractorBrowser->select( index + 1 );
+        if ( m_ProtractorSelVec.size() != 1 || m_ProtractorSelVec[0] != index )
+        {
+            m_ProtractorSelVec.clear();
+            m_ProtractorSelVec.push_back( index );
+        }
+    }
+    else if ( m_ProtractorSelVec.size() == 1 )
+    {
+        m_ProtractorSelVec.clear();
+    }
+
+    //==== Repopulate browser with existing selection ====//
+    for ( int i = 0; i < ( int )m_ProtractorSelVec.size(); i++ )
+    {
+        if ( m_ProtractorSelVec[i] >= 0 && m_ProtractorSelVec[i] < ( int )protractors.size() )
+        {
+            // offset by +1 to convert to browser indexing
+            m_ProtractorBrowser->select( m_ProtractorSelVec[i] + 1 );
+        }
     }
 
 
@@ -1147,8 +1227,15 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
         }
 
         // update selection
-        int sel = m_RulerBrowser->value();
-        MeasureMgr.SetCurrRulerIndex( sel - 1 );
+        m_RulerBrowser->GetSelected( m_RulerSelVec );
+        if ( m_RulerSelVec.size() == 1 )
+        {
+            MeasureMgr.SetCurrRulerIndex( m_RulerSelVec[0] );
+        }
+        else
+        {
+            MeasureMgr.SetCurrRulerIndex( -1 );
+        }
 
         // open popup if double clicked
         if ( m_RulerBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -1174,8 +1261,15 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
         }
 
         // update selection
-        int sel = m_ProbeBrowser->value();
-        MeasureMgr.SetCurrProbeIndex( sel - 1 );
+        m_ProbeBrowser->GetSelected( m_ProbeSelVec );
+        if ( m_ProbeSelVec.size() == 1 )
+        {
+            MeasureMgr.SetCurrProbeIndex( m_ProbeSelVec[0] );
+        }
+        else
+        {
+            MeasureMgr.SetCurrProbeIndex( -1 );
+        }
 
         // open popup if double clicked
         if ( m_ProbeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -1201,8 +1295,15 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
         }
 
         // update selection
-        int sel = m_RSTProbeBrowser->value();
-        MeasureMgr.SetCurrRSTProbeIndex(sel - 1);
+        m_RSTProbeBrowser->GetSelected( m_RSTProbeSelVec );
+        if ( m_RSTProbeSelVec.size() == 1 )
+        {
+            MeasureMgr.SetCurrRSTProbeIndex( m_RSTProbeSelVec[0] );
+        }
+        else
+        {
+            MeasureMgr.SetCurrRSTProbeIndex( -1 );
+        }
 
         // open popup if double clicked
         if ( m_RSTProbeBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -1228,8 +1329,15 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
         }
 
         // update selection
-        int sel = m_ProtractorBrowser->value();
-        MeasureMgr.SetCurrProtractorIndex( sel - 1 );
+        m_ProtractorBrowser->GetSelected( m_ProtractorSelVec );
+        if ( m_ProtractorSelVec.size() == 1 )
+        {
+            MeasureMgr.SetCurrProtractorIndex( m_ProtractorSelVec[0] );
+        }
+        else
+        {
+            MeasureMgr.SetCurrProtractorIndex( -1 );
+        }
 
         // open popup if double clicked
         if ( m_ProtractorBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -1269,11 +1377,28 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RemoveRulerButton )
     {
-        MeasureMgr.DelRuler( MeasureMgr.GetCurrRulerIndex() );
+        if ( !m_RulerSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_RulerSelVec.size() - 1; i >= 0; i-- )
+            {
+                MeasureMgr.DelRuler( m_RulerSelVec[i] );
+            }
+
+            // select the ruler that shifts into the first deleted slot, or the new last ruler
+            int index = min( m_RulerSelVec[0], ( int )MeasureMgr.GetRulerVec().size() - 1 );
+            MeasureMgr.SetCurrRulerIndex( index );
+            m_RulerSelVec.clear();
+            if ( index > -1 )
+            {
+                m_RulerSelVec.push_back( index );
+            }
+        }
     }
     else if ( device == &m_RemoveAllRulersButton )
     {
         MeasureMgr.DelAllRulers();
+        m_RulerSelVec.clear();
     }
     else if ( device == &m_ShowAllRulersButton )
     {
@@ -1337,11 +1462,28 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RemoveProbeButton )
     {
-        MeasureMgr.DelProbe( MeasureMgr.GetCurrProbeIndex() );
+        if ( !m_ProbeSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_ProbeSelVec.size() - 1; i >= 0; i-- )
+            {
+                MeasureMgr.DelProbe( m_ProbeSelVec[i] );
+            }
+
+            // select the probe that shifts into the first deleted slot, or the new last probe
+            int index = min( m_ProbeSelVec[0], ( int )MeasureMgr.GetProbeVec().size() - 1 );
+            MeasureMgr.SetCurrProbeIndex( index );
+            m_ProbeSelVec.clear();
+            if ( index > -1 )
+            {
+                m_ProbeSelVec.push_back( index );
+            }
+        }
     }
     else if ( device == &m_RemoveAllProbesButton )
     {
         MeasureMgr.DelAllProbes();
+        m_ProbeSelVec.clear();
     }
     else if ( device == &m_ShowAllProbesButton )
     {
@@ -1389,11 +1531,28 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RemoveRSTProbeButton )
     {
-        MeasureMgr.DelRSTProbe(MeasureMgr.GetCurrRSTProbeIndex() );
+        if ( !m_RSTProbeSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_RSTProbeSelVec.size() - 1; i >= 0; i-- )
+            {
+                MeasureMgr.DelRSTProbe( m_RSTProbeSelVec[i] );
+            }
+
+            // select the RST probe that shifts into the first deleted slot, or the new last RST probe
+            int index = min( m_RSTProbeSelVec[0], ( int )MeasureMgr.GetRSTProbeVec().size() - 1 );
+            MeasureMgr.SetCurrRSTProbeIndex( index );
+            m_RSTProbeSelVec.clear();
+            if ( index > -1 )
+            {
+                m_RSTProbeSelVec.push_back( index );
+            }
+        }
     }
     else if ( device == &m_RemoveAllRSTProbesButton )
     {
         MeasureMgr.DelAllRSTProbes();
+        m_RSTProbeSelVec.clear();
     }
     else if ( device == &m_ShowAllRSTProbesButton )
     {
@@ -1441,11 +1600,28 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RemoveProtractorButton )
     {
-        MeasureMgr.DelProtractor( MeasureMgr.GetCurrProtractorIndex() );
+        if ( !m_ProtractorSelVec.empty() )
+        {
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_ProtractorSelVec.size() - 1; i >= 0; i-- )
+            {
+                MeasureMgr.DelProtractor( m_ProtractorSelVec[i] );
+            }
+
+            // select the protractor that shifts into the first deleted slot, or the new last protractor
+            int index = min( m_ProtractorSelVec[0], ( int )MeasureMgr.GetProtractorVec().size() - 1 );
+            MeasureMgr.SetCurrProtractorIndex( index );
+            m_ProtractorSelVec.clear();
+            if ( index > -1 )
+            {
+                m_ProtractorSelVec.push_back( index );
+            }
+        }
     }
     else if ( device == &m_RemoveAllProtractorsButton )
     {
         MeasureMgr.DelAllProtractors();
+        m_ProtractorSelVec.clear();
     }
     else if ( device == &m_ShowAllProtractorsButton )
     {

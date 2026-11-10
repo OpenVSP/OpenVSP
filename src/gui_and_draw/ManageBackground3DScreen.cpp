@@ -43,6 +43,7 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
     static int width_array[] = {200, 100, 50, 0 };
     m_Background3DBrowser = m_BorderLayout.AddColResizeBrowser( width_array, 3, 75 );
     m_Background3DBrowser->Init( this, m_BorderLayout.GetGroup() );
+    m_Background3DBrowser->type( FL_MULTI_BROWSER );
 
 
     m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 2.0 );
@@ -296,10 +297,29 @@ bool ManageBackground3DScreen::Update()
             m_Background3DBrowser->add( str );
         }
 
+        //==== Sync selection with current background, which may be changed outside this browser ====//
         int index = Background3DMgr.GetCurrBackground3DIndex();
         if ( index >= 0 && index < ( int )bg3Ds.size() )
         {
-            m_Background3DBrowser->select( index + 2 );
+            if ( m_Background3DSelVec.size() != 1 || m_Background3DSelVec[0] != index )
+            {
+                m_Background3DSelVec.clear();
+                m_Background3DSelVec.push_back( index );
+            }
+        }
+        else if ( m_Background3DSelVec.size() == 1 )
+        {
+            m_Background3DSelVec.clear();
+        }
+
+        //==== Repopulate browser with existing selection ====//
+        for ( int i = 0; i < ( int )m_Background3DSelVec.size(); i++ )
+        {
+            if ( m_Background3DSelVec[i] >= 0 && m_Background3DSelVec[i] < ( int )bg3Ds.size() )
+            {
+                // offset by +2 to convert to browser indexing past header row
+                m_Background3DBrowser->select( m_Background3DSelVec[i] + 2 );
+            }
         }
         m_Background3DBrowser->hposition( h_pos );
         m_Background3DBrowser->vposition( v_pos );
@@ -529,15 +549,28 @@ void ManageBackground3DScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RemoveBackground3DButton )
     {
-        Background3DMgr.DelBackground3D( Background3DMgr.GetCurrBackground3DIndex() );
-        if ( Background3DMgr.GetCurrBackground3DIndex() > Background3DMgr.GetNumBackground3Ds() - 1 )
+        if ( !m_Background3DSelVec.empty() )
         {
-            Background3DMgr.SetCurrBackground3DIndex( Background3DMgr.GetNumBackground3Ds() - 1 );
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_Background3DSelVec.size() - 1; i >= 0; i-- )
+            {
+                Background3DMgr.DelBackground3D( m_Background3DSelVec[i] );
+            }
+
+            // select the background that shifts into the first deleted slot, or the new last background
+            int index = min( m_Background3DSelVec[0], Background3DMgr.GetNumBackground3Ds() - 1 );
+            Background3DMgr.SetCurrBackground3DIndex( index );
+            m_Background3DSelVec.clear();
+            if ( index > -1 )
+            {
+                m_Background3DSelVec.push_back( index );
+            }
         }
     }
     else if ( device == &m_RemoveAllBackground3DsButton )
     {
         Background3DMgr.DelAllBackground3Ds();
+        m_Background3DSelVec.clear();
     }
     else if ( device == &m_ShowAllBackground3DsButton )
     {
@@ -596,9 +629,30 @@ void ManageBackground3DScreen::CallBack( Fl_Widget * w )
             }
         }
 
-        // Select new background item
-        int sel = m_Background3DBrowser->value();
-        Background3DMgr.SetCurrBackground3DIndex( sel - 2 );
+        // Select new background item(s)
+        m_Background3DBrowser->GetSelected( m_Background3DSelVec );
+        for ( int i = ( int )m_Background3DSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_Background3DSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_Background3DSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_Background3DSelVec.erase( m_Background3DSelVec.begin() + i );
+            }
+        }
+
+        if ( m_Background3DSelVec.size() == 1 )
+        {
+            Background3DMgr.SetCurrBackground3DIndex( m_Background3DSelVec[0] );
+        }
+        else
+        {
+            Background3DMgr.SetCurrBackground3DIndex( -1 );
+        }
 
 
         // Open up popup input if double clicked

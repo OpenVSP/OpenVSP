@@ -64,6 +64,7 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
 
     m_RoutingPointBrowser = m_PointBrowserLayout.AddColResizeBrowser( col_widths, 3, browser_h );
     m_RoutingPointBrowser->Init( this, m_PointBrowserLayout.GetGroup() );
+    m_RoutingPointBrowser->type( FL_MULTI_BROWSER );
 
     m_DesignLayout.SetX( start_x );
 
@@ -488,13 +489,39 @@ void RoutingScreen::UpdateBrowser()
             m_RoutingPointBrowser->addCopyText( pt_vec[i]->GetName() );
         }
 
+        // A selection made on another routing geom does not carry over
+        if ( routing_ptr->GetID() != m_RoutingPointSelGeomID )
+        {
+            m_RoutingPointSelVec.clear();
+            m_RoutingPointSelGeomID = routing_ptr->GetID();
+        }
+
+        //==== Sync selection with active point, which may be changed outside this browser ====//
         if ( routing_ptr->m_ActivePointIndex >= 0 && routing_ptr->m_ActivePointIndex < (int)pt_vec.size() )
         {
-            m_RoutingPointBrowser->select( routing_ptr->m_ActivePointIndex + 2 );
+            if ( m_RoutingPointSelVec.size() != 1 || m_RoutingPointSelVec[0] != routing_ptr->m_ActivePointIndex )
+            {
+                m_RoutingPointSelVec.clear();
+                m_RoutingPointSelVec.push_back( routing_ptr->m_ActivePointIndex );
+            }
         }
         else
         {
             routing_ptr->m_ActivePointIndex = -1;
+            if ( m_RoutingPointSelVec.size() == 1 )
+            {
+                m_RoutingPointSelVec.clear();
+            }
+        }
+
+        //==== Repopulate browser with existing selection ====//
+        for ( int i = 0; i < ( int )m_RoutingPointSelVec.size(); i++ )
+        {
+            if ( m_RoutingPointSelVec[i] >= 0 && m_RoutingPointSelVec[i] < (int)pt_vec.size() )
+            {
+                // offset by +2 to convert to browser indexing past header row
+                m_RoutingPointBrowser->select( m_RoutingPointSelVec[i] + 2 );
+            }
         }
 
         m_RoutingPointBrowser->hposition( input_h_pos );
@@ -562,7 +589,26 @@ void RoutingScreen::CallBack( Fl_Widget *w )
         }
 
         // change index of browser
-        routing_ptr->m_ActivePointIndex = m_RoutingPointBrowser->value() - 2;
+        m_RoutingPointBrowser->GetSelected( m_RoutingPointSelVec );
+        for ( int i = ( int )m_RoutingPointSelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_RoutingPointSelVec[i] > 0 )
+            {
+                // offset by -1 to skip header row
+                m_RoutingPointSelVec[i]--;
+            }
+            else
+            {
+                // erase index if <= 0 as this is at or below header row
+                m_RoutingPointSelVec.erase( m_RoutingPointSelVec.begin() + i );
+            }
+        }
+
+        routing_ptr->m_ActivePointIndex = -1;
+        if ( m_RoutingPointSelVec.size() == 1 )
+        {
+            routing_ptr->m_ActivePointIndex = m_RoutingPointSelVec[0];
+        }
 
         // insert new popup
         if ( m_RoutingPointBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
@@ -613,13 +659,21 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_DelRoutingPoint )
     {
-        if ( routing_ptr )
+        if ( routing_ptr && !m_RoutingPointSelVec.empty() )
         {
-            routing_ptr->DelPt( routing_ptr->m_ActivePointIndex );
-            if ( routing_ptr->m_ActivePointIndex > routing_ptr->GetNumPt() - 1 )
+            // delete in descending index order so remaining selected indices stay valid
+            for ( int i = ( int )m_RoutingPointSelVec.size() - 1; i >= 0; i-- )
             {
-                routing_ptr->m_ActivePointIndex = routing_ptr->GetNumPt() - 1;
-                m_LiveIndex = routing_ptr->m_ActivePointIndex;
+                routing_ptr->DelPt( m_RoutingPointSelVec[i] );
+            }
+
+            // select the point that shifts into the first deleted slot, or the new last point
+            routing_ptr->m_ActivePointIndex = min( m_RoutingPointSelVec[0], routing_ptr->GetNumPt() - 1 );
+            m_LiveIndex = routing_ptr->m_ActivePointIndex;
+            m_RoutingPointSelVec.clear();
+            if ( routing_ptr->m_ActivePointIndex > -1 )
+            {
+                m_RoutingPointSelVec.push_back( routing_ptr->m_ActivePointIndex );
             }
             routing_ptr->Update();
         }
@@ -630,6 +684,7 @@ void RoutingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             routing_ptr->DelAllPt();
             routing_ptr->Update();
+            m_RoutingPointSelVec.clear();
         }
     }
     else if ( gui_device == &m_PtNameInput )

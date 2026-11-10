@@ -52,6 +52,9 @@ protected:
 
 
     ColResizeBrowser* m_RoutingPointBrowser;
+    vector < int > m_RoutingPointSelVec;
+    // The routing geom the point selection was made on
+    string m_RoutingPointSelGeomID;
     int m_LiveIndex;
 
 
