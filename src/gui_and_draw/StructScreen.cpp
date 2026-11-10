@@ -4864,7 +4864,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( fea_layer )
             {
                 fea_mat->DeleteLayer( fea_layer->GetID() );
-                fea_mat->SetCurrLayerIndex( fea_mat->GetCurrLayerIndex() - 1 );
+                // select the previous layer, or stay at the top if the first was deleted
+                fea_mat->SetCurrLayerIndex( min( max( fea_mat->GetCurrLayerIndex() - 1, 0 ), fea_mat->NumLayers() - 1 ) );
             }
             else
             {
@@ -5069,7 +5070,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 {
                     curr_struct->DelFeaBC( StructureMgr.GetCurrBCIndex() );
 
-                    StructureMgr.SetCurrBCIndex( StructureMgr.GetCurrBCIndex() - 1 );
+                    // select the previous BC, or stay at the top if the first was deleted (-1 when none remain)
+                    StructureMgr.SetCurrBCIndex( min( max( StructureMgr.GetCurrBCIndex() - 1, 0 ), curr_struct->NumFeaBCs() - 1 ) );
                 }
                 else
                 {
