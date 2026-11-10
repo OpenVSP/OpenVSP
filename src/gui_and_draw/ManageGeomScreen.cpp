@@ -103,9 +103,9 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 67
     m_RightLayout.AddButton( m_PasteButton, "Paste" );
     m_RightLayout.AddButton( m_CutButton, "Cut" );
 
-    m_CopyButton.GetFlButton()->shortcut( FL_CTRL + 'c' );
-    m_PasteButton.GetFlButton()->shortcut( FL_CTRL + 'v' );
-    m_CutButton.GetFlButton()->shortcut( FL_CTRL + 'x' );
+    m_CopyButton.GetFlButton()->shortcut( FL_COMMAND + 'c' );
+    m_PasteButton.GetFlButton()->shortcut( FL_COMMAND + 'v' );
+    m_CutButton.GetFlButton()->shortcut( FL_COMMAND + 'x' );
 
     m_RightLayout.AddYGap();
     m_RightLayout.AddDividerBox( "Selection" );

@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <FL/Fl.H>
+#include <FL/Fl_Input_.H>
 #include "VSPWindow.h"
 
 bool valid_hotkey( int event_length, int key )
@@ -287,8 +288,56 @@ void VSP_Window::UpdateParent()
     }
 }
 
+// Cuts, copies or pastes in the text field with the keyboard, which takes those keys only with Cmd on macOS
+bool VSP_Window::TextEditKey( int key )
+{
+    Fl_Input_* in = dynamic_cast< Fl_Input_* >( Fl::focus() );
+    if ( !in )
+    {
+        return false;
+    }
+    if ( key == 'c' || key == 'x' )
+    {
+        in->copy( 1 );
+    }
+    if ( key == 'x' && !in->readonly() )
+    {
+        in->cut();
+    }
+    if ( key == 'v' && !in->readonly() )
+    {
+        Fl::paste( *in, 1 );
+    }
+    return true;
+}
+
 int VSP_Window::handle( int fl_event )
 {
+#ifdef __APPLE__
+    // Ctrl with X, C or V does what Cmd does: a shortcut nothing in the window took is offered
+    // to it again as Cmd.  This covers the window's own widgets, such as the Geom Browser's Copy;
+    // hidden items of the main menu cover the menu's shortcuts.
+    if ( fl_event == FL_SHORTCUT && ( Fl::event_state() & FL_CTRL ) && !( Fl::event_state() & FL_META ) )
+    {
+        int key = Fl::event_key();
+        if ( key == 'x' || key == 'c' || key == 'v' )
+        {
+            if ( TextEditKey( key ) )
+            {
+                return 1;
+            }
+            if ( Fl_Double_Window::handle( fl_event ) )
+            {
+                return 1;
+            }
+            int state = Fl::e_state;
+            Fl::e_state = ( state & ~FL_CTRL ) | FL_META;
+            int used = Fl_Double_Window::handle( fl_event );
+            Fl::e_state = state;
+            return used;
+        }
+    }
+#endif
 
     int x = Fl::event_x();
     int y = Fl::event_y();

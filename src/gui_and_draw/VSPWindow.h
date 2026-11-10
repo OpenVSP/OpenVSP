@@ -24,6 +24,9 @@ public:
     VSP_Window(int w, int h, const char* title= 0);
     VSP_Window(int X, int Y, int W, int H, const char *l = 0);
 
+    // Ctrl or Cmd with X, C or V given to the text field that has the keyboard, if one does: true if it took the key
+    static bool TextEditKey( int key );
+
     enum { WIN_ATT_NONE, WIN_ATT_LSIDE, WIN_ATT_RSIDE, WIN_ATT_TOP, WIN_ATT_BOTTOM, WIN_ATT_NUM_TYPES };
     enum { WIN_ALN_NONE, WIN_ALN_LEFT, WIN_ALN_RIGHT, WIN_ALN_TOP, WIN_ALN_BOTTOM, WIN_ALN_NUM_TYPES };
 

@@ -45,6 +45,34 @@ using namespace vsp;
 
 using namespace vsp;
 
+#ifdef __APPLE__
+// The hidden Ctrl items of the Edit menu: in a text field Ctrl with X, C or V edits the text; elsewhere it is the menu's
+// Cut, Copy or Paste
+static void CtrlCutCB( Fl_Widget *w, void* data )
+{
+    if ( !VSP_Window::TextEditKey( 'x' ) )
+    {
+        ActionMenuItem::staticActionCB( w, data );
+    }
+}
+
+static void CtrlCopyCB( Fl_Widget *w, void* data )
+{
+    if ( !VSP_Window::TextEditKey( 'c' ) )
+    {
+        ActionMenuItem::staticActionCB( w, data );
+    }
+}
+
+static void CtrlPasteCB( Fl_Widget *w, void* data )
+{
+    if ( !VSP_Window::TextEditKey( 'v' ) )
+    {
+        ActionMenuItem::staticActionCB( w, data );
+    }
+}
+#endif
+
 //==== Constructor ====//
 MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 {
@@ -124,6 +152,14 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_CutMenuItem.Init( this, m_MenuBar, "Edit/Cut", FL_COMMAND + 'x' );
     m_CopyMenuItem.Init( this, m_MenuBar, "Edit/Copy", FL_COMMAND + 'c' );
     m_PasteMenuItem.Init( this, m_MenuBar, "Edit/Paste", FL_COMMAND + 'v' );
+#ifdef __APPLE__
+    // Ctrl as well as Cmd.  The system menu bar matches its shortcuts against the key itself, so
+    // these are hidden items, which FLTK takes instead.  They cover the main menu; VSP_Window::handle
+    // covers the Cmd shortcuts of a window's own widgets.
+    m_MenuBar->add( "Edit/Cut (Ctrl)", FL_CTRL + 'x', CtrlCutCB, &m_CutMenuItem, FL_MENU_INVISIBLE );
+    m_MenuBar->add( "Edit/Copy (Ctrl)", FL_CTRL + 'c', CtrlCopyCB, &m_CopyMenuItem, FL_MENU_INVISIBLE );
+    m_MenuBar->add( "Edit/Paste (Ctrl)", FL_CTRL + 'v', CtrlPasteCB, &m_PasteMenuItem, FL_MENU_INVISIBLE );
+#endif
     m_DeleteMenuItem.Init( this, m_MenuBar, "Edit/Delete" );
     m_SelAllMenuItem.Init( this, m_MenuBar, "Edit/Select All", FL_COMMAND + 'a' );
     m_PickMenuItem.Init( this, m_MenuBar, "Edit/Toggle Pick Mode", 'p' );
