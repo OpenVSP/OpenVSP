@@ -4381,8 +4381,12 @@ void FeaPartEditScreen::UpdatePolySparPointBrowser( FeaPolySpar* polyspar )
                 m_PolySparPointBrowser->select( m_PolySparPointSelVec[i] + 2 );
             }
         }
-
         m_PolySparPointBrowser->hposition( input_h_pos );
         m_PolySparPointBrowser->vposition( input_v_pos );
+        //==== Scroll to selected item if only one is selected ====//
+        if ( m_PolySparPointSelVec.size() == 1 )
+        {
+            m_PolySparPointBrowser->ScrollToLine( m_PolySparPointSelVec[0] + 2 );
+        }
     }
 }

@@ -543,6 +543,7 @@ bool ManageMeasureScreen::Update()
             m_RulerSelVec.clear();
             m_RulerSelVec.push_back( index );
         }
+        m_RulerBrowser->ScrollToLine( index + 1 );
     }
     else if ( m_RulerSelVec.size() == 1 )
     {
@@ -709,6 +710,7 @@ bool ManageMeasureScreen::Update()
             m_ProbeSelVec.clear();
             m_ProbeSelVec.push_back( index );
         }
+        m_ProbeBrowser->ScrollToLine( index + 1 );
     }
     else if ( m_ProbeSelVec.size() == 1 )
     {
@@ -866,6 +868,7 @@ bool ManageMeasureScreen::Update()
             m_RSTProbeSelVec.clear();
             m_RSTProbeSelVec.push_back( index );
         }
+        m_RSTProbeBrowser->ScrollToLine( index + 1 );
     }
     else if ( m_RSTProbeSelVec.size() == 1 )
     {
@@ -1023,6 +1026,7 @@ bool ManageMeasureScreen::Update()
             m_ProtractorSelVec.clear();
             m_ProtractorSelVec.push_back( index );
         }
+        m_ProtractorBrowser->ScrollToLine( index + 1 );
     }
     else if ( m_ProtractorSelVec.size() == 1 )
     {

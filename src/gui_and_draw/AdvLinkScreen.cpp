@@ -436,6 +436,11 @@ bool AdvLinkScreen::Update()
         m_LinkBrowser->select( m_LinkSelVec[i] + 1 );
     }
 
+    if ( m_LinkSelVec.size() == 1 )
+    {
+        m_LinkBrowser->ScrollToLine( m_LinkSelVec[0] + 1 );
+    }
+
     //==== Input and Output Browsers ====//
     int input_h_pos = m_InputBrowser->hposition();
     int output_h_pos = m_OutputBrowser->hposition();

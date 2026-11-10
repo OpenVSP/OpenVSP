@@ -490,6 +490,11 @@ void StructAssemblyScreen::UpdateAssemblyTab()
 
     m_AssemblySelectBrowser->vposition( scroll_pos );
     m_AssemblySelectBrowser->hposition( h_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_AssemblySelVec.size() == 1 )
+    {
+        m_AssemblySelectBrowser->ScrollToLine( m_AssemblySelVec[0] + 2 );
+    }
 
 
     if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
@@ -596,6 +601,11 @@ void StructAssemblyScreen::UpdateStructTab()
 
     m_StructureSelectBrowser->vposition( scroll_pos );
     m_StructureSelectBrowser->hposition( h_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_StructureSelVec.size() == 1 )
+    {
+        m_StructureSelectBrowser->ScrollToLine( m_StructureSelVec[0] + 2 );
+    }
 }
 
 void StructAssemblyScreen::UpdateConnectionTab()

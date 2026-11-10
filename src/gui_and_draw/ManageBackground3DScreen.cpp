@@ -323,6 +323,11 @@ bool ManageBackground3DScreen::Update()
         }
         m_Background3DBrowser->hposition( h_pos );
         m_Background3DBrowser->vposition( v_pos );
+        //==== Scroll to selected item if only one is selected ====//
+        if ( m_Background3DSelVec.size() == 1 )
+        {
+            m_Background3DBrowser->ScrollToLine( m_Background3DSelVec[0] + 2 );
+        }
     }
 
 

@@ -129,6 +129,13 @@ bool UserParmScreen::Update()
             m_UserParmBrowserVec.push_back( pid );
     }
 
+    // Re-point selection at the tracked parm, since renames can re-sort the list
+    vector < string >::iterator track_it = find( m_UserParmBrowserVec.begin(), m_UserParmBrowserVec.end(), m_TrackParmID );
+    if ( !m_TrackParmID.empty() && track_it != m_UserParmBrowserVec.end() )
+    {
+        m_UserBrowserVec = { (int)( track_it - m_UserParmBrowserVec.begin() ) };
+    }
+
     //==== Load User Parms Into Browser ====//
     // Only rebuild when contents change; clear() resets the scroll position
     bool rebuild = m_UserDefinedBrowser->size() != (int)m_UserParmBrowserVec.size();
@@ -137,6 +144,7 @@ bool UserParmScreen::Update()
         Parm* p = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
         rebuild = !p || p->GetName() != m_UserDefinedBrowser->text( i + 1 );
     }
+    int v_pos = m_UserDefinedBrowser->vposition();
     if ( rebuild )
     {
         m_UserDefinedBrowser->clear();
@@ -155,6 +163,13 @@ bool UserParmScreen::Update()
         // offset by +1 to convert to browser indexing
         m_UserDefinedBrowser->select( m_UserBrowserVec[i] + 1 );
     }
+    if ( rebuild && !m_TrackParmID.empty() && !m_UserBrowserVec.empty() )
+    {
+        // keep the prior view, then scroll only as far as needed to show the tracked item
+        m_UserDefinedBrowser->vposition( v_pos );
+        m_UserDefinedBrowser->ScrollToLine( m_UserBrowserVec[0] + 1 );
+    }
+    m_TrackParmID.clear();
 
     //==== Set Inputs ====//
     Parm* user_parm_ptr = nullptr;
@@ -335,6 +350,12 @@ void UserParmScreen::CallBack( Fl_Widget *w )
             {
                 string pname = m_UserDefinedBrowser->GetPopupValue();
                 p->SetName( pname.c_str() );
+                m_TrackParmID = p->GetID();
+                UserParmContainer* upc = LinkMgr.GetUserParmContainer();
+                if ( upc && !upc->SortVars() )
+                {
+                    RebuildAdjustGroup();
+                }
             }
         }
 
@@ -390,6 +411,7 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
         RebuildAdjustGroup();
         m_UserBrowserVec.clear();
+        m_TrackParmID = pid; // select and scroll to the new parm
      }
     else if ( gui_device == &m_DeleteParm )
     {
@@ -409,6 +431,7 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( max_index >= 0 )
         {
             m_UserBrowserVec.push_back( min( old_index , max_index ) );
+            m_TrackParmID = LinkMgr.GetUserParmId( m_UserBrowserVec[0] + num_predef );
         }
     }
     else if ( gui_device == &m_DeleteAllParm )
@@ -432,7 +455,10 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 if ( p )
                 {
                     if ( gui_device == &m_EditParmNameInput && m_UserBrowserVec.size() == 1 )
+                    {
                         p->SetName( m_EditParmNameInput.GetString() );
+                        m_TrackParmID = p->GetID();
+                    }
                     else if ( gui_device == &m_EditParmGroupInput )
                         p->SetGroupName( m_EditParmGroupInput.GetString() );
                     else if ( gui_device == &m_EditParmDescInput )
@@ -441,21 +467,15 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                         p->SetLowerLimit( atof( m_EditParmMinInput.GetString().c_str() ) );
                     else if ( gui_device == &m_EditParmMaxInput )
                         p->SetUpperLimit( atof( m_EditParmMaxInput.GetString().c_str() ) );
-
-                    //==== Load User Parms Into Browser ====//
-                    m_UserDefinedBrowser->clear();
-                    for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
-                    {
-                        Parm* p2 = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
-                        if ( p2 )
-                        {
-                            string pname = p2->GetName();
-                            m_UserDefinedBrowser->add( pname.c_str() );
-                        }
-                    }
                 }
                 RebuildAdjustGroup();
             }
+        }
+        // sort now so the browser rebuilds once in final order
+        UserParmContainer* upc = LinkMgr.GetUserParmContainer();
+        if ( upc && !upc->SortVars() )
+        {
+            RebuildAdjustGroup();
         }
     }
     else

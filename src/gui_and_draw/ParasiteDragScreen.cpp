@@ -2646,6 +2646,6 @@ void ParasiteDragScreen::SelectExcresBrowser( int index )
         m_ExcresBrowser->select( index );
 
         //==== Position Browser ====//
-        m_ExcresBrowser->topline( index );
+        m_ExcresBrowser->ScrollToLine( index );
     }
 }

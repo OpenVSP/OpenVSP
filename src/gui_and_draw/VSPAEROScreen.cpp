@@ -2405,7 +2405,7 @@ void VSPAEROScreen::SelectControlSurfaceBrowser( int cur_index )
         m_CSGroupBrowser->select( cur_index );
 
         //==== Position Browser ====//
-        m_CSGroupBrowser->topline( cur_index );
+        m_CSGroupBrowser->ScrollToLine( cur_index );
     }
 }
 
@@ -2629,10 +2629,11 @@ void VSPAEROScreen::UpdateCpSliceBrowser()
             m_CpSliceBrowser->select( m_CpSliceSelVec[i] + 2 );
         }
     }
-    SelectCpSliceBrowser( index + 2 );
 
     m_CpSliceBrowser->hposition( h_pos );
     m_CpSliceBrowser->vposition( v_pos );
+
+    SelectCpSliceBrowser( index + 2 );
 }
 
 void VSPAEROScreen::SelectCpSliceBrowser( int cur_index )
@@ -2643,7 +2644,7 @@ void VSPAEROScreen::SelectCpSliceBrowser( int cur_index )
         m_CpSliceBrowser->select( cur_index );
 
         //==== Position Browser ====//
-        m_CpSliceBrowser->topline( cur_index );
+        m_CpSliceBrowser->ScrollToLine( cur_index );
     }
 }
 

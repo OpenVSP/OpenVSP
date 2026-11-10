@@ -3204,6 +3204,11 @@ bool GeomScreen::Update()
 
     m_SubSurfBrowser->hposition( h_pos );
     m_SubSurfBrowser->vposition( v_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_SubSurfSelVec.size() == 1 )
+    {
+        m_SubSurfBrowser->ScrollToLine( m_SubSurfSelVec[0] + 2 );
+    }
 
     //================= Mass Prop Tab =======================//
     m_DensityInput.Update( geom_ptr->m_Density.GetID() );

@@ -1131,6 +1131,11 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
 
     m_GeometryAnalysisBrowser->vposition( scroll_pos );
     m_GeometryAnalysisBrowser->hposition( h_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_GeometryAnalysisSelVec.size() == 1 )
+    {
+        m_GeometryAnalysisBrowser->ScrollToLine( m_GeometryAnalysisSelVec[0] + 2 );
+    }
 }
 
 void GeometryAnalysisScreen::UpdateWindowSubSurfBrowser()

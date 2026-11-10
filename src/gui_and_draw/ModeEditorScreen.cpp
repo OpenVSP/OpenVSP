@@ -288,6 +288,11 @@ void ModeEditorScreen::UpdateModeBrowser()
 
     m_ModeBrowser->hposition( input_h_pos );
     m_ModeBrowser->vposition( input_v_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_ModeSelVec.size() == 1 )
+    {
+        m_ModeBrowser->ScrollToLine( m_ModeSelVec[0] + 2 );
+    }
 }
 
 void ModeEditorScreen::UpdateSettingBrowser()
@@ -364,6 +369,12 @@ void ModeEditorScreen::UpdateSettingBrowser()
 
     m_SettingBrowser->hposition( input_h_pos );
     m_SettingBrowser->vposition( input_v_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_SettingSelVec.size() == 1 )
+    {
+        // offset by +2 to convert to browser indexing past header row
+        m_SettingBrowser->ScrollToLine( m_SettingSelVec[0] + 2 );
+    }
 }
 
 void ModeEditorScreen::UpdateVarPresetChoices()

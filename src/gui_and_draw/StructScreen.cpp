@@ -2233,6 +2233,11 @@ void StructScreen::UpdateStructBrowser()
 
     m_StructureSelectBrowser->vposition( scroll_pos );
     m_StructureSelectBrowser->hposition( h_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_StructureSelVec.size() == 1 )
+    {
+        m_StructureSelectBrowser->ScrollToLine( m_StructureSelVec[0] + 2 );
+    }
 }
 
 void StructScreen::UpdateFeaPartBrowser()
@@ -2386,6 +2391,11 @@ void StructScreen::UpdateFeaPartBrowser()
 
     m_FeaPartSelectBrowser->vposition( scroll_pos );
     m_FeaPartSelectBrowser->hposition( h_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_SelectedPartIndexVec.size() == 1 )
+    {
+        m_FeaPartSelectBrowser->ScrollToLine( m_SelectedPartIndexVec[0] + 2 );
+    }
 }
 
 void StructScreen::UpdateDrawPartBrowser()
@@ -2596,6 +2606,11 @@ void StructScreen::UpdateFeaPropertyBrowser()
 
     m_FeaPropertySelectBrowser->vposition( scroll_pos );
     m_FeaPropertySelectBrowser->hposition( h_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_FeaPropertySelVec.size() == 1 )
+    {
+        m_FeaPropertySelectBrowser->ScrollToLine( m_FeaPropertySelVec[0] + 2 );
+    }
 }
 
 void StructScreen::UpdateFeaMaterialBrowser()
@@ -2645,6 +2660,11 @@ void StructScreen::UpdateFeaMaterialBrowser()
     }
 
     m_FeaMaterialSelectBrowser->vposition( scroll_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_FeaMaterialSelVec.size() == 1 )
+    {
+        m_FeaMaterialSelectBrowser->ScrollToLine( m_FeaMaterialSelVec[0] + 1 );
+    }
 }
 
 void StructScreen::UpdateFeaMaterialChoice()
@@ -2753,6 +2773,11 @@ void StructScreen::UpdateFeaBCBrowser()
 
             m_FeaBCSelectBrowser->vposition( scroll_pos );
             m_FeaBCSelectBrowser->hposition( h_pos );
+            //==== Scroll to current BC ====//
+            if ( curr_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
+            {
+                m_FeaBCSelectBrowser->ScrollToLine( StructureMgr.GetCurrBCIndex() + 1 );
+            }
         }
     }
 }
@@ -2851,6 +2876,11 @@ void StructScreen::UpdateLayerBrowser()
             }
 
             m_FeaLayerSelectBrowser->vposition( scroll_pos );
+            //==== Scroll to current layer ====//
+            if ( fea_mat->ValidLayerInd( fea_mat->GetCurrLayerIndex() ) )
+            {
+                m_FeaLayerSelectBrowser->ScrollToLine( fea_mat->GetCurrLayerIndex() + 1 );
+            }
         }
     }
 }

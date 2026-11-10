@@ -374,6 +374,11 @@ void VarPresetEditorScreen::RebuildMenus()
 
     m_GroupBrowser->hposition( h_pos );
     m_GroupBrowser->vposition( v_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_GroupSelVec.size() == 1 )
+    {
+        m_GroupBrowser->ScrollToLine( m_GroupSelVec[0] + 1 );
+    }
 
 
 
@@ -438,6 +443,11 @@ void VarPresetEditorScreen::RebuildMenus()
 
     m_SettingBrowser->hposition( h_pos );
     m_SettingBrowser->vposition( v_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_SettingSelVec.size() == 1 )
+    {
+        m_SettingBrowser->ScrollToLine( m_SettingSelVec[0] + 1 );
+    }
 
 }
 

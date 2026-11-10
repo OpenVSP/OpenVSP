@@ -75,6 +75,7 @@ protected:
     string m_DescText;
 
     vector < int > m_UserBrowserVec;
+    string m_TrackParmID; // parm to scroll into view after a delete or rename
 
     int m_NumParmsLast;
     void RebuildAdjustGroup();

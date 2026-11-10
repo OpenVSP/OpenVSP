@@ -975,6 +975,11 @@ bool CfdMeshScreen::Update()
             m_SourceBrowser->select( m_SelVec[i] + 1 );
         }
 
+        if ( m_SelVec.size() == 1 )
+        {
+            m_SourceBrowser->ScrollToLine( m_SelVec[0] + 1 );
+        }
+
         int nmain = currGeom->GetNumMainSurfs();
         for ( int i = 0; i < nmain; ++i )
         {

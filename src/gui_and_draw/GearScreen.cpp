@@ -1928,6 +1928,11 @@ void GearScreen::UpdateBogieBrowser()
     }
     m_BogieBrowser->hposition( h_pos );
     m_BogieBrowser->vposition( v_pos );
+    //==== Scroll to selected item if only one is selected ====//
+    if ( m_BogieSelVec.size() == 1 )
+    {
+        m_BogieBrowser->ScrollToLine( m_BogieSelVec[0] + 2 );
+    }
 }
 
 void GearScreen::UpdateStowSurfChoice()

@@ -526,8 +526,11 @@ void RoutingScreen::UpdateBrowser()
 
         m_RoutingPointBrowser->hposition( input_h_pos );
         m_RoutingPointBrowser->vposition( input_v_pos );
-
-
+        //==== Scroll to selected item if only one is selected ====//
+        if ( m_RoutingPointSelVec.size() == 1 )
+        {
+            m_RoutingPointBrowser->ScrollToLine( m_RoutingPointSelVec[0] + 2 );
+        }
 
         m_SurfChoice.ClearItems();
         RoutingPoint* rpt = routing_ptr->GetPt( routing_ptr->m_ActivePointIndex );
