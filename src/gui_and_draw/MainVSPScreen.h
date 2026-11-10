@@ -248,6 +248,7 @@ protected:
     ScreenMenuItem m_AttributeMenuItem;
     ScreenMenuItem m_VehNotesMenuItem;
 
+    ScreenMenuItem m_ResultsMenuItem;
     ScreenMenuItem m_CompGeomMenuItem;
     ScreenMenuItem m_WaveDragMenuItem;
     ScreenMenuItem m_PSliceMenuItem;

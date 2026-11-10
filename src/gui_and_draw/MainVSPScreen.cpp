@@ -211,6 +211,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_FitModelMenuItem.Init( mgr, m_MenuBar, "Model/Fit Model...", vsp::VSP_FIT_MODEL_SCREEN );
     m_SnapToMenuItem.Init( mgr, m_MenuBar, "Model/Snap To...", vsp::VSP_SNAP_TO_SCREEN );
 
+    m_ResultsMenuItem.Init( mgr, m_MenuBar, "Analysis/Results...", vsp::VSP_RESULTS_VIEWER_SCREEN );
     m_CompGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/CompGeom...", vsp::VSP_COMP_GEOM_SCREEN );
     m_PSliceMenuItem.Init( mgr, m_MenuBar, "Analysis/Planar Slice...", vsp::VSP_PSLICE_SCREEN );
     m_MassPropMenuItem.Init( mgr, m_MenuBar, "Analysis/Mass Prop...", vsp::VSP_MASS_PROP_SCREEN );
