@@ -963,7 +963,7 @@ void GroupLayout::AddLegendEntry( const string& text, Fl_Color c, bool show_line
 }
 
 //==== Create Cartesian Canvas ====//
-Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel )
+Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel, Vsp_Canvas* canvas )
 {
     assert( m_Group && m_Screen );
 
@@ -971,7 +971,15 @@ Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doub
     int wyaxis = 60;
     int margin = 10;
 
-    Vsp_Canvas* canvas = new Vsp_Canvas( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis, label );
+    if ( canvas )
+    {
+        canvas->resize( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis );
+        canvas->copy_label( label );
+    }
+    else
+    {
+        canvas = new Vsp_Canvas( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis, label );
+    }
     Vsp_Canvas::current(canvas);
     canvas->box( FL_DOWN_BOX );
     canvas->color( FL_BACKGROUND2_COLOR );

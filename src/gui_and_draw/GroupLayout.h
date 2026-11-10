@@ -138,7 +138,8 @@ public:
     Fl_Box* AddDividerBox( const string& text, int used_w = 0, Fl_Color color = ( Fl_Color )12 );
     void AddResizeBox( );
 
-    Vsp_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel );
+    // canvas, when given, is placed and set up in place of a new Vsp_Canvas.
+    Vsp_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel, Vsp_Canvas* canvas = nullptr );
     // A legend line: the text, then a sample of the line and marker as plotted.
     void AddLegendEntry( const string& text, Fl_Color c, bool show_line = true, int linestyle = FL_SOLID, int marker = CA_NO_POINT );
 
