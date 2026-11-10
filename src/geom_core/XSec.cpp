@@ -3649,6 +3649,8 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
 
     m_VAlign.Init( "VAlign", m_GroupName, this, 0.0, -10.0, 10.0 );
     m_VAlign.SetDescript( "Vertical alignment of cross section" );
+    m_HAlign.Init( "HAlign", m_GroupName, this, 0.0, -10.0, 10.0 );
+    m_HAlign.SetDescript( "Horizontal alignment of cross section" );
 
     m_XDelta.Init( "XDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_XDelta.SetDescript( "X distance of cross section from prior cross section" );
@@ -3750,10 +3752,10 @@ void StackXSec::Update()
 
     VspCurve baseCurve = GetUntransformedCurve();
 
-    // This is really a Z translation for the Stack, but it is applied before the
-    // BasicTransformation is applied.  Consequently, it is a y transformation
+    // This is really a Y and Z translation for the Stack, but it is applied before the
+    // BasicTransformation is applied.  Consequently, it is an x and y transformation
     // (to the untransformed curve).
-    mat.translatef( 0, -m_VAlign() * 0.5 * m_XSCurve->GetHeight(), 0 );
+    mat.translatef( -m_HAlign() * 0.5 * m_XSCurve->GetWidth(), -m_VAlign() * 0.5 * m_XSCurve->GetHeight(), 0 );
 
     baseCurve.Transform( mat );
 
@@ -3851,6 +3853,7 @@ void StackXSec::CopyBasePos( XSec* xs )
         StackXSec* sxs = ( StackXSec* ) xs;
 
         m_VAlign = sxs->m_VAlign();
+        m_HAlign = sxs->m_HAlign();
 
         m_XDelta = sxs->m_XDelta();
         m_YDelta = sxs->m_YDelta();

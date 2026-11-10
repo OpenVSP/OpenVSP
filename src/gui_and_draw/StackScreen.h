@@ -74,6 +74,7 @@ protected:
     SliderAdjRangeInput m_XSecSpinSlider;
 
     SliderAdjRangeInput m_VAlignSlider;
+    SliderAdjRangeInput m_HAlignSlider;
 
 };
 

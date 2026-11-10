@@ -610,6 +610,7 @@ public:
     Parm m_AftCluster;
 
     Parm m_VAlign;
+    Parm m_HAlign;
 
     Parm m_XDelta;
     Parm m_YDelta;

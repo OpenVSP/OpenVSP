@@ -1233,6 +1233,7 @@ void StackGeom::EnforceOrder( StackXSec* xs, int indx, int policy )
             {
                 xs->m_Spin = firstxs->m_Spin();
                 xs->m_VAlign = firstxs->m_VAlign();
+                xs->m_HAlign = firstxs->m_HAlign();
             }
         }
     }

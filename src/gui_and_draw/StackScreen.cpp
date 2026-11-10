@@ -151,9 +151,11 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 510, 800, "Stac
     m_XSecLayout.AddSlider( m_XSecYRotSlider, "Rot Y", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecZRotSlider, "Rot Z", 90.0, "%6.5f" );
 
+    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  2.0, "%6.5f" );
+
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.SetSameLineFlag( true );
-    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  2.0, "%6.5f", m_XSecLayout.GetW() * 0.5 );
+    m_XSecLayout.AddSlider( m_HAlignSlider, "H Align",  2.0, "%6.5f", m_XSecLayout.GetW() * 0.5 );
     m_XSecLayout.AddSlider( m_VAlignSlider, "V Align",  2.0, "%6.5f" );
     m_XSecLayout.ForceNewLine();
     m_XSecLayout.AddYGap();
@@ -244,6 +246,7 @@ bool StackScreen::Update()
         m_XSecZRotSlider.Activate();
         m_XSecSpinSlider.Activate();
         m_VAlignSlider.Activate();
+        m_HAlignSlider.Activate();
 
         m_XSecAbsRelToggle.Update( xs->m_XSAbsRelFlag.GetID() );
         if ( xs->m_XSAbsRelFlag() ==  vsp::REL )
@@ -267,6 +270,7 @@ bool StackScreen::Update()
 
         m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
         m_VAlignSlider.Update( xs->m_VAlign.GetID() );
+        m_HAlignSlider.Update( xs->m_HAlign.GetID() );
 
         if ( firstxs )
         {
@@ -286,6 +290,7 @@ bool StackScreen::Update()
             m_XSecZRotSlider.Deactivate();
             m_XSecSpinSlider.Deactivate();
             m_VAlignSlider.Deactivate();
+            m_HAlignSlider.Deactivate();
         }
 
         XSecCurve* xsc = xs->GetXSecCurve();
