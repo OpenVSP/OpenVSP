@@ -1373,7 +1373,6 @@ std::string ManageGeomScreen::getFeedbackGroupName()
 
 void ManageGeomScreen::Set( const std::string &geomId )
 {
-    printf("%s\n", geomId.c_str());
     m_GeomBrowser->deselect_all();
     m_VehiclePtr->SetActiveGeom(geomId);
     m_SelVec = m_VehiclePtr->GetActiveGeomVec();
