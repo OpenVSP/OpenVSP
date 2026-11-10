@@ -4834,7 +4834,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
 
-        if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+        if ( fea_mat && fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
         {
             FeaLayer * fea_prev_layer = fea_mat->GetCurrLayer();
 
@@ -4857,7 +4857,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
 
-        if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+        if ( fea_mat && fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
         {
             FeaLayer* fea_layer = fea_mat->GetCurrLayer();
 
