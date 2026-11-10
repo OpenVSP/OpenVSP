@@ -15,6 +15,7 @@
 #include "CfdMeshScreen.h"
 #include "CfdMeshMgr.h"
 #include "ModeMgr.h"
+#include "StlHelper.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -948,6 +949,39 @@ bool CfdMeshScreen::Update()
 
     //===== Update Sources =====//
     BaseSource* source = nullptr;
+
+    //==== Sync selection with current source, which may be changed outside this browser ====//
+    if ( currGeom )
+    {
+        vector< BaseSource* > sVec = currGeom->GetCfdMeshMainSourceVec();
+        int nsource = ( int )sVec.size();
+        int index = vector_find_val( sVec, CfdMeshMgr.GetCurrSource() );
+        if ( index >= 0 )
+        {
+            if ( m_SelVec.size() != 1 || m_SelVec[0] != index )
+            {
+                m_SelVec.clear();
+                m_SelVec.push_back( index );
+            }
+        }
+        else if ( m_SelVec.size() == 1 )
+        {
+            m_SelVec.clear();
+        }
+
+        for ( int i = ( int )m_SelVec.size() - 1; i >= 0; i-- )
+        {
+            if ( m_SelVec[i] < 0 || m_SelVec[i] >= nsource )
+            {
+                m_SelVec.erase( m_SelVec.begin() + i );
+            }
+        }
+    }
+    else
+    {
+        m_SelVec.clear();
+    }
+
     if ( m_SelVec.size() == 1 )
     {
         source = CfdMeshMgr.GetCurrSource();
@@ -1673,7 +1707,15 @@ void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )
         int type = m_SourcesType.GetVal();
         if ( type >= 0 && type < vsp::NUM_SOURCE_TYPES )
         {
-            CfdMeshMgr.AddSource( type );
+            if ( CfdMeshMgr.AddSource( type ) )
+            {
+                // AddSource makes the new source current; select it so the browser scrolls to it
+                Geom* g = VehicleMgr.GetVehicle()->FindGeom( CfdMeshMgr.GetCurrSourceGeomID() );
+                if ( g )
+                {
+                    m_SelVec = { g->GetCurrSourceID() };
+                }
+            }
         }
     }
     else if ( device == &m_DeleteSource )
@@ -1712,6 +1754,8 @@ void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )
         int id = m_SourcesSelectComp.GetVal();
         CfdMeshMgr.SetCurrSourceGeomID( m_GeomVec[ id ] );
         CfdMeshMgr.SetCurrMainSurfIndx( 0 );
+        // the selected rows belonged to the old component
+        m_SelVec.clear();
         m_SourceBrowser->vposition( 0 );
     }
     else if ( device == &m_SourcesSelectSurface )

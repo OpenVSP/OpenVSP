@@ -1505,18 +1505,16 @@ void GridDensity::Show( bool flag )
 
 void GridDensity::Highlight( BaseSource * source )
 {
-    if ( source )
+    // With no current source, none is highlighted.
+    for ( int i = 0; i < ( int )m_Sources.size(); i++ )
     {
-        for ( int i = 0; i < ( int )m_Sources.size(); i++ )
+        if ( source && m_Sources[i]->m_OrigSourceID == source->GetID() )
         {
-            if( m_Sources[i]->m_OrigSourceID == source->GetID() )
-            {
-                m_Sources[i]->Highlight( true );
-            }
-            else
-            {
-                m_Sources[i]->Highlight( false );
-            }
+            m_Sources[i]->Highlight( true );
+        }
+        else
+        {
+            m_Sources[i]->Highlight( false );
         }
     }
 }

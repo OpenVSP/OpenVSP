@@ -1041,6 +1041,8 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( curr_assy )
         {
             curr_assy->AddStructure( m_StructIDs[m_StructureChoiceIndex] );
+            // select the added structure so the browser scrolls to it
+            m_StructureBrowserIndex = vector_find_val( curr_assy->m_StructIDVec, m_StructIDs[m_StructureChoiceIndex] );
             MarkDOChanged();
         }
     }

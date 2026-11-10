@@ -405,7 +405,8 @@ void CfdMeshMgrSingleton::GUI_Val( const string &name, int val )
         if( geom )
         {
             vector< BaseSource* > sVec = geom->GetCfdMeshMainSourceVec();
-            if ( val >= 0 && val < ( int )sVec.size() )
+            // -1 leaves no source current
+            if ( val >= -1 && val < ( int )sVec.size() )
             {
                 geom->SetCurrSourceID( val );
             }
