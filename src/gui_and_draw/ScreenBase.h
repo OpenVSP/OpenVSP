@@ -87,6 +87,7 @@ public:
     virtual bool Update();
     virtual void GetCollIDs( vector < string > &collIDVec ) {};
 
+    void AddResizeSpacer();
     void SetGrowWidget( Fl_Widget* w, Fl_Group* top = nullptr );
     Fl_Box* AddGrowBox( Fl_Group* g, int x, int y, int w, int h );
     void KeepHeights( Fl_Group* g );
@@ -131,6 +132,9 @@ protected:
     ScreenMgr* m_ScreenMgr;
 
     Fl_Double_Window* m_FLTK_Window;
+
+    // The height of the strip below the widgets that takes the window's growth, or 0
+    int m_SpacerH;
 
     int m_ScreenType;
 

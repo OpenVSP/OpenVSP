@@ -1084,6 +1084,28 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_WAVEDRAG_SCREEN] = new WaveDragScreen( this );
     m_ScreenVec[vsp::VSP_XSEC_SCREEN] = new XSecViewScreen( this );
 
+    // Screens whose widgets would all stretch with a taller window, docked or not, grow below them instead.  Those
+    // not listed have a part that grows, such as a table or a plot.
+    const int spaced[] = { vsp::VSP_FEA_PART_EDIT_SCREEN, vsp::VSP_MEASURE_SCREEN, vsp::VSP_GEOMETRY_ANALYSIS_SCREEN,
+        vsp::VSP_BACKGROUND3D_SCREEN, vsp::VSP_MATERIAL_EDIT_SCREEN, vsp::VSP_VIEW_SCREEN, vsp::VSP_PROJECTION_SCREEN,
+        vsp::VSP_LIGHTING_SCREEN, vsp::VSP_MASS_PROP_SCREEN, vsp::VSP_CLIPPING_SCREEN, vsp::VSP_MANAGE_TEXTURE_SCREEN,
+        vsp::VSP_BACKGROUND_SCREEN, vsp::VSP_EXPORT_SCREEN, vsp::VSP_SNAP_TO_SCREEN, vsp::VSP_STEP_OPTIONS_SCREEN,
+        vsp::VSP_PSLICE_SCREEN, vsp::VSP_SCREENSHOT_SCREEN, vsp::VSP_PARM_DEBUG_SCREEN, vsp::VSP_DXF_OPTIONS_SCREEN,
+        vsp::VSP_VECTOR_SCREENSHOT_SCREEN, vsp::VSP_SPLIT_STITCH_OPTIONS_SCREEN, vsp::VSP_STEP_STRUCTURE_OPTIONS_SCREEN,
+        vsp::VSP_MODE_EDITOR_SCREEN, vsp::VSP_PARM_SCREEN, vsp::VSP_IGES_OPTIONS_SCREEN, vsp::VSP_SVG_OPTIONS_SCREEN,
+        vsp::VSP_IGES_STRUCTURE_OPTIONS_SCREEN, vsp::VSP_COMP_GEOM_SCREEN, vsp::VSP_DEGEN_GEOM_SCREEN,
+        vsp::VSP_IMPORT_SCREEN, vsp::VSP_AIRFOIL_POINTS_EXPORT_SCREEN, vsp::VSP_SELECT_FILE_SCREEN,
+        vsp::VSP_ADV_LINK_VAR_RENAME_SCREEN, vsp::VSP_BEM_OPTIONS_SCREEN, vsp::VSP_STL_OPTIONS_SCREEN,
+        vsp::VSP_PREFERENCES_SCREEN, vsp::VSP_EXPORT_CUSTOM_SCRIPT, vsp::VSP_CLONE_NAME_SUFFIX_SCREEN,
+        vsp::VSP_PICK_SET_SCREEN, vsp::VSP_AIRFOIL_CURVES_EXPORT_SCREEN, vsp::VSP_VEH_SCREEN };
+    for ( int i = 0; i < ( int )( sizeof( spaced ) / sizeof( spaced[0] ) ); i++ )
+    {
+        if ( m_ScreenVec[ spaced[i] ] && m_ScreenVec[ spaced[i] ]->GetFlWindow() )
+        {
+            m_ScreenVec[ spaced[i] ]->AddResizeSpacer();
+        }
+    }
+
     //==== Init Main Screen last as it checks for other screens' sizes to set its own size ====//
     m_ScreenVec[vsp::VSP_MAIN_SCREEN] = new MainVSPScreen( this  );
 

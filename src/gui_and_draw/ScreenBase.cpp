@@ -47,6 +47,7 @@ VspScreen::VspScreen( ScreenMgr* mgr )
 {
     m_ScreenMgr = mgr;
     m_FLTK_Window = nullptr;
+    m_SpacerH = 0;
     m_ScreenType = -1;
     m_PrevGeom = nullptr;
 }
@@ -84,6 +85,32 @@ void VspScreen::Hide()
 {
     assert( m_FLTK_Window );
     m_FLTK_Window->hide();
+}
+
+//==== Grow Below The Widgets ====//
+// A strip under the widgets takes any growth of the window's height, so a taller window leaves the widgets as they
+// are.  Across, the strip spans the part that grew before, the whole window or the resizable widget, so growth in
+// width is as it was.
+void VspScreen::AddResizeSpacer()
+{
+    assert( m_FLTK_Window );
+    int full_h = m_FLTK_Window->h();
+    int sx = 0;
+    int sw = m_FLTK_Window->w();
+    Fl_Widget* old = m_FLTK_Window->resizable();
+    if ( old && old != m_FLTK_Window )
+    {
+        sx = old->x();
+        sw = old->w();
+    }
+    // The window grows by its height without moving its widgets: FLTK moves every edge at or below the bottom of the
+    // resizable widget, so the strip must lie wholly below them.
+    m_FLTK_Window->Fl_Widget::resize( m_FLTK_Window->x(), m_FLTK_Window->y(), m_FLTK_Window->w(), full_h + 1 );
+    Fl_Box* spacer = new Fl_Box( sx, full_h, sw, 1 );
+    m_SpacerH = 1;
+    m_FLTK_Window->add( spacer );
+    m_FLTK_Window->resizable( spacer );
+    m_FLTK_Window->init_sizes();
 }
 
 //==== Grow One Widget ====//
@@ -268,8 +295,9 @@ void VspScreen::DumpWindow( const string &name, ScreenDumpLog &log )
 {
     string fname = DumpFileName( name );
     string base = log.m_Dir + "/" + fname;
+    // The strip that takes the window's growth is left out
     int w = m_FLTK_Window->w();
-    int h = m_FLTK_Window->h();
+    int h = m_FLTK_Window->h() - m_SpacerH;
 
     // The image is drawn at the pixel density of the display, which the dump sets to the scale
     // asked for; an image of any other size is not written
@@ -673,6 +701,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MenuTabs->callback( staticScreenCB, this );
+
+    // Growth goes to a strip below the widgets
+    AddResizeSpacer();
 
     m_HasSubsurfTab = subsurf_flag;
 
