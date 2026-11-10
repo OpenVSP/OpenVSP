@@ -43,6 +43,8 @@ int count_char_matches( const string & str, char c );
 
 int compute_hash( const string & str );
 
+int natural_compare( const string &a, const string &b );
+
 string get_delim( int delim_type );
 
 string truncateFileName( const string &fn, int len );

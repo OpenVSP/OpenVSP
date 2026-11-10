@@ -207,6 +207,76 @@ int StringUtil::compute_hash( const string & str )
     return hash;
 }
 
+// Natural order compare: digit runs are compared by numeric value, so "PARM_2" < "PARM_10"
+// Strings that differ only in leading zeros fall back to plain string order, so no two
+// different strings compare equal.
+// Returns <0, 0, >0 like strcmp
+int StringUtil::natural_compare( const string &a, const string &b )
+{
+    size_t i = 0;
+    size_t j = 0;
+    while ( i < a.size() && j < b.size() )
+    {
+        if ( isdigit( (unsigned char)a[i] ) && isdigit( (unsigned char)b[j] ) )
+        {
+            // skip leading zeros, then the longer digit run is the larger number
+            while ( i < a.size() && a[i] == '0' )
+            {
+                i++;
+            }
+            while ( j < b.size() && b[j] == '0' )
+            {
+                j++;
+            }
+            size_t si = i;
+            size_t sj = j;
+            while ( i < a.size() && isdigit( (unsigned char)a[i] ) )
+            {
+                i++;
+            }
+            while ( j < b.size() && isdigit( (unsigned char)b[j] ) )
+            {
+                j++;
+            }
+            if ( i - si < j - sj )
+            {
+                return -1;
+            }
+            if ( i - si > j - sj )
+            {
+                return 1;
+            }
+            int c = a.compare( si, i - si, b, sj, j - sj );
+            if ( c != 0 )
+            {
+                return c;
+            }
+        }
+        else
+        {
+            if ( (unsigned char)a[i] < (unsigned char)b[j] )
+            {
+                return -1;
+            }
+            if ( (unsigned char)a[i] > (unsigned char)b[j] )
+            {
+                return 1;
+            }
+            i++;
+            j++;
+        }
+    }
+    if ( i < a.size() )
+    {
+        return 1;
+    }
+    if ( j < b.size() )
+    {
+        return -1;
+    }
+    return a.compare( b );
+}
+
 string StringUtil::get_delim( int delim_type )
 {
     switch(delim_type)
