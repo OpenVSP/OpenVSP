@@ -4873,7 +4873,10 @@ double TMesh::ComputeWetArea()
             }
         }
     }
-    m_AreaCenter = m_AreaCenter/m_WetArea;
+    if ( m_WetArea > 0 )
+    {
+        m_AreaCenter = m_AreaCenter / m_WetArea;
+    }
     return m_WetArea;
 }
 
@@ -5000,7 +5003,10 @@ double TMesh::ComputeWaveDragArea( const std::unordered_map< string, int > &idma
             }
         }
     }
-    m_AreaCenter = m_AreaCenter/m_WetArea;
+    if ( m_WetArea > 0 )
+    {
+        m_AreaCenter = m_AreaCenter / m_WetArea;
+    }
     return m_WetArea;
 }
 

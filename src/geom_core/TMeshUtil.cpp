@@ -4521,7 +4521,15 @@ void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, const BndBox &bbo
     {
         slicevec[s]->ComputeWetArea();
         area_vec.push_back( slicevec[s]->m_WetArea );
-        AreaCenter.push_back( TransMat.xform( slicevec[s]->m_AreaCenter ) );
+
+        vec3d cen = slicevec[s]->m_AreaCenter;
+        if ( slicevec[s]->m_WetArea <= 0 )
+        {
+            // An empty slice has no area to weight; use the middle of its plane.
+            cen = tbbox.GetCenter();
+            cen[ vsp::X_DIR ] = loc_vec[s];
+        }
+        AreaCenter.push_back( TransMat.xform( cen ) );
     }
     res->Add( new NameValData( "Slice_Area_Center", AreaCenter, "Slice center of area." ) );
     res->Add( new NameValData( "Num_Slices", ( int )slicevec.size(), "Number of slices." ) );
