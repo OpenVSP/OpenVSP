@@ -66,10 +66,14 @@ void ScreenMenuItem::Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, const std::str
 void ScreenMenuItem::ShowScreenCallBack( void* data )
 {
     assert( m_ScreenMgr );
-    m_ScreenMgr->ShowScreen( m_ScreenID );
+    // A disabled screen with an alternative opens the alternative instead.
     if ( m_ScreenMgr->IsGUIScreenDisabled( m_ScreenID ) && m_SecondaryScreenID >= 0 )
     {
         m_ScreenMgr->ShowScreen( m_SecondaryScreenID );
+    }
+    else
+    {
+        m_ScreenMgr->ShowScreen( m_ScreenID );
     }
 }
 
