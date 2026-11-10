@@ -18,7 +18,6 @@ using namespace vsp;
 NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275-10, 645, "Nerf Geom Browser" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
-    ((VSP_Window*)m_FLTK_Window)->SetKeyCallback( staticScreenCB, this );
 
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
@@ -888,16 +887,7 @@ void NerfManageGeomScreen::CallBack( Fl_Widget *w )
 {
     assert( m_ScreenMgr );
 
-    if ( Fl::event_key() == 'x' )
-    {
-        vector < string > selVec = GetActiveGeoms();
-        MainVSPScreen* main_screen = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-        if ( main_screen && selVec.size() == 1 )
-        {
-            main_screen->AlignViewToGeom( selVec[0] );
-        }
-    }
-    else if ( w == m_GeomBrowser )
+    if ( w == m_GeomBrowser )
     {
         GeomBrowserCallback();
     }

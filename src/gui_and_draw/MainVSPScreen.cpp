@@ -138,6 +138,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GenLayout.SetGroupAndScreen( grp, this );
 
     m_MenuBar = m_GenLayout.AddFlMenuBar( 30 );
+    ScreenMgr::SetMainMenu( m_MenuBar );
 
     m_NewMenuItem.Init( this, m_MenuBar, "File/New" );
     m_OpenMenuItem.Init( this, m_MenuBar, "File/Open..." );

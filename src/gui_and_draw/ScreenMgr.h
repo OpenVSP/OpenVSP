@@ -29,6 +29,9 @@
 class ScreenMgr : MessageBase
 {
 public:
+    // The main menu, whose shortcuts the global handler runs from every window
+    static void SetMainMenu( Fl_Menu_* menu );
+
     ScreenMgr( Vehicle* vPtr );
     virtual ~ScreenMgr();
 

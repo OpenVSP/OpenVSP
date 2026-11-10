@@ -635,7 +635,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
 
     vsp_win->SetGeomScreenFlag( true );
-    vsp_win->SetKeyCallback( staticScreenCB, this );
 
     Fl_Group* gen_tab = AddTab( "Gen" );
     Fl_Group* xform_tab = AddTab( "XForm" );
@@ -3634,15 +3633,6 @@ void GeomScreen::CallBack( Fl_Widget *w )
 
         // Set membership is not a Parm, so update here; its Clones copy it as they update.
         geom_ptr->Update();
-    }
-
-    if ( Fl::event_key() == 'x' )
-    {
-        MainVSPScreen* main_screen = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-        if ( main_screen )
-        {
-            main_screen->AlignViewToGeom( geom_ptr->GetID() );
-        }
     }
 
     //forward Fl_widget to attribute editor callback

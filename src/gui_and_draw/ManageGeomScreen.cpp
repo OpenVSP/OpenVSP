@@ -20,7 +20,6 @@ using namespace vsp;
 ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 671, "Geom Browser" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
-    ((VSP_Window*)m_FLTK_Window)->SetKeyCallback( staticScreenCB, this );
 
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
@@ -1097,16 +1096,7 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
 
     m_GeomBrowser->HidePopupInput();
 
-    if ( Fl::event_key() == 'x' )
-    {
-        vector < string > selVec = GetActiveGeoms();
-        MainVSPScreen* main_screen = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-        if ( main_screen && selVec.size() == 1 )
-        {
-            main_screen->AlignViewToGeom( selVec[0] );
-        }
-    }
-    else if ( w == m_GeomBrowser )
+    if ( w == m_GeomBrowser )
     {
         // first apply rename via popup input if applicable
         if ( m_GeomBrowser->GetCBReason() == TREE_CALLBACK_POPUP_ENTER )

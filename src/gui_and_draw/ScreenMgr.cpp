@@ -81,6 +81,8 @@
 #include "MainThreadIDMgr.h"
 
 #include <FL/platform.H>
+#include <FL/Fl_Input_.H>
+#include <FL/Fl_Text_Editor.H>
 
 #define UPDATE_TIME (1.0/30.0)
 
@@ -1375,8 +1377,22 @@ void ScreenMgr::Alert( const string &message )
     Fl::awake( MessageBox, ( void* )buf );
 }
 
+static Fl_Menu_* s_MainMenu = nullptr;
+
+void ScreenMgr::SetMainMenu( Fl_Menu_* menu )
+{
+    s_MainMenu = menu;
+}
+
 int ScreenMgr::GlobalHandler(int event)
 {
+    // A text field with the keyboard takes every key but those with Ctrl, Cmd or Alt; none of the others is a
+    // shortcut while it has the keyboard
+    if ( Fl::event() == FL_SHORTCUT && !( Fl::event_state() & ( FL_CTRL | FL_META | FL_ALT ) ) &&
+         ( dynamic_cast< Fl_Input_* >( Fl::focus() ) || dynamic_cast< Fl_Text_Editor* >( Fl::focus() ) ) )
+    {
+        return 1;
+    }
     if (Fl::event()==FL_SHORTCUT && Fl::event_key()==FL_Escape)
     {
         Vehicle* vPtr = VehicleMgr.GetVehicle();
@@ -1388,6 +1404,18 @@ int ScreenMgr::GlobalHandler(int event)
         }
         return 1;
     }
+#ifndef __APPLE__
+    // A main menu shortcut works from every window and docked screen, as the system menu bar's do on macOS
+    if ( Fl::event() == FL_SHORTCUT && s_MainMenu && s_MainMenu->menu() && !Fl::modal() )
+    {
+        const Fl_Menu_Item* item = s_MainMenu->menu()->test_shortcut();
+        if ( item )
+        {
+            s_MainMenu->picked( item );
+            return 1;
+        }
+    }
+#endif
     return 0;
 }
 
