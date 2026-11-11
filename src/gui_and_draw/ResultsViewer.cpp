@@ -268,6 +268,13 @@ void ResultsViewer::UpdateResultsChoice()
     }
     m_ResultsChoice.UpdateItems();
 
+    // With nothing picked, pick the newest Result.
+    if ( ( m_ResultsViewerSelect < 0 || m_ResultsViewerSelect >= (int)m_ResIDvec.size() ) && !m_ResIDvec.empty() )
+    {
+        m_ResultsViewerSelect = (int)m_ResIDvec.size() - 1;
+        m_DataBrowserSelect = 0;
+    }
+
     if ( m_ResultsViewerSelect >= 0 && m_ResultsViewerSelect < (int)m_ResIDvec.size() )
     {
         m_ResultsChoice.SetVal( m_ResultsViewerSelect );
