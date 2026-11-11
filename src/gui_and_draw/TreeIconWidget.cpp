@@ -977,6 +977,9 @@ int TreeWithIcons::handle( int e )
             }
             break;
         }
+        case FL_SHORTCUT:
+            // A shortcut the tree does not use goes on to the window's other widgets, such as the main menu
+            break;
         default:
             ret = 1;
             break;
