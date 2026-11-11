@@ -20,6 +20,7 @@
 #include "AirfoilExportScreen.h"
 #include "AttributeScreen.h"
 #include "BEMOptionsScreen.h"
+#include "XRotorOptionsScreen.h"
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
 #include "CloneNameSuffixScreen.h"
@@ -1024,6 +1025,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_BACKGROUND3D_SCREEN] = new ManageBackground3DScreen( this );
     m_ScreenVec[vsp::VSP_BACKGROUND3D_PREVIEW_SCREEN] = new Background3DPreviewScreen( this );
     m_ScreenVec[vsp::VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_XROTOR_OPTIONS_SCREEN] = new XRotorOptionsScreen( this );
     m_ScreenVec[vsp::VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
     m_ScreenVec[vsp::VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
     m_ScreenVec[vsp::VSP_CLONE_NAME_SUFFIX_SCREEN] = new CloneNameSuffixScreen( this );

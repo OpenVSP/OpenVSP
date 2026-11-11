@@ -55,6 +55,7 @@
 #include "PodGeom.h"
 #include "ProjectionMgr.h"
 #include "PropGeom.h"
+#include "Atmosphere.h"
 #include "PtCloudGeom.h"
 #include "Quat.h"
 #include "CobraGeom.h"
@@ -210,6 +211,44 @@ Vehicle::Vehicle()
     m_SVGView2_rot.Init( "TopRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_SVGView3_rot.Init( "BottomLeftRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_SVGView4_rot.Init( "BottomRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
+
+    // Defaults match XRotor's own start-up defaults (SUBROUTINE SETDEF).
+    m_XRotorLenUnit.Init( "LenUnit", "XRotorSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
+    m_XRotorLenUnit.SetDescript( "Length unit of the model; XRotor files are in meters" );
+    m_XRotorVinf.Init( "Vinf", "XRotorSettings", this, 10.0, 1e-6, 1e12 );
+    m_XRotorVinf.SetDescript( "Flight speed (m/s); XRotor normalizes by it, so it cannot be zero" );
+    m_XRotorRPM.Init( "RPM", "XRotorSettings", this, 2000.0, 1e-6, 1e12 );
+    m_XRotorRPM.SetDescript( "Rotor speed (rev/min)" );
+    m_XRotorAlt.Init( "Alt", "XRotorSettings", this, 0.0, -5000.0, 86000.0 );
+    m_XRotorAlt.SetDescript( "Altitude (m) for the US Standard Atmosphere 1976" );
+    m_XRotorNumAero.Init( "NumAero", "XRotorSettings", this, 5, 1, 20 );
+    m_XRotorNumAero.SetDescript( "Number of aero sections, evenly spaced from root to tip" );
+    m_XRotordCLdA.Init( "dCLdA", "XRotorSettings", this, 6.28, 0.0, 1e12 );
+    m_XRotordCLdA.SetDescript( "Lift curve slope (1/rad)" );
+    m_XRotorCLmax.Init( "CLmax", "XRotorSettings", this, 1.5, -1e12, 1e12 );
+    m_XRotorCLmax.SetDescript( "Maximum lift coefficient" );
+    m_XRotorCLmin.Init( "CLmin", "XRotorSettings", this, -0.5, -1e12, 1e12 );
+    m_XRotorCLmin.SetDescript( "Minimum lift coefficient" );
+    m_XRotordCLdAStall.Init( "dCLdAStall", "XRotorSettings", this, 0.1, -1e12, 1e12 );
+    m_XRotordCLdAStall.SetDescript( "Lift curve slope past stall (1/rad)" );
+    m_XRotordCLStall.Init( "dCLStall", "XRotorSettings", this, 0.1, 0.0, 1e12 );
+    m_XRotordCLStall.SetDescript( "Lift coefficient increment from incipient to full stall" );
+    m_XRotorCm.Init( "Cm", "XRotorSettings", this, -0.1, -1e12, 1e12 );
+    m_XRotorCm.SetDescript( "Section pitching moment coefficient" );
+    m_XRotorMcrit.Init( "Mcrit", "XRotorSettings", this, 0.8, 0.0, 1.0 );
+    m_XRotorMcrit.SetDescript( "Critical Mach number" );
+    m_XRotorCDmin.Init( "CDmin", "XRotorSettings", this, 0.013, 0.0, 1e12 );
+    m_XRotorCDmin.SetDescript( "Minimum drag coefficient" );
+    m_XRotorCLCDmin.Init( "CLCDmin", "XRotorSettings", this, 0.5, -1e12, 1e12 );
+    m_XRotorCLCDmin.SetDescript( "Lift coefficient at minimum drag" );
+    m_XRotordCDdCL2.Init( "dCDdCL2", "XRotorSettings", this, 0.004, 0.0, 1e12 );
+    m_XRotordCDdCL2.SetDescript( "Quadratic drag coefficient d(CD)/d(CL^2)" );
+    m_XRotorReRef.Init( "ReRef", "XRotorSettings", this, 200000.0, 1.0, 1e12 );
+    m_XRotorReRef.SetDescript( "Reynolds number at which the drag values apply" );
+    m_XRotorReExp.Init( "ReExp", "XRotorSettings", this, -0.4, -1e12, 1e12 );
+    m_XRotorReExp.SetDescript( "Exponent of the Reynolds number scaling of drag" );
+    m_XRotorFreeWakeFlag.Init( "FreeWakeFlag", "XRotorSettings", this, true, 0, 1 );
+    m_XRotorFreeWakeFlag.SetDescript( "Self-deforming wake (true) or rigid wake (false)" );
 
     m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", this, vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
     // 1e12 is the largest observed Parm lower/upper limit in OpenVSP.  This needs to meet or exceed that limit.
@@ -5953,6 +5992,146 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set, bool useMode
     }
 }
 
+static void SendXRotorError( int code, const string &msg )
+{
+    MessageData errMsgData;
+    errMsgData.m_String = "Error";
+    errMsgData.m_IntVec.push_back( code );
+    errMsgData.m_StringVec.push_back( msg );
+    MessageMgr::getInstance().SendAll( errMsgData );
+}
+
+// Writes the BEM propeller as an XRotor restart file (XRotor LOAD command, format 7.x).
+void Vehicle::WriteXRotorFile( const string &file_name, int write_set, bool useMode, const string &modeID )
+{
+    if ( useMode )
+    {
+        Mode *m = ModeMgr.GetMode( modeID );
+        if ( m )
+        {
+            m->ApplySettings();
+        }
+    }
+
+    Geom* geom = FindGeom( m_BEMPropID );
+
+    Geom* behavior_geom = nullptr;
+    if ( geom )
+    {
+        behavior_geom = geom->GetBehaviorGeom();
+    }
+
+    PropGeom* prop = dynamic_cast < PropGeom* > ( behavior_geom );
+    if ( !prop )
+    {
+        SendXRotorError( vsp::VSP_WRONG_GEOM_TYPE, "Error: XRotor export needs a propeller; set it with SetBEMPropID." );
+        return;
+    }
+
+    string rid = prop->BuildBEMResults();
+    Results* res = ResultsMgr.FindResultsPtr( rid );
+    if ( !res )
+    {
+        return;
+    }
+
+    vector < double > r_vec = res->FindPtrWDefault( "Radius" )->GetDoubleData();
+    vector < double > chord_vec = res->FindPtrWDefault( "Chord" )->GetDoubleData();
+    vector < double > twist_vec = res->FindPtrWDefault( "Twist" )->GetDoubleData();
+    int nblade = res->FindPtrWDefault( "Num_Blade" )->GetInt( 0 );
+    double diam = res->FindPtrWDefault( "Diameter" )->GetDouble( 0 );
+    double feather = res->FindPtrWDefault( "Feather" )->GetDouble( 0 );
+
+    // XRotor arrays hold at most IX = 100 stations.
+    int nsect = r_vec.size();
+    if ( nsect < 3 || nsect > 100 )
+    {
+        SendXRotorError( vsp::VSP_INVALID_INPUT_VAL, "Error: XRotor export needs 3 to 100 blade sections; the propeller has " +
+                         to_string( nsect ) + "." );
+        return;
+    }
+
+    double rad = 0.5 * ConvertLengthToM( diam, m_XRotorLenUnit() );
+    double vel = m_XRotorVinf();
+    double omega = m_XRotorRPM() * 2.0 * M_PI / 60.0;
+    double adv = vel / ( omega * rad );
+
+    Atmosphere atmos;
+    atmos.USStandardAtmosphere1976( m_XRotorAlt(), 0.0, vsp::PD_UNITS_METRIC, vsp::TEMP_UNIT_K, vsp::PRES_UNIT_PA );
+
+    FILE* fid = fopen( file_name.c_str(), "w" );
+    if ( !fid )
+    {
+        SendXRotorError( vsp::VSP_FILE_WRITE_FAILURE, "Error: could not open " + file_name + " for writing." );
+        return;
+    }
+
+    // XRotor reads the version from columns 17-21 and keeps 32 characters of the name.
+    fprintf( fid, "XROTOR VERSION: %5.2f\n", 7.55 );
+    fprintf( fid, "%.32s\n", geom->GetName().c_str() );
+    fprintf( fid, "!         Rho          Vso          Rmu           Alt\n" );
+    fprintf( fid, " %.8g %.8g %.8g %.8g\n", atmos.GetDensity(), atmos.GetSoundSpeed(), atmos.GetDynaVisc(), m_XRotorAlt() / 1000.0 );
+    fprintf( fid, "!         Rad          Vel          Adv          Rake\n" );
+    fprintf( fid, " %.8g %.8g %.8g %.8g\n", rad, vel, adv, 0.0 );
+    fprintf( fid, "!         XI0          XIW\n" );
+    fprintf( fid, " %.8g %.8g\n", r_vec[0], r_vec[0] );
+
+    // Aero sections evenly spaced from root to tip, each with its section's zero-lift angle.
+    int naero = m_XRotorNumAero();
+    fprintf( fid, "!  Naero\n" );
+    fprintf( fid, " %d\n", naero );
+    for ( int i = 0; i < naero; i++ )
+    {
+        double xi = 0.75;
+        if ( naero > 1 )
+        {
+            xi = r_vec[0] + ( r_vec[nsect - 1] - r_vec[0] ) * i / ( naero - 1.0 );
+        }
+        double a0 = prop->CalcZeroLiftAlpha( xi );
+
+        // XRotor uses a single section everywhere; it is listed at the root.
+        double xisect = xi;
+        if ( naero == 1 )
+        {
+            xisect = 0.0;
+        }
+
+        fprintf( fid, "!   Xisection\n" );
+        fprintf( fid, " %.8g\n", xisect );
+        fprintf( fid, "!       A0deg        dCLdA        CLmax         CLmin\n" );
+        fprintf( fid, " %.8g %.8g %.8g %.8g\n", a0, m_XRotordCLdA(), m_XRotorCLmax(), m_XRotorCLmin() );
+        fprintf( fid, "!  dCLdAstall     dCLstall      Cmconst         Mcrit\n" );
+        fprintf( fid, " %.8g %.8g %.8g %.8g\n", m_XRotordCLdAStall(), m_XRotordCLStall(), m_XRotorCm(), m_XRotorMcrit() );
+        fprintf( fid, "!       CDmin      CLCDmin     dCDdCL^2\n" );
+        fprintf( fid, " %.8g %.8g %.8g\n", m_XRotorCDmin(), m_XRotorCLCDmin(), m_XRotordCDdCL2() );
+        fprintf( fid, "!       REref        REexp\n" );
+        fprintf( fid, " %.8g %.8g\n", m_XRotorReRef(), m_XRotorReExp() );
+    }
+
+    // XRotor's LOAD reads the first flag as the self-deforming wake option.
+    string free_flag = "F";
+    if ( m_XRotorFreeWakeFlag() )
+    {
+        free_flag = "T";
+    }
+    fprintf( fid, "!LVDuct  LDuct   LWind\n" );
+    fprintf( fid, "  %s       F       F\n", free_flag.c_str() );
+
+    // Blade angle is the twist plus the feather (collective) angle, from the plane of rotation.
+    fprintf( fid, "!   II Nblds\n" );
+    fprintf( fid, " %5d %5d\n", nsect, nblade );
+    fprintf( fid, "!         r/R          C/R     Beta0deg         Ubody\n" );
+    for ( int i = 0; i < nsect; i++ )
+    {
+        fprintf( fid, " %.8g %.8g %.8g %.8g\n", r_vec[i], chord_vec[i], twist_vec[i] + feather, 0.0 );
+    }
+
+    fprintf( fid, "!      URDuct\n" );
+    fprintf( fid, " %.8g\n", 1.0 );
+
+    fclose( fid );
+}
+
 void Vehicle::WriteAirfoilFile( const string &file_name, int write_set, bool useMode, const string &modeID )
 {
     if ( useMode )
@@ -8368,6 +8547,10 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
     else if ( file_type == EXPORT_BEM )
     {
         WriteBEMFile( file_name, write_set, useMode, modeID );
+    }
+    else if ( file_type == EXPORT_XROTOR )
+    {
+        WriteXRotorFile( file_name, write_set, useMode, modeID );
     }
     else if ( file_type == EXPORT_DXF )
     {

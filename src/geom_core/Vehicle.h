@@ -293,6 +293,7 @@ public:
                         bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
 
     void WriteBEMFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    void WriteXRotorFile( const string & file_name, int write_set, bool useMode, const string &modeID );
     void WriteAirfoilFile( const string & file_name, int write_set, bool useMode, const string &modeID );
     void WriteDXFFile( const string & file_name, int write_set, bool useMode, const string &modeID );
     void WriteSVGFile( const string & file_name, int write_set, bool useMode, const string &modeID );
@@ -545,6 +546,26 @@ public:
     IntParm m_SVGView2_rot;
     IntParm m_SVGView3_rot;
     IntParm m_SVGView4_rot;
+
+    //==== XRotor Export ====//
+    IntParm m_XRotorLenUnit;
+    Parm m_XRotorVinf;
+    Parm m_XRotorRPM;
+    Parm m_XRotorAlt;
+    IntParm m_XRotorNumAero;
+    Parm m_XRotordCLdA;
+    Parm m_XRotorCLmax;
+    Parm m_XRotorCLmin;
+    Parm m_XRotordCLdAStall;
+    Parm m_XRotordCLStall;
+    Parm m_XRotorCm;
+    Parm m_XRotorMcrit;
+    Parm m_XRotorCDmin;
+    Parm m_XRotorCLCDmin;
+    Parm m_XRotordCDdCL2;
+    Parm m_XRotorReRef;
+    Parm m_XRotorReExp;
+    BoolParm m_XRotorFreeWakeFlag;
 
     // DesignVarMgr
     IntParm m_WorkingXDDMType;

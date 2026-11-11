@@ -71,6 +71,7 @@ protected:
     TriggerButton m_STEPStitchButton;
     TriggerButton m_IGESStitchButton;
     TriggerButton m_BEMButton;
+    TriggerButton m_XRotorButton;
     TriggerButton m_DXFButton;
     TriggerButton m_SVGButton;
     TriggerButton m_FacetButton;

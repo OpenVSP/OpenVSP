@@ -603,7 +603,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,	/*!< FELISA export type (NOT IMPLEMENTED) */ 
                     EXPORT_IGES_STRUCTURE,	/*!< IGES structure (\\*.igs) export type */
                     EXPORT_STEP_STRUCTURE,	/*!< STEP structure (\\*.stp) export type */
                     EXPORT_STEP_STITCH,	/*!< Split and stitched STEP (\\*.stp) export type: each body's surfaces split along their feature lines and stitched back together, not intersected */
-                    EXPORT_IGES_STITCH	/*!< Split and stitched IGES (\\*.igs) export type: each body's surfaces split along their feature lines and stitched back together, not intersected */
+                    EXPORT_IGES_STITCH,	/*!< Split and stitched IGES (\\*.igs) export type: each body's surfaces split along their feature lines and stitched back together, not intersected */
+                    EXPORT_XROTOR	/*!< XRotor restart (\\*.xrotor) export type of the BEM propeller */
 };
 
 /*!
@@ -1083,6 +1084,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_WAVEDRAG_SCREEN,	/*!< Wave drag screen */
                       VSP_SPLIT_STITCH_OPTIONS_SCREEN,	/*!< Split and stitched STEP and IGES options screen */
                       VSP_VECTOR_SCREENSHOT_SCREEN,	/*!< Vector screenshot screen */
+                      VSP_XROTOR_OPTIONS_SCREEN,	/*!< XRotor export options screen */
                       VSP_MAIN_SCREEN,   /*!< Main screen */ // Leave at end of list, helps draw after update.
                       VSP_NUM_SCREENS,	/*!< Number of screens */
                       VSP_ALL_SCREENS   /*!< Flag for all screens */

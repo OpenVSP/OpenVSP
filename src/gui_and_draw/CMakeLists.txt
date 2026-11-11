@@ -37,6 +37,7 @@ AttributeScreen.cpp
 AuxiliaryGeomScreen.cpp
 BlankScreen.cpp
 BEMOptionsScreen.cpp
+XRotorOptionsScreen.cpp
 BORScreen.cpp
 CfdMeshScreen.cpp
 ClippingScreen.cpp
@@ -137,6 +138,7 @@ AttributeScreen.h
 AuxiliaryGeomScreen.h
 BlankScreen.h
 BEMOptionsScreen.h
+XRotorOptionsScreen.h
 BORScreen.h
 CfdMeshScreen.h
 ClippingScreen.h

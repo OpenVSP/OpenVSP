@@ -3180,6 +3180,113 @@ string PropGeom::BuildBEMResults()
     return res->GetID();
 }
 
+// Height of a polyline of (s, h) points at s; the points run in either direction along s.
+static double InterpSide( const vector < double > &s_vec, const vector < double > &h_vec, double s )
+{
+    int n = s_vec.size();
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        double s0 = s_vec[i];
+        double s1 = s_vec[i + 1];
+        if ( ( s >= s0 && s <= s1 ) || ( s >= s1 && s <= s0 ) )
+        {
+            double ds = s1 - s0;
+            if ( std::abs( ds ) < 1e-14 )
+            {
+                return h_vec[i];
+            }
+            return h_vec[i] + ( s - s0 ) * ( h_vec[i + 1] - h_vec[i] ) / ds;
+        }
+    }
+
+    // Past either end, take the nearer end point.
+    if ( std::abs( s - s_vec[0] ) < std::abs( s - s_vec[n - 1] ) )
+    {
+        return h_vec[0];
+    }
+    return h_vec[n - 1];
+}
+
+// Thin-airfoil zero-lift angle (deg) of the blade section at r/R, measured from its chord line.
+double PropGeom::CalcZeroLiftAlpha( double r )
+{
+    double rfirst = m_ChordCurve.GetRFirst();
+    double rlast = m_ChordCurve.GetRLast();
+
+    double u = 0.0;
+    if ( rlast > rfirst )
+    {
+        u = clamp( ( r - rfirst ) / ( rlast - rfirst ), 0.0, 1.0 );
+    }
+
+    VspCurve c;
+    m_FoilSurf.GetUConstCurve( c, u );
+
+    int npt = 2001;
+    double tmin = c.GetUMin();
+    double tmax = c.GetUMax();
+    vector < vec3d > pts( npt );
+    for ( int i = 0; i < npt; i++ )
+    {
+        pts[i] = c.CompPnt( tmin + ( tmax - tmin ) * i / ( npt - 1.0 ) );
+    }
+
+    // The curve starts and ends at the trailing edge; the leading edge is the point farthest from it.
+    vec3d te = ( pts[0] + pts[npt - 1] ) * 0.5;
+    int ile = 0;
+    double dmax = 0.0;
+    for ( int i = 0; i < npt; i++ )
+    {
+        double d = dist( pts[i], te );
+        if ( d > dmax )
+        {
+            dmax = d;
+            ile = i;
+        }
+    }
+
+    if ( dmax <= 0.0 || ile == 0 || ile == npt - 1 )
+    {
+        return 0.0;
+    }
+
+    vec3d le = pts[ile];
+    vec3d xhat = ( te - le ) / dmax;
+    vec3d yhat( -xhat.y(), xhat.x(), 0.0 );
+
+    // Each surface from the leading edge to the trailing edge, in chord fractions.
+    vector < double > s1, h1, s2, h2;
+    for ( int i = ile; i >= 0; i-- )
+    {
+        vec3d d = pts[i] - le;
+        s1.push_back( dot( d, xhat ) / dmax );
+        h1.push_back( dot( d, yhat ) / dmax );
+    }
+    for ( int i = ile; i < npt; i++ )
+    {
+        vec3d d = pts[i] - le;
+        s2.push_back( dot( d, xhat ) / dmax );
+        h2.push_back( dot( d, yhat ) / dmax );
+    }
+
+    // alpha_L0 = -1/pi Int_0^pi dz/dx ( cos(th) - 1 ) dth with x = ( 1 - cos(th) ) / 2,
+    // which is 2/pi Int_0^pi dz/dth tan(th/2) dth, summed over intervals of the camber line z.
+    int nth = 400;
+    double zprev = 0.0;
+    double sum = 0.0;
+    for ( int k = 1; k <= nth; k++ )
+    {
+        double th = M_PI * k / nth;
+        double x = 0.5 * ( 1.0 - cos( th ) );
+        double z = 0.5 * ( InterpSide( s1, h1, x ) + InterpSide( s2, h2, x ) );
+        double thmid = M_PI * ( k - 0.5 ) / nth;
+        sum += ( z - zprev ) * tan( 0.5 * thmid );
+        zprev = z;
+    }
+
+    return 2.0 / M_PI * sum * 180.0 / M_PI;
+}
+
 int PropGeom::ReadBEM( const string &file_name )
 {
     unsigned int num_sect;

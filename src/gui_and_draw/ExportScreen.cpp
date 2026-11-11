@@ -16,6 +16,7 @@
 #include "IGESStructureOptionsScreen.h"
 #include "STLOptionsScreen.h"
 #include "BEMOptionsScreen.h"
+#include "XRotorOptionsScreen.h"
 #include "DXFOptionsScreen.h"
 #include "SVGOptionsScreen.h"
 #include "AirfoilExportScreen.h"
@@ -24,7 +25,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 4*20 + 24*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 4*20 + 25*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = DEFAULT_SET;
     m_DegenSetIndex = vsp::SET_NONE;
@@ -91,6 +92,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 4*20 
     m_GenLayout.AddButton( m_STEPStitchButton, "Split and Stitch STEP (.stp)" );
     m_GenLayout.AddButton( m_IGESStitchButton, "Split and Stitch IGES (.igs)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
+    m_GenLayout.AddButton( m_XRotorButton, "XRotor (.xrotor)" );
     m_GenLayout.AddButton( m_DXFButton, "AutoCAD (.dxf)" );
     m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );
     m_GenLayout.AddButton( m_FacetButton, "Xpatch (.facet)" );
@@ -273,6 +275,13 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, in
             newfile = m_ScreenMgr->FileChooser( "Write Blade Element File?", "*.bem", vsp::SAVE );
         }
     }
+    else if ( type == EXPORT_XROTOR )
+    {
+        if ( (( XRotorOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_XROTOR_OPTIONS_SCREEN ))->ShowXRotorOptionsScreen() )
+        {
+            newfile = m_ScreenMgr->FileChooser( "Write XRotor File?", "*.xrotor", vsp::SAVE );
+        }
+    }
     else if ( type == EXPORT_DXF )
     {
         if ( (( DXFOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_DXF_OPTIONS_SCREEN ))->ShowDXFOptionsScreen() )
@@ -417,6 +426,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_BEMButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, m_DegenSetIndex, intSubsFlag, EXPORT_BEM, useMode, modeID );
+    }
+    else if ( device == &m_XRotorButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, m_DegenSetIndex, intSubsFlag, EXPORT_XROTOR, useMode, modeID );
     }
     else if ( device == &m_DXFButton )
     {

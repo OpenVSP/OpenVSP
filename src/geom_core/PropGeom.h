@@ -196,6 +196,7 @@ public:
     virtual void AddDefaultSources( double base_len = 1.0 );
 
     virtual string BuildBEMResults();
+    double CalcZeroLiftAlpha( double r );
 
     virtual int ReadBEM( const string &file_name );
 

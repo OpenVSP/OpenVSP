@@ -1815,7 +1815,7 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     \ingroup FileIO
 */
 /*!
-    Set the ID of the propeller to be exported to a BEM file. Call this function before ExportFile.
+    Set the ID of the propeller to be exported to a BEM or XRotor file. Call this function before ExportFile.
     \forcpponly
     \code{.cpp}
     //==== Add Prop Geometry ====//
@@ -1824,6 +1824,8 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     SetBEMPropID( prop_id );
 
     ExportFile( "ExampleBEM.bem", SET_ALL, EXPORT_BEM );
+
+    ExportFile( "ExampleXRotor.xrotor", SET_ALL, EXPORT_XROTOR );
 
     // A BEM export of a Geom that is not a propeller has to be rejected.
     string pod_id = AddGeom( "POD" );
@@ -1853,6 +1855,8 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     SetBEMPropID( prop_id )
 
     ExportFile( "ExampleBEM.bem", SET_ALL, EXPORT_BEM )
+
+    ExportFile( "ExampleXRotor.xrotor", SET_ALL, EXPORT_XROTOR )
 
     # A BEM export of a Geom that is not a propeller has to be rejected.  The
     # error queue is reached through the error manager singleton in Python.

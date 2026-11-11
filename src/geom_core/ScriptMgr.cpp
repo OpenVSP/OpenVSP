@@ -1321,6 +1321,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_IGES_STITCH", EXPORT_IGES_STITCH );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_XROTOR", EXPORT_XROTOR );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "FEA_BC_MODE" );
     assert( r >= 0 );
@@ -2039,6 +2041,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_SPLIT_STITCH_OPTIONS_SCREEN", VSP_SPLIT_STITCH_OPTIONS_SCREEN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_VECTOR_SCREENSHOT_SCREEN", VSP_VECTOR_SCREENSHOT_SCREEN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_XROTOR_OPTIONS_SCREEN", VSP_XROTOR_OPTIONS_SCREEN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_MAIN_SCREEN", VSP_MAIN_SCREEN );
     assert( r >= 0 );
