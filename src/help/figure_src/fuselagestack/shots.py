@@ -16,5 +16,5 @@ def model():
     vsp.Update()
 
 
-snap.shots( model, "STACK_GEOM_SCREEN", { "FuselageStack_gui_coord": ( "Stack_XSec", ( 8, 189, 506, 355 ) ) },
+snap.shots( model, "STACK_GEOM_SCREEN", { "FuselageStack_gui_coord": ( "Stack_XSec", ( 8, 189, 506, 375 ) ) },
             name = "fuselagestack_coord" )

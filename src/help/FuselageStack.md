@@ -59,6 +59,7 @@ Design tab are described in [Engine Model](EngineModel.md), and the Chevron cont
 | Overall length           | *Length* on the Design tab                                  | No parameter; the sum of the steps                                  |
 | XSec Order policies      | MONOTONIC (default), LOOP, FREE                             | FREE (default), LOOP                                                |
 | Vertical alignment       | None                                                        | *V Align*                                                           |
+| Horizontal alignment     | None                                                        | *H Align*                                                           |
 | Presets                  | None                                                        | *Stack Preset*                                                      |
 | Conversion               | *Convert to Stack*                                          | None                                                                |
 | Insert                   | Halfway to the next section; nothing else moves             | One step on from the active section; later sections move on        |
@@ -149,6 +150,16 @@ section is placed from where the section would be at V Align 0.
 (above) and at V Align 1 (below).  At 1 each section's center lies half its height H below the Stack's line, and the
 tops of sections 1 to 3 lie on it.*
 
+*H Align* does the same across the section's width, by its value times half the section's width: at 1 its $+Y$ side
+lies on the Stack's line, at -1 its $-Y$ side does (Figure 5).  It lets sections of different widths share a flat side.
+Like V Align, the move is the section's alone.
+
+![Figure 5. H Align](images/FuselageStack_halign.png "Figure 5. H Align")
+
+*Figure 5. A Stack of three ellipses of widths 0.8, 1.4 and 0.6 between point ends, seen from above, every section
+at H Align 0 (above) and at H Align 1 (below).  At 1 each section's center lies half its width W toward $-Y$ from the
+Stack's line, and the $+Y$ sides of sections 1 to 3 lie on it.*
+
 *Spin*, in both components, slides the start of the section's curve around the section by a fraction of the curve's
 parameter, from -1 to 1.  It changes no shape; it changes which points of neighboring sections the skinning joins, which
 matters when sections of different types meet.
@@ -168,15 +179,15 @@ edited, and switching to it from another policy pulls any section that is out of
 *X*.
 
 LOOP closes the sections on themselves, for a component whose sections run around a closed path, such as a nacelle
-whose sections run forward through the flowpath to the inlet lip and back along the outside (Figure 5).
+whose sections run forward through the flowpath to the inlet lip and back along the outside (Figure 6).
 The last section is no longer edited: it takes the first section's shape and size, and its place.  In a Fuselage it
 takes the first section's location, rotation and *Spin*, and both ends lie at *X* 1, the aft end.  In a Stack it is
-placed exactly on the first section, whatever the steps to it, and takes its *Spin* and *V Align*.  Its skinning is
-not copied, so set it to match if the join must be smooth.  The Stack's nacelle presets are loops.
+placed exactly on the first section, whatever the steps to it, and takes its *Spin*, *V Align* and *H Align*.  Its
+skinning is not copied, so set it to match if the join must be smooth.  The Stack's nacelle presets are loops.
 
-![Figure 5. A Stack loop](images/FuselageStack_loop.png "Figure 5. A Stack loop")
+![Figure 6. A Stack loop](images/FuselageStack_loop.png "Figure 6. A Stack loop")
 
-*Figure 5. The Nacelle Flowthrough Mid Origin preset, cut through its axis.  Its sections run in a loop: from section
+*Figure 6. The Nacelle Flowthrough Mid Origin preset, cut through its axis.  Its sections run in a loop: from section
 0 in the middle of the flowpath forward through the inlet to the lip, aft along the outside to the outlet lip, and
 forward through the outlet back to section 6, which lies on section 0.*
 
@@ -213,12 +224,12 @@ The caps are the Wing's None, Flat, Round, Edge and Sharp tip caps, with the sam
 built across the section as if it were an airfoil whose chord runs from the section's right side ($+Y$) to its left, so
 at each point across the section the cap reaches out by half the section's height there (at Length 1).  Where the body
 ends straight, a Round cap on a circular section is therefore a hemisphere, and on an ellipse it reaches out by half the
-height, whatever the width (Figure 6): a wide, flat section gets a short, blunt cap, and a tall, narrow one a long cap.
+height, whatever the width (Figure 7): a wide, flat section gets a short, blunt cap, and a tall, narrow one a long cap.
 Where the body narrows toward its end, the cap continues the surface's direction and reaches out less.
 
-![Figure 6. Round caps](images/FuselageStack_caps.png "Figure 6. Round caps")
+![Figure 7. Round caps](images/FuselageStack_caps.png "Figure 7. Round caps")
 
-*Figure 6. A Round tail cap of Length 1 on a straight body, from above (left) and from the side (right).  On a circle
+*Figure 7. A Round tail cap of Length 1 on a straight body, from above (left) and from the side (right).  On a circle
 of diameter D it is a hemisphere.  On an ellipse of width W twice its height H it reaches out by H/2 in both views, a
 half circle from the side and a half ellipse from above.*
 
@@ -255,6 +266,7 @@ A script reaches a section's parameters through the XSec it belongs to (`GetXSec
 | Absolute       | none                                        | `XAbs`, `YAbs`, `ZAbs`, `XRotateAbs`, `YRotateAbs`, `ZRotateAbs` |
 | Coord System   | none                                        | `XSAbsRelFlag`: `ABS` or `REL`                 |
 | V Align        | none                                        | `VAlign`                                       |
+| H Align        | none                                        | `HAlign`                                       |
 | Spin           | `Spin`                                      | `Spin`                                         |
 | Num U, clusters | `SectTess_U`, `FwdCluster`, `AftCluster`   | `SectTess_U`, `FwdCluster`, `AftCluster`       |
 

@@ -49,7 +49,7 @@ replaces, but brings the rest of the copied section:
 |:----------|:----------------------------------------------------------------------|:-------------------------------------------------|
 | Wing      | The whole section, planform included: span, chords, sweep, twist, dihedral | Nothing                                      |
 | Fuselage  | Rotation, spin, Num U, clustering and skinning                        | Location                                         |
-| Stack     | Num U, clustering and skinning                                        | Steps, turns, Coord System, Spin and V Align     |
+| Stack     | Num U, clustering and skinning                                        | Steps, turns, Coord System, Spin, V Align and H Align |
 | Propeller | The section's attributes                                              | Radius                                           |
 
 A pasted curve brings only the shape type and its parameters, so the section's place, rotation, tessellation, skinning

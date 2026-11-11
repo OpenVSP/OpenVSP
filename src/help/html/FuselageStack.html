@@ -215,6 +215,11 @@ one</td>
 <td style="text-align: left;"><em>V Align</em></td>
 </tr>
 <tr>
+<td style="text-align: left;">Horizontal alignment</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><em>H Align</em></td>
+</tr>
+<tr>
 <td style="text-align: left;">Presets</td>
 <td style="text-align: left;">None</td>
 <td style="text-align: left;"><em>Stack Preset</em></td>
@@ -359,6 +364,23 @@ alt="Figure 4. V Align" /></p>
 between point ends, every section at V Align 0 (above) and at V Align 1
 (below). At 1 each section's center lies half its height H below the
 Stack's line, and the tops of sections 1 to 3 lie on it.</em></p>
+<p><em>H Align</em> does the same across the section's width, by its
+value times half the section's width: at 1 its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+side lies on the Stack's line, at -1 its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">-Y</annotation></semantics></math>
+side does (Figure 5). It lets sections of different widths share a flat
+side. Like V Align, the move is the section's alone.</p>
+<p><img src="images/FuselageStack_halign.png" title="Figure 5. H Align"
+alt="Figure 5. H Align" /></p>
+<p><em>Figure 5. A Stack of three ellipses of widths 0.8, 1.4 and 0.6
+between point ends, seen from above, every section at H Align 0 (above)
+and at H Align 1 (below). At 1 each section's center lies half its width
+W toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">-Y</annotation></semantics></math>
+from the Stack's line, and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+sides of sections 1 to 3 lie on it.</em></p>
 <p><em>Spin</em>, in both components, slides the start of the section's
 curve around the section by a fraction of the curve's parameter, from -1
 to 1. It changes no shape; it changes which points of neighboring
@@ -404,16 +426,17 @@ neighbor, losing its <em>X</em>.</p>
 <p>LOOP closes the sections on themselves, for a component whose
 sections run around a closed path, such as a nacelle whose sections run
 forward through the flowpath to the inlet lip and back along the outside
-(Figure 5). The last section is no longer edited: it takes the first
+(Figure 6). The last section is no longer edited: it takes the first
 section's shape and size, and its place. In a Fuselage it takes the
 first section's location, rotation and <em>Spin</em>, and both ends lie
 at <em>X</em> 1, the aft end. In a Stack it is placed exactly on the
-first section, whatever the steps to it, and takes its <em>Spin</em> and
-<em>V Align</em>. Its skinning is not copied, so set it to match if the
-join must be smooth. The Stack's nacelle presets are loops.</p>
+first section, whatever the steps to it, and takes its <em>Spin</em>,
+<em>V Align</em> and <em>H Align</em>. Its skinning is not copied, so
+set it to match if the join must be smooth. The Stack's nacelle presets
+are loops.</p>
 <p><img src="images/FuselageStack_loop.png"
-title="Figure 5. A Stack loop" alt="Figure 5. A Stack loop" /></p>
-<p><em>Figure 5. The Nacelle Flowthrough Mid Origin preset, cut through
+title="Figure 6. A Stack loop" alt="Figure 6. A Stack loop" /></p>
+<p><em>Figure 6. The Nacelle Flowthrough Mid Origin preset, cut through
 its axis. Its sections run in a loop: from section 0 in the middle of
 the flowpath forward through the inlet to the lip, aft along the outside
 to the outlet lip, and forward through the outlet back to section 6,
@@ -461,12 +484,12 @@ to its left, so at each point across the section the cap reaches out by
 half the section's height there (at Length 1). Where the body ends
 straight, a Round cap on a circular section is therefore a hemisphere,
 and on an ellipse it reaches out by half the height, whatever the width
-(Figure 6): a wide, flat section gets a short, blunt cap, and a tall,
+(Figure 7): a wide, flat section gets a short, blunt cap, and a tall,
 narrow one a long cap. Where the body narrows toward its end, the cap
 continues the surface's direction and reaches out less.</p>
-<p><img src="images/FuselageStack_caps.png" title="Figure 6. Round caps"
-alt="Figure 6. Round caps" /></p>
-<p><em>Figure 6. A Round tail cap of Length 1 on a straight body, from
+<p><img src="images/FuselageStack_caps.png" title="Figure 7. Round caps"
+alt="Figure 7. Round caps" /></p>
+<p><em>Figure 7. A Round tail cap of Length 1 on a straight body, from
 above (left) and from the side (right). On a circle of diameter D it is
 a hemisphere. On an ellipse of width W twice its height H it reaches out
 by H/2 in both views, a half circle from the side and a half ellipse
@@ -553,6 +576,11 @@ to (<code>GetXSecSurf</code>, <code>GetXSec</code>,
 <td style="text-align: left;">V Align</td>
 <td style="text-align: left;">none</td>
 <td style="text-align: left;"><code>VAlign</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">H Align</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;"><code>HAlign</code></td>
 </tr>
 <tr>
 <td style="text-align: left;">Spin</td>

@@ -72,6 +72,14 @@ def fuselage_stack():
     vsp.Update()
     near( P( s, 0.5, 0.75 )[2], 0.0, 1e-9, "V Align 1: the top on the Stack's line" )
     near( P( s, 0.75, 0.75 )[2], 1.25, 1e-9, "V Align moves its section alone: the next is placed as at V Align 0" )
+    # H Align 1 puts the +Y side on the line, -1 the -Y side.
+    bf.setx( s, 2, "HAlign", 1.0 )
+    vsp.Update()
+    near( P( s, 0.5, 0.0 )[1], 0.0, 1e-9, "H Align 1: the +Y side on the Stack's line" )
+    near( P( s, 0.75, 0.0 )[1], 1.5, 1e-9, "H Align moves its section alone: the next is placed as at H Align 0" )
+    bf.setx( s, 2, "HAlign", -1.0 )
+    vsp.Update()
+    near( P( s, 0.5, 0.5 )[1], 0.0, 1e-9, "H Align -1: the -Y side on the Stack's line" )
     # Monotonic clamps an out-of-order section on its neighbor.
     bf.renew()
     f = vsp.AddGeom( "FUSELAGE" )

@@ -1,4 +1,4 @@
-"""Figures for FuselageStack.md: section placement, section rotation, V Align, a Stack loop, Round end caps.
+"""Figures for FuselageStack.md: section placement, section rotation, V Align, H Align, a Stack loop, Round end caps.
 
     <build>/venv/bin/python fuselagestack_figs.py [place rotate loop valign caps]
 """
@@ -187,6 +187,46 @@ def valign():
     bf.save( fig, "FuselageStack_valign", [ [ canv[0] ], [ canv[1] ] ], hmax = 6.5 )
 
 
+def halign():
+    """FuselageStack_halign: three ellipses of different widths at H Align 0 and 1, from above."""
+    widths = { 1: 0.8, 2: 1.4, 3: 0.6 }
+    canv = []
+    fig = bf.figure()
+    for ha in ( 0.0, 1.0 ):
+        bf.renew()
+        s = vsp.AddGeom( "STACK" )
+        vsp.Update()
+        for i in range( 5 ):
+            if i in widths:
+                bf.setx( s, i, "Ellipse_Width", widths[i] )
+                bf.setx( s, i, "Ellipse_Height", 1.0 )
+            if i > 0:
+                bf.setx( s, i, "XDelta", 1.0 )
+            bf.setx( s, i, "HAlign", ha )
+        vsp.Update()
+        # At 1 every +Y side lies on the Stack's line, and each section is placed from the one before as if unmoved.
+        for i, w in widths.items():
+            side = vsp.CompPnt01( s, 0, i / 4.0, 0.0 )
+            assert abs( side.y() - 0.5 * w * ( 1.0 - ha ) ) < 1e-9 and abs( side.x() - i ) < 1e-9
+        c = bf.canvas( fig, bf.TOP )
+        bf.fill( c, bf.body_cut( s, wtop = 0.0, wbot = 0.5 ) )
+        for i in range( 5 ):
+            u = i / 4.0
+            tr = np.array( [ list( vsp.CompPnt01( s, 0, u, 0.5 ) ), list( vsp.CompPnt01( s, 0, u, 0.0 ) ) ] )
+            c.line( tr, color = "#1f1f1f", lw = 0.9, z = 30 )
+            bf.label( c, tr[1], "%d" % i, dy = 9 )
+        bf.axis_line( c, -0.3, LEN + 0.3 )
+        if ha == 1.0:
+            ctr = np.array( [ 2.0, -0.7, 0 ] )
+            c.point( ctr, "k", s = 10 )
+            bf.label( c, ctr, "center", dx = 6, ha = "left" )
+            bf.dim( c, np.array( [ 2.0, 0, 0 ] ), ctr, r"$W/2$", off = ( -0.35, 0 ), dx = -14, ext = False )
+        bf.title( c, "H Align %g" % ha, pad = 16 )
+        canv.append( c )
+    bf.key( canv[ -1 ], "top", ( 1.0, 0.0 ), 12, 0 )
+    bf.save( fig, "FuselageStack_halign", [ [ canv[0] ], [ canv[1] ] ], hmax = 6.5 )
+
+
 def hull( Q ):
     """The convex hull of 2D points Q ( n, 2 ), counterclockwise (Andrew's monotone chain)."""
     P = sorted( set( map( tuple, np.round( Q, 9 ) ) ) )
@@ -280,7 +320,7 @@ def caps():
     bf.save( fig, "FuselageStack_caps", canv, hmax = 6.0 )
 
 
-FIGS = { "place": place, "rotate": rotate, "loop": loop, "valign": valign, "caps": caps }
+FIGS = { "place": place, "rotate": rotate, "loop": loop, "valign": valign, "halign": halign, "caps": caps }
 
 if __name__ == "__main__":
     for name in ( sys.argv[ 1: ] or FIGS ):

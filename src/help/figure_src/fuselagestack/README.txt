@@ -21,7 +21,7 @@ Files
 
 bodyfig.py              Views, layout and drawing helpers on top of ../propeller/figlib.py (imported read-only), and
                         sampling of VSP surfaces with CompPnt01.
-fuselagestack_figs.py   FuselageStack_place, _rotate, _valign, _loop, _caps.
+fuselagestack_figs.py   FuselageStack_place, _rotate, _valign, _halign, _loop, _caps.
 verify.py               Checks the signs, defaults and measured numbers the body pages state, and the Gen tab
                         page's advice on Negative Volume cutters.
 
