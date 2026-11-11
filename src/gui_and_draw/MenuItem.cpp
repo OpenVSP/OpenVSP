@@ -114,11 +114,11 @@ void VSPCheckMenuItem::Update( bool val )
     {
         if ( val )
         {
-            mitem->check();
+            mitem->set();
         }
         else
         {
-            mitem->uncheck();
+            mitem->clear();
         }
     }
 }

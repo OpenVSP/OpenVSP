@@ -2916,7 +2916,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
         // this case where a geometry is selected, geometry's window becomes the new
         // focus.  The behavior locks up geometry selection process.  Set OpenGL
         // window back on focus so user can proceed without interruption.
-        focus(this);
+        Fl::focus( this );
     }
 
     // Routing Screen Feedback

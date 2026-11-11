@@ -796,7 +796,7 @@ void Ca_Y_Axis::draw(){
     fl_font(label_font_face_,label_font_size_);
     int l1=0; int l2=0; int m1=0; int m2=0; int l=0; int _x=0; int _w,_h; //temporary coordinates for ticks
     double _pos,_y;
-    fl_clip(x()+Fl::box_dx(box()),y()+Fl::box_dy(box()),w()-Fl::box_dw(box()),h()-Fl::box_dh(box()));
+    fl_push_clip(x()+Fl::box_dx(box()),y()+Fl::box_dy(box()),w()-Fl::box_dw(box()),h()-Fl::box_dh(box()));
     fl_color(axis_color_);
     int a=x()+Fl::box_dx(box())+border_;
     int b=a+w()-Fl::box_dw(box())-2*border_;
@@ -1084,7 +1084,7 @@ void Ca_Canvas::draw(){
     }
   }
 
-  fl_clip(x()+Fl::box_dx(box())+dx_, y()+Fl::box_dy(box())+border_+dy_, w()-Fl::box_dw(box()) - dw_, h()-Fl::box_dh(box()) - dh_);
+  fl_push_clip(x()+Fl::box_dx(box())+dx_, y()+Fl::box_dy(box())+border_+dy_, w()-Fl::box_dw(box()) - dw_, h()-Fl::box_dh(box()) - dh_);
   if (last_plotted_)
     last_plotted_=last_plotted_->next;
   else
