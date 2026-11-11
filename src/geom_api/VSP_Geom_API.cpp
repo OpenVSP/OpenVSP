@@ -14362,6 +14362,38 @@ double SetParmValUpdate( const std::string & container_id, const std::string & p
     return p->SetFromDevice( val );         // Force Update
 }
 
+/// Set the value of each Parm in parm_ids to the matching entry of vals.
+/// Nothing is set unless the sizes match and every Parm is found.
+/// The final values of the Parms are returned.
+std::vector < double > SetParmVals( const std::vector < std::string > & parm_ids, const std::vector < double > & vals )
+{
+    std::vector < double > ret_vec;
+    if ( parm_ids.size() != vals.size() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetParmVals::Got " + to_string( parm_ids.size() ) + " Parm IDs and " + to_string( vals.size() ) + " values" );
+        return ret_vec;
+    }
+
+    std::vector < Parm* > parm_vec( parm_ids.size() );
+    for ( size_t i = 0; i < parm_ids.size(); i++ )
+    {
+        parm_vec[i] = ParmMgr.FindParm( parm_ids[i] );
+        if ( !parm_vec[i] )
+        {
+            ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVals::Can't Find Parm " + parm_ids[i] );
+            return ret_vec;
+        }
+    }
+
+    ret_vec.resize( parm_vec.size() );
+    for ( size_t i = 0; i < parm_vec.size(); i++ )
+    {
+        ret_vec[i] = parm_vec[i]->Set( vals[i] );
+    }
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
 /// Get the value of parm
 double GetParmVal( const std::string & parm_id )
 {

@@ -37941,6 +37941,59 @@ extern double SetParmValUpdate( const std::string & geom_id, const std::string &
     \ingroup Parm
 */
 /*!
+    Set the values of several Parms at once.  Each Parm in parm_ids is set to the value at the same index
+    of vals, as SetParmVal would set it.  Nothing is set if the two vectors differ in size or if any
+    Parm can't be found; an error is raised and an empty vector is returned.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    array< string > parm_ids = { GetParm( pod_id, "X_Rel_Location", "XForm" ),
+                                 GetParm( pod_id, "Length", "Design" ) };
+    array< double > vals = { 2.0, 12.0 };
+
+    array< double > @set_vals = SetParmVals( parm_ids, vals );
+
+    Update();
+
+    if ( set_vals.size() != 2 || !closeTo( GetParmVal( parm_ids[1] ), 12.0, 1e-9 ) )
+    {
+        Print( "ERROR: SetParmVals" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    parm_ids = [ GetParm( pod_id, "X_Rel_Location", "XForm" ),
+                 GetParm( pod_id, "Length", "Design" ) ]
+    vals = [ 2.0, 12.0 ]
+
+    set_vals = SetParmVals( parm_ids, vals )
+
+    Update()
+
+    assert len( set_vals ) == 2, "SetParmVals"
+    assert abs( GetParmVal( parm_ids[1] ) - 12.0 ) < 1e-9, "SetParmVals"
+
+    \endcode
+    \endPythonOnly
+    \sa SetParmVal, SetParmValUpdate
+    \param [in] parm_ids vector<string> Parm IDs
+    \param [in] vals vector<double> Parm values to set, one for each Parm ID
+    \return vector<double> Values that the Parms were set to (empty on error)
+*/
+
+extern std::vector < double > SetParmVals( const std::vector < std::string > & parm_ids, const std::vector < double > & vals );
+
+/*!
+    \ingroup Parm
+*/
+/*!
     Get the value of the specified Parm. The data type of the Parm value will be cast to a double
     \forcpponly
     \code{.cpp}

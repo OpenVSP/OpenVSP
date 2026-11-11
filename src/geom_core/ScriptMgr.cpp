@@ -6405,6 +6405,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "array<double>@ SetParmVals( array<string>@+ parm_ids, array<double>@+ vals )", asMETHOD( ScriptMgrSingleton, SetParmVals ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "double GetParmVal(const string & in parm_id )", asFUNCTIONPR( vsp::GetParmVal, ( const string & ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -8628,6 +8632,17 @@ CScriptArray* ScriptMgrSingleton::FindContainerParmIDs( const string & parm_cont
 {
     m_ProxyStringArray = vsp::FindContainerParmIDs( parm_container_id );
     return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::SetParmVals( CScriptArray* parm_ids, CScriptArray* vals )
+{
+    vector < string > id_vec;
+    FillSTLVector( parm_ids, id_vec );
+    vector < double > val_vec;
+    FillSTLVector( vals, val_vec );
+
+    m_ProxyDoubleArray = vsp::SetParmVals( id_vec, val_vec );
+    return GetProxyDoubleArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetAllUserParms()

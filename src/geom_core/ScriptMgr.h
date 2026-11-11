@@ -271,6 +271,7 @@ private:
     CScriptArray* FindContainersWithName( const string & name );
     CScriptArray* FindContainerGroupNames( const string & parm_container_id );
     CScriptArray* FindContainerParmIDs( const string & parm_container_id );
+    CScriptArray* SetParmVals( CScriptArray* parm_ids, CScriptArray* vals );
     CScriptArray* GetAllUserParms();
     CScriptArray* GetUpperCSTCoefs( const string & xsec_id );
     CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
