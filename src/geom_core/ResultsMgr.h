@@ -448,9 +448,16 @@ public:
         return m_Timestamp;
     }
 
+    // Order of creation: 1 for the session's first Result, counting up.
+    int GetCreationCount()
+    {
+        return m_CreationCount;
+    }
+
 protected:
 
     time_t m_Timestamp;
+    int m_CreationCount;
     int m_Sec, m_Min, m_Hour;
     int m_Day, m_Month, m_Year;
 

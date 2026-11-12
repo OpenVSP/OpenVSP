@@ -1421,6 +1421,11 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node )
 Results::Results( const string & name, const string & id, const string & doc ) : NameValCollection( name, id, doc )
 {
     SetDateTime();          // Set Time Stamp
+
+    // Results made in the same second still sort in the order they were made.
+    static int creation_count = 0;
+    creation_count++;
+    m_CreationCount = creation_count;
 }
 
 // Results has wrapper for NVC Add to gatekeep against unsupported datatypes
