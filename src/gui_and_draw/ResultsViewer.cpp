@@ -36,19 +36,19 @@ string GetResultsListText( Results* res )
     return text;
 }
 
-ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 700, "Results" )
+ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : TabScreen( mgr, 1000, 800, "Results" )
 {
     m_CurrDisplayGroup = NULL;
 
     m_FLTK_Window->callback( staticCloseCB, this );
-    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_MainLayout.ForceNewLine();
-    m_MainLayout.AddY( 7 );
-    m_MainLayout.AddX( 5 );
+    Fl_Group* data_tab = AddTab( "Data" );
+    data_tab->show();
 
-    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - 5.0,
-                                    m_MainLayout.GetRemainY() - 5.0 );
+    Fl_Group* data_group = AddSubGroup( data_tab, 5 );
+    m_MainLayout.SetGroupAndScreen( data_group, this );
+
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX(), m_MainLayout.GetRemainY() );
 
     m_BorderLayout.AddChoice( m_ResultsChoice, "Result" );
 
@@ -149,7 +149,7 @@ void ResultsViewer::Hide()
 
 bool ResultsViewer::Update()
 {
-    BasicScreen::Update();
+    TabScreen::Update();
 
     UpdateResultsChoice();
 
