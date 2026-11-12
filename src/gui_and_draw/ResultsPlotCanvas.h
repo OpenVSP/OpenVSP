@@ -51,4 +51,94 @@ void NiceAxisLimits( double dmin, double dmax, bool log_axis, double & amin, dou
 // Whether axis limits can be drawn: increasing, positive on a log axis, and far enough apart for ticks.
 bool UsableAxisLimits( double amin, double amax, bool log_axis );
 
+//==== One legend entry ====//
+class ResultsLegendEntry
+{
+public:
+    string m_Text;
+    Fl_Color m_Color;
+    int m_LineStyle;
+    int m_Marker;
+    bool m_ShowLine;
+    bool m_ShowPoint;
+};
+
+//==== Plot canvas with a legend, zoom box, wheel zoom, pan and a point readout ====//
+class ResultsPlotCanvas : public Vsp_Canvas
+{
+public:
+    ResultsPlotCanvas( int x, int y, int w, int h );
+
+    virtual void draw();
+    virtual int handle( int event );
+
+    void SetLegend( const vector < ResultsLegendEntry > & entries, int placement );
+
+    // The points under the legend's corner choice: x and y in data units per series, and each
+    // point's index in its data, which the readout shows.
+    void SetSeriesPoints( const vector < vector < double > > & x, const vector < vector < double > > & y, const vector < string > & names,
+                          const vector < vector < int > > & index );
+
+    // Called with the new limits after a zoom or pan, and with reset true on a double click.
+    typedef void ( *LimitsCB )( void* data, double xmin, double xmax, double ymin, double ymax, bool reset );
+    void SetLimitsCallback( LimitsCB cb, void* data )
+    {
+        m_LimitsCB = cb;
+        m_LimitsData = data;
+    }
+
+    // Called when the readout text changes.
+    typedef void ( *ReadoutCB )( void* data, const string & text );
+    void SetReadoutCallback( ReadoutCB cb, void* data )
+    {
+        m_ReadoutCB = cb;
+        m_ReadoutData = data;
+    }
+
+protected:
+
+    void DrawLegend();
+    void LegendSize( int & lw, int & lh );
+    void LegendCorner( int corner, int lw, int lh, int & lx, int & ly );
+    int CountPointsIn( int x0, int y0, int w, int h );
+    void UpdateReadout( int mx, int my );
+    bool AxisValue( Ca_Axis_* axis, int pix, double & val );
+    void ZoomAbout( int mx, int my, double factor );
+    void SendLimits( double x0, double x1, double y0, double y1 );
+    void ClearHighlight();
+    double PanScale( Ca_Axis_* axis, double amin, double amax );
+    void PanShift( Ca_Axis_* axis, double k, int dpix, double & amin, double & amax );
+
+    vector < ResultsLegendEntry > m_Legend;
+    int m_LegendPlacement;
+
+    vector < vector < double > > m_PtX;
+    vector < vector < double > > m_PtY;
+    vector < string > m_PtNames;
+    vector < vector < int > > m_PtIndex;  // Data index of each point; none means its place
+    int m_PtGen;                    // Counts point changes
+
+    vector < double > m_BestKey;    // Limits, size and points the best corner was found for
+    int m_BestCorner;
+
+    bool m_Dragging;
+    bool m_Panning;
+    int m_PushButton;               // Button that started the drag
+    int m_PushX, m_PushY;
+    int m_DragX, m_DragY;
+    double m_PanXMin, m_PanXMax, m_PanYMin, m_PanYMax;
+    double m_PanKx, m_PanKy;
+
+    int m_HighSeries;
+    int m_HighIndex;
+
+    LimitsCB m_LimitsCB;
+    void* m_LimitsData;
+    ReadoutCB m_ReadoutCB;
+    void* m_ReadoutData;
+};
+
+// A pixel position as an int, held within a range that drawing and int casts can take.
+int ResultsPixel( double p );
+
 #endif //VSP_TOP_RESULTSPLOTCANVAS_H
