@@ -252,21 +252,20 @@ void ResultsViewer::UpdateResultsChoice()
 
     vector < string > resvec = ResultsMgr.GetAllResultsIDs();
 
-    vector < pair < time_t, string > > m_TimeIDVec;
+    vector < pair < int, string > > count_ids;
     for ( int i = 0 ; i < (int)resvec.size() ; i++ )
     {
         Results * res = ResultsMgr.FindResultsPtr( resvec[i] );
         if ( res )
         {
-            time_t r_time = res->GetTimestamp();
-            m_TimeIDVec.emplace_back( make_pair( r_time, resvec[ i ] ) );
+            count_ids.emplace_back( make_pair( res->GetCreationCount(), resvec[ i ] ) );
         }
     }
-    sort( m_TimeIDVec.begin(), m_TimeIDVec.end() );
+    sort( count_ids.begin(), count_ids.end() );
 
-    for ( int i = 0 ; i < (int)m_TimeIDVec.size() ; i++ )
+    for ( int i = 0 ; i < (int)count_ids.size() ; i++ )
     {
-        m_ResIDvec.emplace_back( m_TimeIDVec[i].second );
+        m_ResIDvec.emplace_back( count_ids[i].second );
     }
 
     for ( int i = 0 ; i < (int)m_ResIDvec.size() ; i++ )
