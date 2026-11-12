@@ -249,3 +249,82 @@ bool GetResultsPlotVarData( Results* res, const string & label, bool matrix_rows
     }
     return false;
 }
+
+//==== Kinds of Result ====//
+ResultsSource::ResultsSource()
+{
+}
+
+ResultsSource::ResultsSource( const string & name, const string & case_name )
+{
+    m_Name = name;
+    m_Case = case_name;
+}
+
+bool ResultsSource::operator==( const ResultsSource & other ) const
+{
+    return m_Name == other.m_Name && m_Case == other.m_Case;
+}
+
+bool ResultsSource::Matches( Results* res ) const
+{
+    return res && res->GetName() == m_Name && GetResultsCaseName( res ) == m_Case;
+}
+
+string ResultsSource::GetText() const
+{
+    if ( m_Case.empty() )
+    {
+        return m_Name;
+    }
+    return m_Case + " - " + m_Name;
+}
+
+// Every Result, oldest first.
+static void SortedResultsIDs( vector < string > & ids )
+{
+    vector < string > all = ResultsMgr.GetAllResultsIDs();
+
+    vector < std::pair < int, string > > count_ids;
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        Results* res = ResultsMgr.FindResultsPtr( all[i] );
+        if ( res )
+        {
+            count_ids.push_back( std::make_pair( res->GetCreationCount(), all[i] ) );
+        }
+    }
+    std::sort( count_ids.begin(), count_ids.end() );
+
+    ids.clear();
+    for ( int i = 0; i < ( int ) count_ids.size(); i++ )
+    {
+        ids.push_back( count_ids[i].second );
+    }
+}
+
+void ListResultsSources( vector < ResultsSource > & sources, vector < int > & counts )
+{
+    sources.clear();
+    counts.clear();
+
+    vector < string > ids;
+    SortedResultsIDs( ids );
+
+    for ( int i = 0; i < ( int ) ids.size(); i++ )
+    {
+        Results* res = ResultsMgr.FindResultsPtr( ids[i] );
+        ResultsSource s( res->GetName(), GetResultsCaseName( res ) );
+
+        vector < ResultsSource >::iterator it = std::find( sources.begin(), sources.end(), s );
+        if ( it == sources.end() )
+        {
+            sources.push_back( s );
+            counts.push_back( 1 );
+        }
+        else
+        {
+            counts[ it - sources.begin() ]++;
+        }
+    }
+}

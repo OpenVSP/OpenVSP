@@ -36,4 +36,23 @@ void ListResultsPlotVars( Results* res, bool matrix_rows, vector < ResultsPlotVa
 // The values of the variable with this label, false when the Result has no such variable.
 bool GetResultsPlotVarData( Results* res, const string & label, bool matrix_rows, vector < double > & data );
 
+//==== A kind of Result: its name and its case name ====//
+class ResultsSource
+{
+public:
+    ResultsSource();
+    ResultsSource( const string & name, const string & case_name );
+
+    bool operator==( const ResultsSource & other ) const;
+
+    bool Matches( Results* res ) const;
+    string GetText() const;
+
+    string m_Name;
+    string m_Case;
+};
+
+// Each kind of Result that exists, in the order first made.
+void ListResultsSources( vector < ResultsSource > & sources, vector < int > & counts );
+
 #endif //VSP_TOP_RESULTSPLOTMGR_H
