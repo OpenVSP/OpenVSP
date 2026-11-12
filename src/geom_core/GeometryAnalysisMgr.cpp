@@ -2736,6 +2736,12 @@ string GeometryAnalysisCase::Evaluate()
         DeleteTMeshVec( secondary_tmv );
 
 
+        Results *lastres = ResultsMgr.FindResultsPtr( m_LastResult );
+        if ( lastres )
+        {
+            lastres->Add( new NameValData( "Case_Name", m_Name, "Geometry analysis case name." ) );
+        }
+
         vector < double > resvec = ResultsMgr.GetDoubleResults( m_LastResult, "Result", 0 );
         if ( resvec.size() > 0 )
         {
