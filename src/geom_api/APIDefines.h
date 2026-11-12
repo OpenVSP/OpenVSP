@@ -1462,6 +1462,22 @@ enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,	/*!< Indexed triangulated mesh Geom ty
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the element of each Result's vector that a Results plot curve plots across Results (Element Parm of a ResultsCurve). */
+enum RESULTS_PLOT_ELEMENT { RESULTS_PLOT_FIRST,	/*!< The first element of each Result's vector */
+                            RESULTS_PLOT_LAST,	/*!< The last element of each Result's vector */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for how a Results plot curve makes its series (Mode Parm of a ResultsCurve). */
+enum RESULTS_PLOT_MODE { RESULTS_PLOT_VECTORS,	/*!< One series per Result and Y variable; X and Y are each Result's vectors */
+                         RESULTS_PLOT_ACROSS_RESULTS,	/*!< One series per Y variable, with one point per Result */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that describes units for density. */
 enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,	/*!< Slug per cubic foot */
                  RHO_UNIT_G_CM3,	/*!< Gram per cubic centimeter */

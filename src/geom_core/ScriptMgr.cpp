@@ -2547,6 +2547,22 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "RESULTS_PLOT_ELEMENT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_ELEMENT", "RESULTS_PLOT_FIRST", RESULTS_PLOT_FIRST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_ELEMENT", "RESULTS_PLOT_LAST", RESULTS_PLOT_LAST );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "RESULTS_PLOT_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_MODE", "RESULTS_PLOT_VECTORS", RESULTS_PLOT_VECTORS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_MODE", "RESULTS_PLOT_ACROSS_RESULTS", RESULTS_PLOT_ACROSS_RESULTS );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "RHO_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_SLUG_FT3", RHO_UNIT_SLUG_FT3 );

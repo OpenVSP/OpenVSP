@@ -8,7 +8,9 @@
 
 #include "ResultsPlotMgr.h"
 
+#include "ParmMgr.h"
 #include "ResultsMgr.h"
+#include "XmlUtil.h"
 
 #include <algorithm>
 #include <cmath>
@@ -250,6 +252,21 @@ bool GetResultsPlotVarData( Results* res, const string & label, bool matrix_rows
     return false;
 }
 
+//==== Series ====//
+ResultsSeriesDef::ResultsSeriesDef()
+{
+    m_Mode = vsp::RESULTS_PLOT_VECTORS;
+    m_Element = vsp::RESULTS_PLOT_FIRST;
+    m_MatrixRows = false;
+}
+
+bool ResultsSeriesDef::operator==( const ResultsSeriesDef & other ) const
+{
+    return m_Mode == other.m_Mode && m_Element == other.m_Element && m_MatrixRows == other.m_MatrixRows &&
+           m_ResultIDs == other.m_ResultIDs && m_XLabel == other.m_XLabel && m_YLabel == other.m_YLabel;
+}
+
+
 //==== Kinds of Result ====//
 ResultsSource::ResultsSource()
 {
@@ -327,4 +344,264 @@ void ListResultsSources( vector < ResultsSource > & sources, vector < int > & co
             counts[ it - sources.begin() ]++;
         }
     }
+}
+
+//==== Curve ====//
+ResultsCurve::ResultsCurve() : ParmContainer()
+{
+    m_Name = "ResultsCurve";
+
+    string groupname = "ResultsCurve";
+
+    m_Mode.Init( "Mode", groupname, this, vsp::RESULTS_PLOT_VECTORS, vsp::RESULTS_PLOT_VECTORS, vsp::RESULTS_PLOT_ACROSS_RESULTS );
+    m_Mode.SetDescript( "Plot each Result's vectors, or one point per Result" );
+    m_Element.Init( "Element", groupname, this, vsp::RESULTS_PLOT_FIRST, vsp::RESULTS_PLOT_FIRST, vsp::RESULTS_PLOT_LAST );
+    m_Element.SetDescript( "Element of each Result's vector plotted across Results" );
+    m_MatrixRows.Init( "MatrixRows", groupname, this, 0, 0, 1 );
+    m_MatrixRows.SetDescript( "Plot matrix rows rather than columns" );
+    m_Run.Init( "Run", groupname, this, 0, 0, 1000000 );
+    m_Run.SetDescript( "Runs of each kind of Result plotted: 0 every run, 1 the newest, 2 the one before, ..." );
+}
+
+xmlNodePtr ResultsCurve::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr curve_node = xmlNewChild( node, NULL, BAD_CAST"ResultsCurve", NULL );
+
+    ParmContainer::EncodeXml( curve_node );
+
+    for ( int i = 0; i < ( int ) m_Sources.size(); i++ )
+    {
+        xmlNodePtr src_node = xmlNewChild( curve_node, NULL, BAD_CAST"Source", NULL );
+        XmlUtil::AddStringNode( src_node, "Name", m_Sources[i].m_Name );
+        XmlUtil::AddStringNode( src_node, "Case", m_Sources[i].m_Case );
+    }
+
+    XmlUtil::AddStringNode( curve_node, "XLabel", m_XLabel );
+
+    for ( int i = 0; i < ( int ) m_YLabels.size(); i++ )
+    {
+        XmlUtil::AddStringNode( curve_node, "YLabel", m_YLabels[i] );
+    }
+
+    return curve_node;
+}
+
+xmlNodePtr ResultsCurve::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    m_Sources.clear();
+    vector < xmlNodePtr > src_nodes = XmlUtil::GetNodes( node, "Source" );
+    for ( int i = 0; i < ( int ) src_nodes.size(); i++ )
+    {
+        m_Sources.push_back( ResultsSource( XmlUtil::FindString( src_nodes[i], "Name", string() ),
+                                            XmlUtil::FindString( src_nodes[i], "Case", string() ) ) );
+    }
+
+    m_XLabel = XmlUtil::FindString( node, "XLabel", string() );
+
+    m_YLabels.clear();
+    vector < xmlNodePtr > y_nodes = XmlUtil::GetNodes( node, "YLabel" );
+    for ( int i = 0; i < ( int ) y_nodes.size(); i++ )
+    {
+        m_YLabels.push_back( XmlUtil::ExtractString( y_nodes[i] ) );
+    }
+
+    return node;
+}
+
+void ResultsCurve::CopyFrom( ResultsCurve* from )
+{
+    if ( !from || from == this )
+    {
+        return;
+    }
+    CopyVals( from );
+    m_Sources = from->m_Sources;
+    m_XLabel = from->m_XLabel;
+    m_YLabels = from->m_YLabels;
+}
+
+void ResultsCurve::SetDisplaySuffix( int num )
+{
+    for ( int i = 0; i < ( int ) m_ParmVec.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
+void ResultsCurve::GetResultIDs( vector < string > & ids ) const
+{
+    vector < string > all;
+    SortedResultsIDs( all );
+
+    vector < bool > picked( all.size(), false );
+    for ( int s = 0; s < ( int ) m_Sources.size(); s++ )
+    {
+        vector < int > runs;
+        for ( int i = 0; i < ( int ) all.size(); i++ )
+        {
+            if ( m_Sources[s].Matches( ResultsMgr.FindResultsPtr( all[i] ) ) )
+            {
+                runs.push_back( i );
+            }
+        }
+
+        if ( m_Run() == 0 )
+        {
+            for ( int i = 0; i < ( int ) runs.size(); i++ )
+            {
+                picked[ runs[i] ] = true;
+            }
+        }
+        else if ( m_Run() <= ( int ) runs.size() )
+        {
+            picked[ runs[ runs.size() - m_Run() ] ] = true;
+        }
+    }
+
+    ids.clear();
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        if ( picked[i] )
+        {
+            ids.push_back( all[i] );
+        }
+    }
+}
+
+void ResultsCurve::GetSeriesDefs( vector < ResultsSeriesDef > & defs ) const
+{
+    defs.clear();
+
+    vector < string > ids;
+    GetResultIDs( ids );
+    if ( ids.empty() )
+    {
+        return;
+    }
+
+    ResultsSeriesDef base;
+    base.m_Mode = m_Mode();
+    base.m_Element = m_Element();
+    base.m_MatrixRows = m_MatrixRows();
+    base.m_XLabel = m_XLabel;
+
+    // Each Result's variable labels, sorted, listed once rather than per Y.
+    vector < vector < string > > labels( ids.size() );
+    if ( base.m_Mode != vsp::RESULTS_PLOT_ACROSS_RESULTS )
+    {
+        for ( int i = 0; i < ( int ) ids.size(); i++ )
+        {
+            vector < ResultsPlotVar > vars;
+            ListResultsPlotVars( ResultsMgr.FindResultsPtr( ids[i] ), base.m_MatrixRows, vars );
+            for ( int j = 0; j < ( int ) vars.size(); j++ )
+            {
+                labels[i].push_back( vars[j].m_Label );
+            }
+            std::sort( labels[i].begin(), labels[i].end() );
+        }
+    }
+
+    for ( int k = 0; k < ( int ) m_YLabels.size(); k++ )
+    {
+        ResultsSeriesDef def = base;
+        def.m_YLabel = m_YLabels[k];
+
+        if ( base.m_Mode == vsp::RESULTS_PLOT_ACROSS_RESULTS )
+        {
+            def.m_ResultIDs = ids;
+            defs.push_back( def );
+        }
+        else
+        {
+            for ( int i = 0; i < ( int ) ids.size(); i++ )
+            {
+                // Only Results that have the variable.
+                if ( std::binary_search( labels[i].begin(), labels[i].end(), def.m_YLabel ) )
+                {
+                    def.m_ResultIDs.assign( 1, ids[i] );
+                    defs.push_back( def );
+                }
+            }
+        }
+    }
+}
+
+string ResultsCurve::GetText() const
+{
+    string y;
+    for ( int i = 0; i < ( int ) m_YLabels.size(); i++ )
+    {
+        if ( i > 0 )
+        {
+            y += ", ";
+        }
+        y += m_YLabels[i];
+    }
+    if ( y.empty() )
+    {
+        y = "(no Y)";
+    }
+
+    string x = m_XLabel;
+    if ( x.empty() )
+    {
+        if ( m_Mode() == vsp::RESULTS_PLOT_ACROSS_RESULTS )
+        {
+            x = "Result Order";
+        }
+        else
+        {
+            x = "Index";
+        }
+    }
+
+    string src;
+    for ( int i = 0; i < ( int ) m_Sources.size(); i++ )
+    {
+        if ( i > 0 )
+        {
+            src += ", ";
+        }
+        src += m_Sources[i].GetText();
+    }
+    if ( src.empty() )
+    {
+        src = "(no Results)";
+    }
+
+    string run;
+    if ( m_Run() == 0 )
+    {
+        run = "all";
+    }
+    else if ( m_Run() == 1 )
+    {
+        run = "newest";
+    }
+    else
+    {
+        char buf[64];
+        snprintf( buf, sizeof( buf ), "newest - %d", m_Run() - 1 );
+        run = buf;
+    }
+    if ( m_Mode() == vsp::RESULTS_PLOT_ACROSS_RESULTS )
+    {
+        run = "across " + run;
+        if ( m_Element() == vsp::RESULTS_PLOT_LAST )
+        {
+            run += ", last";
+        }
+    }
+    if ( m_MatrixRows() )
+    {
+        run += ", rows";
+    }
+
+    return y + " vs " + x + " - " + src + " (" + run + ")";
 }
