@@ -12,6 +12,7 @@
 #include "ScreenBase.h"
 
 #include "SpreadSheetWidget.h"
+#include "ResultsPlotCanvas.h"
 
 class Results;
 
@@ -44,7 +45,33 @@ public:
     void SetSelectedResult( string rid );
     void SetLastResult();
 
+    static void staticLimitsCB( void* data, double xmin, double xmax, double ymin, double ymax, bool reset )
+    {
+        ( ( ResultsViewer* )data )->LimitsCallBack( xmin, xmax, ymin, ymax, reset );
+    }
+    static void staticReadoutCB( void* data, const string & text )
+    {
+        ( ( ResultsViewer* )data )->ReadoutCallBack( text );
+    }
+
 protected:
+
+    void BuildPlotTab( Fl_Group* tab );
+
+    void UpdatePlotTab();
+    void UpdatePlotChoice();
+    void UpdateCurveBrowser( ResultsPlot* plot );
+    void UpdatePlotResultsBrowser( ResultsCurve* curve );
+    void UpdatePlotVarLists( ResultsCurve* curve );
+    void UpdatePlotRunChoice( ResultsCurve* curve );
+    void UpdatePlotAxes( ResultsPlot* plot );
+    void RedrawPlot( ResultsPlot* plot );
+
+    void LimitsCallBack( double xmin, double xmax, double ymin, double ymax, bool reset );
+    void ReadoutCallBack( const string & text );
+
+    void ExportPlotCSV( const string & fname );
+    void SavePlotImage( string fname );
 
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
@@ -80,6 +107,64 @@ protected:
 
     int m_ResultsViewerSelect;
     int m_DataBrowserSelect;
+
+    //==== Plot Tab ====//
+    GroupLayout m_PlotTabLayout;
+    GroupLayout m_PlotControlLayout;
+    GroupLayout m_PlotAreaLayout;
+
+    Choice m_PlotChoice;
+    StringInput m_PlotNameInput;
+    TriggerButton m_AddPlotButton;
+    TriggerButton m_CopyPlotButton;
+    TriggerButton m_DeletePlotButton;
+
+    VspBrowser* m_CurveBrowser;
+    TriggerButton m_AddCurveButton;
+    TriggerButton m_DeleteCurveButton;
+    TriggerButton m_DeleteAllCurvesButton;
+
+    VspBrowser* m_PlotResultsBrowser;
+    Choice m_PlotRunChoice;
+    Choice m_PlotModeChoice;
+    Choice m_PlotElementChoice;
+    Choice m_PlotMatrixChoice;
+    Choice m_PlotXChoice;
+    VspBrowser* m_PlotYBrowser;
+
+    ToggleButton m_XMinToggle;
+    ToggleButton m_XMaxToggle;
+    ToggleButton m_YMinToggle;
+    ToggleButton m_YMaxToggle;
+    Input m_XMinInput;
+    Input m_XMaxInput;
+    Input m_YMinInput;
+    Input m_YMaxInput;
+    ToggleButton m_XLogToggle;
+    ToggleButton m_YLogToggle;
+    TriggerButton m_AutoScaleButton;
+
+    ToggleButton m_ShowLinesToggle;
+    ToggleButton m_ShowPointsToggle;
+    Choice m_LegendChoice;
+
+    TriggerButton m_ExportPlotCSVButton;
+    TriggerButton m_SavePlotButton;
+
+    Fl_Group* m_PlotTab;
+    Fl_Group* m_PlotGroup;
+    ResultsPlotCanvas* m_PlotCanvas;
+    Fl_Box* m_ReadoutBox;
+    Fl_Box* m_WarningBox;
+
+    vector < ResultsSource > m_PlotSources;  // Results browser lines
+    vector < string > m_PlotYLabels;         // Y browser lines
+    vector < string > m_PlotXLabels;         // X choice items after Index
+    string m_PlotEditCurveID;                // Curve the controls showed last
+
+    vector < ResultsSeries > m_Series;        // Series as drawn
+    vector < double > m_AutoLimits;          // xmin, xmax, ymin, ymax from the data
+    string m_PlotSignature;
 };
 
 
