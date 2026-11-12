@@ -107,4 +107,70 @@ public:
     vector < string > m_YLabels;
 };
 
+//==== One plot: its curves, axes and style ====//
+class ResultsPlot : public ParmContainer
+{
+public:
+    ResultsPlot();
+    virtual ~ResultsPlot();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+    void Update();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    void CopyFrom( ResultsPlot* from );
+
+    // Set all four limits by hand, or make all four automatic, with one notice of the change.
+    void SetManualLimits( double xmin, double xmax, double ymin, double ymax );
+    void SetAutoLimits();
+
+    // Show automatic limits in the limit Parms not set by hand, with no notice: they only display.
+    void ShowAutoLimits( double xmin, double xmax, double ymin, double ymax );
+
+    // The plot's Parms, then each curve's under the plot.
+    virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id = string() );
+
+    // The curve being edited, null when the plot has none.
+    ResultsCurve* GetEditCurve() const;
+    int GetEditIndex() const                    { return m_EditIndex; }
+    void SetEditIndex( int index );
+
+    // Add a curve like from, or an empty one when from is null, and edit it.
+    ResultsCurve* AddCurve( ResultsCurve* from );
+    void DeleteCurve( int index );
+    void DeleteAllCurves();
+
+    int GetNumCurves() const                    { return ( int ) m_Curves.size(); }
+    ResultsCurve* GetCurve( int index ) const;
+
+    // Series of every curve, each once.
+    void GetSeriesDefs( vector < ResultsSeriesDef > & defs ) const;
+
+    BoolParm m_XMinManual;
+    BoolParm m_XMaxManual;
+    BoolParm m_YMinManual;
+    BoolParm m_YMaxManual;
+    Parm m_XMin;
+    Parm m_XMax;
+    Parm m_YMin;
+    Parm m_YMax;
+    BoolParm m_XLog;
+    BoolParm m_YLog;
+
+    BoolParm m_ShowLines;
+    BoolParm m_ShowPoints;
+    IntParm m_Legend;
+
+protected:
+
+    void NumberCurves();
+    bool SetHeld( Parm & parm, double val );
+
+    vector < ResultsCurve* > m_Curves;
+    int m_EditIndex;    // Index of the curve being edited, -1 when there are none
+    bool m_HoldNotice;  // Parm changes are not passed on while true
+};
+
 #endif //VSP_TOP_RESULTSPLOTMGR_H

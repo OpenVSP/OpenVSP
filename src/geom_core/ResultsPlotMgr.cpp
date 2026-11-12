@@ -605,3 +605,280 @@ string ResultsCurve::GetText() const
 
     return y + " vs " + x + " - " + src + " (" + run + ")";
 }
+
+//==== Plot ====//
+ResultsPlot::ResultsPlot() : ParmContainer()
+{
+    m_Name = "Plot";
+
+    string groupname = "ResultsPlot";
+
+    m_XMinManual.Init( "XMinManual", groupname, this, false, 0, 1 );
+    m_XMinManual.SetDescript( "Set the X axis minimum by hand" );
+    m_XMaxManual.Init( "XMaxManual", groupname, this, false, 0, 1 );
+    m_XMaxManual.SetDescript( "Set the X axis maximum by hand" );
+    m_YMinManual.Init( "YMinManual", groupname, this, false, 0, 1 );
+    m_YMinManual.SetDescript( "Set the Y axis minimum by hand" );
+    m_YMaxManual.Init( "YMaxManual", groupname, this, false, 0, 1 );
+    m_YMaxManual.SetDescript( "Set the Y axis maximum by hand" );
+    m_XMin.Init( "XMin", groupname, this, 0.0, -1e300, 1e300 );
+    m_XMin.SetDescript( "X axis minimum" );
+    m_XMax.Init( "XMax", groupname, this, 1.0, -1e300, 1e300 );
+    m_XMax.SetDescript( "X axis maximum" );
+    m_YMin.Init( "YMin", groupname, this, 0.0, -1e300, 1e300 );
+    m_YMin.SetDescript( "Y axis minimum" );
+    m_YMax.Init( "YMax", groupname, this, 1.0, -1e300, 1e300 );
+    m_YMax.SetDescript( "Y axis maximum" );
+    m_XLog.Init( "XLog", groupname, this, false, 0, 1 );
+    m_XLog.SetDescript( "Logarithmic X axis" );
+    m_YLog.Init( "YLog", groupname, this, false, 0, 1 );
+    m_YLog.SetDescript( "Logarithmic Y axis" );
+
+    m_ShowLines.Init( "ShowLines", groupname, this, true, 0, 1 );
+    m_ShowLines.SetDescript( "Draw lines through each series' points" );
+    m_ShowPoints.Init( "ShowPoints", groupname, this, true, 0, 1 );
+    m_ShowPoints.SetDescript( "Draw a marker at each point" );
+    m_Legend.Init( "Legend", groupname, this, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_OFF );
+    m_Legend.SetDescript( "Legend placement" );
+
+    m_EditIndex = -1;
+    m_HoldNotice = false;
+
+    Update();
+}
+
+ResultsPlot::~ResultsPlot()
+{
+    DeleteAllCurves();
+}
+
+void ResultsPlot::ParmChanged( Parm* parm_ptr, int type )
+{
+    Update();
+    if ( !m_HoldNotice )
+    {
+        ParmContainer::ParmChanged( parm_ptr, type );
+    }
+}
+
+void ResultsPlot::Update()
+{
+    // Limits set automatically are shown but not edited.
+    m_XMin.SetActiveFlag( m_XMinManual() );
+    m_XMax.SetActiveFlag( m_XMaxManual() );
+    m_YMin.SetActiveFlag( m_YMinManual() );
+    m_YMax.SetActiveFlag( m_YMaxManual() );
+}
+
+xmlNodePtr ResultsPlot::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr plot_node = xmlNewChild( node, NULL, BAD_CAST"ResultsPlot", NULL );
+
+    ParmContainer::EncodeXml( plot_node );
+
+    XmlUtil::AddIntNode( plot_node, "EditIndex", m_EditIndex );
+
+    for ( int i = 0; i < ( int ) m_Curves.size(); i++ )
+    {
+        m_Curves[i]->EncodeXml( plot_node );
+    }
+
+    return plot_node;
+}
+
+xmlNodePtr ResultsPlot::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    DeleteAllCurves();
+    vector < xmlNodePtr > curve_nodes = XmlUtil::GetNodes( node, "ResultsCurve" );
+    for ( int i = 0; i < ( int ) curve_nodes.size(); i++ )
+    {
+        ResultsCurve* curve = new ResultsCurve();
+        curve->DecodeXml( curve_nodes[i] );
+        m_Curves.push_back( curve );
+    }
+    NumberCurves();
+
+    SetEditIndex( XmlUtil::FindInt( node, "EditIndex", 0 ) );
+
+    Update();
+
+    return node;
+}
+
+void ResultsPlot::CopyFrom( ResultsPlot* from )
+{
+    if ( !from || from == this )
+    {
+        return;
+    }
+
+    CopyVals( from );
+
+    DeleteAllCurves();
+    for ( int i = 0; i < ( int ) from->m_Curves.size(); i++ )
+    {
+        ResultsCurve* curve = new ResultsCurve();
+        curve->CopyFrom( from->m_Curves[i] );
+        m_Curves.push_back( curve );
+    }
+    NumberCurves();
+    SetEditIndex( from->m_EditIndex );
+
+    Update();
+}
+
+// Set a Parm, which updates links from it, with the notice to the Vehicle held; true if it changed.
+bool ResultsPlot::SetHeld( Parm & parm, double val )
+{
+    double old = parm.Get();
+    m_HoldNotice = true;
+    parm.Set( val );
+    m_HoldNotice = false;
+    return parm.Get() != old;
+}
+
+void ResultsPlot::SetManualLimits( double xmin, double xmax, double ymin, double ymax )
+{
+    bool changed = false;
+    changed = SetHeld( m_XMinManual, 1.0 ) || changed;
+    changed = SetHeld( m_XMaxManual, 1.0 ) || changed;
+    changed = SetHeld( m_YMinManual, 1.0 ) || changed;
+    changed = SetHeld( m_YMaxManual, 1.0 ) || changed;
+    changed = SetHeld( m_XMin, xmin ) || changed;
+    changed = SetHeld( m_XMax, xmax ) || changed;
+    changed = SetHeld( m_YMin, ymin ) || changed;
+    changed = SetHeld( m_YMax, ymax ) || changed;
+    if ( changed )
+    {
+        ParmChanged( &m_XMin, Parm::SET );
+    }
+}
+
+void ResultsPlot::SetAutoLimits()
+{
+    bool changed = false;
+    changed = SetHeld( m_XMinManual, 0.0 ) || changed;
+    changed = SetHeld( m_XMaxManual, 0.0 ) || changed;
+    changed = SetHeld( m_YMinManual, 0.0 ) || changed;
+    changed = SetHeld( m_YMaxManual, 0.0 ) || changed;
+    if ( changed )
+    {
+        ParmChanged( &m_XMinManual, Parm::SET );
+    }
+}
+
+void ResultsPlot::ShowAutoLimits( double xmin, double xmax, double ymin, double ymax )
+{
+    if ( !m_XMinManual() )
+    {
+        SetHeld( m_XMin, xmin );
+    }
+    if ( !m_XMaxManual() )
+    {
+        SetHeld( m_XMax, xmax );
+    }
+    if ( !m_YMinManual() )
+    {
+        SetHeld( m_YMin, ymin );
+    }
+    if ( !m_YMaxManual() )
+    {
+        SetHeld( m_YMax, ymax );
+    }
+}
+
+void ResultsPlot::AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id )
+{
+    ParmContainer::AddLinkableParms( linkable_parm_vec, link_container_id );
+
+    for ( int i = 0; i < ( int ) m_Curves.size(); i++ )
+    {
+        m_Curves[i]->AddLinkableParms( linkable_parm_vec, m_ID );
+    }
+}
+
+void ResultsPlot::NumberCurves()
+{
+    for ( int i = 0; i < ( int ) m_Curves.size(); i++ )
+    {
+        m_Curves[i]->SetDisplaySuffix( i );
+    }
+}
+
+ResultsCurve* ResultsPlot::GetEditCurve() const
+{
+    return GetCurve( m_EditIndex );
+}
+
+void ResultsPlot::SetEditIndex( int index )
+{
+    if ( m_Curves.empty() )
+    {
+        m_EditIndex = -1;
+    }
+    else
+    {
+        m_EditIndex = std::max( 0, std::min( index, ( int ) m_Curves.size() - 1 ) );
+    }
+}
+
+ResultsCurve* ResultsPlot::AddCurve( ResultsCurve* from )
+{
+    ResultsCurve* curve = new ResultsCurve();
+    curve->CopyFrom( from );
+    m_Curves.push_back( curve );
+    m_EditIndex = ( int ) m_Curves.size() - 1;
+    NumberCurves();
+    return curve;
+}
+
+void ResultsPlot::DeleteCurve( int index )
+{
+    if ( index < 0 || index >= ( int ) m_Curves.size() )
+    {
+        return;
+    }
+    delete m_Curves[ index ];
+    m_Curves.erase( m_Curves.begin() + index );
+    NumberCurves();
+    SetEditIndex( index );
+}
+
+void ResultsPlot::DeleteAllCurves()
+{
+    for ( int i = 0; i < ( int ) m_Curves.size(); i++ )
+    {
+        delete m_Curves[i];
+    }
+    m_Curves.clear();
+    m_EditIndex = -1;
+}
+
+ResultsCurve* ResultsPlot::GetCurve( int index ) const
+{
+    if ( index >= 0 && index < ( int ) m_Curves.size() )
+    {
+        return m_Curves[ index ];
+    }
+    return nullptr;
+}
+
+void ResultsPlot::GetSeriesDefs( vector < ResultsSeriesDef > & defs ) const
+{
+    defs.clear();
+
+    for ( int i = 0; i < ( int ) m_Curves.size(); i++ )
+    {
+        vector < ResultsSeriesDef > cdefs;
+        m_Curves[i]->GetSeriesDefs( cdefs );
+        for ( int j = 0; j < ( int ) cdefs.size(); j++ )
+        {
+            if ( std::find( defs.begin(), defs.end(), cdefs[j] ) == defs.end() )
+            {
+                defs.push_back( cdefs[j] );
+            }
+        }
+    }
+}

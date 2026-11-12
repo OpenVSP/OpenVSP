@@ -2555,6 +2555,22 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "RESULTS_PLOT_LEGEND" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_LEGEND", "RESULTS_LEGEND_BEST", RESULTS_LEGEND_BEST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_LEGEND", "RESULTS_LEGEND_UPPER_RIGHT", RESULTS_LEGEND_UPPER_RIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_LEGEND", "RESULTS_LEGEND_UPPER_LEFT", RESULTS_LEGEND_UPPER_LEFT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_LEGEND", "RESULTS_LEGEND_LOWER_LEFT", RESULTS_LEGEND_LOWER_LEFT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_LEGEND", "RESULTS_LEGEND_LOWER_RIGHT", RESULTS_LEGEND_LOWER_RIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_LEGEND", "RESULTS_LEGEND_OFF", RESULTS_LEGEND_OFF );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "RESULTS_PLOT_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RESULTS_PLOT_MODE", "RESULTS_PLOT_VECTORS", RESULTS_PLOT_VECTORS );

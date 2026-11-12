@@ -1470,6 +1470,18 @@ enum RESULTS_PLOT_ELEMENT { RESULTS_PLOT_FIRST,	/*!< The first element of each R
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the placement of a Results plot's legend (Legend Parm of a ResultsPlot). */
+enum RESULTS_PLOT_LEGEND { RESULTS_LEGEND_BEST,	/*!< The corner that covers the fewest points */
+                           RESULTS_LEGEND_UPPER_RIGHT,	/*!< Upper right corner */
+                           RESULTS_LEGEND_UPPER_LEFT,	/*!< Upper left corner */
+                           RESULTS_LEGEND_LOWER_LEFT,	/*!< Lower left corner */
+                           RESULTS_LEGEND_LOWER_RIGHT,	/*!< Lower right corner */
+                           RESULTS_LEGEND_OFF,	/*!< No legend */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for how a Results plot curve makes its series (Mode Parm of a ResultsCurve). */
 enum RESULTS_PLOT_MODE { RESULTS_PLOT_VECTORS,	/*!< One series per Result and Y variable; X and Y are each Result's vectors */
                          RESULTS_PLOT_ACROSS_RESULTS,	/*!< One series per Y variable, with one point per Result */
