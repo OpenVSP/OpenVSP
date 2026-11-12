@@ -325,7 +325,7 @@ void AdvLink::UpdateOutputsCGPNames()
 
 bool cmpVarDefVar ( const VarDef & a, const VarDef & b )
 {
-    return ( a.m_VarName < b.m_VarName );
+    return StringUtil::natural_compare( a.m_VarName, b.m_VarName ) < 0;
 }
 
 bool cmpVarDefCGP ( const VarDef & a, const VarDef & b )

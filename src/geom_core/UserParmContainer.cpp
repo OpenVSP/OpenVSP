@@ -244,7 +244,13 @@ void UserParmContainer::DeleteParm( vector < int > indices )
 
 bool UserParmNameCompare( const Parm *dvA, const Parm *dvB )
 {
-    return NameCompare( dvA->GetID(), dvB->GetID() );
+    // all user parms share one container, so sort by group, then name
+    int c = StringUtil::natural_compare( dvA->GetGroupName(), dvB->GetGroupName() );
+    if ( c != 0 )
+    {
+        return c < 0;
+    }
+    return StringUtil::natural_compare( dvA->GetName(), dvB->GetName() ) < 0;
 }
 
 bool UserParmContainer::SortVars()

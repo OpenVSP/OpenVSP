@@ -61659,9 +61659,9 @@ extern void ReadAdvLinkCodeFile( int index, const std::string & file_name );
     \ingroup AdvancedLink
 */
 /*!
-    Sort the input variables of an advanced link into alphabetical order by variable name.  Inputs
-    are otherwise kept in the order they were added, which is rarely the order that reads well once
-    a link has grown.
+    Sort the input variables of an advanced link by variable name, in natural order: a run of digits
+    is compared by its value, so x2 comes before x10.  Inputs are otherwise kept in the order they
+    were added, which is rarely the order that reads well once a link has grown.
     \forcpponly
     \code{.cpp}
 
@@ -61773,7 +61773,8 @@ extern void SortAdvLinkInputsCGP( int index );
     \ingroup AdvancedLink
 */
 /*!
-    Sort the output variables of an advanced link into alphabetical order by variable name.
+    Sort the output variables of an advanced link by variable name, in natural order: a run of digits
+    is compared by its value, so y2 comes before y10.
     \forcpponly
     \code{.cpp}
 

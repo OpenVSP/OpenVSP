@@ -30,9 +30,10 @@ bool NameCompare( const string &parmID_A, const string &parmID_B )
         ParmMgr.GetNames( parmID_B, c_name_B, g_name_B, p_name_B );
 
         // Check container names first
-        if ( c_name_A.compare( c_name_B ) != 0 )
+        int c = StringUtil::natural_compare( c_name_A, c_name_B );
+        if ( c != 0 )
         {
-            return c_name_A < c_name_B;
+            return c < 0;
         }
 
         string cAID = pA->GetContainerID();
@@ -45,15 +46,17 @@ bool NameCompare( const string &parmID_A, const string &parmID_B )
         }
 
         // Matching ID, sort by group
-        if ( g_name_A.compare( g_name_B ) != 0 )
+        c = StringUtil::natural_compare( g_name_A, g_name_B );
+        if ( c != 0 )
         {
-            return g_name_A < g_name_B;
+            return c < 0;
         }
 
         // Matching group, sort by parameter
-        if ( p_name_A.compare( p_name_B ) != 0 )
+        c = StringUtil::natural_compare( p_name_A, p_name_B );
+        if ( c != 0 )
         {
-            return p_name_A < p_name_B;
+            return c < 0;
         }
 
     }
@@ -296,7 +299,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
 //==== Name Compare ====//
 bool ParmNameCompare( const std::pair< string, string >& a, const std::pair< string, string >& b )
 {
-    return a.second < b.second;
+    return StringUtil::natural_compare( a.second, b.second ) < 0;
 }
 
 //==== Load Parm Vec, Find Groups And Sort ====//
@@ -332,6 +335,11 @@ void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec, bool displayn
         m_GroupNames.push_back( iter->first );
         sort( iter->second.begin(), iter->second.end(), ParmNameCompare );
     }
+
+    sort( m_GroupNames.begin(), m_GroupNames.end(), []( const string & a, const string & b )
+    {
+        return StringUtil::natural_compare( a, b ) < 0;
+    } );
 
     // Rebuild Parm Links. Could also call LinkMgr.BuildLinkableParmData(), but this allows the links 
     // to just be rebuild once after this function is iteratively called when saving or loading a model.
@@ -453,12 +461,7 @@ string ParmContainer::FindParm( const string& parm_name  )
 //==== Get Vector of Group Names ====//
 void ParmContainer::GetGroupNames( vector< string > & group_names )
 {
-    unordered_map< string, vector< std::pair< string, string > > >::iterator iter;
-    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; ++iter )
-    {
-        string name = iter->first;
-        group_names.push_back( name );
-    }
+    group_names.insert( group_names.end(), m_GroupNames.begin(), m_GroupNames.end() );
 }
 
 //==== Get Vector of Group Names And Index For Given Parm ID  ====//
@@ -473,10 +476,9 @@ int ParmContainer::GetGroupNames( const string &parm_id, vector< string > & grou
         group_name = p->GetDisplayGroupName();
     }
 
-    unordered_map< string, vector< std::pair< string, string > > >::iterator iter;
-    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; ++iter )
+    for ( int i = 0 ; i < ( int )m_GroupNames.size() ; i++ )
     {
-        string name = iter->first;
+        const string & name = m_GroupNames[i];
         if ( name == group_name )
         {
             index = group_names.size();
