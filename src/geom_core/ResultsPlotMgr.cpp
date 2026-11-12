@@ -882,3 +882,185 @@ void ResultsPlot::GetSeriesDefs( vector < ResultsSeriesDef > & defs ) const
         }
     }
 }
+
+//==== Manager ====//
+ResultsPlotMgrSingleton::ResultsPlotMgrSingleton()
+{
+    m_CurrIndex = -1;
+}
+
+ResultsPlotMgrSingleton::~ResultsPlotMgrSingleton()
+{
+    Wype();
+}
+
+xmlNodePtr ResultsPlotMgrSingleton::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr mgr_node = xmlNewChild( node, NULL, BAD_CAST"ResultsPlotMgr", NULL );
+
+    XmlUtil::AddIntNode( mgr_node, "CurrIndex", m_CurrIndex );
+
+    for ( int i = 0; i < ( int ) m_Plots.size(); i++ )
+    {
+        m_Plots[i]->EncodeXml( mgr_node );
+    }
+
+    return mgr_node;
+}
+
+xmlNodePtr ResultsPlotMgrSingleton::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr mgr_node = XmlUtil::GetNode( node, "ResultsPlotMgr", 0 );
+    if ( !mgr_node )
+    {
+        return node;
+    }
+
+    // Plots of an inserted file go after the ones already here.
+    int nbefore = ( int ) m_Plots.size();
+
+    vector < xmlNodePtr > plot_nodes = XmlUtil::GetNodes( mgr_node, "ResultsPlot" );
+    for ( int i = 0; i < ( int ) plot_nodes.size(); i++ )
+    {
+        ResultsPlot* plot = new ResultsPlot();
+        plot->DecodeXml( plot_nodes[i] );
+        if ( nbefore > 0 && NameUsed( plot->GetName() ) )
+        {
+            plot->SetName( UniqueName( plot->GetName() ) );
+        }
+        m_Plots.push_back( plot );
+    }
+
+    if ( nbefore == 0 )
+    {
+        SetCurrIndex( XmlUtil::FindInt( mgr_node, "CurrIndex", 0 ) );
+    }
+
+    return node;
+}
+
+void ResultsPlotMgrSingleton::Renew()
+{
+    Wype();
+}
+
+void ResultsPlotMgrSingleton::Wype()
+{
+    for ( int i = 0; i < ( int ) m_Plots.size(); i++ )
+    {
+        delete m_Plots[i];
+    }
+    m_Plots.clear();
+    m_CurrIndex = -1;
+}
+
+void ResultsPlotMgrSingleton::AddLinkableContainers( vector < string > & linkable_container_vec )
+{
+    for ( int i = 0; i < ( int ) m_Plots.size(); i++ )
+    {
+        m_Plots[i]->AddLinkableContainers( linkable_container_vec );
+    }
+}
+
+bool ResultsPlotMgrSingleton::NameUsed( const string & name ) const
+{
+    for ( int i = 0; i < ( int ) m_Plots.size(); i++ )
+    {
+        if ( m_Plots[i]->GetName() == name )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+string ResultsPlotMgrSingleton::UniqueName( const string & base ) const
+{
+    for ( int n = 1; ; n++ )
+    {
+        char buf[32];
+        snprintf( buf, sizeof( buf ), " %d", n );
+        string name = base + buf;
+        if ( !NameUsed( name ) )
+        {
+            return name;
+        }
+    }
+}
+
+ResultsPlot* ResultsPlotMgrSingleton::AddPlot()
+{
+    ResultsPlot* plot = new ResultsPlot();
+    plot->SetName( UniqueName( "Plot" ) );
+    plot->AddCurve( nullptr );
+    m_Plots.push_back( plot );
+    m_CurrIndex = ( int ) m_Plots.size() - 1;
+    return plot;
+}
+
+ResultsPlot* ResultsPlotMgrSingleton::CopyPlot( int index )
+{
+    ResultsPlot* from = GetPlot( index );
+    if ( !from )
+    {
+        return nullptr;
+    }
+
+    ResultsPlot* plot = new ResultsPlot();
+    plot->CopyFrom( from );
+    string name = from->GetName() + " Copy";
+    if ( NameUsed( name ) )
+    {
+        name = UniqueName( name );
+    }
+    plot->SetName( name );
+    m_Plots.push_back( plot );
+    m_CurrIndex = ( int ) m_Plots.size() - 1;
+    return plot;
+}
+
+void ResultsPlotMgrSingleton::DeletePlot( int index )
+{
+    if ( index < 0 || index >= ( int ) m_Plots.size() )
+    {
+        return;
+    }
+    delete m_Plots[ index ];
+    m_Plots.erase( m_Plots.begin() + index );
+    // The plot after the deleted one, or the new last plot, becomes current.
+    if ( m_CurrIndex > index || m_CurrIndex >= ( int ) m_Plots.size() )
+    {
+        m_CurrIndex--;
+    }
+    SetCurrIndex( m_CurrIndex );
+}
+
+ResultsPlot* ResultsPlotMgrSingleton::GetPlot( int index ) const
+{
+    if ( index >= 0 && index < ( int ) m_Plots.size() )
+    {
+        return m_Plots[ index ];
+    }
+    return nullptr;
+}
+
+void ResultsPlotMgrSingleton::SetCurrIndex( int index )
+{
+    if ( index >= 0 && index < ( int ) m_Plots.size() )
+    {
+        m_CurrIndex = index;
+    }
+    else if ( !m_Plots.empty() )
+    {
+        m_CurrIndex = 0;
+    }
+    else
+    {
+        m_CurrIndex = -1;
+    }
+}
+
+ResultsPlot* ResultsPlotMgrSingleton::GetCurrPlot() const
+{
+    return GetPlot( m_CurrIndex );
+}

@@ -57,6 +57,7 @@
 #include "PropGeom.h"
 #include "PtCloudGeom.h"
 #include "Quat.h"
+#include "ResultsPlotMgr.h"
 #include "CobraGeom.h"
 #include "RoutingGeom.h"
 #include "ScriptMgr.h"
@@ -768,6 +769,7 @@ void Vehicle::Wype()
     Background3DMgr.Renew();
     StructureMgr.Renew();
     GeometryAnalysisMgr.Renew();
+    ResultsPlotMgr.Renew();
 
     // The analyses take their defaults from the managers above
     AnalysisMgr.Renew();
@@ -3309,6 +3311,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_CfdGridDensity.EncodeXml( node );
     StructureMgr.EncodeXml( node );
     GeometryAnalysisMgr.EncodeXml( node );
+    ResultsPlotMgr.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
     ParasiteDragMgr.EncodeXml( node );
@@ -3520,6 +3523,7 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     ModeMgr.DecodeXml( node );
     StructureMgr.DecodeXml( node );
     GeometryAnalysisMgr.DecodeXml( node );
+    ResultsPlotMgr.DecodeXml( node );
 
     return vehicle_node;
 }
@@ -7084,6 +7088,7 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
     m_ClippingMgr.AddLinkableContainers( linkable_container_vec );
     StructureMgr.AddLinkableContainers( linkable_container_vec );
     GeometryAnalysisMgr.AddLinkableContainers( linkable_container_vec );
+    ResultsPlotMgr.AddLinkableContainers( linkable_container_vec );
 }
 
 void Vehicle::UpdateBBox()

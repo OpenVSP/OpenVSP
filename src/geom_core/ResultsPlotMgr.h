@@ -173,4 +173,48 @@ protected:
     bool m_HoldNotice;  // Parm changes are not passed on while true
 };
 
+//==== Every plot of the model ====//
+class ResultsPlotMgrSingleton
+{
+public:
+    static ResultsPlotMgrSingleton& getInstance()
+    {
+        static ResultsPlotMgrSingleton instance;
+        return instance;
+    }
+
+    xmlNodePtr EncodeXml( xmlNodePtr & node );
+    xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    void Renew();
+    void Wype();
+
+    void AddLinkableContainers( vector < string > & linkable_container_vec );
+
+    ResultsPlot* AddPlot();
+    ResultsPlot* CopyPlot( int index );
+    void DeletePlot( int index );
+
+    int GetNumPlots() const                     { return ( int ) m_Plots.size(); }
+    ResultsPlot* GetPlot( int index ) const;
+
+    int GetCurrIndex() const                    { return m_CurrIndex; }
+    void SetCurrIndex( int index );
+    ResultsPlot* GetCurrPlot() const;
+
+private:
+    ResultsPlotMgrSingleton();
+    ~ResultsPlotMgrSingleton();
+    ResultsPlotMgrSingleton( ResultsPlotMgrSingleton const& copy ) = delete;
+    ResultsPlotMgrSingleton& operator=( ResultsPlotMgrSingleton const& copy ) = delete;
+
+    bool NameUsed( const string & name ) const;
+    string UniqueName( const string & base ) const;
+
+    vector < ResultsPlot* > m_Plots;
+    int m_CurrIndex;
+};
+
+#define ResultsPlotMgr ResultsPlotMgrSingleton::getInstance()
+
 #endif //VSP_TOP_RESULTSPLOTMGR_H
