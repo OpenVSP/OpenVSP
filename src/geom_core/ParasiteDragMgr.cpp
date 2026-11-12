@@ -26,6 +26,7 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     // Initial Values for certain variables
     SetDefaultStruct();
     m_Name = "ParasiteDragSettings";
+    SetReadsIntoSelf( true );
     m_FileName = "ParasiteDragBuildUp.csv";
     string groupname = "ParasiteDrag";
     m_LamCfEqnName = "Blasius";

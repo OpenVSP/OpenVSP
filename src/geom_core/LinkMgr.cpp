@@ -21,6 +21,7 @@ LinkMgrSingleton::LinkMgrSingleton()
     m_CurrLinkIndex = -1;
     m_WorkingLink = nullptr;
     m_NumPredefinedUserParms = 16;
+    m_UserParms.SetReadsIntoSelf( true );
     m_UserParms.SetNumPredefined( m_NumPredefinedUserParms );
     m_UserParms.Renew(m_NumPredefinedUserParms);
     m_FreezeUpdateFlag = false;

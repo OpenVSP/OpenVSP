@@ -22,6 +22,7 @@
 WaveDragSingleton::WaveDragSingleton() : ParmContainer()
 {
     m_Name = "WaveDragSettings";
+    SetReadsIntoSelf( true );
 
     //==== Run Tab ====//
     m_NumSlices.Init( "NumSlices", "WaveDrag", this, 20, 3, 100 );

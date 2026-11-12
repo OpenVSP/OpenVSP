@@ -64,6 +64,7 @@ bool VspAeroControlSurf::isMatch( const VspAeroControlSurf &cs ) const
 VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
     m_Name = "VSPAEROSettings";
+    SetReadsIntoSelf( true );
     string groupname = "VSPAERO";
 
     m_GeomSet.Init( "GeomSet", groupname, this, vsp::SET_NONE, vsp::SET_NONE, vsp::MAX_NUM_SETS );
@@ -5692,6 +5693,10 @@ void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <stri
 CpSlice::CpSlice() : ParmContainer()
 {
     m_Name = "CpSlice";
+
+    // A read deletes the slices before it decodes the file's, so the ID a slice holds passes
+    // to the one that replaces it.
+    SetReadsIntoSelf( true );
 
     m_CutType.Init( "CutType", "CpSlice", this, vsp::Y_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_CutType.SetDescript( "Perpendicular Axis for the Cut" );

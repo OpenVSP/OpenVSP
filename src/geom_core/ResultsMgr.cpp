@@ -353,6 +353,7 @@ void NameValData::CopyFrom( NameValData* nvd )
     xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Attributes" );
 
     nvd->EncodeXml( root );
+    IDMgr.PreRegisterIDs( root );
     xmlNodePtr attr_node = XmlUtil::GetNode( root, "Attribute", 0 );
     DecodeXml( attr_node );
 

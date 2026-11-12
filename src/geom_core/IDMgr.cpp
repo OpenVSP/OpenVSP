@@ -181,15 +181,64 @@ void IDMgrSingleton::RegisterOneID( xmlNodePtr node )
         string id = XmlUtil::FindString( node, "ID", string() );
         if ( !id.empty() && !NonRandomID( id ) )
         {
-            RemapID( id );
+            RegisterID( id );
         }
     }
 
     string prop = XmlUtil::FindStringProp( node, "ID", string() );
     if ( !prop.empty() && !NonRandomID( prop ) )
     {
-        RemapID( prop );
+        RegisterID( prop );
     }
+}
+
+// An ID held by an object that decodes the tree into itself stays its own; any other ID that
+// collides is a new object's and takes a fresh one.
+void IDMgrSingleton::RegisterID( const string & id )
+{
+    if ( HeldByObjectReadIntoItself( id, 0 ) )
+    {
+        RemapID( id, id );
+    }
+    else
+    {
+        RemapID( id );
+    }
+}
+
+// Follows a Parm to its container and an attribute or collection to what it is attached to.
+bool IDMgrSingleton::HeldByObjectReadIntoItself( const string & id, int depth )
+{
+    if ( depth > 16 )
+    {
+        return false;
+    }
+
+    ParmContainer* pc = ParmMgr.FindParmContainer( id );
+    if ( pc )
+    {
+        return pc->GetReadsIntoSelf();
+    }
+
+    Parm* p = ParmMgr.FindParm( id );
+    if ( p )
+    {
+        return p->GetContainer() && p->GetContainer()->GetReadsIntoSelf();
+    }
+
+    AttributeCollection* ac = AttributeMgr.GetCollectionPtr( id );
+    if ( ac )
+    {
+        return HeldByObjectReadIntoItself( ac->GetAttachID(), depth + 1 );
+    }
+
+    NameValData* a = AttributeMgr.GetAttributePtr( id );
+    if ( a )
+    {
+        return HeldByObjectReadIntoItself( a->GetAttachID(), depth + 1 );
+    }
+
+    return false;
 }
 
 void IDMgrSingleton::RegisterIDs( xmlNodePtr node )

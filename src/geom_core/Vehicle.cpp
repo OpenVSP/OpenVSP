@@ -78,6 +78,13 @@ Vehicle::Vehicle()
 {
     m_Name = "Vehicle_Constructor";
 
+    // A read decodes into the Vehicle and its settings, never into new ones.
+    SetReadsIntoSelf( true );
+    m_ISectSettings.SetReadsIntoSelf( true );
+    m_CfdSettings.SetReadsIntoSelf( true );
+    m_CfdGridDensity.SetReadsIntoSelf( true );
+    m_ClippingMgr.SetReadsIntoSelf( true );
+
     // Every number OpenVSP writes or reads as text needs a '.' decimal point.  The API wrappers
     // set the C numeric locale for each call; a program that uses the C++ library directly must
     // keep its threads in it.
@@ -3540,28 +3547,6 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
     return true;
 }
 
-//==== Register the identities in the trees read into newly made objects ====//
-// A file's Geoms are always created fresh, so an ID inside one may move and a reference to it
-// has to follow.  The Vehicle and the settings containers decode into the objects that already
-// hold their IDs, so they keep them and are left out.
-static void PreRegisterNewObjectIDs( xmlNodePtr node )
-{
-    xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
-    if ( vehicle_node )
-    {
-        vector< xmlNodePtr > geom_nodes = XmlUtil::GetNodes( vehicle_node, "Geom" );
-        int num = ( int )geom_nodes.size();
-        for ( int i = 0 ; i < num ; i++ )
-        {
-            xmlNodePtr geom_node = geom_nodes[i];
-            if ( geom_node )
-            {
-                IDMgr.PreRegisterIDs( geom_node );
-            }
-        }
-    }
-}
-
 //==== Read File ====//
 int Vehicle::ReadXMLFile( const string & file_name )
 {
@@ -3617,9 +3602,9 @@ int Vehicle::ReadXMLFile( const string & file_name )
         return 4;
     }
 
-    // Register the Geoms before reading any of them, so a reference into one resolves whichever
-    // order the file lists it and the thing it names.
-    PreRegisterNewObjectIDs( root );
+    // Register every identity in the file before reading any of it, so a reference resolves
+    // whichever order the file lists it and the thing it names.
+    IDMgr.PreRegisterIDs( root );
 
     //==== Decode Vehicle from document ====//
     DecodeXml( root );
@@ -3692,9 +3677,9 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 
     //==== Decode Vehicle from document ====//
 
-    // Register the Geoms before reading any of them, so a reference into one resolves whichever
-    // order the file lists it and the thing it names.
-    PreRegisterNewObjectIDs( root );
+    // Register every identity in the file before reading any of it, so a reference resolves
+    // whichever order the file lists it and the thing it names.
+    IDMgr.PreRegisterIDs( root );
 
     DecodeXmlGeomsOnly( root );
 

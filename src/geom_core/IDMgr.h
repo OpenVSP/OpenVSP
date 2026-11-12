@@ -33,6 +33,8 @@ private:
 
     void RegisterIDs( xmlNodePtr node );
     void RegisterOneID( xmlNodePtr node );
+    void RegisterID( const string & id );
+    bool HeldByObjectReadIntoItself( const string & id, int depth );
 
 public:
     static IDMgrSingleton& getInstance()
@@ -65,12 +67,13 @@ public:
     string RemapCopiedID( const string & oldID );
 
     // Registers every identity in a tree, so that a reference into that tree resolves whichever
-    // order the file lists the two.
+    // order the file lists the two.  Pass the whole tree a read decodes, before decoding any of
+    // it.
     //
-    // For a tree about to be read into newly made objects, which is what the Geoms of a file
-    // are.  Registering is a call to RemapID with no suggestion, so an identity that collides
-    // takes a fresh ID.  An object that reads its own ID back instead, such as the Vehicle or a
-    // settings container, keeps the ID it has and is not registered here.
+    // An identity that collides takes a fresh ID, since the read makes a new object for it,
+    // unless the object holding that ID decodes the tree into itself -- the Vehicle, its
+    // settings, the manager singletons (ParmContainer::SetReadsIntoSelf).  That ID then stays
+    // its own, as its decode would have left it.
     void PreRegisterIDs( xmlNodePtr node );
 
     // Always issues a new ID, of the length asked for, keeping nothing of the one read in.  A

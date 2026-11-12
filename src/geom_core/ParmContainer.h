@@ -57,6 +57,13 @@ public:
 
     virtual string GetID() const                    { return m_ID; }
 
+    // Whether reading a file or a copy decodes into this very object, or into one that replaces
+    // it, instead of making a new one, so an ID the read brings that this object already holds
+    // stays with it.  Set by the objects that outlive a model -- the Vehicle, its settings, the
+    // manager singletons -- and by VSPAERO's Cp slices.
+    void SetReadsIntoSelf( bool flag )              { m_ReadsIntoSelf = flag; }
+    bool GetReadsIntoSelf() const                   { return m_ReadsIntoSelf; }
+
     virtual void SetName( const string& name, bool removeslashes = true );
     virtual string GetName() const                  { return m_Name; }
 
@@ -139,6 +146,7 @@ public:
 protected:
 
     string m_ID;                                        // Unique ID
+    bool m_ReadsIntoSelf;
 
     string m_Name;
 

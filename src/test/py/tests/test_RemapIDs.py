@@ -514,6 +514,86 @@ def testALinkToAParmOutsideAnInsertedTreeNamesTheLiveParm():
     pop_errors()
 
 
+#==== An inserted file's own objects, read after a reference to them ====#
+
+
+def insert_into_itself( out, name ):
+    """Save the model and insert the file back into it, so every object in the file collides."""
+    written = os.path.join( out, name )
+    vsp.WriteVSPFile( written )
+    vsp.InsertVSPFile( written, "" )
+    vsp.Update()
+
+
+def link_inputs():
+    """The container of each Advanced Link's first input, in link order."""
+    return [ vsp.GetParmContainer( vsp.GetAdvLinkInputParms( i )[0] )
+             for i in range( len( vsp.GetAdvLinkNames() ) ) ]
+
+
+def testAnInsertedFeaPartUsesThePropertyThatCameWithIt():
+    """The Geoms, which hold the FEA parts, are read before the FEA properties they name."""
+    out = fresh()
+    wing = vsp.AddGeom( "WING" )
+    vsp.AddFeaStruct( wing, True, 0 )
+    part = vsp.AddFeaPart( wing, 0, vsp.FEA_SLICE )
+    prop = vsp.AddFeaProperty( 0 )
+    vsp.SetFeaPropertyMaterialID( prop, vsp.AddFeaMaterial() )
+    vsp.SetFeaPartPropertyID( part, prop )
+    vsp.AddAdvLink( "L" )
+    vsp.AddAdvLinkInput( 0, vsp.FindParm( prop, "Thickness", "FeaProperty" ), "t" )
+    vsp.Update()
+
+    insert_into_itself( out, "fea.vsp3" )
+
+    structs = vsp.GetFeaStructIDVec()
+    assert len( structs ) == 2
+    inserted = vsp.GetFeaPartPropertyID( vsp.GetFeaPartIDVec( structs[1] )[-1] )
+    assert inserted != prop, "the inserted part uses the original property"
+    assert inserted in vsp.GetFeaPropertyIDVec()
+    assert vsp.GetFeaPropertyMaterialID( inserted ) != vsp.GetFeaPropertyMaterialID( prop )
+    assert link_inputs() == [ prop, inserted ]
+    pop_errors()
+
+
+def testAnInsertedLinkFollowsTheModeThatCameWithIt():
+    """Links are read before the Modes."""
+    out = fresh()
+    vsp.AddGeom( "POD" )
+    mode = vsp.CreateAndAddMode( "M", vsp.SET_ALL, vsp.SET_NONE )
+    vsp.AddAdvLink( "L" )
+    vsp.AddAdvLinkInput( 0, vsp.FindParm( mode, "NormalSet", "Sets" ), "s" )
+    vsp.Update()
+
+    insert_into_itself( out, "mode.vsp3" )
+
+    modes = vsp.GetAllModes()
+    assert len( modes ) == 2
+    inputs = link_inputs()
+    assert inputs[0] == mode
+    assert inputs[1] != mode and inputs[1] in modes, "the inserted link drives the original Mode"
+    pop_errors()
+
+
+def testAnInsertedLinkFollowsTheGeometryAnalysisCaseThatCameWithIt():
+    """Links are read before the Geometry Analysis cases."""
+    out = fresh()
+    vsp.AddGeom( "POD" )
+    case = vsp.AddGeometryAnalysis()
+    vsp.AddGeometryAnalysisAzEl( case, 10, 20 )
+    vsp.AddAdvLink( "L" )
+    vsp.AddAdvLinkInput( 0, vsp.GetGeometryAnalysisAzimuthParm( case, 0 ), "a" )
+    vsp.Update()
+
+    insert_into_itself( out, "case.vsp3" )
+
+    inputs = link_inputs()
+    assert inputs[0] == case
+    assert inputs[1] != case, "the inserted link drives the original case"
+    assert vsp.GetContainerName( inputs[1] ) == vsp.GetContainerName( case )
+    pop_errors()
+
+
 def testOpeningAndSavingTwiceOverChangesNothing():
     """A file does not change from nothing more than an open and a save.
 

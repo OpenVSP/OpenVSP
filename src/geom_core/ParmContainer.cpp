@@ -68,6 +68,7 @@ bool NameCompare( const string &parmID_A, const string &parmID_B )
 ParmContainer::ParmContainer()
 {
     m_ID = GenerateID();
+    m_ReadsIntoSelf = false;
     m_Name = string( "Default" );
     m_LateUpdateFlag = true; // Force update first time through.
     m_ParmContainer_Type = vsp::ATTROBJ_FREE;

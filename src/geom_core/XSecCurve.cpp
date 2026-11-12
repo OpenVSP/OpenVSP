@@ -595,6 +595,10 @@ void XSecCurve::CopyFrom( XSecCurve* from_crv )
 
     from_crv->EncodeXml( root );
 
+    // Not pre-registered: this curve may be a live one, such as a closed Fuselage's last
+    // curve, and decoding keeps its own IDs.  Registering the source's IDs would give it new
+    // ones.
+
     // Decoding adds the source's attributes to whatever is here, so what is here goes first.
     DeleteAttributes();
     DecodeXml( root );

@@ -24,6 +24,7 @@
 AeroStructSingleton::AeroStructSingleton() : ParmContainer()
 {
     m_Name = "AeroStructSettings";
+    SetReadsIntoSelf( true );
 
     m_DynPress.Init( "DynamicPressure", "AeroStructure", this, 0, 0, 1e12 );
 

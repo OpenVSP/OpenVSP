@@ -15,6 +15,7 @@ void LightMgrSingleton::Init()
     for( int i = 0; i < NUMOFLIGHTS; i++ )
     {
         m_Lights.push_back( new Light() );
+        m_Lights.back()->SetReadsIntoSelf( true );
     }
 
     // Setup default lights.

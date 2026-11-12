@@ -14,6 +14,8 @@
 
 StructureMgrSingleton::StructureMgrSingleton()
 {
+    SetReadsIntoSelf( true );
+
     InitFeaMaterials();
 
     m_FeaAssemblyCount = 0;
