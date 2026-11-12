@@ -13,6 +13,11 @@
 
 #include "SpreadSheetWidget.h"
 
+class Results;
+
+// Text for a Result in lists: case name when it has one, type, time and description.
+string GetResultsListText( Results* res );
+
 class ResultsViewer : public BasicScreen
 {
 public:

@@ -14,6 +14,28 @@
 
 #include <ctime>
 
+// Text for a Result in lists: case name when it has one, type, time and description.
+string GetResultsListText( Results* res )
+{
+    if ( !res )
+    {
+        return string();
+    }
+
+    char timestr[512];
+    time_t r_time = res->GetTimestamp();
+    struct tm *r_tp = localtime( &r_time );
+    strftime( timestr, sizeof( timestr ), "%r %D", r_tp );
+
+    string text;
+    if ( GetResultsDisplayName( res ) != res->GetName() )
+    {
+        text = GetResultsDisplayName( res ) + " - ";
+    }
+    text += res->GetName() + " - " + string( timestr ) + " - " + res->GetDoc();
+    return text;
+}
+
 ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 700, "Results" )
 {
     m_CurrDisplayGroup = NULL;
@@ -224,7 +246,6 @@ bool ResultsViewer::Update()
 void ResultsViewer::UpdateResultsChoice()
 {
     char str[2048];
-    char timestr[512];
 
     m_ResultsChoice.ClearItems();
     m_ResIDvec.clear();
@@ -254,15 +275,7 @@ void ResultsViewer::UpdateResultsChoice()
 
         if ( res )
         {
-            string r_name = res->GetName();
-            string r_doc = res->GetDoc();
-            time_t r_time = res->GetTimestamp();
-            struct tm *r_tp = localtime( &r_time );
-
-            strftime( timestr, sizeof( timestr ), "%r %D", r_tp );
-
-
-            snprintf( str, sizeof( str ), "%s - %s - %s\n", r_name.c_str(), timestr, r_doc.c_str());
+            snprintf( str, sizeof( str ), "%s\n", GetResultsListText( res ).c_str() );
             m_ResultsChoice.AddItem( str, i );
         }
     }

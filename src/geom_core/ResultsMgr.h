@@ -456,6 +456,12 @@ protected:
 
 };
 
+// The Result's case name, empty when it has none.
+string GetResultsCaseName( Results* res );
+
+// The name a Result goes by: its case name when it has one, else its type.
+string GetResultsDisplayName( Results* res );
+
 //======================================================================================//
 //======================================================================================//
 //======================================================================================//

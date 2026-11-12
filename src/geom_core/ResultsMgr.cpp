@@ -2148,6 +2148,41 @@ void Results::WriteBEMFile( const string & file_name )
 //======================================================================================//
 
 
+string GetResultsCaseName( Results* res )
+{
+    if ( !res )
+    {
+        return string();
+    }
+
+    NameValData* case_name = res->FindPtr( "Case_Name", 0 );
+    if ( case_name && case_name->GetType() == vsp::STRING_DATA )
+    {
+        return case_name->GetString( 0 );
+    }
+    return string();
+}
+
+string GetResultsDisplayName( Results* res )
+{
+    if ( !res )
+    {
+        return string();
+    }
+
+    string case_name = GetResultsCaseName( res );
+    if ( !case_name.empty() )
+    {
+        return case_name;
+    }
+    return res->GetName();
+}
+
+//======================================================================================//
+//======================================================================================//
+//======================================================================================//
+
+
 //==== Constructor ====//
 ResultsMgrSingleton::ResultsMgrSingleton()
 {
