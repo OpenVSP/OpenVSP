@@ -20025,7 +20025,7 @@ static void CopyXSecCurveImpl( const std::string & geom_id, int index, const std
         return;
     }
 
-    gxs->GetXSecSurf( 0 )->CopyXSecCurve( index );
+    gxs->CopyXSecCurve( index );
 
     ErrorMgr.NoError();
 }
@@ -20078,7 +20078,7 @@ static void PasteXSecCurveImpl( const std::string & geom_id, int index, const st
         return;
     }
 
-    gxs->GetXSecSurf( 0 )->PasteXSecCurve( index );
+    gxs->PasteXSecCurve( index );
     Update();
 
     ErrorMgr.NoError();
