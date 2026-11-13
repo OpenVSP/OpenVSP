@@ -4244,9 +4244,25 @@ void EditCurveXSec::RoundCorners()
 
     if( m_CurveType() == vsp::LINEAR )
     {
-        for ( int i = r_vec.size() - 2; i >= 0; i-- ) // Loop backwards to preserve indexing.
+        // A repeated point adds no joint, so the joints after it are numbered one less.
+        int n = (int)r_vec.size();
+        vector < int > joint( n, 0 );
+        for ( int i = 1; i < n; i++ )
         {
-            m_Curve.RoundJoint( r_vec[i], i );
+            joint[i] = joint[i - 1] + 1;
+            if ( m_UParmVec[i]->Get() == m_UParmVec[i - 1]->Get() && m_XParmVec[i]->Get() == m_XParmVec[i - 1]->Get() &&
+                 m_YParmVec[i]->Get() == m_YParmVec[i - 1]->Get() && m_ZParmVec[i]->Get() == m_ZParmVec[i - 1]->Get() )
+            {
+                joint[i] = joint[i - 1];
+            }
+        }
+
+        for ( int i = n - 2; i >= 0; i-- ) // Loop backwards to preserve indexing.
+        {
+            if ( i == 0 || joint[i - 1] != joint[i] ) // The first of a repeated point's copies
+            {
+                m_Curve.RoundJoint( r_vec[i], joint[i] );
+            }
         }
     }
     else if( m_CurveType() == vsp::CEDIT )
