@@ -27646,6 +27646,8 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
 */
 /*!
     Read in XSec shape from fuselage (\\*.fsx) file and set to the specified XSec. The XSec must be of type XS_FILE_FUSE.
+    A point listed twice in a row in the file makes a corner there; listing the first point twice puts the corner
+    where the curve closes.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -28220,6 +28222,8 @@ extern void PasteXSecCurveByID( const std::string & xsec_id );
 /*!
     Set the points of a file XSec.  The XSec must be of type XS_FILE_FUSE; this is how a section read
     from a file is replaced from a script.
+    A point listed twice in a row makes a corner there; listing the first point twice puts the corner where the
+    curve closes.
     \forcpponly
     \code{.cpp}
     string sid = AddGeom( "STACK", "" );
@@ -30178,6 +30182,8 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
 */
 /*!
     Read in XSec shape from airfoil file and set to the specified XSec. The XSec must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with \\*.af or \\*.dat extensions.
+    A point listed twice in a row in the file makes a corner there, such as the sharp edges of a high lift device's
+    cove; listing the leading edge twice gives a sharp leading edge.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -30283,6 +30289,7 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
 */
 /*!
     Set the upper points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+    A point listed twice in a row makes a corner there.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -30394,6 +30401,7 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
 */
 /*!
     Set the lower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+    A point listed twice in a row makes a corner there.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -30505,6 +30513,7 @@ extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< 
 */
 /*!
     Set the upper and lower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+    A point listed twice in a row makes a corner there, such as the sharp edges of a high lift device's cove.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -36131,6 +36140,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, bo
 /*!
     Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in
     increasing order and range 0 - 1. The input control points to SetEditXSecPnts must be nondimensionalized in the approximate range of [-0.5, 0.5].
+    For a Linear or PCHIP curve, a point listed twice in a row with the same U makes a corner there.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -46425,6 +46435,7 @@ extern void RemoveAllGroupSettings( const std::string &mid );
 */
 /*!
     Set the parameters, values, and curve type of a propeller blade curve (P Curve)
+    For a Linear or PCHIP curve, a point listed twice in a row with the same parameter and value makes a corner there.
     \forcpponly
     \code{.cpp}
     string prop_id = AddGeom( "PROP" );
