@@ -62,6 +62,7 @@ LocaleUtil.h
 PntNodeMerge.h
 ProcessUtil.h
 Quat.h
+RepeatedPointSpline.h
 SimpleFeatureTess.h
 SimpleTess.h
 StackTrace.h

@@ -12,6 +12,7 @@
 
 #include "Vsp1DCurve.h"
 #include "StlHelper.h"
+#include "RepeatedPointSpline.h"
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
@@ -106,14 +107,19 @@ void Vsp1DCurve::InterpolateLinear( const vector< double > & input_pnt_vec, cons
         pts.push_back( pts[0] );
     }
 
+    // A repeated point adds no segment.
+    vector< double > t( param );
+    SeparateSharedParameters( pts, t );
+    DropRepeatedPoints( pts, t );
+
     int nseg( pts.size() - 1 );
     oned_piecewise_linear_creator_type plc( nseg );
 
     // set the delta t for each curve segment
-    plc.set_t0( param[0] );
+    plc.set_t0( t[0] );
     for ( oned_curve_index_type i = 0; i < plc.get_number_segments(); ++i )
     {
-        plc.set_segment_dt( param[i + 1] - param[i], i );
+        plc.set_segment_dt( t[i + 1] - t[i], i );
     }
 
     // set the polygon corners
@@ -158,6 +164,19 @@ void Vsp1DCurve::InterpolatePCHIP( const vector< double > & input_pnt_vec, const
         pts[i] << input_pnt_vec[i];
     }
 
+    // A step, two points at one parameter, gets a segment of its own.
+    vector< double > t( param );
+    SeparateSharedParameters( pts, t );
+
+    if ( HasRepeatedPoint( pts, t, closed_flag ) )
+    {
+        if ( !InterpolatePCHIPCorners< oned_piecewise_cubic_spline_creator_type >( pts, t, closed_flag, m_Curve ) )
+        {
+            std::cerr << "Failed to create PCHIP. " << __LINE__ << std::endl;
+        }
+        return;
+    }
+
     // create creator for known number of segments
     int nseg( pts.size() - 1 );
     if ( closed_flag )
@@ -167,10 +186,10 @@ void Vsp1DCurve::InterpolatePCHIP( const vector< double > & input_pnt_vec, const
     oned_piecewise_cubic_spline_creator_type pcsc( nseg );
 
     // set the delta t for each curve segment
-    pcsc.set_t0( param[0] );
-    for ( size_t i = 0; i < ( param.size() - 1 ); ++i )
+    pcsc.set_t0( t[0] );
+    for ( size_t i = 0; i < ( t.size() - 1 ); ++i )
     {
-        pcsc.set_segment_dt( param[i + 1] - param[i], i );
+        pcsc.set_segment_dt( t[i + 1] - t[i], i );
     }
 
     if ( closed_flag )
