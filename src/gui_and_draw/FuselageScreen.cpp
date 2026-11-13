@@ -91,8 +91,11 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 510, 800,
     m_XSecLayout.AddYGap();
     int tess_w = m_XSecLayout.GetButtonWidth();
     m_XSecLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
-    m_XSecLayout.AddSlider( m_FwdClusterSlider, "Fwd. Cluster", 1, "%6.5f" );
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.AddSlider( m_FwdClusterSlider, "Fwd. Cluster", 1, "%6.5f", m_XSecLayout.GetW() * 0.5 );
     m_XSecLayout.AddSlider( m_AftClusterSlider, "Aft Cluster", 1, "%6.5f" );
+    m_XSecLayout.ForceNewLine();
+    m_XSecLayout.SetSameLineFlag( false );
     m_XSecLayout.AddYGap();
 
     m_XSecLayout.SetButtonWidth( 50 );

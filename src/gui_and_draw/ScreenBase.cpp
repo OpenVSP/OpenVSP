@@ -4238,8 +4238,11 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     }
 
     m_RoundedRectGroup.AddYGap();
-    m_RoundedRectGroup.AddSlider( m_RRSkewSlider, "Skew", 10, "%6.5f" );
+    m_RoundedRectGroup.SetSameLineFlag( true );
+    m_RoundedRectGroup.AddSlider( m_RRSkewSlider, "Skew", 10, "%6.5f", m_RoundedRectGroup.GetW() * 0.5 );
     m_RoundedRectGroup.AddSlider( m_RRVSkewSlider, "VSkew", 10, "%6.5f" );
+    m_RoundedRectGroup.ForceNewLine();
+    m_RoundedRectGroup.SetSameLineFlag( false );
     m_RoundedRectGroup.AddSlider( m_RRKeystoneSlider, "Keystone", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
 
@@ -4268,10 +4271,14 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
 
     m_RoundedRectGroup.SetButtonWidth( oldbw );
 
+    m_RoundedRectGroup.SetSameLineFlag( true );
+    m_RoundedRectGroup.AddSlider( m_RRRadiusTLSlider, "TL Radius", 10, "%6.5f", m_RoundedRectGroup.GetW() * 0.5 );
     m_RoundedRectGroup.AddSlider( m_RRRadiusTRSlider, "TR Radius", 10, "%6.5f" );
-    m_RoundedRectGroup.AddSlider( m_RRRadiusTLSlider, "TL Radius", 10, "%6.5f" );
-    m_RoundedRectGroup.AddSlider( m_RRRadiusBLSlider, "BL Radius", 10, "%6.5f" );
+    m_RoundedRectGroup.ForceNewLine();
+    m_RoundedRectGroup.AddSlider( m_RRRadiusBLSlider, "BL Radius", 10, "%6.5f", m_RoundedRectGroup.GetW() * 0.5 );
     m_RoundedRectGroup.AddSlider( m_RRRadiusBRSlider, "BR Radius", 10, "%6.5f" );
+    m_RoundedRectGroup.ForceNewLine();
+    m_RoundedRectGroup.SetSameLineFlag( false );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
 
@@ -4293,8 +4300,11 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_GenGroup.AddSlider( m_GenMaxWidthLocSlider, "MaxWLoc", 1, "%6.5f" );
     m_GenGroup.AddSlider( m_GenCornerRadSlider, "CornerRad", 1, "%6.5f" );
     m_GenGroup.AddYGap();
-    m_GenGroup.AddSlider( m_GenTopTanAngleSlider, "TopTanAng", 90, "%7.5f" );
+    m_GenGroup.SetSameLineFlag( true );
+    m_GenGroup.AddSlider( m_GenTopTanAngleSlider, "TopTanAng", 90, "%7.5f", m_GenGroup.GetW() * 0.5 );
     m_GenGroup.AddSlider( m_GenBotTanAngleSlider, "BotTanAng", 90, "%7.5f" );
+    m_GenGroup.ForceNewLine();
+    m_GenGroup.SetSameLineFlag( false );
     m_GenGroup.AddYGap();
     m_GenGroup.AddSlider( m_GenTopStrSlider, "TopStr", 1, "%7.5f" );
     m_GenGroup.AddSlider( m_GenBotStrSlider, "BotStr", 1, "%7.5f" );
@@ -4401,8 +4411,11 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_WedgeGroup.AddSlider( m_WedgeChordSlider, "Chord", 10, "%7.3f" );
     m_WedgeGroup.AddSlider( m_WedgeThickChordSlider, "T/C", 1, "%7.5f" );
     m_WedgeGroup.AddYGap();
-    m_WedgeGroup.AddSlider( m_WedgeThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_WedgeGroup.SetSameLineFlag( true );
+    m_WedgeGroup.AddSlider( m_WedgeThickLocSlider, "Thick X", 1, "%7.5f", m_WedgeGroup.GetW() * 0.5 );
     m_WedgeGroup.AddSlider( m_WedgeFlatUpSlider, "Flat Up", 1, "%7.5f" );
+    m_WedgeGroup.ForceNewLine();
+    m_WedgeGroup.SetSameLineFlag( false );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddButton( m_WedgeSymmThickButton, "Symm Thickness" );
     m_WedgeGroup.AddSlider( m_WedgeThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
@@ -4460,15 +4473,15 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     //==== CST Airfoil ====//
     m_XSecLayout.AddSubGroupLayout( m_CSTAirfoilGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
 
-    m_CSTAirfoilGroup.AddOutput( m_CSTThickChordOutput, "T/C", "%7.5f" );
-
     m_CSTAirfoilGroup.SetSameLineFlag( true );
+    m_CSTAirfoilGroup.AddSlider( m_CSTChordSlider, "Chord", 10, "%7.3f", m_CSTAirfoilGroup.GetW() * 0.5 ); // TODO: Check why Prop and Wing do not have CST chord
+    m_CSTAirfoilGroup.AddOutput( m_CSTThickChordOutput, "T/C", "%7.5f", m_CSTAirfoilGroup.GetW() * 0.5 );
+    m_CSTAirfoilGroup.ForceNewLine();
+
     m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius", m_CSTAirfoilGroup.GetW() * 0.5 );
     m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil", m_CSTAirfoilGroup.GetW() * 0.5 );
     m_CSTAirfoilGroup.ForceNewLine();
     m_CSTAirfoilGroup.SetSameLineFlag( false );
-
-    m_CSTAirfoilGroup.AddSlider( m_CSTChordSlider, "Chord", 10, "%7.3f" ); // TODO: Check why Prop and Wing do not have CST chord
 
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddDividerBox( "Upper Surface" );
