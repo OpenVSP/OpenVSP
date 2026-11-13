@@ -814,6 +814,18 @@ protected:
 };
 
 //==== Skin Screen ====//
+// The Curve divider, and Copy Curve and Paste Curve under it when given.
+void AddXSecCurveHeader( GroupLayout & layout, TriggerButton* copy_button = nullptr, TriggerButton* paste_button = nullptr );
+
+// The curve types a cross section can take, in menu order.
+void AddXSecCurveTypes( Choice & type_choice, bool include_point = true );
+
+// One line for a cross section curve: Type, Show, Convert CEDIT (Edit Curve takes its place when the curve
+// is an Edit Curve) and, when given, the curve's Alias.  The Type label is label_w wide.
+void AddXSecCurveTypeLine( GroupLayout & layout, int label_w, Choice & type_choice, TriggerButton & show_button,
+                           GroupLayout & convert_group, TriggerButton & convert_button,
+                           GroupLayout & edit_group, TriggerButton & edit_button, StringInput* alias_input = nullptr );
+
 class XSecScreen : public GeomScreen
 {
 public:
@@ -849,6 +861,9 @@ protected:
     IndexSelector m_XSecIndexSelector; // Not used for BORGeom
     StringInput m_XSecNameInput;
     StringInput m_XSecCurveNameInput;
+
+    TriggerButton m_CopyXSecCurve;
+    TriggerButton m_PasteXSecCurve;
 
     Choice m_XSecTypeChoice;
     TriggerButton m_ShowXSecButton;
@@ -1084,6 +1099,7 @@ protected:
     bool m_XSecNameInputControlled; // Flag to determine if the GUI has separate controls between XSec and XSecCurve name inputs
 
     bool m_XSecDriversActive; // Flag indicating if the width, area, etc. drivers should be shown
+    bool m_XSecCurveCopyPasteActive; // Flag indicating if Copy Curve and Paste Curve should be shown
 
 };
 

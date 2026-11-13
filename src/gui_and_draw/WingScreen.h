@@ -118,8 +118,6 @@ protected:
     ToggleButton m_RotateThisFoilMatchDihedral;
     ToggleButton m_TwistThisFoilInXZPlane;
 
-    TriggerButton m_CopyAfButton;
-    TriggerButton m_PasteAfButton;
 
     // Overall planform tab
     GroupLayout m_ModifyLayout;

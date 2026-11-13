@@ -1070,69 +1070,13 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
 
     m_FeaSSXSCGroup.AddYGap();
 
-    m_FeaSSXSCGroup.SetFitWidthFlag( false );
-    m_FeaSSXSCGroup.SetSameLineFlag( true );
+    // The Type label is as wide as the slider labels.
+    int label_w = m_FeaSSXSCGroup.GetButtonWidth();
 
-    m_FeaSSXSCGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
+    AddXSecCurveHeader( m_FeaSSXSCGroup, &m_FeaSSXSecCopyButton, &m_FeaSSXSecPasteButton );
 
-    m_FeaSSXSCGroup.AddButton( m_FeaSSXSecCopyButton, "Copy" );
-    m_FeaSSXSCGroup.AddButton( m_FeaSSXSecPasteButton, "Paste" );
-
-    m_FeaSSXSCGroup.ForceNewLine();
-
-    m_FeaSSXSCGroup.SetFitWidthFlag( true );
-    m_FeaSSXSCGroup.SetSameLineFlag( false );
-
-    m_FeaSSXSCGroup.AddYGap();
-
-    m_FeaSSXSCGroup.AddDividerBox( "Type" );
-
-    m_FeaSSXSecTypeChoice.AddItem( "POINT", vsp::XS_POINT );
-    m_FeaSSXSecTypeChoice.AddItem( "CIRCLE", vsp::XS_CIRCLE );
-    m_FeaSSXSecTypeChoice.AddItem( "ELLIPSE", vsp::XS_ELLIPSE );
-    m_FeaSSXSecTypeChoice.AddItem( "SUPER_ELLIPSE", vsp::XS_SUPER_ELLIPSE );
-    m_FeaSSXSecTypeChoice.AddItem( "ROUNDED_RECTANGLE", vsp::XS_ROUNDED_RECTANGLE );
-    m_FeaSSXSecTypeChoice.AddItem( "GENERAL_FUSE", vsp::XS_GENERAL_FUSE );
-    m_FeaSSXSecTypeChoice.AddItem( "FUSE_FILE", vsp::XS_FILE_FUSE );
-    m_FeaSSXSecTypeChoice.AddItem( "FOUR_SERIES", vsp::XS_FOUR_SERIES );
-    m_FeaSSXSecTypeChoice.AddItem( "SIX_SERIES", vsp::XS_SIX_SERIES );
-    m_FeaSSXSecTypeChoice.AddItem( "BICONVEX", vsp::XS_BICONVEX );
-    m_FeaSSXSecTypeChoice.AddItem( "WEDGE", vsp::XS_WEDGE );
-    m_FeaSSXSecTypeChoice.AddItem( "EDIT_CURVE", vsp::XS_EDIT_CURVE );
-    m_FeaSSXSecTypeChoice.AddItem( "AF_FILE", vsp::XS_FILE_AIRFOIL );
-    m_FeaSSXSecTypeChoice.AddItem( "CST_AIRFOIL", vsp::XS_CST_AIRFOIL );
-    m_FeaSSXSecTypeChoice.AddItem( "KARMAN_TREFFTZ", vsp::XS_VKT_AIRFOIL );
-    m_FeaSSXSecTypeChoice.AddItem( "FOUR_DIGIT_MOD", vsp::XS_FOUR_DIGIT_MOD );
-    m_FeaSSXSecTypeChoice.AddItem( "FIVE_DIGIT", vsp::XS_FIVE_DIGIT );
-    m_FeaSSXSecTypeChoice.AddItem( "FIVE_DIGIT_MOD", vsp::XS_FIVE_DIGIT_MOD );
-    m_FeaSSXSecTypeChoice.AddItem( "16_SERIES", vsp::XS_ONE_SIX_SERIES );
-    m_FeaSSXSecTypeChoice.AddItem( "AC25_773", vsp::XS_AC25_773 );
-
-    m_FeaSSXSCGroup.SetFitWidthFlag( true );
-    m_FeaSSXSCGroup.SetSameLineFlag( false );
-
-    m_FeaSSXSCGroup.AddChoice( m_FeaSSXSecTypeChoice, "Choose Type:" );
-
-    m_FeaSSXSCGroup.SetFitWidthFlag( false );
-    m_FeaSSXSCGroup.SetSameLineFlag( true );
-
-    m_FeaSSXSCGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
-    m_FeaSSXSCGroup.AddButton( m_FeaSSXSCShowXSecButton, "Show" );
-
-    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCConvertCEDITGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetStdHeight() );
-    m_FeaSSXSCConvertCEDITGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
-    m_FeaSSXSCConvertCEDITGroup.SetFitWidthFlag( false );
-    m_FeaSSXSCConvertCEDITGroup.AddButton( m_FeaSSXSCConvertCEDITButton, "Convert CEDIT" );
-
-    m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCEditCEDITGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetStdHeight() );
-    m_FeaSSXSCEditCEDITGroup.SetFitWidthFlag( false );
-    m_FeaSSXSCEditCEDITGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
-    m_FeaSSXSCEditCEDITGroup.AddButton( m_FeaSSXSCEditCEDITButton, "Edit Curve" );
-
-    m_FeaSSXSCGroup.ForceNewLine();
-
-    m_FeaSSXSCGroup.SetFitWidthFlag( true );
-    m_FeaSSXSCGroup.SetSameLineFlag( false );
+    AddXSecCurveTypes( m_FeaSSXSecTypeChoice );
+    AddXSecCurveTypeLine( m_FeaSSXSCGroup, label_w, m_FeaSSXSecTypeChoice, m_FeaSSXSCShowXSecButton, m_FeaSSXSCConvertCEDITGroup, m_FeaSSXSCConvertCEDITButton, m_FeaSSXSCEditCEDITGroup, m_FeaSSXSCEditCEDITButton );
 
     //==== Circle XSec ====//
     m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCCircleGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );

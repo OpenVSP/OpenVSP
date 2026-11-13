@@ -237,21 +237,12 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 510, 800, "Wing", "
 
     m_SecAttributeEditor.Init( &m_SectionLayout, m_SectionLayout.GetGroup(), this, staticScreenCB, true, m_SectionLayout.GetY(), m_SectionLayout.GetRemainY() );
 
-    // Xsec layout after index selector has been defined in base class
-    m_XSecLayout.SetFitWidthFlag(false);
-    m_XSecLayout.SetSameLineFlag(true);
-    m_XSecLayout.SetButtonWidth((m_XSecLayout.GetRemainX() - 10) / 2);
-    m_XSecLayout.AddButton(m_CopyAfButton, "Copy");
-    m_XSecLayout.AddX(10);
-    m_XSecLayout.AddButton(m_PasteAfButton, "Paste");
-    m_XSecLayout.ForceNewLine();
-    m_XSecLayout.AddYGap();
-
     // Update default labels 
     m_XSecTab->copy_label( "Airfoil" );
     m_XSecDivider->copy_label( "Airfoil Section" );
 
     m_XSecDriversActive = false;
+    m_XSecCurveCopyPasteActive = true;
     AddXSecLayout();
 
     //==== TE Trim ====//
@@ -963,15 +954,6 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_InsertSectButton )
     {
         wing_ptr->InsertActiveXSec();
-    }
-    else if (gui_device == &m_CopyAfButton)
-    {
-        wing_ptr->CopyXSecCurve( wing_ptr->m_ActiveXSec() );
-    }
-    else if (gui_device == &m_PasteAfButton)
-    {
-        wing_ptr->PasteXSecCurve( wing_ptr->m_ActiveXSec() );
-        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_TestDriverGroupButton )
     {
