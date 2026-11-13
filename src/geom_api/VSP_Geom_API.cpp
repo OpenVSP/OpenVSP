@@ -3645,6 +3645,32 @@ void DeleteResult( const std::string & id )
     ResultsMgr.DeleteResult( id );
 }
 
+void SetResultsNickname( const std::string & results_id, const std::string & nickname )
+{
+    Results* res = ResultsMgr.FindResultsPtr( results_id );
+    if ( !res )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetResultsNickname::Invalid ID " + results_id );
+        return;
+    }
+
+    res->SetNickname( nickname );
+    ErrorMgr.NoError();
+}
+
+std::string GetResultsNickname( const std::string & results_id )
+{
+    Results* res = ResultsMgr.FindResultsPtr( results_id );
+    if ( !res )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsNickname::Invalid ID " + results_id );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return res->GetNickname();
+}
+
 // Write Results To CSV File ====//
 void WriteResultsCSVFile( const std::string & id, const std::string & file_name )
 {

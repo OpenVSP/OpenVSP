@@ -2175,12 +2175,17 @@ string GetResultsDisplayName( Results* res )
         return string();
     }
 
-    string case_name = GetResultsCaseName( res );
-    if ( !case_name.empty() )
+    string name = GetResultsCaseName( res );
+    if ( name.empty() )
     {
-        return case_name;
+        name = res->GetName();
     }
-    return res->GetName();
+
+    if ( !res->GetNickname().empty() )
+    {
+        name = res->GetNickname() + " - " + name;
+    }
+    return name;
 }
 
 //======================================================================================//

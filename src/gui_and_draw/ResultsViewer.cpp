@@ -23,7 +23,7 @@
 #include <ctime>
 #include <limits>
 
-// Text for a Result in lists: case name when it has one, type, time and description.
+// Text for a Result in lists: nickname and case name when it has them, type, time and description.
 string GetResultsListText( Results* res )
 {
     if ( !res )
@@ -37,9 +37,13 @@ string GetResultsListText( Results* res )
     strftime( timestr, sizeof( timestr ), "%r %D", r_tp );
 
     string text;
-    if ( GetResultsDisplayName( res ) != res->GetName() )
+    if ( !res->GetNickname().empty() )
     {
-        text = GetResultsDisplayName( res ) + " - ";
+        text = res->GetNickname() + " - ";
+    }
+    if ( !GetResultsCaseName( res ).empty() )
+    {
+        text += GetResultsCaseName( res ) + " - ";
     }
     text += res->GetName() + " - " + string( timestr ) + " - " + res->GetDoc();
     return text;
@@ -77,6 +81,9 @@ ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : TabScreen( mgr, 1000, 800, "Res
 
     m_BorderLayout.SetSameLineFlag( false );
     m_BorderLayout.SetFitWidthFlag( true );
+
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetChoiceButtonWidth() );
+    m_BorderLayout.AddInput( m_NicknameInput, "Nickname" );
 
     m_BorderLayout.AddYGap();
 
@@ -181,11 +188,15 @@ bool ResultsViewer::Update()
         {
             m_ExportCSVButton.Activate();
             m_DeleteButton.Activate();
+            m_NicknameInput.Update( res->GetNickname() );
+            m_NicknameInput.Activate();
         }
         else
         {
             m_ExportCSVButton.Deactivate();
             m_DeleteButton.Deactivate();
+            m_NicknameInput.Update( "" );
+            m_NicknameInput.Deactivate();
         }
 
         if ( res && m_DataBrowserSelect >= 0 && m_DataBrowserSelect < m_DataNameIndexVec.size() && m_DataNameIndexVec.size() > 0 )
@@ -253,6 +264,8 @@ bool ResultsViewer::Update()
     {
         m_ExportCSVButton.Deactivate();
         m_DeleteButton.Deactivate();
+        m_NicknameInput.Update( "" );
+        m_NicknameInput.Deactivate();
     }
 
     // The plot is kept up to date only while it shows.
@@ -478,6 +491,17 @@ void ResultsViewer::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == & m_DeleteAllButton )
     {
         ResultsMgr.DeleteAllResults();
+    }
+    else if ( device == &m_NicknameInput )
+    {
+        if ( m_ResultsViewerSelect >= 0 && m_ResultsViewerSelect < (int)m_ResIDvec.size() )
+        {
+            Results *res = ResultsMgr.FindResultsPtr( m_ResIDvec[ m_ResultsViewerSelect ] );
+            if ( res )
+            {
+                res->SetNickname( m_NicknameInput.GetString() );
+            }
+        }
     }
     else if ( device == &m_PlotChoice )
     {
@@ -961,9 +985,10 @@ void ResultsViewer::UpdatePlotTab()
         char dbuf[64];
         snprintf( dbuf, sizeof( dbuf ), "%d %d %d|", defs[i].m_Mode, defs[i].m_Element, ( int ) defs[i].m_MatrixRows );
         sig += dbuf + defs[i].m_XLabel + "|" + defs[i].m_YLabel + "|";
+        // The legend names each Result by its display name, which a nickname changes.
         for ( int j = 0; j < ( int ) defs[i].m_ResultIDs.size(); j++ )
         {
-            sig += defs[i].m_ResultIDs[j] + ",";
+            sig += defs[i].m_ResultIDs[j] + " " + GetResultsDisplayName( ResultsMgr.FindResultsPtr( defs[i].m_ResultIDs[j] ) ) + ",";
         }
         sig += "\n";
     }

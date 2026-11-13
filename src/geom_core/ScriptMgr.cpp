@@ -5141,6 +5141,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteResult( const string & in id )", asFUNCTION( vsp::DeleteResult ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetResultsNickname( const string & in results_id, const string & in nickname )", asFUNCTION( vsp::SetResultsNickname ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetResultsNickname( const string & in results_id )", asFUNCTION( vsp::GetResultsNickname ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void WriteResultsCSVFile( const string & in id, const string & in file_name )", asFUNCTION( vsp::WriteResultsCSVFile ), asCALL_CDECL );
     assert( r >= 0 );

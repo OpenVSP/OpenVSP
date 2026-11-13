@@ -454,10 +454,21 @@ public:
         return m_CreationCount;
     }
 
+    // A note the user gives a Result to tell it from others; empty until one is given.
+    const string & GetNickname() const
+    {
+        return m_Nickname;
+    }
+    void SetNickname( const string & nickname )
+    {
+        m_Nickname = nickname;
+    }
+
 protected:
 
     time_t m_Timestamp;
     int m_CreationCount;
+    string m_Nickname;
     int m_Sec, m_Min, m_Hour;
     int m_Day, m_Month, m_Year;
 
@@ -466,7 +477,7 @@ protected:
 // The Result's case name, empty when it has none.
 string GetResultsCaseName( Results* res );
 
-// The name a Result goes by: its case name when it has one, else its type.
+// The name a Result goes by: its nickname, if it has one, ahead of its case name when it has one, else its type.
 string GetResultsDisplayName( Results* res );
 
 //======================================================================================//

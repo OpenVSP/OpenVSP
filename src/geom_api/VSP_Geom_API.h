@@ -10873,6 +10873,72 @@ extern void DeleteResult( const std::string & id );
     \ingroup Results
 */
 /*!
+    Give a Result a nickname, a note to tell it from other Results.  The nickname leads the Result's name in the
+    Results viewer's list and in Results plot legends.  A Result has no nickname, an empty string, until one is given,
+    and an empty string removes it.  Results, and so their nicknames, are not saved with the model.
+    \forcpponly
+    \code{.cpp}
+    WriteTestResults();
+
+    string res_id = FindLatestResultsID( "Test_Results" );
+
+    SetResultsNickname( res_id, "Baseline" );
+
+    if ( GetResultsNickname( res_id ) != "Baseline" )          { Print( "ERROR: SetResultsNickname" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    WriteTestResults()
+
+    res_id = FindLatestResultsID( "Test_Results" )
+
+    SetResultsNickname( res_id, "Baseline" )
+
+    assert GetResultsNickname( res_id ) == "Baseline", "SetResultsNickname"
+    \endcode
+    \endPythonOnly
+    \sa GetResultsNickname
+    \param [in] results_id string Results ID
+    \param [in] nickname string Nickname, empty for none
+*/
+
+extern void SetResultsNickname( const std::string & results_id, const std::string & nickname );
+
+/*!
+    \ingroup Results
+*/
+/*!
+    Get a Result's nickname, empty when it has none.
+    \forcpponly
+    \code{.cpp}
+    WriteTestResults();
+
+    string res_id = FindLatestResultsID( "Test_Results" );
+
+    if ( GetResultsNickname( res_id ) != "" )                  { Print( "ERROR: GetResultsNickname of a new Result" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    WriteTestResults()
+
+    res_id = FindLatestResultsID( "Test_Results" )
+
+    assert GetResultsNickname( res_id ) == "", "GetResultsNickname of a new Result"
+    \endcode
+    \endPythonOnly
+    \sa SetResultsNickname
+    \param [in] results_id string Results ID
+    \return string Nickname, empty for none
+*/
+
+extern std::string GetResultsNickname( const std::string & results_id );
+
+/*!
+    \ingroup Results
+*/
+/*!
     Export a result to CSV
     \forcpponly
     \code{.cpp}

@@ -16,7 +16,7 @@
 
 class Results;
 
-// Text for a Result in lists: case name when it has one, type, time and description.
+// Text for a Result in lists: nickname and case name when it has them, type, time and description.
 string GetResultsListText( Results* res );
 
 class ResultsViewer : public TabScreen
@@ -90,6 +90,7 @@ protected:
     TriggerButton m_ExportCSVButton;
     TriggerButton m_DeleteButton;
     TriggerButton m_DeleteAllButton;
+    StringInput m_NicknameInput;
 
     ColResizeBrowser* m_DataBrowser;
 
