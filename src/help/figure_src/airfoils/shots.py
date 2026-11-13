@@ -21,5 +21,5 @@ def model():
     vsp.Update()
 
 
-snap.shots( model, "MS_WING_GEOM_SCREEN", { "Airfoils_gui_cst": ( "Wing_Airfoil", ( 4, 125, 456, 446 ) ) },
+snap.shots( model, "MS_WING_GEOM_SCREEN", { "Airfoils_gui_cst": ( "Wing_Airfoil", ( 4, 96, 506, 416 ) ) },
             name = "airfoils_cst" )

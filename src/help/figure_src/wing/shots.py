@@ -34,7 +34,7 @@ def blended():
     vsp.Update()
 
 
-snap.shots( model, "MS_WING_GEOM_SCREEN", { "Wing_sect_planform": ( "Wing_Sect", ( 4, 249, 456, 425 ) ),
+snap.shots( model, "MS_WING_GEOM_SCREEN", { "Wing_sect_planform": ( "Wing_Sect", ( 4, 249, 506, 425 ) ),
                                             "Wing_plan_loft": ( "Wing_Plan", ( 4, 635, 456, 760 ) ) } )
-snap.shots( blended, "MS_WING_GEOM_SCREEN", { "Wing_blending_le": ( "Wing_Blending", ( 4, 55, 456, 260 ) ) },
+snap.shots( blended, "MS_WING_GEOM_SCREEN", { "Wing_blending_le": ( "Wing_Blending", ( 4, 55, 506, 260 ) ) },
             name = "Wing_blending" )

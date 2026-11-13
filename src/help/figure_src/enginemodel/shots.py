@@ -16,5 +16,5 @@ def model():
     vsp.Update()
 
 
-snap.shots( model, "STACK_GEOM_SCREEN", { "EngineModel_gui_stations": ( "Stack_Design", ( 8, 390, 456, 633 ) ) },
+snap.shots( model, "STACK_GEOM_SCREEN", { "EngineModel_gui_stations": ( "Stack_Design", ( 8, 390, 506, 633 ) ) },
             name = "enginemodel_stations" )

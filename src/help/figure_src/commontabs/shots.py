@@ -48,7 +48,7 @@ def battery():
     vsp.Update()
 
 
-snap.shots( wing_control, "MS_WING_GEOM_SCREEN", { "SubTab_gui_control": ( "Wing_Sub", ( 4, 222, 456, 603 ) ) },
+snap.shots( wing_control, "MS_WING_GEOM_SCREEN", { "SubTab_gui_control": ( "Wing_Sub", ( 4, 222, 506, 603 ) ) },
             name = "commontabs_wing_control" )
 snap.shots( prop_surfaces, "PROP_GEOM_SCREEN", { "SubTab_gui_list": ( "Propeller_Sub", ( 4, 54, 506, 219 ) ) },
             name = "commontabs_prop_surfaces" )

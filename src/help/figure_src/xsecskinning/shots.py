@@ -37,6 +37,6 @@ def spine():
 
 
 snap.shots( fuselage, "FUSELAGE_GEOM_SCREEN",
-            { "XSecSkinning_gui_side": ( "Fuselage_Skinning_Sides", ( 8, 230, 452, 353 ) ) }, name = "xsecskinning_sides" )
+            { "XSecSkinning_gui_side": ( "Fuselage_Skinning_Sides", ( 8, 230, 502, 353 ) ) }, name = "xsecskinning_sides" )
 snap.shots( spine, "STACK_GEOM_SCREEN",
-            { "XSecSkinning_gui_spine": ( "Stack_Skinning_Spines", ( 8, 202, 452, 511 ) ) }, name = "xsecskinning_spine" )
+            { "XSecSkinning_gui_spine": ( "Stack_Skinning_Spines", ( 8, 202, 502, 511 ) ) }, name = "xsecskinning_spine" )
