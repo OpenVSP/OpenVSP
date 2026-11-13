@@ -128,6 +128,7 @@ private:
     // Vector of sliders to match the curve parameter vectors
     vector < vector < Input > > m_InputVecVec;
     vector < CheckButton > m_EnforceG1Vec;
+    vector < CheckButton > m_G0Vec;
     vector < CheckButton > m_FixedUCheckVec;
 
     bool m_FreezeAxis; // Restrict the canvas from resizing when performing a click and drag operation

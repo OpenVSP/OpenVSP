@@ -588,6 +588,14 @@ bool CurveEditScreen::Update()
                     m_EnforceG1Vec[i].Update( bp->GetID() );
                 }
             }
+            else
+            {
+                BoolParm* bp = edit_curve_xs->m_G0Vec[i];
+                if( bp )
+                {
+                    m_G0Vec[i].Update( bp->GetID() );
+                }
+            }
 
             BoolParm* fixed_u = edit_curve_xs->m_FixedUVec[i];
             if( fixed_u )
@@ -1046,6 +1054,7 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_RParmVec[j]->GetID().c_str() ) ||
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_UParmVec[j]->GetID().c_str() ) ||
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_EnforceG1Vec[j]->GetID().c_str() ) || 
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_G0Vec[j]->GetID().c_str() ) ||
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_FixedUVec[j]->GetID().c_str() ) )
             {
                 m_PntSelector.SetIndex( j );
@@ -1224,6 +1233,9 @@ void CurveEditScreen::RedrawXYSliders( int num_pts, int curve_type )
     m_EnforceG1Vec.clear();
     m_EnforceG1Vec.resize( num_pts );
 
+    m_G0Vec.clear();
+    m_G0Vec.resize( num_pts );
+
     m_FixedUCheckVec.clear();
     m_FixedUCheckVec.resize( num_pts );
 
@@ -1262,7 +1274,9 @@ void CurveEditScreen::RedrawXYSliders( int num_pts, int curve_type )
     }
     else
     {
-        int input_w = ( m_PtLayout.GetRemainX() - (fix_u_w + scroll_w + (num_inputs + 2 ) * gap_w + num_inputs * button_w ) ) / num_inputs;
+        // G0 ties the next point to this one, where Cubic Bezier has G1.
+        int g0_w = 45;
+        int input_w = ( m_PtLayout.GetRemainX() - (fix_u_w + scroll_w + g0_w + (num_inputs + 2 ) * gap_w + num_inputs * button_w ) ) / num_inputs;
         m_PtLayout.SetInputWidth( input_w );
 
         for( int n = 0; n < num_pts; n++ )
@@ -1277,6 +1291,8 @@ void CurveEditScreen::RedrawXYSliders( int num_pts, int curve_type )
                 m_PtLayout.AddX( gap_w );
             }
 
+            m_PtLayout.SetButtonWidth( g0_w );
+            m_PtLayout.AddButton( m_G0Vec[n], "G0" );
             m_PtLayout.SetButtonWidth( fix_u_w );
             m_PtLayout.AddButton( m_FixedUCheckVec[n], "Fix U" );
             m_PtLayout.ForceNewLine();

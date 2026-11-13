@@ -4931,6 +4931,9 @@ void PCurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     m_EnforceG1Vec.clear();
     m_EnforceG1Vec.resize( num_pts );
 
+    m_G0Vec.clear();
+    m_G0Vec.resize( num_pts );
+
     int gap_w = 4;
     int input_w = 50+10;
     int range_button_w = 10;
@@ -4970,11 +4973,15 @@ void PCurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     }
     else
     {
-        int slider_w = ( m_PtLayout->GetW() - ( scroll_w + num_sliders * button_w + 2 * num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
+        // G0 ties the next point to this one, where Cubic Bezier has G1.
+        int check_button_w = 45;
+        int slider_w = ( m_PtLayout->GetW() - ( scroll_w + check_button_w + num_sliders * button_w + 2 * num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
         m_PtLayout->SetSliderWidth( slider_w );
 
         for ( int n = 0; n < num_pts; n++ )
         {
+            m_PtLayout->SetButtonWidth( button_w );
+
             for ( int i = 0; i < num_sliders; i++ )
             {
                 m_PtLayout->AddSlider( m_SliderVecVec[i][n], "AUTO_UPDATE", 2, "%11.6f" );
@@ -4984,7 +4991,9 @@ void PCurveEditor::RedrawXYSliders( int num_pts, int curve_type )
                     m_PtLayout->AddX( gap_w );
                 }
             }
-            
+
+            m_PtLayout->SetButtonWidth( check_button_w );
+            m_PtLayout->AddButton( m_G0Vec[n], "G0" );
             m_PtLayout->ForceNewLine();
         }
     }
@@ -5355,6 +5364,14 @@ void PCurveEditor::Update()
                 {
                     m_EnforceG1Vec[i].Update( bp->GetID() );
                     //m_EnforceG1Vec[i].UpdateLabel( "G1" );
+                }
+            }
+            else
+            {
+                BoolParm* bp = m_Curve->m_G0Vec[i];
+                if ( bp )
+                {
+                    m_G0Vec[i].Update( bp->GetID() );
                 }
             }
 

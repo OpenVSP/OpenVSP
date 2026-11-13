@@ -1560,6 +1560,7 @@ protected:
     // Vector of sliders to match the curve parameter vectors
     vector < vector < SliderAdjRangeInput > > m_SliderVecVec;
     vector < CheckButton > m_EnforceG1Vec;
+    vector < CheckButton > m_G0Vec;
 
     bool m_FreezeAxis; // Restrict the canvas from resizing when performing a click and drag operation
 
