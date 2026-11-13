@@ -296,7 +296,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_InsertXSec  )
     {
-        fuselage_ptr->InsertXSec( );
+        fuselage_ptr->InsertActiveXSec();
     }
     else if ( gui_device == &m_DesignPolicyChoice )
     {

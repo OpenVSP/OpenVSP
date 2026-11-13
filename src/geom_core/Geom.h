@@ -1275,6 +1275,31 @@ public:
 
     virtual int ClearSkinning( const int & i_xs = -1 );
 
+    //==== Section Cut/Copy/Paste/Insert ====//
+    // Whole sections, from FirstEditableXSec() on.  Insert puts a section after index.
+    virtual void CutXSec( int index );
+    virtual void CopyXSec( int index );
+    virtual void PasteXSec( int index );
+    virtual void InsertXSec( int index, int type );
+
+    // The same on the section the GUI is editing.  Insert takes that section's curve type.
+    void CutActiveXSec();
+    void CopyActiveXSec();
+    void PasteActiveXSec();
+    void InsertActiveXSec();
+
+    // Copy or paste a section's curve alone, leaving the section's placement and skinning.
+    // Every section, a Wing's first included, has a curve.
+    void CopyXSecCurve( int index );
+    void PasteXSecCurve( int index );
+
+    // The first section that can be cut, copied, pasted or inserted after.
+    virtual int FirstEditableXSec()                 { return 0; }
+    // The last section a new one can be inserted after.
+    virtual int LastInsertAfterXSec()               { return m_XSecSurf.NumXSec() - 2; }
+    // The index of the section the GUI is editing.
+    virtual IntParm & ActiveSectParm()              { return m_ActiveXSec; }
+
     //==== User defined skinning spines ====//
     // A spine runs the length of the body, so its position and symmetry are the same on
     // every XSec while its values are not.  Add and delete reach every XSec; SyncSkinSpines
@@ -1324,6 +1349,13 @@ public:
     BoolParm m_ShowSkinningCurveFlag;
 
 protected:
+
+    // Fill the section just inserted at index from the one before it.
+    virtual void InitInsertedXSec( int index )      {}
+
+    // The section at index is new, holds a new curve or follows a new neighbor.  It is
+    // placed again on the next Update.
+    virtual void XSecChanged( int index );
 
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();

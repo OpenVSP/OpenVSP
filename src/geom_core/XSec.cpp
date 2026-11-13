@@ -174,6 +174,9 @@ void XSec::SetXSecCurve( XSecCurve* xs_crv )
 
     m_XSCurve = xs_crv;
     m_XSCurve->SetParentContainer( m_ID );
+
+    // The placed curve was made from the old one.
+    m_LateUpdateFlag = true;
 }
 
 //==== Look Though All Parms and Load Linkable Ones ===//

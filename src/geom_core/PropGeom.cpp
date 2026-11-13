@@ -2712,93 +2712,19 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
     return propeller_node;
 }
 
-//==== Override Geom Cut/Copy/Insert/Paste ====//
-void PropGeom::CutXSec( int index )
+//==== A New Section Starts As The One Before It, Halfway To The Next ====//
+void PropGeom::InitInsertedXSec( int index )
 {
-    m_XSecSurf.CutXSec( index );
-    // Set up flag so Update() knows to regenerate surface.
-    // Insert / split cases don't need this because Parms are added,
-    // which implicitly triggers this flag.
-    // However, cut deletes Parms - requiring an explicit flag.
-    m_SurfDirty = true;
-    Update();
-}
-void PropGeom::CopyXSec( int index )
-{
-    m_XSecSurf.CopyXSec( index );
-}
-void PropGeom::PasteXSec( int index )
-{
-    m_XSecSurf.PasteXSec( index );
-    m_SurfDirty = true;
-    Update();
-}
-void PropGeom::InsertXSec( int index, int type )
-{
-    m_ActiveXSec = index;
-    InsertXSec( type );
-}
+    PropXSec* prev_xs = ( PropXSec* ) GetXSec( index - 1 );
+    PropXSec* next_xs = ( PropXSec* ) GetXSec( index + 1 );
+    PropXSec* xs = ( PropXSec* ) GetXSec( index );
 
-//==== Cut Active XSec ====//
-void PropGeom::CutActiveXSec()
-{
-    CutXSec( m_ActiveXSec() );
-}
-
-//==== Copy Active XSec ====//
-void PropGeom::CopyActiveXSec()
-{
-    CopyXSec( m_ActiveXSec() );
-}
-
-//==== Paste Cut/Copied XSec To Active XSec ====//
-void PropGeom::PasteActiveXSec()
-{
-    PasteXSec( m_ActiveXSec() );
-}
-
-//==== Insert XSec ====//
-void PropGeom::InsertXSec( )
-{
-    if ( m_ActiveXSec() >= NumXSec() - 1 || m_ActiveXSec() < 0 )
+    if ( xs && prev_xs && next_xs )
     {
-        return;
+        xs->SetRefLength( m_Diameter() / 2.0 );
+        xs->CopyFrom( prev_xs );
+        xs->m_RadiusFrac = 0.5 * ( prev_xs->m_RadiusFrac() + next_xs->m_RadiusFrac() );
     }
-
-    XSec* xs = GetXSec( m_ActiveXSec() );
-    if ( xs )
-    {
-        InsertXSec( xs->GetXSecCurve()->GetType() );
-    }
-}
-
-//==== Insert XSec ====//
-void PropGeom::InsertXSec( int type )
-{
-    if ( m_ActiveXSec() >= NumXSec() - 1 || m_ActiveXSec() < 0 )
-    {
-        return;
-    }
-
-    PropXSec* xs = ( PropXSec* ) GetXSec( m_ActiveXSec() );
-    PropXSec* xs_1 = ( PropXSec* ) GetXSec( m_ActiveXSec() + 1 );
-
-    double y_loc_0 = xs->m_RadiusFrac();
-    double y_loc_1 = xs_1->m_RadiusFrac();
-
-    m_XSecSurf.InsertXSec( type, m_ActiveXSec() );
-    m_ActiveXSec = m_ActiveXSec() + 1;
-
-    PropXSec* inserted_xs = ( PropXSec* ) GetXSec( m_ActiveXSec() );
-
-    if ( inserted_xs )
-    {
-        inserted_xs->SetRefLength( m_Diameter() / 2.0 );
-        inserted_xs->CopyFrom( xs );
-        inserted_xs->m_RadiusFrac = ( y_loc_0 + y_loc_1 ) * 0.5;
-    }
-
-    Update();
 }
 
 

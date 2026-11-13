@@ -339,7 +339,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_InsertXSec  )
     {
-        stackgeom_ptr->InsertXSec( );
+        stackgeom_ptr->InsertActiveXSec();
     }
     else if ( gui_device == &m_InitStackPreset )
     {

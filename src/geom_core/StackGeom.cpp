@@ -1030,124 +1030,31 @@ xmlNodePtr StackGeom::DecodeXml( xmlNodePtr & node )
     return fuselage_node;
 }
 
-//==== Override Geom Cut/Copy/Paste/Insert ====//
-void StackGeom::CutXSec( int index )
+//==== A Free Stack Can Grow Past Its Last Section ====//
+int StackGeom::LastInsertAfterXSec()
 {
-    m_XSecSurf.CutXSec( index );
-
-    // Each section is placed from the one before it, so every section after the cut is placed again.
-    for ( int i = index; i < m_XSecSurf.NumXSec(); i++ )
+    if ( m_OrderPolicy() == STACK_FREE )
     {
-        XSec* xs = m_XSecSurf.FindXSec( i );
-        if ( xs )
+        return m_XSecSurf.NumXSec() - 1;
+    }
+    return m_XSecSurf.NumXSec() - 2;
+}
+
+//==== A New Section Starts As The One Before It, One Step On ====//
+void StackGeom::InitInsertedXSec( int index )
+{
+    StackXSec* prev_xs = ( StackXSec* ) GetXSec( index - 1 );
+    StackXSec* xs = ( StackXSec* ) GetXSec( index );
+
+    if ( xs && prev_xs )
+    {
+        xs->CopyFrom( prev_xs );
+
+        if ( std::abs( xs->m_XDelta() ) < 0.0000001 )
         {
-            xs->SetLateUpdateFlag( true );
+            xs->m_XDelta = 1.0;
         }
     }
-    // Set up flag so Update() knows to regenerate surface.
-    // Insert / split cases don't need this because Parms are added,
-    // which implicitly triggers this flag.
-    // However, cut deletes Parms - requiring an explicit flag.
-    m_SurfDirty = true;
-    Update();
-}
-void StackGeom::CopyXSec( int index )
-{
-    m_XSecSurf.CopyXSec( index );
-}
-void StackGeom::PasteXSec( int index )
-{
-    m_XSecSurf.PasteXSec( index );
-    m_SurfDirty = true;
-    Update();
-}
-void StackGeom::InsertXSec( int index, int type )
-{
-    m_ActiveXSec = index;
-    InsertXSec( type );
-}
-
-
-//==== Cut Active XSec ====//
-void StackGeom::CutActiveXSec()
-{
-    CutXSec( m_ActiveXSec() );
-    //m_XSecSurf.CutXSec( m_ActiveXSec );
-    //SetActiveXSecIndex( GetActiveXSecIndex() );
-    //m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
-    //Update();
-}
-
-//==== Copy Active XSec ====//
-void StackGeom::CopyActiveXSec()
-{
-    CopyXSec( m_ActiveXSec() );
-//    m_XSecSurf.CopyXSec( m_ActiveXSec );
-}
-
-//==== Paste Cut/Copied XSec To Active XSec ====//
-void StackGeom::PasteActiveXSec()
-{
-    PasteXSec( m_ActiveXSec() );
-    //m_XSecSurf.PasteXSec( m_ActiveXSec );
-    //m_XSecSurf.FindXSec( m_ActiveXSec )->SetLateUpdateFlag( true );
-    //Update();
-}
-
-//==== Insert XSec ====//
-void StackGeom::InsertXSec( )
-{
-    int xsec_lim = NumXSec() - 1; // STACK_LOOP
-    if ( m_OrderPolicy() == STACK_FREE )
-    {
-        xsec_lim = NumXSec();
-    }
-
-    if ( m_ActiveXSec() >= xsec_lim || m_ActiveXSec() < 0 )
-    {
-        return;
-    }
-
-    XSec* xs = GetXSec( m_ActiveXSec() );
-    if ( xs )
-    {
-        InsertXSec( xs->GetXSecCurve()->GetType() );
-    }
-}
-
-//==== Insert XSec ====//
-void StackGeom::InsertXSec( int type )
-{
-    int xsec_lim = NumXSec() - 1; // STACK_LOOP
-    if ( m_OrderPolicy() == STACK_FREE )
-    {
-        xsec_lim = NumXSec();
-    }
-
-    if ( m_ActiveXSec() >= xsec_lim || m_ActiveXSec() < 0 )
-    {
-        return;
-    }
-
-    StackXSec* xs = ( StackXSec* ) GetXSec( m_ActiveXSec() );
-
-    m_XSecSurf.InsertXSec( type, m_ActiveXSec() );
-    // The new section may be past the old last one.
-    m_ActiveXSec.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
-    m_ActiveXSec = m_ActiveXSec() + 1;
-
-    StackXSec* inserted_xs = ( StackXSec* ) GetXSec( m_ActiveXSec() );
-
-    if ( inserted_xs )
-    {
-        inserted_xs->CopyFrom( xs );
-
-        if ( std::abs(inserted_xs->m_XDelta()) < 0.0000001 )
-            inserted_xs->m_XDelta = 1.0;
-
-        inserted_xs->SetLateUpdateFlag( true );
-    }
-    Update();
 }
 
 

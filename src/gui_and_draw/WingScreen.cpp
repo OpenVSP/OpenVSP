@@ -949,39 +949,28 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_CutSectButton )
     {
-        int wsid = wing_ptr->m_ActiveWingSection();
-        wing_ptr->CutWingSect( wsid );
-        wing_ptr->Update();
+        wing_ptr->CutActiveXSec();
     }
     else if ( gui_device == &m_CopySectButton )
     {
-        int wsid = wing_ptr->m_ActiveWingSection();
-        wing_ptr->CopyWingSect( wsid );
-        wing_ptr->Update();
+        wing_ptr->CopyActiveXSec();
     }
     else if ( gui_device == &m_PasteSectButton )
     {
-        int wsid = wing_ptr->m_ActiveWingSection();
-        wing_ptr->PasteWingSect( wsid );
-        wing_ptr->Update();
+        wing_ptr->PasteActiveXSec();
         ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_InsertSectButton )
     {
-        int wsid = wing_ptr->m_ActiveWingSection();
-        wing_ptr->InsertWingSect( wsid );
-        wing_ptr->Update();
+        wing_ptr->InsertActiveXSec();
     }
     else if (gui_device == &m_CopyAfButton)
     {
-        int afid = wing_ptr->m_ActiveXSec();
-        wing_ptr->CopyAirfoil( afid );
+        wing_ptr->CopyXSecCurve( wing_ptr->m_ActiveXSec() );
     }
     else if (gui_device == &m_PasteAfButton)
     {
-        int afid = wing_ptr->m_ActiveXSec();
-        wing_ptr->PasteAirfoil( afid );
-        wing_ptr->Update();
+        wing_ptr->PasteXSecCurve( wing_ptr->m_ActiveXSec() );
         ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_TestDriverGroupButton )

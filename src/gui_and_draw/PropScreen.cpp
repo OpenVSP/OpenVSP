@@ -1347,7 +1347,7 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_InsertXSec  )
     {
-        propeller_ptr->InsertXSec( );
+        propeller_ptr->InsertActiveXSec();
     }
     else if ( gui_device == &m_CurveChoice )
     {

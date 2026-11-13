@@ -516,51 +516,40 @@ void XSecSurf::PasteXSec( int index )
         return;
     }
 
-    if ( veh->GetSavedXSec() )
-    {
-        if ( m_XSecType == veh->GetSavedXSec()->GetType() )
-        {
-            string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
-            XSec* new_xs = FindXSec( new_xs_id );
-            if ( !new_xs )
-            {
-                return;
-            }
-
-
-            //==== Copy Data ====//
-            new_xs->CopyFrom( veh->GetSavedXSec() );
-            new_xs->SetParentContainer( GetID() );
-
-            //==== Copy Position from xsec being replaced ====//
-            new_xs->CopyBasePos( xs );
-
-            // The slot keeps its identity, and the pasted section keeps the copies of the
-            // source's attributes as well as the slot's own.  A copy that names one of the
-            // pasted section's Parms goes on naming it under the ID it takes.
-            vector< HeldParmRef > refs = HoldOwnParmRefs( new_xs, SectionHolders( new_xs ) );
-            new_xs->TakeIdentityOf( xs );
-            HandPastedAttributes( xs, new_xs );
-            ReleaseParmRefs( refs );
-
-            vector_remove_val( m_XSecIDVec, xs->GetID() );
-            vector_remove_val( m_XSecPtrVec, xs );
-
-            delete xs;
-        }
-        else // Fall back to PasteXSecCurve type behavior when saved XSec doesn't match type.
-        {
-            // Since GetSavedXSec() exists, GetSavedXSecCurve will be nullptr and PasteXSecCurve
-            // will fall through to using the XSecCurve from the saved XSec.
-            PasteXSecCurve( index );
-            xs->SetLateUpdateFlag( true );
-        }
-    }
-    else if ( veh->GetSavedXSecCurve() ) // Fall back to saved XSecCurve
+    // A section from a Geom of another type, or a curve alone, pastes as a curve.
+    if ( !veh->GetSavedXSec() || veh->GetSavedXSec()->GetType() != m_XSecType )
     {
         PasteXSecCurve( index );
-        xs->SetLateUpdateFlag( true );
+        return;
     }
+
+    string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
+    XSec* new_xs = FindXSec( new_xs_id );
+    if ( !new_xs )
+    {
+        return;
+    }
+
+
+    //==== Copy Data ====//
+    new_xs->CopyFrom( veh->GetSavedXSec() );
+    new_xs->SetParentContainer( GetID() );
+
+    //==== Copy Position from xsec being replaced ====//
+    new_xs->CopyBasePos( xs );
+
+    // The slot keeps its identity, and the pasted section keeps the copies of the
+    // source's attributes as well as the slot's own.  A copy that names one of the
+    // pasted section's Parms goes on naming it under the ID it takes.
+    vector< HeldParmRef > refs = HoldOwnParmRefs( new_xs, SectionHolders( new_xs ) );
+    new_xs->TakeIdentityOf( xs );
+    HandPastedAttributes( xs, new_xs );
+    ReleaseParmRefs( refs );
+
+    vector_remove_val( m_XSecIDVec, xs->GetID() );
+    vector_remove_val( m_XSecPtrVec, xs );
+
+    delete xs;
 }
 
 //==== Copy XSec Curve====//

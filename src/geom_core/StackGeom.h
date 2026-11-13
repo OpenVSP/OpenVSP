@@ -37,17 +37,7 @@ public:
         return m_XSecSurf.NumXSec();
     }
 
-    //==== Override Geom Cut/Copy/Paste/Insert ====//
-    virtual void CutXSec( int index );
-    virtual void CopyXSec( int index );
-    virtual void PasteXSec( int index );
-    virtual void InsertXSec( int index, int type );
-
-    virtual void CutActiveXSec();
-    virtual void CopyActiveXSec();
-    virtual void PasteActiveXSec();
-    virtual void InsertXSec( );
-    virtual void InsertXSec( int type );
+    virtual int LastInsertAfterXSec();
 
     virtual int GetNumXSecSurfs() const
     {
@@ -67,6 +57,8 @@ public:
     IntParm m_OrderPolicy;
 
 protected:
+    virtual void InitInsertedXSec( int index );
+
     virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();

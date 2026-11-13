@@ -367,93 +367,19 @@ xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
     return fuselage_node;
 }
 
-//==== Override Geom Cut/Copy/Insert/Paste ====//
-void FuselageGeom::CutXSec( int index )
+//==== A New Section Starts As The One Before It, Halfway To The Next ====//
+void FuselageGeom::InitInsertedXSec( int index )
 {
-    m_XSecSurf.CutXSec( index );
-    // Set up flag so Update() knows to regenerate surface.
-    // Insert / split cases don't need this because Parms are added,
-    // which implicitly triggers this flag.
-    // However, cut deletes Parms - requiring an explicit flag.
-    m_SurfDirty = true;
-    Update();
-}
-void FuselageGeom::CopyXSec( int index )
-{
-    m_XSecSurf.CopyXSec( index );
-}
-void FuselageGeom::PasteXSec( int index )
-{
-    m_XSecSurf.PasteXSec( index );
-    m_SurfDirty = true;
-    Update();
-}
-void FuselageGeom::InsertXSec( int index, int type )
-{
-    m_ActiveXSec = index;
-    InsertXSec( type );
-}
+    FuseXSec* prev_xs = ( FuseXSec* ) GetXSec( index - 1 );
+    FuseXSec* next_xs = ( FuseXSec* ) GetXSec( index + 1 );
+    FuseXSec* xs = ( FuseXSec* ) GetXSec( index );
 
-//==== Cut Active XSec ====//
-void FuselageGeom::CutActiveXSec()
-{
-    CutXSec( m_ActiveXSec() );
-}
-
-//==== Copy Active XSec ====//
-void FuselageGeom::CopyActiveXSec()
-{
-    CopyXSec( m_ActiveXSec() );
-}
-
-//==== Paste Cut/Copied XSec To Active XSec ====//
-void FuselageGeom::PasteActiveXSec()
-{
-    PasteXSec( m_ActiveXSec() );
-}
-
-//==== Insert XSec ====//
-void FuselageGeom::InsertXSec( )
-{
-    if ( m_ActiveXSec() >= NumXSec() - 1 || m_ActiveXSec() < 0 )
+    if ( xs && prev_xs && next_xs )
     {
-        return;
+        xs->SetRefLength( m_Length() );
+        xs->CopyFrom( prev_xs );
+        xs->m_XLocPercent = 0.5 * ( prev_xs->m_XLocPercent() + next_xs->m_XLocPercent() );
     }
-
-    XSec* xs = GetXSec( m_ActiveXSec() );
-    if ( xs )
-    {
-        InsertXSec( xs->GetXSecCurve()->GetType() );
-    }
-}
-
-//==== Insert XSec ====//
-void FuselageGeom::InsertXSec( int type )
-{
-    if ( m_ActiveXSec() >= NumXSec() - 1 || m_ActiveXSec() < 0 )
-    {
-        return;
-    }
-
-    FuseXSec* xs = ( FuseXSec* ) GetXSec( m_ActiveXSec() );
-    FuseXSec* xs_1 = ( FuseXSec* ) GetXSec( m_ActiveXSec() + 1 );
-
-    double x_loc_0 = xs->m_XLocPercent();
-    double x_loc_1 = xs_1->m_XLocPercent();
-
-    m_XSecSurf.InsertXSec( type, m_ActiveXSec() );
-    m_ActiveXSec = m_ActiveXSec() + 1;
-
-    FuseXSec* inserted_xs = ( FuseXSec* ) GetXSec( m_ActiveXSec() );
-
-    if ( inserted_xs )
-    {
-        inserted_xs->SetRefLength( m_Length() );
-        inserted_xs->CopyFrom( xs );
-        inserted_xs->m_XLocPercent = ( x_loc_0 + x_loc_1 ) * 0.5;
-    }
-
-    Update();
 }
 
 

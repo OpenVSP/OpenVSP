@@ -212,21 +212,14 @@ public:
     virtual double GetWingMAC() const                     { return m_MAC(); }
     virtual double GetWingTotalChord() const              { return m_TotalChord(); }
 
-    //==== Override Geom Cut/Copy/Paste/Insert ====//
-    virtual void CutXSec( int index );
-    virtual void CopyXSec( int index );
-    virtual void PasteXSec( int index );
-    virtual void InsertXSec( int index, int type );
+    // Section 0 only holds the root airfoil, so sections are edited from 1 on.  A section can
+    // be inserted after the last.  The Wing's own Parm says which section the GUI is editing.
+    virtual int FirstEditableXSec()                       { return 1; }
+    virtual int LastInsertAfterXSec()                     { return m_XSecSurf.NumXSec() - 1; }
+    virtual IntParm & ActiveSectParm()                    { return m_ActiveWingSection; }
 
     virtual WingSect* GetWingSect( int index );
     virtual void SplitWingSect( int index );
-    virtual void CutWingSect( int index );
-    virtual void CopyWingSect( int index );
-    virtual void PasteWingSect( int index );
-    virtual void InsertWingSect( int index );
-
-    virtual void CopyAirfoil( int index );
-    virtual void PasteAirfoil( int index );
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
@@ -287,6 +280,8 @@ protected:
     // Build lines showing the blend tangents at the LE and TE of wing section index.
     void UpdateBlendDrawObj( const Matrix4d &relTrans, int index );
     virtual void MatchWingSections();
+
+    virtual void InitInsertedXSec( int index );
 
     virtual void CalculateMeshMetrics();
 

@@ -1618,32 +1618,6 @@ WingSect* WingGeom::GetWingSect( int index )
     return nullptr;
 }
 
-//==== Override Geom Cut/Copy/Insert/Paste ====//
-void WingGeom::CutXSec( int index )
-{
-    m_ActiveWingSection = index;
-    CutWingSect( index );
-}
-void WingGeom::CopyXSec( int index )
-{
-    CopyWingSect( index );
-}
-void WingGeom::PasteXSec( int index )
-{
-    PasteWingSect( index );
-}
-void WingGeom::InsertXSec( int index, int type )
-{
-    if ( index > 0 && index < m_XSecSurf.NumXSec() )
-    {
-        string ins_id = m_XSecSurf.InsertXSec(type, index);
-        // The new section may be past the old last one.
-        m_ActiveWingSection.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
-        m_ActiveWingSection = index + 1;
-        PasteWingSect( m_ActiveWingSection() );
-    }
-}
-
 
 
 //==== Insert Wing Sect ====//
@@ -1698,81 +1672,10 @@ void WingGeom::SplitWingSect( int index  )
 
 }
 
-//==== Cut Wing Sect ====//
-void WingGeom::CutWingSect( int index  )
+//==== A New Section Is What Was Copied ====//
+void WingGeom::InitInsertedXSec( int index )
 {
-    if ( index > 0 && index < m_XSecSurf.NumXSec() )
-    {
-        m_XSecSurf.CutXSec( index );
-        // Set up flag so Update() knows to regenerate surface.
-        // Insert / split cases don't need this because Parms are added,
-        // which implicitly triggers this flag.
-        // However, cut deletes Parms - requiring an explicit flag.
-        m_SurfDirty = true;
-    }
-}
-
-
-//==== Copy Wing Sect ====//
-void WingGeom::CopyWingSect( int index  )
-{
-    if ( index > 0 && index < m_XSecSurf.NumXSec() )
-    {
-        m_XSecSurf.CopyXSec(index);
-    }
-}
-
-//==== Paste Wing Sect ====//
-void WingGeom::PasteWingSect( int index  )
-{
-    if ( index > 0 && index < m_XSecSurf.NumXSec() )
-    {
-        m_XSecSurf.PasteXSec(index);
-        XSec* xs = m_XSecSurf.FindXSec( index );
-        if ( xs )
-            xs->SetLateUpdateFlag( true );
-        m_SurfDirty = true;
-        Update();
-    }
-}
-
-//==== Copy Wing Sect ====//
-void WingGeom::CopyAirfoil( int index  )
-{
-    if ( index >= 0 && index < m_XSecSurf.NumXSec() )
-    {
-        m_XSecSurf.CopyXSecCurve( index );
-    }
-}
-
-//==== Paste Wing Sect ====//
-void WingGeom::PasteAirfoil( int index  )
-{
-    if ( index >= 0 && index < m_XSecSurf.NumXSec() )
-    {
-        m_XSecSurf.PasteXSecCurve(index);
-        XSec* xs = m_XSecSurf.FindXSec( index );
-        if ( xs )
-            xs->SetLateUpdateFlag( true );
-        m_SurfDirty = true;
-        Update();
-    }
-}
-
-//==== Insert Wing Sect ====//
-void WingGeom::InsertWingSect( int index  )
-{
-    if ( index > 0 && index < m_XSecSurf.NumXSec() )
-    {
-        XSec* xs = m_XSecSurf.FindXSec( index );
-        int type = xs->GetXSecCurve()->GetType();
-
-        string ins_id = m_XSecSurf.InsertXSec(type, index);
-        // The new section may be past the old last one.
-        m_ActiveWingSection.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
-        m_ActiveWingSection = index + 1;
-        PasteWingSect( m_ActiveWingSection() );
-    }
+    m_XSecSurf.PasteXSec( index );
 }
 
 //==== Update Wing And Cross Section Placement ====//

@@ -8278,6 +8278,115 @@ int GeomXSec::ClearSkinning( const int & i_xs )
     return ncleared;
 }
 
+void GeomXSec::CutXSec( int index )
+{
+    if ( index < FirstEditableXSec() || index >= m_XSecSurf.NumXSec() )
+    {
+        return;
+    }
+
+    m_XSecSurf.CutXSec( index );
+
+    // The section after the cut one takes its place.
+    XSecChanged( index );
+    Update();
+}
+
+void GeomXSec::CopyXSec( int index )
+{
+    if ( index < FirstEditableXSec() || index >= m_XSecSurf.NumXSec() )
+    {
+        return;
+    }
+
+    m_XSecSurf.CopyXSec( index );
+}
+
+void GeomXSec::PasteXSec( int index )
+{
+    if ( index < FirstEditableXSec() || index >= m_XSecSurf.NumXSec() )
+    {
+        return;
+    }
+
+    m_XSecSurf.PasteXSec( index );
+    XSecChanged( index );
+    Update();
+}
+
+void GeomXSec::InsertXSec( int index, int type )
+{
+    if ( index < FirstEditableXSec() || index > LastInsertAfterXSec() )
+    {
+        return;
+    }
+
+    m_XSecSurf.InsertXSec( type, index );
+
+    // The new section may be past the old last one.
+    ActiveSectParm().SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
+    ActiveSectParm() = index + 1;
+
+    InitInsertedXSec( index + 1 );
+    XSecChanged( index + 1 );
+    Update();
+}
+
+void GeomXSec::CutActiveXSec()
+{
+    CutXSec( ActiveSectParm()() );
+}
+
+void GeomXSec::CopyActiveXSec()
+{
+    CopyXSec( ActiveSectParm()() );
+}
+
+void GeomXSec::PasteActiveXSec()
+{
+    PasteXSec( ActiveSectParm()() );
+}
+
+void GeomXSec::InsertActiveXSec()
+{
+    int index = ActiveSectParm()();
+    XSec* xs = m_XSecSurf.FindXSec( index );
+    if ( xs )
+    {
+        InsertXSec( index, xs->GetXSecCurve()->GetType() );
+    }
+}
+
+void GeomXSec::CopyXSecCurve( int index )
+{
+    m_XSecSurf.CopyXSecCurve( index );
+}
+
+void GeomXSec::PasteXSecCurve( int index )
+{
+    if ( index < 0 || index >= m_XSecSurf.NumXSec() )
+    {
+        return;
+    }
+
+    m_XSecSurf.PasteXSecCurve( index );
+    XSecChanged( index );
+    Update();
+}
+
+void GeomXSec::XSecChanged( int index )
+{
+    // A Stack section placed again marks the next one, so the sections after it follow.
+    XSec* xs = m_XSecSurf.FindXSec( index );
+    if ( xs )
+    {
+        xs->SetLateUpdateFlag( true );
+    }
+
+    // No Parm change reports a cut section or a swapped curve.
+    m_SurfDirty = true;
+}
+
 void GeomXSec::NormalizeFlaps()
 {
     int nflap = 0;

@@ -19638,7 +19638,7 @@ static void CopyAirfoilImpl( const std::string & geom_id, int index, const std::
         return;
     }
 
-    wg->CopyAirfoil( index );
+    wg->CopyXSecCurve( index );
 
     ErrorMgr.NoError();
 }
@@ -19681,7 +19681,7 @@ static void PasteAirfoilImpl( const std::string & geom_id, int index, const std:
         return;
     }
 
-    wg->PasteAirfoil( index );
+    wg->PasteXSecCurve( index );
     Update();
 
     ErrorMgr.NoError();
