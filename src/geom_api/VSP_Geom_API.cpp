@@ -59,6 +59,7 @@
 #include "PtCloudGeom.h"
 #include "StlHelper.h"
 #include "ModeMgr.h"
+#include "ResultsPlotMgr.h"
 
 #include <cstdlib>
 #include <csignal>
@@ -3686,6 +3687,328 @@ void WriteTestResults()
 {
     ResultsMgr.WriteTestResults();
     ErrorMgr.NoError();
+}
+
+//===================================================================//
+//===============       Results Plot Functions    ===================//
+//===================================================================//
+
+//==== Look up a Results plot by ID, reporting through the named caller ====//
+static ResultsPlot* FindResultsPlot( const std::string & plot_id, const std::string & caller )
+{
+    ResultsPlot* plot = ResultsPlotMgr.FindPlot( plot_id );
+    if ( !plot )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Results Plot " + plot_id );
+    }
+    return plot;
+}
+
+//==== Look up a Results plot curve by ID, reporting through the named caller ====//
+static ResultsCurve* FindResultsCurve( const std::string & curve_id, const std::string & caller )
+{
+    int index = -1;
+    ResultsPlot* plot = ResultsPlotMgr.FindCurvePlot( curve_id, index );
+    if ( !plot )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Results Curve " + curve_id );
+        return nullptr;
+    }
+    return plot->GetCurve( index );
+}
+
+std::string AddResultsPlot()
+{
+    ResultsPlot* plot = ResultsPlotMgr.AddPlot();
+
+    ErrorMgr.NoError();
+    return plot->GetID();
+}
+
+std::string CopyResultsPlot( const std::string & plot_id )
+{
+    int index = ResultsPlotMgr.FindPlotIndex( plot_id );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "CopyResultsPlot::Can't Find Results Plot " + plot_id );
+        return std::string();
+    }
+
+    ResultsPlot* plot = ResultsPlotMgr.CopyPlot( index );
+
+    ErrorMgr.NoError();
+    return plot->GetID();
+}
+
+void DeleteResultsPlot( const std::string & plot_id )
+{
+    int index = ResultsPlotMgr.FindPlotIndex( plot_id );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteResultsPlot::Can't Find Results Plot " + plot_id );
+        return;
+    }
+
+    ResultsPlotMgr.DeletePlot( index );
+    ErrorMgr.NoError();
+}
+
+void DeleteAllResultsPlots()
+{
+    ResultsPlotMgr.Wype();
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetAllResultsPlotIDs()
+{
+    std::vector < std::string > ids;
+    for ( int i = 0; i < ResultsPlotMgr.GetNumPlots(); i++ )
+    {
+        ids.push_back( ResultsPlotMgr.GetPlot( i )->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ids;
+}
+
+void SetActiveResultsPlot( const std::string & plot_id )
+{
+    int index = ResultsPlotMgr.FindPlotIndex( plot_id );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetActiveResultsPlot::Can't Find Results Plot " + plot_id );
+        return;
+    }
+
+    ResultsPlotMgr.SetCurrIndex( index );
+    ErrorMgr.NoError();
+}
+
+std::string GetActiveResultsPlot()
+{
+    std::string id;
+    ResultsPlot* plot = ResultsPlotMgr.GetCurrPlot();
+    if ( plot )
+    {
+        id = plot->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return id;
+}
+
+std::string AddResultsCurve( const std::string & plot_id )
+{
+    ResultsPlot* plot = FindResultsPlot( plot_id, "AddResultsCurve" );
+    if ( !plot )
+    {
+        return std::string();
+    }
+
+    ResultsCurve* curve = plot->AddCurve( nullptr );
+
+    ErrorMgr.NoError();
+    return curve->GetID();
+}
+
+void DeleteResultsCurve( const std::string & curve_id )
+{
+    int index = -1;
+    ResultsPlot* plot = ResultsPlotMgr.FindCurvePlot( curve_id, index );
+    if ( !plot )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteResultsCurve::Can't Find Results Curve " + curve_id );
+        return;
+    }
+
+    plot->DeleteCurve( index );
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetResultsCurveIDs( const std::string & plot_id )
+{
+    std::vector < std::string > ids;
+
+    ResultsPlot* plot = FindResultsPlot( plot_id, "GetResultsCurveIDs" );
+    if ( !plot )
+    {
+        return ids;
+    }
+
+    for ( int i = 0; i < plot->GetNumCurves(); i++ )
+    {
+        ids.push_back( plot->GetCurve( i )->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ids;
+}
+
+void SetResultsCurveSources( const std::string & curve_id, const std::vector < std::string > & names, const std::vector < std::string > & case_names )
+{
+    ResultsCurve* curve = FindResultsCurve( curve_id, "SetResultsCurveSources" );
+    if ( !curve )
+    {
+        return;
+    }
+
+    if ( names.size() != case_names.size() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetResultsCurveSources::names and case_names differ in length" );
+        return;
+    }
+
+    curve->m_Sources.clear();
+    for ( int i = 0; i < ( int ) names.size(); i++ )
+    {
+        curve->m_Sources.push_back( ResultsSource( names[i], case_names[i] ) );
+    }
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetResultsCurveSourceNames( const std::string & curve_id )
+{
+    std::vector < std::string > names;
+
+    ResultsCurve* curve = FindResultsCurve( curve_id, "GetResultsCurveSourceNames" );
+    if ( !curve )
+    {
+        return names;
+    }
+
+    for ( int i = 0; i < ( int ) curve->m_Sources.size(); i++ )
+    {
+        names.push_back( curve->m_Sources[i].m_Name );
+    }
+
+    ErrorMgr.NoError();
+    return names;
+}
+
+std::vector < std::string > GetResultsCurveSourceCaseNames( const std::string & curve_id )
+{
+    std::vector < std::string > case_names;
+
+    ResultsCurve* curve = FindResultsCurve( curve_id, "GetResultsCurveSourceCaseNames" );
+    if ( !curve )
+    {
+        return case_names;
+    }
+
+    for ( int i = 0; i < ( int ) curve->m_Sources.size(); i++ )
+    {
+        case_names.push_back( curve->m_Sources[i].m_Case );
+    }
+
+    ErrorMgr.NoError();
+    return case_names;
+}
+
+void SetResultsCurveXVar( const std::string & curve_id, const std::string & label )
+{
+    ResultsCurve* curve = FindResultsCurve( curve_id, "SetResultsCurveXVar" );
+    if ( !curve )
+    {
+        return;
+    }
+
+    curve->m_XLabel = label;
+    ErrorMgr.NoError();
+}
+
+std::string GetResultsCurveXVar( const std::string & curve_id )
+{
+    ResultsCurve* curve = FindResultsCurve( curve_id, "GetResultsCurveXVar" );
+    if ( !curve )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return curve->m_XLabel;
+}
+
+void SetResultsCurveYVars( const std::string & curve_id, const std::vector < std::string > & labels )
+{
+    ResultsCurve* curve = FindResultsCurve( curve_id, "SetResultsCurveYVars" );
+    if ( !curve )
+    {
+        return;
+    }
+
+    curve->m_YLabels = labels;
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetResultsCurveYVars( const std::string & curve_id )
+{
+    ResultsCurve* curve = FindResultsCurve( curve_id, "GetResultsCurveYVars" );
+    if ( !curve )
+    {
+        return std::vector < std::string > ();
+    }
+
+    ErrorMgr.NoError();
+    return curve->m_YLabels;
+}
+
+std::vector < std::string > GetResultsCurveResultIDs( const std::string & curve_id )
+{
+    std::vector < std::string > ids;
+
+    ResultsCurve* curve = FindResultsCurve( curve_id, "GetResultsCurveResultIDs" );
+    if ( !curve )
+    {
+        return ids;
+    }
+
+    curve->GetResultIDs( ids );
+
+    ErrorMgr.NoError();
+    return ids;
+}
+
+std::vector < std::string > GetResultsPlotVarLabels( const std::string & results_id, bool matrix_rows )
+{
+    std::vector < std::string > labels;
+
+    Results* res = ResultsMgr.FindResultsPtr( results_id );
+    if ( !res )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsPlotVarLabels::Can't Find Results " + results_id );
+        return labels;
+    }
+
+    vector < ResultsPlotVar > vars;
+    ListResultsPlotVars( res, matrix_rows, vars );
+    for ( int i = 0; i < ( int ) vars.size(); i++ )
+    {
+        labels.push_back( vars[i].m_Label );
+    }
+
+    ErrorMgr.NoError();
+    return labels;
+}
+
+std::vector < double > GetResultsPlotVarData( const std::string & results_id, const std::string & label, bool matrix_rows )
+{
+    std::vector < double > data;
+
+    Results* res = ResultsMgr.FindResultsPtr( results_id );
+    if ( !res )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsPlotVarData::Can't Find Results " + results_id );
+        return data;
+    }
+
+    if ( !::GetResultsPlotVarData( res, label, matrix_rows, data ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetResultsPlotVarData::Can't Find Variable " + label + " in Results " + results_id );
+        return data;
+    }
+
+    ErrorMgr.NoError();
+    return data;
 }
 
 //===================================================================//

@@ -169,6 +169,12 @@
     analysis results and provides methods to get, print, and export them.
     \ref index "Click here to return to the main page"
 
+    \defgroup ResultsPlot Results Plot Functions
+    \brief This group is for functions that make and edit Results plots.  Plots are saved with the model and
+    shown on the Plot tab of the Results viewer.  Each plot holds curves that name the kinds of Result and the
+    variables they plot.
+    \ref index "Click here to return to the main page"
+
     \defgroup RoutingGeom RoutingGeom Functions
     \brief This group of API functions is used to create and manipulate RoutingGeom objects, which
     define wire routing paths between points in the model.
@@ -5506,7 +5512,7 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
     \sa GetDoubleAnalysisInput
     \param [in] analysis string Analysis name
     \param [in] name string Input name
-    \param [in] indata vector<double> Array of double values to set the input to
+    \param [in] indata vector\<double\> Array of double values to set the input to
     \param [in] index int Data index
 */
 
@@ -5547,7 +5553,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
     \sa GetStringAnalysisInput
     \param [in] analysis string Analysis name
     \param [in] name string Input name
-    \param [in] indata vector<string> Array of string values to set the input to
+    \param [in] indata vector\<string\> Array of string values to set the input to
     \param [in] index int Data index
 */
 
@@ -11146,6 +11152,733 @@ extern void PrintResultsDocs( const std::string &results_id );
 
 extern void WriteTestResults();
 
+//======================== Results Plot Functions ================================//
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Add a Results plot to the model.  The plot starts with one empty curve and becomes the active plot.
+    A plot's axes and style are Parms in group "ResultsPlot" (XMin, XMax, YMin, YMax and their XMinManual etc.
+    flags, XLog, YLog, ShowLines, ShowPoints and Legend, see RESULTS_PLOT_LEGEND), and its name is set with
+    SetContainerName.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+
+    if ( GetAllResultsPlotIDs().size() != 1 )                 { Print( "ERROR: AddResultsPlot" ); __failure++; }
+    if ( GetResultsCurveIDs( plot_id ).size() != 1 )          { Print( "ERROR: AddResultsPlot did not add a curve" ); __failure++; }
+    if ( GetActiveResultsPlot() != plot_id )                  { Print( "ERROR: AddResultsPlot did not make the plot active" ); __failure++; }
+
+    // The axes are Parms.
+    SetParmVal( FindParm( plot_id, "YLog", "ResultsPlot" ), 1.0 );
+    SetParmVal( FindParm( plot_id, "Legend", "ResultsPlot" ), RESULTS_LEGEND_UPPER_LEFT );
+
+    SetContainerName( plot_id, "Lift Curve" );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+
+    assert len( GetAllResultsPlotIDs() ) == 1, "AddResultsPlot"
+    assert len( GetResultsCurveIDs( plot_id ) ) == 1, "AddResultsPlot did not add a curve"
+    assert GetActiveResultsPlot() == plot_id, "AddResultsPlot did not make the plot active"
+
+    # The axes are Parms.
+    SetParmVal( FindParm( plot_id, "YLog", "ResultsPlot" ), 1.0 )
+    SetParmVal( FindParm( plot_id, "Legend", "ResultsPlot" ), RESULTS_LEGEND_UPPER_LEFT )
+
+    SetContainerName( plot_id, "Lift Curve" )
+    \endcode
+    \endPythonOnly
+    \sa CopyResultsPlot, DeleteResultsPlot, AddResultsCurve, SetContainerName
+    \return string ID of the new plot
+*/
+
+extern std::string AddResultsPlot();
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Add a copy of a Results plot, with copies of its curves.  The copy becomes the active plot.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    SetParmVal( FindParm( plot_id, "XLog", "ResultsPlot" ), 1.0 );
+
+    string copy_id = CopyResultsPlot( plot_id );
+
+    if ( copy_id == plot_id || GetAllResultsPlotIDs().size() != 2 )    { Print( "ERROR: CopyResultsPlot" ); __failure++; }
+    if ( GetParmVal( FindParm( copy_id, "XLog", "ResultsPlot" ) ) != 1.0 )  { Print( "ERROR: CopyResultsPlot lost a Parm" ); __failure++; }
+    if ( GetResultsCurveIDs( copy_id ).size() != 1 )                  { Print( "ERROR: CopyResultsPlot lost the curve" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    SetParmVal( FindParm( plot_id, "XLog", "ResultsPlot" ), 1.0 )
+
+    copy_id = CopyResultsPlot( plot_id )
+
+    assert copy_id != plot_id and len( GetAllResultsPlotIDs() ) == 2, "CopyResultsPlot"
+    assert GetParmVal( FindParm( copy_id, "XLog", "ResultsPlot" ) ) == 1.0, "CopyResultsPlot lost a Parm"
+    assert len( GetResultsCurveIDs( copy_id ) ) == 1, "CopyResultsPlot lost the curve"
+    \endcode
+    \endPythonOnly
+    \sa AddResultsPlot
+    \param [in] plot_id string Results plot ID
+    \return string ID of the copy
+*/
+
+extern std::string CopyResultsPlot( const std::string & plot_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Delete a Results plot and its curves.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+
+    DeleteResultsPlot( plot_id );
+
+    if ( GetAllResultsPlotIDs().size() != 0 )                 { Print( "ERROR: DeleteResultsPlot" ); __failure++; }
+    if ( GetActiveResultsPlot() != "" )                       { Print( "ERROR: DeleteResultsPlot left it active" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+
+    DeleteResultsPlot( plot_id )
+
+    assert len( GetAllResultsPlotIDs() ) == 0, "DeleteResultsPlot"
+    assert GetActiveResultsPlot() == "", "DeleteResultsPlot left it active"
+    \endcode
+    \endPythonOnly
+    \sa AddResultsPlot, DeleteAllResultsPlots
+    \param [in] plot_id string Results plot ID
+*/
+
+extern void DeleteResultsPlot( const std::string & plot_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Delete every Results plot.
+    \forcpponly
+    \code{.cpp}
+    AddResultsPlot();
+    AddResultsPlot();
+
+    DeleteAllResultsPlots();
+
+    if ( GetAllResultsPlotIDs().size() != 0 )                 { Print( "ERROR: DeleteAllResultsPlots" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddResultsPlot()
+    AddResultsPlot()
+
+    DeleteAllResultsPlots()
+
+    assert len( GetAllResultsPlotIDs() ) == 0, "DeleteAllResultsPlots"
+    \endcode
+    \endPythonOnly
+    \sa DeleteResultsPlot
+*/
+
+extern void DeleteAllResultsPlots();
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the IDs of every Results plot, in the order the Results viewer lists them.
+    \forcpponly
+    \code{.cpp}
+    string first_id = AddResultsPlot();
+    string second_id = AddResultsPlot();
+
+    array < string > @plot_ids = GetAllResultsPlotIDs();
+
+    if ( plot_ids.size() != 2 || plot_ids[0] != first_id || plot_ids[1] != second_id )
+    {
+        Print( "ERROR: GetAllResultsPlotIDs" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    first_id = AddResultsPlot()
+    second_id = AddResultsPlot()
+
+    plot_ids = GetAllResultsPlotIDs()
+
+    assert list( plot_ids ) == [ first_id, second_id ], "GetAllResultsPlotIDs"
+    \endcode
+    \endPythonOnly
+    \sa AddResultsPlot
+    \return vector\<string\> Results plot IDs
+*/
+
+extern std::vector < std::string > GetAllResultsPlotIDs();
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Make a Results plot the active one, the plot the Results viewer shows.
+    \forcpponly
+    \code{.cpp}
+    string first_id = AddResultsPlot();
+    string second_id = AddResultsPlot();
+
+    SetActiveResultsPlot( first_id );
+
+    if ( GetActiveResultsPlot() != first_id )                 { Print( "ERROR: SetActiveResultsPlot" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    first_id = AddResultsPlot()
+    second_id = AddResultsPlot()
+
+    SetActiveResultsPlot( first_id )
+
+    assert GetActiveResultsPlot() == first_id, "SetActiveResultsPlot"
+    \endcode
+    \endPythonOnly
+    \sa GetActiveResultsPlot
+    \param [in] plot_id string Results plot ID
+*/
+
+extern void SetActiveResultsPlot( const std::string & plot_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the ID of the active Results plot, the plot the Results viewer shows.
+    \forcpponly
+    \code{.cpp}
+    if ( GetActiveResultsPlot() != "" )                       { Print( "ERROR: GetActiveResultsPlot with no plots" ); __failure++; }
+
+    string plot_id = AddResultsPlot();
+
+    if ( GetActiveResultsPlot() != plot_id )                  { Print( "ERROR: GetActiveResultsPlot" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assert GetActiveResultsPlot() == "", "GetActiveResultsPlot with no plots"
+
+    plot_id = AddResultsPlot()
+
+    assert GetActiveResultsPlot() == plot_id, "GetActiveResultsPlot"
+    \endcode
+    \endPythonOnly
+    \sa SetActiveResultsPlot
+    \return string Active Results plot ID, empty when there are no plots
+*/
+
+extern std::string GetActiveResultsPlot();
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Add an empty curve to a Results plot.  A curve plots kinds of Result, named with SetResultsCurveSources, and
+    the variables named with SetResultsCurveXVar and SetResultsCurveYVars.  How it plots them is set by Parms in group
+    "ResultsCurve": Mode (see RESULTS_PLOT_MODE), Element (see RESULTS_PLOT_ELEMENT), MatrixRows, and Run (0 for every
+    run of each kind of Result, 1 for the newest, 2 for the one before it, and so on).
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+
+    string curve_id = AddResultsCurve( plot_id );
+
+    if ( GetResultsCurveIDs( plot_id ).size() != 2 )          { Print( "ERROR: AddResultsCurve" ); __failure++; }
+
+    // Plot the newest run only, one point per Result.
+    SetParmVal( FindParm( curve_id, "Run", "ResultsCurve" ), 1.0 );
+    SetParmVal( FindParm( curve_id, "Mode", "ResultsCurve" ), RESULTS_PLOT_ACROSS_RESULTS );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+
+    curve_id = AddResultsCurve( plot_id )
+
+    assert len( GetResultsCurveIDs( plot_id ) ) == 2, "AddResultsCurve"
+
+    # Plot the newest run only, one point per Result.
+    SetParmVal( FindParm( curve_id, "Run", "ResultsCurve" ), 1.0 )
+    SetParmVal( FindParm( curve_id, "Mode", "ResultsCurve" ), RESULTS_PLOT_ACROSS_RESULTS )
+    \endcode
+    \endPythonOnly
+    \sa DeleteResultsCurve, GetResultsCurveIDs, SetResultsCurveSources
+    \param [in] plot_id string Results plot ID
+    \return string ID of the new curve
+*/
+
+extern std::string AddResultsCurve( const std::string & plot_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Delete a curve from its Results plot.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    DeleteResultsCurve( curve_id );
+
+    if ( GetResultsCurveIDs( plot_id ).size() != 0 )          { Print( "ERROR: DeleteResultsCurve" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    DeleteResultsCurve( curve_id )
+
+    assert len( GetResultsCurveIDs( plot_id ) ) == 0, "DeleteResultsCurve"
+    \endcode
+    \endPythonOnly
+    \sa AddResultsCurve
+    \param [in] curve_id string Results curve ID
+*/
+
+extern void DeleteResultsCurve( const std::string & curve_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the IDs of a Results plot's curves, in order.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = AddResultsCurve( plot_id );
+
+    array < string > @curve_ids = GetResultsCurveIDs( plot_id );
+
+    if ( curve_ids.size() != 2 || curve_ids[1] != curve_id )  { Print( "ERROR: GetResultsCurveIDs" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = AddResultsCurve( plot_id )
+
+    curve_ids = GetResultsCurveIDs( plot_id )
+
+    assert len( curve_ids ) == 2 and curve_ids[1] == curve_id, "GetResultsCurveIDs"
+    \endcode
+    \endPythonOnly
+    \sa AddResultsCurve
+    \param [in] plot_id string Results plot ID
+    \return vector\<string\> Results curve IDs
+*/
+
+extern std::vector < std::string > GetResultsCurveIDs( const std::string & plot_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Set the kinds of Result a curve plots.  A kind is a Results name, such as "Test_Results", and a case name, which
+    is empty for Results that carry no Case_Name.  The curve plots the Results of those kinds that exist when it is
+    drawn, so it can name kinds that have not been made yet.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > names = { "Test_Results" };
+    array < string > case_names = { "" };
+    SetResultsCurveSources( curve_id, names, case_names );
+
+    if ( GetResultsCurveSourceNames( curve_id ).size() != 1 )  { Print( "ERROR: SetResultsCurveSources" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveSources( curve_id, [ "Test_Results" ], [ "" ] )
+
+    assert list( GetResultsCurveSourceNames( curve_id ) ) == [ "Test_Results" ], "SetResultsCurveSources"
+    \endcode
+    \endPythonOnly
+    \sa GetResultsCurveSourceNames, GetResultsCurveSourceCaseNames, GetResultsCurveResultIDs
+    \param [in] curve_id string Results curve ID
+    \param [in] names vector\<string\> Results name of each kind
+    \param [in] case_names vector\<string\> Case name of each kind, empty for none; as many as names
+*/
+
+extern void SetResultsCurveSources( const std::string & curve_id, const std::vector < std::string > & names, const std::vector < std::string > & case_names );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the Results names of the kinds of Result a curve plots.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > names = { "Test_Results", "Other_Results" };
+    array < string > case_names = { "", "Case A" };
+    SetResultsCurveSources( curve_id, names, case_names );
+
+    array < string > @got = GetResultsCurveSourceNames( curve_id );
+
+    if ( got.size() != 2 || got[1] != "Other_Results" )      { Print( "ERROR: GetResultsCurveSourceNames" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveSources( curve_id, [ "Test_Results", "Other_Results" ], [ "", "Case A" ] )
+
+    assert list( GetResultsCurveSourceNames( curve_id ) ) == [ "Test_Results", "Other_Results" ], "GetResultsCurveSourceNames"
+    \endcode
+    \endPythonOnly
+    \sa SetResultsCurveSources, GetResultsCurveSourceCaseNames
+    \param [in] curve_id string Results curve ID
+    \return vector\<string\> Results name of each kind
+*/
+
+extern std::vector < std::string > GetResultsCurveSourceNames( const std::string & curve_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the case names of the kinds of Result a curve plots, empty for a kind with no case name.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > names = { "Test_Results", "Other_Results" };
+    array < string > case_names = { "", "Case A" };
+    SetResultsCurveSources( curve_id, names, case_names );
+
+    array < string > @got = GetResultsCurveSourceCaseNames( curve_id );
+
+    if ( got.size() != 2 || got[0] != "" || got[1] != "Case A" )  { Print( "ERROR: GetResultsCurveSourceCaseNames" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveSources( curve_id, [ "Test_Results", "Other_Results" ], [ "", "Case A" ] )
+
+    assert list( GetResultsCurveSourceCaseNames( curve_id ) ) == [ "", "Case A" ], "GetResultsCurveSourceCaseNames"
+    \endcode
+    \endPythonOnly
+    \sa SetResultsCurveSources, GetResultsCurveSourceNames
+    \param [in] curve_id string Results curve ID
+    \return vector\<string\> Case name of each kind
+*/
+
+extern std::vector < std::string > GetResultsCurveSourceCaseNames( const std::string & curve_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Set the variable a curve plots on the X axis, by its label from GetResultsPlotVarLabels.  An empty label plots
+    against the point index, or against the Results' order when the curve plots across Results.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    SetResultsCurveXVar( curve_id, "Test_Double" );
+
+    if ( GetResultsCurveXVar( curve_id ) != "Test_Double" )   { Print( "ERROR: SetResultsCurveXVar" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveXVar( curve_id, "Test_Double" )
+
+    assert GetResultsCurveXVar( curve_id ) == "Test_Double", "SetResultsCurveXVar"
+    \endcode
+    \endPythonOnly
+    \sa GetResultsCurveXVar, SetResultsCurveYVars, GetResultsPlotVarLabels
+    \param [in] curve_id string Results curve ID
+    \param [in] label string Variable label, empty for the point index or Results order
+*/
+
+extern void SetResultsCurveXVar( const std::string & curve_id, const std::string & label );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the label of the variable a curve plots on the X axis.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    if ( GetResultsCurveXVar( curve_id ) != "" )              { Print( "ERROR: GetResultsCurveXVar of a new curve" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    assert GetResultsCurveXVar( curve_id ) == "", "GetResultsCurveXVar of a new curve"
+    \endcode
+    \endPythonOnly
+    \sa SetResultsCurveXVar
+    \param [in] curve_id string Results curve ID
+    \return string Variable label, empty for the point index or Results order
+*/
+
+extern std::string GetResultsCurveXVar( const std::string & curve_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Set the variables a curve plots on the Y axis, by their labels from GetResultsPlotVarLabels.  Each makes its own
+    series.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > labels = { "Test_Vec3d.x", "Test_Vec3d.y" };
+    SetResultsCurveYVars( curve_id, labels );
+
+    if ( GetResultsCurveYVars( curve_id ).size() != 2 )       { Print( "ERROR: SetResultsCurveYVars" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveYVars( curve_id, [ "Test_Vec3d.x", "Test_Vec3d.y" ] )
+
+    assert len( GetResultsCurveYVars( curve_id ) ) == 2, "SetResultsCurveYVars"
+    \endcode
+    \endPythonOnly
+    \sa GetResultsCurveYVars, SetResultsCurveXVar, GetResultsPlotVarLabels
+    \param [in] curve_id string Results curve ID
+    \param [in] labels vector\<string\> Variable labels
+*/
+
+extern void SetResultsCurveYVars( const std::string & curve_id, const std::vector < std::string > & labels );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the labels of the variables a curve plots on the Y axis.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > labels = { "Test_Double_Vec" };
+    SetResultsCurveYVars( curve_id, labels );
+
+    array < string > @got = GetResultsCurveYVars( curve_id );
+
+    if ( got.size() != 1 || got[0] != "Test_Double_Vec" )    { Print( "ERROR: GetResultsCurveYVars" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveYVars( curve_id, [ "Test_Double_Vec" ] )
+
+    assert list( GetResultsCurveYVars( curve_id ) ) == [ "Test_Double_Vec" ], "GetResultsCurveYVars"
+    \endcode
+    \endPythonOnly
+    \sa SetResultsCurveYVars
+    \param [in] curve_id string Results curve ID
+    \return vector\<string\> Variable labels
+*/
+
+extern std::vector < std::string > GetResultsCurveYVars( const std::string & curve_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the IDs of the Results a curve plots now: the runs its Run Parm picks of each of its kinds of Result,
+    oldest first.
+    \forcpponly
+    \code{.cpp}
+    WriteTestResults();     // Two runs of Test_Results
+
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > names = { "Test_Results" };
+    array < string > case_names = { "" };
+    SetResultsCurveSources( curve_id, names, case_names );
+
+    // Every run.
+    if ( GetResultsCurveResultIDs( curve_id ).size() != 2 )   { Print( "ERROR: GetResultsCurveResultIDs every run" ); __failure++; }
+
+    // The newest run.
+    SetParmVal( FindParm( curve_id, "Run", "ResultsCurve" ), 1.0 );
+
+    array < string > @ids = GetResultsCurveResultIDs( curve_id );
+
+    if ( ids.size() != 1 || ids[0] != FindLatestResultsID( "Test_Results" ) )  { Print( "ERROR: GetResultsCurveResultIDs newest run" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    WriteTestResults()      # Two runs of Test_Results
+
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveSources( curve_id, [ "Test_Results" ], [ "" ] )
+
+    # Every run.
+    assert len( GetResultsCurveResultIDs( curve_id ) ) == 2, "GetResultsCurveResultIDs every run"
+
+    # The newest run.
+    SetParmVal( FindParm( curve_id, "Run", "ResultsCurve" ), 1.0 )
+
+    ids = GetResultsCurveResultIDs( curve_id )
+
+    assert list( ids ) == [ FindLatestResultsID( "Test_Results" ) ], "GetResultsCurveResultIDs newest run"
+    \endcode
+    \endPythonOnly
+    \sa SetResultsCurveSources
+    \param [in] curve_id string Results curve ID
+    \return vector\<string\> Results IDs
+*/
+
+extern std::vector < std::string > GetResultsCurveResultIDs( const std::string & curve_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the labels of the variables in a Result that a curve can plot.  A numeric vector is labeled with its data
+    name, followed by #1, #2, ... for a second or later entry of the same name.  A vec3d vector gives .x, .y and .z
+    components and its magnitude, |name|; a matrix gives its columns, name[:,j], or its rows, name[i,:].
+    \forcpponly
+    \code{.cpp}
+    WriteTestResults();
+
+    array < string > @labels = GetResultsPlotVarLabels( FindLatestResultsID( "Test_Results" ) );
+
+    if ( labels.find( "Test_Double_Vec" ) < 0 )               { Print( "ERROR: GetResultsPlotVarLabels vector" ); __failure++; }
+    if ( labels.find( "Test_Int#1" ) < 0 )                    { Print( "ERROR: GetResultsPlotVarLabels second entry" ); __failure++; }
+    if ( labels.find( "|Test_Vec3d|" ) < 0 )                  { Print( "ERROR: GetResultsPlotVarLabels magnitude" ); __failure++; }
+
+    // Strings are not plotted.
+    if ( labels.find( "Test_String" ) >= 0 )                  { Print( "ERROR: GetResultsPlotVarLabels string" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    WriteTestResults()
+
+    labels = GetResultsPlotVarLabels( FindLatestResultsID( "Test_Results" ) )
+
+    assert "Test_Double_Vec" in labels, "GetResultsPlotVarLabels vector"
+    assert "Test_Int#1" in labels, "GetResultsPlotVarLabels second entry"
+    assert "|Test_Vec3d|" in labels, "GetResultsPlotVarLabels magnitude"
+
+    # Strings are not plotted.
+    assert "Test_String" not in labels, "GetResultsPlotVarLabels string"
+    \endcode
+    \endPythonOnly
+    \sa GetResultsPlotVarData, SetResultsCurveXVar, SetResultsCurveYVars
+    \param [in] results_id string Results ID
+    \param [in] matrix_rows bool True to label a matrix's rows rather than its columns
+    \return vector\<string\> Variable labels
+*/
+
+extern std::vector < std::string > GetResultsPlotVarLabels( const std::string & results_id, bool matrix_rows = false );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the values of a variable in a Result, as a curve plots them.
+    \forcpponly
+    \code{.cpp}
+    WriteTestResults();
+
+    string res_id = FindLatestResultsID( "Test_Results" );
+
+    array < double > @data = GetResultsPlotVarData( res_id, "Test_Double_Vec" );
+
+    // The newest run holds 0, 2, 4, 6, 8.
+    if ( data.size() != 5 || abs( data[4] - 8.0 ) > 1e-12 )  { Print( "ERROR: GetResultsPlotVarData" ); __failure++; }
+
+    array < double > @mag = GetResultsPlotVarData( res_id, "|Test_Vec3d|" );
+
+    // The newest run holds ( 1, 2, 4 ).
+    if ( mag.size() != 1 || abs( mag[0] * mag[0] - 21.0 ) > 1e-9 )  { Print( "ERROR: GetResultsPlotVarData magnitude" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    WriteTestResults()
+
+    res_id = FindLatestResultsID( "Test_Results" )
+
+    data = GetResultsPlotVarData( res_id, "Test_Double_Vec" )
+
+    # The newest run holds 0, 2, 4, 6, 8.
+    assert len( data ) == 5 and abs( data[4] - 8.0 ) < 1e-12, "GetResultsPlotVarData"
+
+    mag = GetResultsPlotVarData( res_id, "|Test_Vec3d|" )
+
+    # The newest run holds ( 1, 2, 4 ).
+    assert len( mag ) == 1 and abs( mag[0] * mag[0] - 21.0 ) < 1e-9, "GetResultsPlotVarData magnitude"
+    \endcode
+    \endPythonOnly
+    \sa GetResultsPlotVarLabels
+    \param [in] results_id string Results ID
+    \param [in] label string Variable label
+    \param [in] matrix_rows bool True when the label names a matrix row rather than a column
+    \return vector\<double\> Values
+*/
+
+extern std::vector < double > GetResultsPlotVarData( const std::string & results_id, const std::string & label, bool matrix_rows = false );
+
 //======================== GUI Functions ================================//
 
 /*!
@@ -13079,7 +13812,7 @@ extern void DeleteGeom( const std::string & geom_id, int clone_delete = CLONE_DE
     \endcode
     \endPythonOnly
     \sa FindGeomClones, CLONE_DELETE_TYPE
-    \param [in] del_vec vector<string> Vector of Geom IDs
+    \param [in] del_vec vector\<string\> Vector of Geom IDs
     \param [in] clone_delete int What becomes of each Clone of those Geoms (CLONE_DELETE_TYPE)
 */
 
@@ -13973,9 +14706,9 @@ extern std::string GetGeomCloneOriginal( const std::string & clone_id );
     \endcode
     \endPythonOnly
     \sa SetGeomCloneOriginal, SetGeomCloneNameSuffix
-    \param [in] geom_id_vec vector<string> Vector of Geom IDs to clone
+    \param [in] geom_id_vec vector\<string\> Vector of Geom IDs to clone
     \param [in] name_suffix string Suffix automatic naming appends to each original's name
-    \return vector<string> Vector of the new Clone Geom IDs
+    \return vector\<string\> Vector of the new Clone Geom IDs
 */
 
 extern std::vector< std::string > CloneGeomVec( const std::vector< std::string > & geom_id_vec, const std::string & name_suffix = "_Clone" );
@@ -14329,8 +15062,8 @@ extern std::string ReplaceCloneGeom( const std::string & clone_id );
     \endcode
     \endPythonOnly
     \sa DeleteGeom, DeleteGeomVec, CutGeomToClipboard, CLONE_DELETE_TYPE
-    \param [in] geom_id_vec vector<string> Vector of Geom IDs
-    \return vector<string> IDs of the Clones of those Geoms that are not among them
+    \param [in] geom_id_vec vector\<string\> Vector of Geom IDs
+    \return vector\<string\> IDs of the Clones of those Geoms that are not among them
 */
 
 extern std::vector< std::string > FindGeomClones( const std::vector< std::string > & geom_id_vec );
@@ -14732,7 +15465,7 @@ extern void RemoveGeomTexture( const std::string & geom_id, const std::string & 
     \endPythonOnly
     \sa AttachGeomTexture, RemoveGeomTexture
     \param [in] geom_id string Geom ID
-    \return vector<string> Vector of texture ParmContainer IDs
+    \return vector\<string\> Vector of texture ParmContainer IDs
 */
 
 extern std::vector < std::string > GetGeomTextureIDVec( const std::string & geom_id );
@@ -23068,7 +23801,7 @@ extern std::string GetFeaLayerMaterialID( const std::string & layer_id );
     \endcode
     \endPythonOnly
     \sa AddFeaMaterial
-    \return vector<string> FEA material IDs
+    \return vector\<string\> FEA material IDs
 */
 
 extern std::vector < std::string > GetFeaMaterialIDVec();
@@ -30290,7 +31023,7 @@ extern int GetLowerCSTDegree( const std::string& xsec_id );
     \sa GetUpperCSTDegree, GetUpperCSTCoefs
     \param [in] xsec_id string XSec ID
     \param [in] deg int CST degree of upper airfoil surface
-    \param [in] coefs vector<double> Vector of CST coefficients for the upper airfoil surface
+    \param [in] coefs vector\<double\> Vector of CST coefficients for the upper airfoil surface
 */
 
 extern void SetUpperCST( const std::string& xsec_id, int deg, const std::vector<double> &coefs );
@@ -30342,7 +31075,7 @@ extern void SetUpperCST( const std::string& xsec_id, int deg, const std::vector<
     \sa GetLowerCSTDegree, GetLowerCSTCoefs
     \param [in] xsec_id string XSec ID
     \param [in] deg int CST degree of lower airfoil surface
-    \param [in] coefs vector<double> Vector of CST coefficients for the lower airfoil surface
+    \param [in] coefs vector\<double\> Vector of CST coefficients for the lower airfoil surface
 */
 
 extern void SetLowerCST( const std::string& xsec_id, int deg, const std::vector<double> &coefs );
@@ -34316,7 +35049,7 @@ extern int GetBORLowerCSTDegree( const std::string& bor_id );
     \sa GetUpperCSTDegree, GetUpperCSTCoefs
     \param [in] bor_id string Body of revolution Geom ID
     \param [in] deg int CST degree of upper airfoil surface
-    \param [in] coefs vector<double> Array of CST coefficients for the upper airfoil surface
+    \param [in] coefs vector\<double\> Array of CST coefficients for the upper airfoil surface
 */
 
 extern void SetBORUpperCST( const std::string& bor_id, int deg, const std::vector<double> &coefs );
@@ -34360,7 +35093,7 @@ extern void SetBORUpperCST( const std::string& bor_id, int deg, const std::vecto
     \sa GetLowerCSTDegree, GetLowerCSTCoefs
     \param [in] bor_id string Body of revolution Geom ID
     \param [in] deg int CST degree of lower airfoil surface
-    \param [in] coefs vector<double> Vector of CST coefficients for the lower airfoil surface
+    \param [in] coefs vector\<double\> Vector of CST coefficients for the lower airfoil surface
 */
 
 extern void SetBORLowerCST( const std::string& bor_id, int deg, const std::vector<double> &coefs );
@@ -38952,7 +39685,7 @@ extern void AddFitModelTargetPtsFixedU( const std::string & geom_id, int surf_in
     \param [in] geom_id string Geom ID of the surface the points are matched to
     \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
     \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
-    \param [in] u_vec vector<double> U surface coordinate in [0, 1] for each point, same length as pt_vec
+    \param [in] u_vec vector\<double\> U surface coordinate in [0, 1] for each point, same length as pt_vec
 */
 
 extern void AddFitModelTargetPtsFixedUs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & u_vec );
@@ -39059,7 +39792,7 @@ extern void AddFitModelTargetPtsFixedW( const std::string & geom_id, int surf_in
     \param [in] geom_id string Geom ID of the surface the points are matched to
     \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
     \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
-    \param [in] w_vec vector<double> W surface coordinate in [0, 1] for each point, same length as pt_vec
+    \param [in] w_vec vector\<double\> W surface coordinate in [0, 1] for each point, same length as pt_vec
 */
 
 extern void AddFitModelTargetPtsFixedWs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & w_vec );
@@ -39175,8 +39908,8 @@ extern void AddFitModelTargetPtsFixedUW( const std::string & geom_id, int surf_i
     \param [in] geom_id string Geom ID of the surface the points are matched to
     \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
     \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
-    \param [in] u_vec vector<double> U surface coordinate in [0, 1] for each point, same length as pt_vec
-    \param [in] w_vec vector<double> W surface coordinate in [0, 1] for each point, same length as pt_vec
+    \param [in] u_vec vector\<double\> U surface coordinate in [0, 1] for each point, same length as pt_vec
+    \param [in] w_vec vector\<double\> W surface coordinate in [0, 1] for each point, same length as pt_vec
 */
 
 extern void AddFitModelTargetPtsFixedUWs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & u_vec, const std::vector < double > & w_vec );
@@ -40226,7 +40959,7 @@ extern std::string GetFitModelVar( int index );
     \endcode
     \endPythonOnly
     \sa GetFitModelVar
-    \return vector<string> Parm IDs of every variable
+    \return vector\<string\> Parm IDs of every variable
 */
 
 extern std::vector < std::string > GetFitModelVarVec();
@@ -52229,8 +52962,8 @@ extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] u_in_vec vector<double> Input vector of U (0 - 1) surface coordinates
-    \param [in] w_in_vec vector<double> Input vector of W (0 - 1) surface coordinates
+    \param [in] u_in_vec vector\<double\> Input vector of U (0 - 1) surface coordinates
+    \param [in] w_in_vec vector\<double\> Input vector of W (0 - 1) surface coordinates
     \return vector\<vec3d\> Vector of 3D coordinate points
 */
 
@@ -52316,8 +53049,8 @@ extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int 
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] degen_type int Type of degen surface (0-S, 1-V, 2-H, 3-C)
-    \param [in] u_in_vec vector<double> Input vector of U (0 - 1) surface coordinates
-    \param [in] w_in_vec vector<double> Input vector of W (0 - 1) surface coordinates
+    \param [in] u_in_vec vector\<double\> Input vector of U (0 - 1) surface coordinates
+    \param [in] w_in_vec vector\<double\> Input vector of W (0 - 1) surface coordinates
     \return vector\<vec3d\> Vector of 3D coordinate points
 */
 
@@ -52384,8 +53117,8 @@ extern std::vector < vec3d > CompVecDegenPnt01(const std::string &geom_id, const
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] us vector<double> Input vector of U (0 - 1) surface coordinates
-    \param [in] ws vector<double> Input vector of W (0 - 1) surface coordinates
+    \param [in] us vector\<double\> Input vector of U (0 - 1) surface coordinates
+    \param [in] ws vector\<double\> Input vector of W (0 - 1) surface coordinates
     \return vector\<vec3d\> Vector of 3D normal vectors
 */
 
@@ -52494,8 +53227,8 @@ extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] us vector<double> Input vector of U (0 - 1) surface coordinates
-    \param [in] ws vector<double> Input vector of W (0 - 1) surface coordinates
+    \param [in] us vector\<double\> Input vector of U (0 - 1) surface coordinates
+    \param [in] ws vector\<double\> Input vector of W (0 - 1) surface coordinates
     \param [out] k1_out_vec vector<double> Output vector of maximum principal curvatures
     \param [out] k2_out_vec vector<double> Output vector of minimum principal curvatures
     \param [out] ka_out_vec vector<double> Output vector of mean curvatures
@@ -52724,8 +53457,8 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] pts vector<vec3d> Input vector of 3D coordinate points
-    \param [in] u0s vector<double> Input vector of U (0 - 1) surface coordinate guesses
-    \param [in] w0s vector<double> Input vector of W (0 - 1) surface coordinate guesses
+    \param [in] u0s vector\<double\> Input vector of U (0 - 1) surface coordinate guesses
+    \param [in] w0s vector\<double\> Input vector of W (0 - 1) surface coordinate guesses
     \param [out] u_out_vec vector<double> Output vector of the closest U (0 - 1) surface coordinate for each 3D input point
     \param [out] w_out_vec vector<double> Output vector of the closest W (0 - 1) surface coordinate for each 3D input point
     \param [out] d_out_vec vector<double> Output array of distances for each 3D point and the closest point of the surface
@@ -53022,8 +53755,8 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] iaxis int Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
     \param [in] pts vector<vec3d> Input vector of 3D coordinate points
-    \param [in] u0s vector<double> Input vector of U (0 - 1) surface coordinate guesses
-    \param [in] w0s vector<double> Input vector of W (0 - 1) surface coordinate guesses
+    \param [in] u0s vector\<double\> Input vector of U (0 - 1) surface coordinate guesses
+    \param [in] w0s vector\<double\> Input vector of W (0 - 1) surface coordinate guesses
     \param [out] u_out_vec vector<double> Output vector of the closest U (0 - 1) surface coordinate for each 3D input point
     \param [out] w_out_vec vector<double> Output vector of the closest W (0 - 1) surface coordinate for each 3D input point
     \param [out] d_out_vec vector<double> Output vector of axis distances for each 3D point and the projected point of the surface
@@ -53209,9 +53942,9 @@ extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] r_in_vec vector<double> Input vector of R (0 - 1.0) volume coordinates
-    \param [in] s_in_vec vector<double> Input vector of S (0 - 1.0) volume coordinates
-    \param [in] t_in_vec vector<double> Input vector of T (0 - 1.0) volume coordinates
+    \param [in] r_in_vec vector\<double\> Input vector of R (0 - 1.0) volume coordinates
+    \param [in] s_in_vec vector\<double\> Input vector of S (0 - 1.0) volume coordinates
+    \param [in] t_in_vec vector\<double\> Input vector of T (0 - 1.0) volume coordinates
     \return vector\<vec3d\> Vector of 3D coordinate points
 */
 
@@ -53408,9 +54141,9 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] pts vector<vec3d> Input vector of 3D coordinate points
-    \param [in] r0s vector<double> Input vector of U (0 - 1.0) volume coordinate guesses
-    \param [in] s0s vector<double> Input vector of S (0 - 1.0) volume coordinate guesses
-    \param [in] t0s vector<double> Input vector of T (0 - 1.0) volume coordinate guesses
+    \param [in] r0s vector\<double\> Input vector of U (0 - 1.0) volume coordinate guesses
+    \param [in] s0s vector\<double\> Input vector of S (0 - 1.0) volume coordinate guesses
+    \param [in] t0s vector\<double\> Input vector of T (0 - 1.0) volume coordinate guesses
     \param [out] r_out_vec vector<double> Output vector of the closest R (0 - 1.0) volume coordinate for each 3D input point
     \param [out] s_out_vec vector<double> Output vector of the closest S (0 - 1.0) volume coordinate for each 3D input point
     \param [out] t_out_vec vector<double> Output vector of the closest T (0 - 1.0) volume coordinate for each 3D input point
@@ -53492,9 +54225,9 @@ extern void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, c
     \sa ConvertLMNtoRSTVec, ConvertRSTtoLMN, ConvertLMNtoRST
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] r_vec vector<double> Input vector of R (0 - 1) volumetric coordinate
-    \param [in] s_vec vector<double> Input vector of S (0 - 1) volumetric coordinate
-    \param [in] t_vec vector<double> Input vector of T (0 - 1) volumetric coordinate
+    \param [in] r_vec vector\<double\> Input vector of R (0 - 1) volumetric coordinate
+    \param [in] s_vec vector\<double\> Input vector of S (0 - 1) volumetric coordinate
+    \param [in] t_vec vector\<double\> Input vector of T (0 - 1) volumetric coordinate
     \param [out] l_out_vec vector<double> Output vector of L (0 - 1) linear volumetric coordinate
     \param [out] m_out_vec vector<double> Output vector of M (0 - 1) linear volumetric coordinate
     \param [out] n_out_vec vector<double> Output vector of N (0 - 1) linear volumetric coordinate
@@ -53611,9 +54344,9 @@ extern void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx
     \sa ConvertRSTtoLMNVec, ConvertRSTtoLMN, ConvertLMNtoRST
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] l_vec vector<double> Input vector of L (0 - 1) linear volumetric coordinate
-    \param [in] m_vec vector<double> Input vector of M (0 - 1) linear volumetric coordinate
-    \param [in] n_vec vector<double> Input vector of N (0 - 1) linear volumetric coordinate
+    \param [in] l_vec vector\<double\> Input vector of L (0 - 1) linear volumetric coordinate
+    \param [in] m_vec vector\<double\> Input vector of M (0 - 1) linear volumetric coordinate
+    \param [in] n_vec vector\<double\> Input vector of N (0 - 1) linear volumetric coordinate
     \param [out] r_out_vec vector<double> Output vector of R (0 - 1) volumetric coordinate
     \param [out] s_out_vec vector<double> Output vector of S (0 - 1) volumetric coordinate
     \param [out] t_out_vec vector<double> Output vector of T (0 - 1) volumetric coordinate

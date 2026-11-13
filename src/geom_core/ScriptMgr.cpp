@@ -5165,6 +5165,69 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    //==== Results Plot Functions ====//
+
+    r = se->RegisterGlobalFunction( "string AddResultsPlot()", asFUNCTION( vsp::AddResultsPlot ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string CopyResultsPlot( const string & in plot_id )", asFUNCTION( vsp::CopyResultsPlot ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteResultsPlot( const string & in plot_id )", asFUNCTION( vsp::DeleteResultsPlot ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteAllResultsPlots()", asFUNCTION( vsp::DeleteAllResultsPlots ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllResultsPlotIDs()", asMETHOD( ScriptMgrSingleton, GetAllResultsPlotIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetActiveResultsPlot( const string & in plot_id )", asFUNCTION( vsp::SetActiveResultsPlot ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetActiveResultsPlot()", asFUNCTION( vsp::GetActiveResultsPlot ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string AddResultsCurve( const string & in plot_id )", asFUNCTION( vsp::AddResultsCurve ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteResultsCurve( const string & in curve_id )", asFUNCTION( vsp::DeleteResultsCurve ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetResultsCurveIDs( const string & in plot_id )", asMETHOD( ScriptMgrSingleton, GetResultsCurveIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetResultsCurveSources( const string & in curve_id, array<string>@+ names, array<string>@+ case_names )", asMETHOD( ScriptMgrSingleton, SetResultsCurveSources ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetResultsCurveSourceNames( const string & in curve_id )", asMETHOD( ScriptMgrSingleton, GetResultsCurveSourceNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetResultsCurveSourceCaseNames( const string & in curve_id )", asMETHOD( ScriptMgrSingleton, GetResultsCurveSourceCaseNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetResultsCurveXVar( const string & in curve_id, const string & in label )", asFUNCTION( vsp::SetResultsCurveXVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetResultsCurveXVar( const string & in curve_id )", asFUNCTION( vsp::GetResultsCurveXVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetResultsCurveYVars( const string & in curve_id, array<string>@+ labels )", asMETHOD( ScriptMgrSingleton, SetResultsCurveYVars ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetResultsCurveYVars( const string & in curve_id )", asMETHOD( ScriptMgrSingleton, GetResultsCurveYVars ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetResultsCurveResultIDs( const string & in curve_id )", asMETHOD( ScriptMgrSingleton, GetResultsCurveResultIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetResultsPlotVarLabels( const string & in results_id, bool matrix_rows = false )", asMETHOD( ScriptMgrSingleton, GetResultsPlotVarLabels ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<double>@+ GetResultsPlotVarData( const string & in results_id, const string & in label, bool matrix_rows = false )", asMETHOD( ScriptMgrSingleton, GetResultsPlotVarData ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
     //==== Geom Functions ====//
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetGeomTypes()", asMETHOD( ScriptMgrSingleton, GetGeomTypes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -7957,6 +8020,73 @@ CScriptArray* ScriptMgrSingleton::GetAllResultsIDs()
 {
     m_ProxyStringArray = vsp::GetAllResultsIDs();
     return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllResultsPlotIDs()
+{
+    m_ProxyStringArray = vsp::GetAllResultsPlotIDs();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsCurveIDs( const string & plot_id )
+{
+    m_ProxyStringArray = vsp::GetResultsCurveIDs( plot_id );
+    return GetProxyStringArray();
+}
+
+void ScriptMgrSingleton::SetResultsCurveSources( const string & curve_id, CScriptArray* names, CScriptArray* case_names )
+{
+    vector < string > names_vec;
+    FillSTLVector( names, names_vec );
+
+    vector < string > case_names_vec;
+    FillSTLVector( case_names, case_names_vec );
+
+    vsp::SetResultsCurveSources( curve_id, names_vec, case_names_vec );
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsCurveSourceNames( const string & curve_id )
+{
+    m_ProxyStringArray = vsp::GetResultsCurveSourceNames( curve_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsCurveSourceCaseNames( const string & curve_id )
+{
+    m_ProxyStringArray = vsp::GetResultsCurveSourceCaseNames( curve_id );
+    return GetProxyStringArray();
+}
+
+void ScriptMgrSingleton::SetResultsCurveYVars( const string & curve_id, CScriptArray* labels )
+{
+    vector < string > labels_vec;
+    FillSTLVector( labels, labels_vec );
+
+    vsp::SetResultsCurveYVars( curve_id, labels_vec );
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsCurveYVars( const string & curve_id )
+{
+    m_ProxyStringArray = vsp::GetResultsCurveYVars( curve_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsCurveResultIDs( const string & curve_id )
+{
+    m_ProxyStringArray = vsp::GetResultsCurveResultIDs( curve_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsPlotVarLabels( const string & results_id, bool matrix_rows )
+{
+    m_ProxyStringArray = vsp::GetResultsPlotVarLabels( results_id, matrix_rows );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsPlotVarData( const string & results_id, const string & label, bool matrix_rows )
+{
+    m_ProxyDoubleArray = vsp::GetResultsPlotVarData( results_id, label, matrix_rows );
+    return GetProxyDoubleArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetAttributeIDVec( const string & collID, const string & attributeName )

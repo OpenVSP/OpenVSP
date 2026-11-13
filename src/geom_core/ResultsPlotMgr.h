@@ -145,6 +145,9 @@ public:
     int GetNumCurves() const                    { return ( int ) m_Curves.size(); }
     ResultsCurve* GetCurve( int index ) const;
 
+    // Index of the curve with this ID, -1 when the plot has none.
+    int FindCurveIndex( const string & curve_id ) const;
+
     // Series of every curve, each once.
     void GetSeriesDefs( vector < ResultsSeriesDef > & defs ) const;
 
@@ -204,6 +207,13 @@ public:
 
     int GetNumPlots() const                     { return ( int ) m_Plots.size(); }
     ResultsPlot* GetPlot( int index ) const;
+
+    // Index of the plot with this ID, -1 when there is none.
+    int FindPlotIndex( const string & plot_id ) const;
+    ResultsPlot* FindPlot( const string & plot_id ) const;
+
+    // The plot holding the curve with this ID and the curve's index in it; null when no plot holds it.
+    ResultsPlot* FindCurvePlot( const string & curve_id, int & curve_index ) const;
 
     int GetCurrIndex() const                    { return m_CurrIndex; }
     void SetCurrIndex( int index );

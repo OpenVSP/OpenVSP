@@ -867,6 +867,18 @@ ResultsCurve* ResultsPlot::GetCurve( int index ) const
     return nullptr;
 }
 
+int ResultsPlot::FindCurveIndex( const string & curve_id ) const
+{
+    for ( int i = 0; i < ( int ) m_Curves.size(); i++ )
+    {
+        if ( m_Curves[i]->GetID() == curve_id )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void ResultsPlot::GetSeriesDefs( vector < ResultsSeriesDef > & defs ) const
 {
     defs.clear();
@@ -1107,6 +1119,37 @@ ResultsPlot* ResultsPlotMgrSingleton::GetPlot( int index ) const
     {
         return m_Plots[ index ];
     }
+    return nullptr;
+}
+
+int ResultsPlotMgrSingleton::FindPlotIndex( const string & plot_id ) const
+{
+    for ( int i = 0; i < ( int ) m_Plots.size(); i++ )
+    {
+        if ( m_Plots[i]->GetID() == plot_id )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+ResultsPlot* ResultsPlotMgrSingleton::FindPlot( const string & plot_id ) const
+{
+    return GetPlot( FindPlotIndex( plot_id ) );
+}
+
+ResultsPlot* ResultsPlotMgrSingleton::FindCurvePlot( const string & curve_id, int & curve_index ) const
+{
+    for ( int i = 0; i < ( int ) m_Plots.size(); i++ )
+    {
+        curve_index = m_Plots[i]->FindCurveIndex( curve_id );
+        if ( curve_index >= 0 )
+        {
+            return m_Plots[i];
+        }
+    }
+    curve_index = -1;
     return nullptr;
 }
 

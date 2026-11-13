@@ -167,6 +167,16 @@ private:
     CScriptArray* GetAllParmLinks();
     CScriptArray* FindResultsIDs( const string & name );
     CScriptArray* GetAllResultsIDs();
+    CScriptArray* GetAllResultsPlotIDs();
+    CScriptArray* GetResultsCurveIDs( const string & plot_id );
+    void SetResultsCurveSources( const string & curve_id, CScriptArray* names, CScriptArray* case_names );
+    CScriptArray* GetResultsCurveSourceNames( const string & curve_id );
+    CScriptArray* GetResultsCurveSourceCaseNames( const string & curve_id );
+    void SetResultsCurveYVars( const string & curve_id, CScriptArray* labels );
+    CScriptArray* GetResultsCurveYVars( const string & curve_id );
+    CScriptArray* GetResultsCurveResultIDs( const string & curve_id );
+    CScriptArray* GetResultsPlotVarLabels( const string & results_id, bool matrix_rows );
+    CScriptArray* GetResultsPlotVarData( const string & results_id, const string & label, bool matrix_rows );
     CScriptArray* GetAttributeIDVec( const string & collID, const string & attributeName );
     CScriptArray* GetAvailableCSNameVec( int CSGroupIndex );
     CScriptArray* GetAvailableCSNameVecByID( const string & group_id );
