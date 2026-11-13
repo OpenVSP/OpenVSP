@@ -1084,7 +1084,11 @@ void FileAirfoil::MakeCurve()
     for ( int i = 1 ; i < npts ; i++ )
     {
         double ds = dist( pnts[i], pnts[i-1] );
-        if ( ds < 1e-8 )
+        if ( pnts[i] == pnts[i-1] )
+        {
+            ds = 0.0; // Repeated point, a corner.
+        }
+        else if ( ds < 1e-8 )
         {
             ds = 1.0/npts;
         }
@@ -1108,10 +1112,21 @@ void FileAirfoil::MakeCurve()
         arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
     }
 
+    // The copies of a repeated point share one parameter.
+    vector< double > tcorner;
+    for ( i = npts - 1; i > 0; i-- )
+    {
+        if ( pnts[i] == pnts[i-1] )
+        {
+            arclen[i-1] = arclen[i];
+            tcorner.push_back( arclen[i] );
+        }
+    }
+
     VspCurve BaseCurve;
     BaseCurve.InterpolatePCHIP( pnts, arclen, false );
 
-    double toc = BaseCurve.Decompose( m_CamberCurve, m_HalfThickCurve );
+    double toc = BaseCurve.Decompose( m_CamberCurve, m_HalfThickCurve, tcorner );
 
     m_Curve.Compose( m_CamberCurve, m_HalfThickCurve, 1.0 );
 

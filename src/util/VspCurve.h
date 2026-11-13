@@ -56,7 +56,7 @@ public:
     void Split( double u );
 
     double IntegrateCamberCli();
-    double Decompose( VspCurve &camber, VspCurve &halfthick );
+    double Decompose( VspCurve &camber, VspCurve &halfthick, const vector < double > &tcorner = vector < double >() );
     void Compose( const VspCurve &camber, const VspCurve &halfthick, const double &scale );
 
     void Append( const VspCurve & input_crv ); // Append Curve

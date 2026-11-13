@@ -117,7 +117,30 @@ double VspCurve::IntegrateCamberCli()
     return quad( fun, tmin, tmax );
 }
 
-double VspCurve::Decompose( VspCurve &camber, VspCurve &halfthick )
+// Moves each parameter in t to the nearest joint of crv.
+static void SnapToJoints( const piecewise_curve_type &crv, vector < double > &t )
+{
+    vector < double > pmap;
+    crv.get_pmap( pmap );
+
+    for ( size_t i = 0; i < t.size(); i++ )
+    {
+        double tbest = t[i];
+        double dbest = DBL_MAX;
+        for ( size_t j = 0; j < pmap.size(); j++ )
+        {
+            double d = std::abs( pmap[j] - t[i] );
+            if ( d < dbest )
+            {
+                dbest = d;
+                tbest = pmap[j];
+            }
+        }
+        t[i] = tbest;
+    }
+}
+
+double VspCurve::Decompose( VspCurve &camber, VspCurve &halfthick, const vector < double > &tcorner )
 {
     double ttol = 1e-6;
     double atol = 0.01; // Ignore value, not using corner_create
@@ -135,14 +158,50 @@ double VspCurve::Decompose( VspCurve &camber, VspCurve &halfthick )
 
     m_Curve.split( low, up, tmid );
 
+    // Corners inside each half, then the end of that half.
+    vector < double > lowcorner, upcorner;
+    double ctol = 1e-9 * ( tmax - tmin );
+    for ( size_t i = 0; i < tcorner.size(); i++ )
+    {
+        if ( tcorner[i] > tmin + ctol && tcorner[i] < tmid - ctol )
+        {
+            lowcorner.push_back( tcorner[i] );
+        }
+        else if ( tcorner[i] > tmid + ctol && tcorner[i] < tmax - ctol )
+        {
+            upcorner.push_back( tcorner[i] );
+        }
+    }
+
+    std::sort( lowcorner.begin(), lowcorner.end() );
+    std::sort( upcorner.begin(), upcorner.end() );
+    SnapToJoints( low, lowcorner );
+    SnapToJoints( up, upcorner );
+
     // Setup copies base curve into creator.
     // tolerance, min adapt levels, max adapt levels
     pbcc.setup( low, ttol, atol, dmin, dmax );
     // Create makes new curve
-    pbcc.create( low ); // Not using corner_create
+    if ( lowcorner.empty() )
+    {
+        pbcc.create( low ); // Not using corner_create
+    }
+    else
+    {
+        lowcorner.push_back( low.get_tmax() );
+        pbcc.corner_create( low, lowcorner );
+    }
 
     pbcc.setup( up, ttol, atol, dmin, dmax );
-    pbcc.create( up ); // Not using corner_create
+    if ( upcorner.empty() )
+    {
+        pbcc.create( up ); // Not using corner_create
+    }
+    else
+    {
+        upcorner.push_back( up.get_tmax() );
+        pbcc.corner_create( up, upcorner );
+    }
 
     up.reverse();
 

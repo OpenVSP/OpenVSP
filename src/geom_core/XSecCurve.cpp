@@ -3350,7 +3350,11 @@ void FileXSec::UpdateCurve( bool updateParms )
         if ( i > 0 )
         {
             double ds = dist( scaled_file_pnts[i], scaled_file_pnts[i-1] );
-            if ( ds < 1e-8 )
+            if ( m_UnityFilePnts[i] == m_UnityFilePnts[i-1] )
+            {
+                ds = 0.0; // Repeated point, a corner.
+            }
+            else if ( ds < 1e-8 )
             {
                 ds = 1.0/npts;
             }
@@ -3367,7 +3371,11 @@ void FileXSec::UpdateCurve( bool updateParms )
             x = m_UnityFilePnts[i+1].x() * m_Width();
             y = m_UnityFilePnts[i+1].y() * m_Height();
             double ds = dist( scaled_file_pnts[i], vec3d( x + m_Width() / 2.0, y, 0.0 )  );
-            if ( ds < 1e-8 )
+            if ( m_UnityFilePnts[i+1] == m_UnityFilePnts[i] )
+            {
+                ds = 0.0; // Repeated point, a corner.
+            }
+            else if ( ds < 1e-8 )
             {
                 ds = 1.0/npts;
             }
@@ -3400,6 +3408,15 @@ void FileXSec::UpdateCurve( bool updateParms )
     for ( ; i < (int) arclen.size(); i++ )
     {
         arclen[i] = 3.0 + (arclen[i] - arcend3) * len4;
+    }
+
+    // The copies of a repeated point share one parameter.
+    for ( i = (int) arclen.size() - 1; i > 0; i-- )
+    {
+        if ( m_UnityFilePnts[i] == m_UnityFilePnts[i-1] )
+        {
+            arclen[i-1] = arclen[i];
+        }
     }
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
