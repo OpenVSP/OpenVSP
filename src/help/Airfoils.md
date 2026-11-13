@@ -4,7 +4,7 @@ title:  'Airfoils'
 
 An airfoil is a cross section curve defined by a chord and a thickness, from a family of shapes: the NACA series,
 simple supersonic shapes, a few analytic families, or points read from a file.  Wings and propellers are built from
-them, and Fuselages, Stacks and Bodies of Revolution can use them too, from the same *Choose Type* list as the body
+them, and Fuselages, Stacks and Bodies of Revolution can use them too, from the same list of types as the body
 shapes on [Cross Section Curves](XSecCurves.md).  The Modify tab of the Wing, Propeller and Body of Revolution then
 reshapes an airfoil's edges: it closes, trims, caps and flaps them, and shifts, turns and scales the whole section.
 

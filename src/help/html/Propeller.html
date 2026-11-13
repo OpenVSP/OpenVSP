@@ -459,6 +459,12 @@ of the tip radius; the last section is always at the tip,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>/</mi><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">r/R = 1</annotation></semantics></math>.
 The first section's radius is the root of the blade and sets the hub
 diameter used by analyses.</p>
+<p><em>Copy</em> and <em>Paste</em> carry a whole section but keep the
+radius of the one pasted over. Since the Blade tab's curves set every
+section's chord, thickness and CLi, a pasted section builds the same
+blade as its airfoil alone would, so the Propeller has no Copy Curve or
+Paste Curve; see <a href="XSecSkinning.html#working-with-sections">Cross
+Section Skinning</a>.</p>
 <p>A section's type sets its airfoil family, not its proportions. The
 Chord, Thick and CLi curves on the Blade tab set the chord, the
 thickness and the design lift coefficient at every radius, and the

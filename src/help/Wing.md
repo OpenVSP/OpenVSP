@@ -493,8 +493,9 @@ On a wing the XSec tab is named Airfoil.  Its shape types and their parameters a
 - The planform sets every airfoil's chord: the root airfoil takes section 1's Root C, and every other airfoil the
   Tip C of the section ending at it.  An airfoil type scales with its chord, keeping its thickness ratio.  Another
   shape, such as an ellipse, takes the chord as its width and keeps the height it is given.
-- *Copy* and *Paste* on the Airfoil tab copy only the airfoil's shape; the Sect tab's Copy and Paste copy the whole
-  section.
+- *Copy Curve* and *Paste Curve* on the Airfoil tab copy only the airfoil's shape, as they do on a Fuselage or
+  Stack; the Sect tab's Copy and Paste copy the whole section.  An airfoil pasted onto another component,
+  or a section of one pasted onto a wing, brings only the shape.
 - Without blending, the surface between two airfoils is ruled: corresponding points of the two airfoils are joined
   by straight lines.  A thickness or camber changes linearly across the section, so to hold an airfoil over part of
   the span, place the same airfoil at both ends of that part.

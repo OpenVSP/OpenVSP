@@ -25516,7 +25516,11 @@ extern void CutXSecByID( const std::string & xsec_id );
     \ingroup XSec
 */
 /*!
-    Copy a cross-section from the specified geometry and maintain it in memory
+    Copy a cross-section from the specified geometry and maintain it in memory.  The whole section is copied: its
+    curve and the section's own Parms.  A wing section carries its planform -- span, chords, sweep, twist and
+    dihedral -- so the spacing to the next airfoil travels with it.  A Fuselage, Stack or Propeller section carries
+    its curve, tessellation, clustering and skinning; PasteXSec keeps the place of the section pasted over.
+    Copying replaces the XSecCurve clipboard; CopyXSecCurve copies the curve alone.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -25657,6 +25661,9 @@ extern void CopyXSecByID( const std::string & xsec_id );
 */
 /*!
     Paste the cross-section currently held in memory to the specified geometry.  Refused on a Clone; change the Geom it copies.
+    A Fuselage section keeps its location, a Stack section its steps, turns, spin and V Align, and a Propeller
+    section its radius.  Pasted into a Geom of another type, or with only a curve on the clipboard, the curve alone
+    is pasted, as PasteXSecCurve does.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -27846,7 +27853,8 @@ extern std::vector< vec3d > GetXSecPnts( const std::string& xsec_id );
 /*!
     Copy the XSecCurve of a cross section to the XSecCurve clipboard.  This carries the section
     shape without the section's placement, and works on a body of revolution too, where the index
-    is ignored because it holds only one curve.
+    is ignored because it holds only one curve.  Copying replaces the cross-section clipboard of
+    CopyXSec; on a wing, CopyAirfoil is the same.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -27985,7 +27993,8 @@ extern void CopyXSecCurveByID( const std::string & xsec_id );
     \ingroup XSec
 */
 /*!
-    Paste the XSecCurve clipboard onto a cross section
+    Paste the XSecCurve clipboard onto a cross section.  The section keeps its other Parms, its place and
+    planform among them.  With a whole cross section on the clipboard, its curve is pasted.
     \forcpponly
     \code{.cpp}
     // A body of revolution holds one XSecCurve, so its index is ignored.
@@ -56318,8 +56327,9 @@ extern void DeleteAllProbes();
     \ingroup Geom
 */
 /*!
-    Copy the airfoil of a wing section to the airfoil clipboard.  This is a separate clipboard from
-    the one CopyXSec uses, so an airfoil can be moved without carrying the section geometry with it.
+    Copy the airfoil of a wing section to the XSecCurve clipboard, as CopyXSecCurve does, so an airfoil
+    can be moved without carrying the section geometry with it.  Copying replaces the cross-section
+    clipboard of CopyXSec.
     \forcpponly
     \code{.cpp}
     string wid = AddGeom( "WING" );
@@ -56454,7 +56464,7 @@ extern void CopyAirfoilByID( const std::string & xsec_id );
     \ingroup Geom
 */
 /*!
-    Paste the airfoil clipboard onto a wing section
+    Paste the XSecCurve clipboard onto a wing section, as PasteXSecCurve does
     \forcpponly
     \code{.cpp}
     string wid = AddGeom( "WING" );

@@ -37,11 +37,28 @@ fields name the section and its curve; the names show in the Parm pickers and th
 | Cut        | Removes the active section and keeps it for pasting.  A component keeps at least two sections.             |
 | Copy       | Keeps a copy of the active section for pasting.                                                           |
 | Paste      | Replaces the active section with the copied one, in the active section's place.                           |
-| Choose Type | Changes the active section's shape; see [Choosing a Shape](XSecCurves.md#choosing-a-shape).              |
+| Copy Curve | Keeps a copy of the active section's curve alone for pasting.                                             |
+| Paste Curve | Replaces the active section's curve with the copied one; the section keeps the rest.                     |
+| Type        | Changes the active section's shape; see [Choosing a Shape](XSecCurves.md#choosing-a-shape).              |
 | Convert CEDIT | Turns the active section into an editable curve of the same shape; see [Edit Curve](XSecCurves.md#edit-curve). |
 
-A pasted section keeps the place of the one it replaces: on a Fuselage its location, but not its rotation or spin;
-on a Stack its steps, turns, Coord System, Spin and V Align; on a Propeller its radius.
+Paste and Paste Curve differ in what comes along with the curve.  A pasted section keeps the place of the one it
+replaces, but brings the rest of the copied section:
+
+| Component | Paste brings, besides the curve                                       | Paste keeps from the section it replaces         |
+|:----------|:----------------------------------------------------------------------|:-------------------------------------------------|
+| Wing      | The whole section, planform included: span, chords, sweep, twist, dihedral | Nothing                                      |
+| Fuselage  | Rotation, spin, Num U, clustering and skinning                        | Location                                         |
+| Stack     | Num U, clustering and skinning                                        | Steps, turns, Coord System, Spin and V Align     |
+| Propeller | The section's attributes                                              | Radius                                           |
+
+A pasted curve brings only the shape type and its parameters, so the section's place, rotation, tessellation, skinning
+and the rest stay as they were.  On a Propeller the two would build the same blade, since the Blade tab's curves set
+every section's chord, thickness and CLi and the component's own tessellation is used, so the Propeller offers only
+Paste.
+
+The two kinds share one clipboard, and copying either replaces what was there.  Paste Curve after Copy takes the
+copied section's curve; Paste after Copy Curve pastes only the curve.
 
 An inserted copy is placed between the active section and the next: on a Fuselage, halfway between them in X; on a
 Propeller, at the mean of their radii.  On a Stack, whose sections are placed relative to the one before, the copy takes
@@ -50,9 +67,9 @@ move along by that much.  A section can be inserted after the last only on a Sta
 [Fuselage and Stack](FuselageStack.md).
 
 A copy can be pasted into another component of the same kind, a Fuselage into a Fuselage for example.  Pasted into a
-different kind, only its curve comes across.  The Wing has these controls on its Sect tab, but its Insert pastes the
-copied section rather than copying the active one, and its Airfoil tab copies and pastes the airfoil alone; see
-[Wing](Wing.md).
+different kind, only its curve comes across, as with Paste Curve.  The Wing has these controls on its Sect tab, but its
+Insert pastes the copied section rather than copying the active one, and Copy Curve and Paste Curve are on its Airfoil
+tab; see [Wing](Wing.md).
 
 ## How the Surface Is Lofted
 
@@ -294,6 +311,7 @@ The API sets a section's skinning by side, and its spines by ID:
 | Call                                                                                         | Purpose                                      |
 |:---------------------------------------------------------------------------------------------|:---------------------------------------------|
 | `InsertXSec`, `CutXSec`, `CopyXSec`, `PasteXSec`                                             | Insert, cut, copy and paste sections.        |
+| `CopyXSecCurve`, `PasteXSecCurve`                                                            | Copy Curve and Paste Curve; on a Wing, `CopyAirfoil` and `PasteAirfoil` too. |
 | `SetXSecContinuity`, `GetXSecContinuity`                                                     | The section's continuity, 0 to 2.            |
 | `SetXSecTanAngles`, `SetXSecTanSlews`, `SetXSecTanStrengths`, `SetXSecCurvatures`            | Set the Top, Right, Bottom and Left values of one side of the section. |
 | `GetXSecTanAngles`, `GetXSecTanSlews`, `GetXSecTanStrengths`, `GetXSecCurvatures`            | Read them.                                   |

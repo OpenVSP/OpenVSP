@@ -4,7 +4,7 @@ title:  'Cross Section Curves'
 
 A cross section curve is the closed outline that a component is built from: a Fuselage or Stack is lofted through a
 series of them, a Wing or Propeller through a series of airfoils, and a Body of Revolution sweeps one around an axis.
-The XSec tab chooses each section's shape with *Choose Type* and sets that shape's parameters.  This page covers the
+The XSec tab chooses each section's shape with *Type* and sets that shape's parameters.  This page covers the
 body shapes; the airfoils, which every one of these components can use too, are on [Airfoils](Airfoils.md), and the
 controls for adding, removing and lofting sections are on [Cross Sections and Skinning](XSecSkinning.md).
 
@@ -47,7 +47,7 @@ not a circle or cylinder it can recognize as one.
 
 ## Choosing a Shape
 
-*Choose Type* replaces the active section's curve with a new one of the chosen type.  The new curve takes the old one's
+*Type* replaces the active section's curve with a new one of the chosen type.  The new curve takes the old one's
 width and height, so the section stays about the same size: a Circle takes the mean of the two as its diameter, and an
 airfoil takes the width as its chord and the height as its thickness.  Everything the two types share by name comes
 across too, such as the Modify tab's settings, and the section keeps its position and skinning.  Parameters the old

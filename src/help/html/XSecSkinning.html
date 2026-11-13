@@ -177,7 +177,17 @@ pasting.</td>
 copied one, in the active section's place.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Choose Type</td>
+<td style="text-align: left;">Copy Curve</td>
+<td style="text-align: left;">Keeps a copy of the active section's curve
+alone for pasting.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Paste Curve</td>
+<td style="text-align: left;">Replaces the active section's curve with
+the copied one; the section keeps the rest.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Type</td>
 <td style="text-align: left;">Changes the active section's shape; see <a
 href="XSecCurves.html#choosing-a-shape">Choosing a Shape</a>.</td>
 </tr>
@@ -189,10 +199,53 @@ Curve</a>.</td>
 </tr>
 </tbody>
 </table>
-<p>A pasted section keeps the place of the one it replaces: on a
-Fuselage its location, but not its rotation or spin; on a Stack its
-steps, turns, Coord System, Spin and V Align; on a Propeller its
-radius.</p>
+<p>Paste and Paste Curve differ in what comes along with the curve. A
+pasted section keeps the place of the one it replaces, but brings the
+rest of the copied section:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component</th>
+<th style="text-align: left;">Paste brings, besides the curve</th>
+<th style="text-align: left;">Paste keeps from the section it
+replaces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Wing</td>
+<td style="text-align: left;">The whole section, planform included:
+span, chords, sweep, twist, dihedral</td>
+<td style="text-align: left;">Nothing</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fuselage</td>
+<td style="text-align: left;">Rotation, spin, Num U, clustering and
+skinning</td>
+<td style="text-align: left;">Location</td>
+</tr>
+<tr>
+<td style="text-align: left;">Stack</td>
+<td style="text-align: left;">Num U, clustering and skinning</td>
+<td style="text-align: left;">Steps, turns, Coord System, Spin and V
+Align</td>
+</tr>
+<tr>
+<td style="text-align: left;">Propeller</td>
+<td style="text-align: left;">The section's attributes</td>
+<td style="text-align: left;">Radius</td>
+</tr>
+</tbody>
+</table>
+<p>A pasted curve brings only the shape type and its parameters, so the
+section's place, rotation, tessellation, skinning and the rest stay as
+they were. On a Propeller the two would build the same blade, since the
+Blade tab's curves set every section's chord, thickness and CLi and the
+component's own tessellation is used, so the Propeller offers only
+Paste.</p>
+<p>The two kinds share one clipboard, and copying either replaces what
+was there. Paste Curve after Copy takes the copied section's curve;
+Paste after Copy Curve pastes only the curve.</p>
 <p>An inserted copy is placed between the active section and the next:
 on a Fuselage, halfway between them in X; on a Propeller, at the mean of
 their radii. On a Stack, whose sections are placed relative to the one
@@ -203,10 +256,10 @@ Stack whose order policy is FREE; see <a
 href="FuselageStack.html">Fuselage and Stack</a>.</p>
 <p>A copy can be pasted into another component of the same kind, a
 Fuselage into a Fuselage for example. Pasted into a different kind, only
-its curve comes across. The Wing has these controls on its Sect tab, but
-its Insert pastes the copied section rather than copying the active one,
-and its Airfoil tab copies and pastes the airfoil alone; see <a
-href="Wing.html">Wing</a>.</p>
+its curve comes across, as with Paste Curve. The Wing has these controls
+on its Sect tab, but its Insert pastes the copied section rather than
+copying the active one, and Copy Curve and Paste Curve are on its
+Airfoil tab; see <a href="Wing.html">Wing</a>.</p>
 <h2 id="how-the-surface-is-lofted">How the Surface Is Lofted</h2>
 <p>The surface passes through every section. Between two sections, each
 point of one section's curve is joined to the point at the same
@@ -493,6 +546,12 @@ C0 for a deliberate crease.</li>
 <td style="text-align: left;"><code>InsertXSec</code>,
 <code>CutXSec</code>, <code>CopyXSec</code>, <code>PasteXSec</code></td>
 <td style="text-align: left;">Insert, cut, copy and paste sections.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>CopyXSecCurve</code>,
+<code>PasteXSecCurve</code></td>
+<td style="text-align: left;">Copy Curve and Paste Curve; on a Wing,
+<code>CopyAirfoil</code> and <code>PasteAirfoil</code> too.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>SetXSecContinuity</code>,

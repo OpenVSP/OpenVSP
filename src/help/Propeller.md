@@ -162,6 +162,10 @@ The XSec tab holds the blade's cross sections.  Each section sits at a *Radius* 
 tip radius; the last section is always at the tip, $r/R = 1$.  The first section's radius is the root of the blade
 and sets the hub diameter used by analyses.
 
+*Copy* and *Paste* carry a whole section but keep the radius of the one pasted over.  Since the Blade tab's curves set
+every section's chord, thickness and CLi, a pasted section builds the same blade as its airfoil alone would, so the
+Propeller has no Copy Curve or Paste Curve; see [Cross Section Skinning](XSecSkinning.md#working-with-sections).
+
 A section's type sets its airfoil family, not its proportions.  The Chord, Thick and CLi curves on the Blade tab set
 the chord, the thickness and the design lift coefficient at every radius, and the section's own values for these are
 greyed.  CLi sets the camber of the families that have one: the NACA 5-digit, 5-digit modified, 16-series and

@@ -285,7 +285,7 @@ it.*
 
 A cone from a point, whose cross section is any cross-section curve: for example a pilot's field of view, for the [From
 Point Visibility](GeometryAnalysis.md#from-point-visibility) analysis, which uses the cone's apex as its viewpoint and
-the cone as its field of view.  The *Profile* is drawn in degrees: its width is azimuth and its height elevation, seen
+the cone as its field of view.  The profile curve is drawn in degrees: its width is azimuth and its height elevation, seen
 from the apex looking forward along $-X$, positive azimuth toward $+Y$ and positive elevation up.  The default profile
 is the [AC 25.773 pilot vision envelope](XSecCurves.md#ac-25773-pilot-vision) [5] (Figure 13); the other curves are
 described in [XSecCurves](XSecCurves.md).
