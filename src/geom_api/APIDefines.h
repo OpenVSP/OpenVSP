@@ -1061,6 +1061,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_PREFERENCES_SCREEN,	/*!< Preferences screen */
                       VSP_PROJECTION_SCREEN,	/*!< Projected area screen */
                       VSP_PSLICE_SCREEN,	/*!< Planar slicing screen */
+                      VSP_RESULTS_CHOOSER_SCREEN,	/*!< Results plot curve's Result chooser screen */
                       VSP_RESULTS_VIEWER_SCREEN,	/*!< Results viewing screen */
                       VSP_SCREENSHOT_SCREEN,	/*!< Screenshot screen */
                       VSP_SELECT_FILE_SCREEN,	/*!< Select file screen */
@@ -1485,6 +1486,16 @@ enum RESULTS_PLOT_LEGEND { RESULTS_LEGEND_BEST,	/*!< The corner that covers the 
 /*! Enum for how a Results plot curve makes its series (Mode Parm of a ResultsCurve). */
 enum RESULTS_PLOT_MODE { RESULTS_PLOT_VECTORS,	/*!< One series per Result and Y variable; X and Y are each Result's vectors */
                          RESULTS_PLOT_ACROSS_RESULTS,	/*!< One series per Y variable, with one point per Result */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for the runs of each kind of Result a Results plot curve plots (Run Parm of a ResultsCurve).  A Run of 2
+    plots the run before the newest, 3 the one before that, and so on. */
+enum RESULTS_PLOT_RUN { RESULTS_RUN_CHOSEN = -1,	/*!< The Results chosen for the curve, see SetResultsCurveChosenIDs */
+                        RESULTS_RUN_ALL = 0,	/*!< Every run */
+                        RESULTS_RUN_NEWEST = 1,	/*!< The newest run */
 };
 
 /*!

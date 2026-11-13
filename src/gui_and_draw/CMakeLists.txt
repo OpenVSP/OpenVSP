@@ -101,6 +101,7 @@ ProjectionScreen.cpp
 PropScreen.cpp
 PSliceScreen.cpp
 PtCloudScreen.cpp
+ResultsChooserScreen.cpp
 ResultsPlotCanvas.cpp
 ResultsViewer.cpp
 RoutingScreen.cpp
@@ -212,6 +213,7 @@ ProjectionScreen.h
 PropScreen.h
 PSliceScreen.h
 PtCloudScreen.h
+ResultsChooserScreen.h
 ResultsPlotCanvas.h
 ResultsViewer.h
 RoutingScreen.h

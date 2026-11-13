@@ -568,6 +568,18 @@ void ResultsViewer::GuiDeviceCallBack( GuiDevice* device )
                 curve->m_XLabel.clear();
             }
         }
+        else if ( ( device == &m_PlotRunChoice || device == &m_ChooseRunsButton ) && curve )
+        {
+            if ( device == &m_ChooseRunsButton )
+            {
+                curve->m_Run.Set( vsp::RESULTS_RUN_CHOSEN );
+            }
+
+            if ( curve->m_Run() == vsp::RESULTS_RUN_CHOSEN )
+            {
+                m_ScreenMgr->ShowScreen( vsp::VSP_RESULTS_CHOOSER_SCREEN );
+            }
+        }
         else if ( device == &m_AddCurveButton )
         {
             // Starting from the curve being edited makes a variation, such as another run, quick to set up.
@@ -670,7 +682,16 @@ void ResultsViewer::BuildPlotTab( Fl_Group* tab )
     m_PlotResultsBrowser->callback( staticScreenCB, this );
 
     m_PlotControlLayout.SetChoiceButtonWidth( 70 );
-    m_PlotControlLayout.AddChoice( m_PlotRunChoice, "Runs" );
+
+    int choose_w = 70;
+    m_PlotControlLayout.SetSameLineFlag( true );
+    m_PlotControlLayout.AddChoice( m_PlotRunChoice, "Runs", choose_w );
+    m_PlotControlLayout.SetFitWidthFlag( false );
+    m_PlotControlLayout.SetButtonWidth( choose_w );
+    m_PlotControlLayout.AddButton( m_ChooseRunsButton, "Choose..." );
+    m_PlotControlLayout.ForceNewLine();
+    m_PlotControlLayout.SetSameLineFlag( false );
+    m_PlotControlLayout.SetFitWidthFlag( true );
 
     m_PlotModeChoice.AddItem( "Vectors", vsp::RESULTS_PLOT_VECTORS );
     m_PlotModeChoice.AddItem( "Across Results", vsp::RESULTS_PLOT_ACROSS_RESULTS );
@@ -913,6 +934,7 @@ void ResultsViewer::UpdatePlotTab()
 
             UpdatePlotResultsBrowser( curve );
             UpdatePlotRunChoice( curve );
+
             UpdatePlotVarLists( curve );
 
             // A curve picked for editing shows its picks.
@@ -1114,8 +1136,9 @@ void ResultsViewer::UpdatePlotRunChoice( ResultsCurve* curve )
     }
 
     m_PlotRunChoice.ClearItems();
-    m_PlotRunChoice.AddItem( "All", 0 );
-    m_PlotRunChoice.AddItem( "Newest", 1 );
+    m_PlotRunChoice.AddItem( "All", vsp::RESULTS_RUN_ALL );
+    m_PlotRunChoice.AddItem( "Chosen", vsp::RESULTS_RUN_CHOSEN );
+    m_PlotRunChoice.AddItem( "Newest", vsp::RESULTS_RUN_NEWEST );
     for ( int k = 2; k <= nrun; k++ )
     {
         char buf[64];

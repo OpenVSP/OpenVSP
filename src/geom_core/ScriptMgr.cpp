@@ -1994,6 +1994,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_PSLICE_SCREEN", VSP_PSLICE_SCREEN );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_RESULTS_CHOOSER_SCREEN", VSP_RESULTS_CHOOSER_SCREEN );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_RESULTS_VIEWER_SCREEN", VSP_RESULTS_VIEWER_SCREEN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_SCREENSHOT_SCREEN", VSP_SCREENSHOT_SCREEN );
@@ -2576,6 +2578,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "RESULTS_PLOT_MODE", "RESULTS_PLOT_VECTORS", RESULTS_PLOT_VECTORS );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RESULTS_PLOT_MODE", "RESULTS_PLOT_ACROSS_RESULTS", RESULTS_PLOT_ACROSS_RESULTS );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "RESULTS_PLOT_RUN" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_RUN", "RESULTS_RUN_CHOSEN", RESULTS_RUN_CHOSEN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_RUN", "RESULTS_RUN_ALL", RESULTS_RUN_ALL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RESULTS_PLOT_RUN", "RESULTS_RUN_NEWEST", RESULTS_RUN_NEWEST );
     assert( r >= 0 );
 
 
@@ -5225,6 +5237,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetResultsCurveResultIDs( const string & in curve_id )", asMETHOD( ScriptMgrSingleton, GetResultsCurveResultIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetResultsCurveChosenIDs( const string & in curve_id, array<string>@+ results_ids )", asMETHOD( ScriptMgrSingleton, SetResultsCurveChosenIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetResultsCurveChosenIDs( const string & in curve_id )", asMETHOD( ScriptMgrSingleton, GetResultsCurveChosenIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetResultsPlotVarLabels( const string & in results_id, bool matrix_rows = false )", asMETHOD( ScriptMgrSingleton, GetResultsPlotVarLabels ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -8080,6 +8098,20 @@ CScriptArray* ScriptMgrSingleton::GetResultsCurveYVars( const string & curve_id 
 CScriptArray* ScriptMgrSingleton::GetResultsCurveResultIDs( const string & curve_id )
 {
     m_ProxyStringArray = vsp::GetResultsCurveResultIDs( curve_id );
+    return GetProxyStringArray();
+}
+
+void ScriptMgrSingleton::SetResultsCurveChosenIDs( const string & curve_id, CScriptArray* results_ids )
+{
+    vector < string > ids_vec;
+    FillSTLVector( results_ids, ids_vec );
+
+    vsp::SetResultsCurveChosenIDs( curve_id, ids_vec );
+}
+
+CScriptArray* ScriptMgrSingleton::GetResultsCurveChosenIDs( const string & curve_id )
+{
+    m_ProxyStringArray = vsp::GetResultsCurveChosenIDs( curve_id );
     return GetProxyStringArray();
 }
 

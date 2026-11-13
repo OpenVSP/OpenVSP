@@ -175,6 +175,8 @@ private:
     void SetResultsCurveYVars( const string & curve_id, CScriptArray* labels );
     CScriptArray* GetResultsCurveYVars( const string & curve_id );
     CScriptArray* GetResultsCurveResultIDs( const string & curve_id );
+    void SetResultsCurveChosenIDs( const string & curve_id, CScriptArray* results_ids );
+    CScriptArray* GetResultsCurveChosenIDs( const string & curve_id );
     CScriptArray* GetResultsPlotVarLabels( const string & results_id, bool matrix_rows );
     CScriptArray* GetResultsPlotVarData( const string & results_id, const string & label, bool matrix_rows );
     CScriptArray* GetAttributeIDVec( const string & collID, const string & attributeName );

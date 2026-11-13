@@ -11858,6 +11858,109 @@ extern std::vector < std::string > GetResultsCurveResultIDs( const std::string &
     \ingroup ResultsPlot
 */
 /*!
+    Choose the Results a curve plots when its Run Parm is RESULTS_RUN_CHOSEN.  Of its kinds of Result, the curve
+    leaves out those not chosen; Results made later are plotted until they are left out too.  The choice is not
+    saved with the model, as Results are not.
+    \forcpponly
+    \code{.cpp}
+    WriteTestResults();     // Two runs of Test_Results
+
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > names = { "Test_Results" };
+    array < string > case_names = { "" };
+    SetResultsCurveSources( curve_id, names, case_names );
+
+    // Plot the older run alone.
+    string oldest = GetResultsCurveResultIDs( curve_id )[0];
+    array < string > chosen = { oldest };
+
+    SetParmVal( FindParm( curve_id, "Run", "ResultsCurve" ), RESULTS_RUN_CHOSEN );
+    SetResultsCurveChosenIDs( curve_id, chosen );
+
+    array < string > @ids = GetResultsCurveResultIDs( curve_id );
+
+    if ( ids.size() != 1 || ids[0] != oldest )                  { Print( "ERROR: SetResultsCurveChosenIDs" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    WriteTestResults()      # Two runs of Test_Results
+
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveSources( curve_id, [ "Test_Results" ], [ "" ] )
+
+    # Plot the older run alone.
+    oldest = GetResultsCurveResultIDs( curve_id )[0]
+
+    SetParmVal( FindParm( curve_id, "Run", "ResultsCurve" ), RESULTS_RUN_CHOSEN )
+    SetResultsCurveChosenIDs( curve_id, [ oldest ] )
+
+    assert list( GetResultsCurveResultIDs( curve_id ) ) == [ oldest ], "SetResultsCurveChosenIDs"
+    \endcode
+    \endPythonOnly
+    \sa GetResultsCurveChosenIDs, GetResultsCurveResultIDs, RESULTS_PLOT_RUN
+    \param [in] curve_id string Results curve ID
+    \param [in] results_ids vector\<string\> IDs of the Results to plot
+*/
+
+extern void SetResultsCurveChosenIDs( const std::string & curve_id, const std::vector < std::string > & results_ids );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Get the IDs of the Results of a curve's kinds that it plots when its Run Parm is RESULTS_RUN_CHOSEN.  Until
+    some are left out with SetResultsCurveChosenIDs, every one is chosen.
+    \forcpponly
+    \code{.cpp}
+    WriteTestResults();
+
+    string plot_id = AddResultsPlot();
+    string curve_id = GetResultsCurveIDs( plot_id )[0];
+
+    array < string > names = { "Test_Results" };
+    array < string > case_names = { "" };
+    SetResultsCurveSources( curve_id, names, case_names );
+
+    if ( GetResultsCurveChosenIDs( curve_id ).size() != 2 )    { Print( "ERROR: GetResultsCurveChosenIDs of a new curve" ); __failure++; }
+
+    array < string > chosen = { FindLatestResultsID( "Test_Results" ) };
+    SetResultsCurveChosenIDs( curve_id, chosen );
+
+    if ( GetResultsCurveChosenIDs( curve_id ).size() != 1 )    { Print( "ERROR: GetResultsCurveChosenIDs" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    WriteTestResults()
+
+    plot_id = AddResultsPlot()
+    curve_id = GetResultsCurveIDs( plot_id )[0]
+
+    SetResultsCurveSources( curve_id, [ "Test_Results" ], [ "" ] )
+
+    assert len( GetResultsCurveChosenIDs( curve_id ) ) == 2, "GetResultsCurveChosenIDs of a new curve"
+
+    SetResultsCurveChosenIDs( curve_id, [ FindLatestResultsID( "Test_Results" ) ] )
+
+    assert len( GetResultsCurveChosenIDs( curve_id ) ) == 1, "GetResultsCurveChosenIDs"
+    \endcode
+    \endPythonOnly
+    \sa SetResultsCurveChosenIDs
+    \param [in] curve_id string Results curve ID
+    \return vector\<string\> IDs of the chosen Results
+*/
+
+extern std::vector < std::string > GetResultsCurveChosenIDs( const std::string & curve_id );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
     Get the labels of the variables in a Result that a curve can plot.  A numeric vector is labeled with its data
     name, followed by #1, #2, ... for a second or later entry of the same name.  A vec3d vector gives .x, .y and .z
     components and its magnitude, |name|; a matrix gives its columns, name[:,j], or its rows, name[i,:].

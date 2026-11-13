@@ -75,6 +75,9 @@ public:
 // Each kind of Result that exists, in the order first made.
 void ListResultsSources( vector < ResultsSource > & sources, vector < int > & counts );
 
+// Every Result of these kinds, oldest first.
+void ListResultsOfSources( const vector < ResultsSource > & sources, vector < string > & ids );
+
 //==== What a curve plots: kinds of Result, which runs of them, and their data ====//
 class ResultsCurve : public ParmContainer
 {
@@ -92,6 +95,10 @@ public:
     // The runs of the curve's kinds of Result, oldest first.
     void GetResultIDs( vector < string > & ids ) const;
 
+    // The runs of the curve's kinds a RESULTS_RUN_CHOSEN curve plots, and the choice of them.
+    void GetChosenIDs( vector < string > & ids ) const;
+    void SetChosenIDs( const vector < string > & ids );
+
     // The series the curve makes from the Results that exist now.
     void GetSeriesDefs( vector < ResultsSeriesDef > & defs ) const;
 
@@ -100,9 +107,11 @@ public:
     IntParm m_Mode;
     IntParm m_Element;
     IntParm m_MatrixRows;
-    IntParm m_Run;          // 0 for every run, 1 for the newest, 2 for the one before, ...
+    IntParm m_Run;          // RESULTS_RUN_CHOSEN, 0 for every run, 1 for the newest, 2 for the one before, ...
 
     vector < ResultsSource > m_Sources;
+    vector < string > m_UncheckedIDs;   // Results left out when m_Run is RESULTS_RUN_CHOSEN, so new ones are plotted;
+                                        // not saved, as Results are not
     string m_XLabel;                    // Empty for the point index or Result order
     vector < string > m_YLabels;
 };

@@ -348,6 +348,26 @@ void ListResultsSources( vector < ResultsSource > & sources, vector < int > & co
     }
 }
 
+void ListResultsOfSources( const vector < ResultsSource > & sources, vector < string > & ids )
+{
+    vector < string > all;
+    SortedResultsIDs( all );
+
+    ids.clear();
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        Results* res = ResultsMgr.FindResultsPtr( all[i] );
+        for ( int s = 0; s < ( int ) sources.size(); s++ )
+        {
+            if ( sources[s].Matches( res ) )
+            {
+                ids.push_back( all[i] );
+                break;
+            }
+        }
+    }
+}
+
 //==== Curve ====//
 ResultsCurve::ResultsCurve() : ParmContainer()
 {
@@ -361,8 +381,8 @@ ResultsCurve::ResultsCurve() : ParmContainer()
     m_Element.SetDescript( "Element of each Result's vector plotted across Results" );
     m_MatrixRows.Init( "MatrixRows", groupname, this, 0, 0, 1 );
     m_MatrixRows.SetDescript( "Plot matrix rows rather than columns" );
-    m_Run.Init( "Run", groupname, this, 0, 0, 1000000 );
-    m_Run.SetDescript( "Runs of each kind of Result plotted: 0 every run, 1 the newest, 2 the one before, ..." );
+    m_Run.Init( "Run", groupname, this, vsp::RESULTS_RUN_ALL, vsp::RESULTS_RUN_CHOSEN, 1000000 );
+    m_Run.SetDescript( "Runs of each kind of Result plotted: -1 those chosen, 0 every run, 1 the newest, 2 the one before, ..." );
 }
 
 xmlNodePtr ResultsCurve::EncodeXml( xmlNodePtr & node )
@@ -420,6 +440,7 @@ void ResultsCurve::CopyFrom( ResultsCurve* from )
     }
     CopyVals( from );
     m_Sources = from->m_Sources;
+    m_UncheckedIDs = from->m_UncheckedIDs;
     m_XLabel = from->m_XLabel;
     m_YLabels = from->m_YLabels;
 }
@@ -432,6 +453,36 @@ void ResultsCurve::SetDisplaySuffix( int num )
         if ( p )
         {
             p->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
+void ResultsCurve::GetChosenIDs( vector < string > & ids ) const
+{
+    vector < string > listed;
+    ListResultsOfSources( m_Sources, listed );
+
+    ids.clear();
+    for ( int i = 0; i < ( int ) listed.size(); i++ )
+    {
+        if ( std::find( m_UncheckedIDs.begin(), m_UncheckedIDs.end(), listed[i] ) == m_UncheckedIDs.end() )
+        {
+            ids.push_back( listed[i] );
+        }
+    }
+}
+
+void ResultsCurve::SetChosenIDs( const vector < string > & ids )
+{
+    vector < string > listed;
+    ListResultsOfSources( m_Sources, listed );
+
+    m_UncheckedIDs.clear();
+    for ( int i = 0; i < ( int ) listed.size(); i++ )
+    {
+        if ( std::find( ids.begin(), ids.end(), listed[i] ) == ids.end() )
+        {
+            m_UncheckedIDs.push_back( listed[i] );
         }
     }
 }
@@ -453,7 +504,17 @@ void ResultsCurve::GetResultIDs( vector < string > & ids ) const
             }
         }
 
-        if ( m_Run() == 0 )
+        if ( m_Run() == vsp::RESULTS_RUN_CHOSEN )
+        {
+            for ( int i = 0; i < ( int ) runs.size(); i++ )
+            {
+                if ( std::find( m_UncheckedIDs.begin(), m_UncheckedIDs.end(), all[ runs[i] ] ) == m_UncheckedIDs.end() )
+                {
+                    picked[ runs[i] ] = true;
+                }
+            }
+        }
+        else if ( m_Run() == vsp::RESULTS_RUN_ALL )
         {
             for ( int i = 0; i < ( int ) runs.size(); i++ )
             {
@@ -578,11 +639,15 @@ string ResultsCurve::GetText() const
     }
 
     string run;
-    if ( m_Run() == 0 )
+    if ( m_Run() == vsp::RESULTS_RUN_CHOSEN )
+    {
+        run = "chosen";
+    }
+    else if ( m_Run() == vsp::RESULTS_RUN_ALL )
     {
         run = "all";
     }
-    else if ( m_Run() == 1 )
+    else if ( m_Run() == vsp::RESULTS_RUN_NEWEST )
     {
         run = "newest";
     }

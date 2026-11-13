@@ -127,3 +127,49 @@ def testCurveCallsRefuseWhatIsNotACurve():
     vsp.SetResultsCurveSources( curve, [ "A", "B" ], [ "" ] )
     assert len( pop_errors() ) == 1
     assert list( vsp.GetResultsCurveSourceNames( curve ) ) == []
+
+
+def testChosenResultsAreThoseOfTheCurvesKinds():
+    """A curve plots the chosen Results of its kinds only, and nothing once its chosen Results are gone."""
+    vsp.VSPRenew()
+    vsp.WriteTestResults()
+    plot = vsp.AddResultsPlot()
+    curve = vsp.GetResultsCurveIDs( plot )[0]
+    vsp.SetResultsCurveSources( curve, [ "Test_Results" ], [ "" ] )
+    older, newer = vsp.GetResultsCurveResultIDs( curve )
+    assert newer == vsp.FindLatestResultsID( "Test_Results" )
+
+    other = vsp.CreateGeomResults( vsp.AddGeom( "POD" ), "Other" )
+    vsp.SetParmVal( vsp.FindParm( curve, "Run", "ResultsCurve" ), vsp.RESULTS_RUN_CHOSEN )
+    vsp.SetResultsCurveChosenIDs( curve, [ newer, other ] )
+    assert list( vsp.GetResultsCurveResultIDs( curve ) ) == [ newer ]
+
+    vsp.DeleteResult( newer )
+    assert list( vsp.GetResultsCurveResultIDs( curve ) ) == []
+
+    vsp.SetResultsCurveChosenIDs( curve, [ "NOTARESULT" ] )
+    assert len( pop_errors() ) == 1
+    assert list( vsp.GetResultsCurveChosenIDs( curve ) ) == []
+
+
+
+def testNewResultsAreChosen():
+    """Chosen starts from every run and leaves some out; runs made later are plotted until they are left out."""
+    vsp.VSPRenew()
+    vsp.DeleteAllResults()
+    vsp.WriteTestResults()
+    plot = vsp.AddResultsPlot()
+    curve = vsp.GetResultsCurveIDs( plot )[0]
+    vsp.SetResultsCurveSources( curve, [ "Test_Results" ], [ "" ] )
+    vsp.SetParmVal( vsp.FindParm( curve, "Run", "ResultsCurve" ), vsp.RESULTS_RUN_CHOSEN )
+    older, newer = vsp.GetResultsCurveResultIDs( curve )
+
+    vsp.SetResultsCurveChosenIDs( curve, [ newer ] )
+    assert list( vsp.GetResultsCurveResultIDs( curve ) ) == [ newer ]
+
+    vsp.WriteTestResults()
+    made = [ r for r in vsp.FindResultsIDs( "Test_Results" ) if r not in ( older, newer ) ]
+    assert len( made ) == 2
+    assert list( vsp.GetResultsCurveResultIDs( curve ) ) == [ newer ] + made
+    assert list( vsp.GetResultsCurveChosenIDs( curve ) ) == [ newer ] + made
+    assert pop_errors() == []

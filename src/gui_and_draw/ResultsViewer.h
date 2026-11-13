@@ -129,6 +129,7 @@ protected:
 
     VspBrowser* m_PlotResultsBrowser;
     Choice m_PlotRunChoice;
+    TriggerButton m_ChooseRunsButton;
     Choice m_PlotModeChoice;
     Choice m_PlotElementChoice;
     Choice m_PlotMatrixChoice;

@@ -3994,6 +3994,42 @@ std::vector < std::string > GetResultsCurveResultIDs( const std::string & curve_
     return ids;
 }
 
+void SetResultsCurveChosenIDs( const std::string & curve_id, const std::vector < std::string > & results_ids )
+{
+    ResultsCurve* curve = FindResultsCurve( curve_id, "SetResultsCurveChosenIDs" );
+    if ( !curve )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < ( int ) results_ids.size(); i++ )
+    {
+        if ( !ResultsMgr.ValidResultsID( results_ids[i] ) )
+        {
+            ErrorMgr.AddError( VSP_INVALID_ID, "SetResultsCurveChosenIDs::Can't Find Results " + results_ids[i] );
+            return;
+        }
+    }
+
+    curve->SetChosenIDs( results_ids );
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetResultsCurveChosenIDs( const std::string & curve_id )
+{
+    ResultsCurve* curve = FindResultsCurve( curve_id, "GetResultsCurveChosenIDs" );
+    if ( !curve )
+    {
+        return std::vector < std::string > ();
+    }
+
+    std::vector < std::string > ids;
+    curve->GetChosenIDs( ids );
+
+    ErrorMgr.NoError();
+    return ids;
+}
+
 std::vector < std::string > GetResultsPlotVarLabels( const std::string & results_id, bool matrix_rows )
 {
     std::vector < std::string > labels;
