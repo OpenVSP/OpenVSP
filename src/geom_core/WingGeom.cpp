@@ -1678,6 +1678,13 @@ void WingGeom::InitInsertedXSec( int index )
     m_XSecSurf.PasteXSec( index );
 }
 
+//==== The Section At Index Keeps Its Chords, And Its Neighbors Follow ====//
+void WingGeom::XSecChanged( int index )
+{
+    GeomXSec::XSecChanged( index );
+    MatchWingSections( index );
+}
+
 //==== Update Wing And Cross Section Placement ====//
 void WingGeom::UpdateSurf()
 {
@@ -1716,7 +1723,7 @@ void WingGeom::UpdateSurf()
         SetTempActiveXSec();
 
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
-    MatchWingSections();
+    MatchWingSections( m_ActiveWingSection() );
 
     // The flaps are sized from the section widths of this Update.
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
@@ -2953,24 +2960,24 @@ void WingGeom::UpdateTotalArea()
 
 
 //==== Match Wing Sections =====//
-void WingGeom::MatchWingSections()
+void WingGeom::MatchWingSections( int index )
 {
     //==== Match Section Root/Tip ====//
-    WingSect* active_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveWingSection() );
+    WingSect* active_ws = ( WingSect* ) m_XSecSurf.FindXSec( index );
     if ( active_ws )
     {
         active_ws->m_DriverGroup.UpdateGroup( active_ws->GetDriverParms() );
         double active_rc = active_ws->m_RootChord();
         double active_tc = active_ws->m_TipChord();
 
-        if ( m_ActiveWingSection() > 0 )
+        if ( index > 0 )
         {
-            WingSect* inboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveWingSection()-1 );
+            WingSect* inboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( index - 1 );
             inboard_ws->ForceChordVal( active_rc, false );
         }
-        if ( m_ActiveWingSection() < m_XSecSurf.NumXSec()-1 )
+        if ( index < m_XSecSurf.NumXSec() - 1 )
         {
-            WingSect* outboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveWingSection()+1 );
+            WingSect* outboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( index + 1 );
             outboard_ws->ForceChordVal( active_tc, true );
         }
     }

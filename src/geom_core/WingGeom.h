@@ -279,9 +279,11 @@ protected:
 
     // Build lines showing the blend tangents at the LE and TE of wing section index.
     void UpdateBlendDrawObj( const Matrix4d &relTrans, int index );
-    virtual void MatchWingSections();
+    // Set the chords next to the section at index to its own.
+    virtual void MatchWingSections( int index );
 
     virtual void InitInsertedXSec( int index );
+    virtual void XSecChanged( int index );
 
     virtual void CalculateMeshMetrics();
 
