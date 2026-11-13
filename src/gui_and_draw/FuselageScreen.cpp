@@ -109,6 +109,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 510, 800,
 
     m_XSecLayout.AddYGap();
 
+    m_XSecCurveCopyPasteActive = true;
     AddXSecLayout();
 }
 

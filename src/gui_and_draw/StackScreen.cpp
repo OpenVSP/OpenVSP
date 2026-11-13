@@ -158,6 +158,7 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 510, 800, "Stac
     m_XSecLayout.ForceNewLine();
     m_XSecLayout.AddYGap();
 
+    m_XSecCurveCopyPasteActive = true;
     AddXSecLayout();
 
 }
