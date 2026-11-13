@@ -1484,6 +1484,34 @@ void Vehicle::DeleteSavedXSecCurve ()
     }
 }
 
+void Vehicle::SaveXSecCurve( XSecCurve * source )
+{
+    if ( !source )
+    {
+        return;
+    }
+
+    XSecCurve* crv = XSecSurf::CreateXSecCurve( source->GetType() );
+    if ( crv )
+    {
+        crv->CopyFrom( source );
+        SetSavedXSecCurve( crv );
+    }
+}
+
+XSecCurve * Vehicle::GetXSecCurveToPaste()
+{
+    if ( m_SavedXSecCurve )
+    {
+        return m_SavedXSecCurve;
+    }
+    if ( m_SavedXSec )
+    {
+        return m_SavedXSec->GetXSecCurve();
+    }
+    return nullptr;
+}
+
 vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set )
 {
     BndBox bbox;

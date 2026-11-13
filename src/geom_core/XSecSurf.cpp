@@ -574,20 +574,7 @@ void XSecSurf::CopyXSecCurve( int index )
         return;
     }
 
-    if ( veh->GetSavedXSecCurve() && veh->GetSavedXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() )
-    {
-        veh->DeleteSavedXSecCurve();
-    }
-
-    if ( !veh->GetSavedXSecCurve() )
-    {
-        veh->SetSavedXSecCurve( CreateXSecCurve( xs->GetXSecCurve()->GetType() ) );
-    }
-
-    if ( veh->GetSavedXSecCurve() )
-    {
-        veh->GetSavedXSecCurve()->CopyFrom( xs->GetXSecCurve() );
-    }
+    veh->SaveXSecCurve( xs->GetXSecCurve() );
 }
 
 //==== Paste XSec Curve====//
@@ -601,27 +588,17 @@ void XSecSurf::PasteXSecCurve( int index )
         return;
     }
 
-    XSecCurve* duplicate_saved_crv = nullptr;
-
-    if ( veh->GetSavedXSecCurve() )
+    XSecCurve* source = veh->GetXSecCurveToPaste();
+    if ( !source )
     {
-        duplicate_saved_crv = CreateXSecCurve( veh->GetSavedXSecCurve()->GetType() );
-        if ( duplicate_saved_crv )
-        {
-            duplicate_saved_crv->CopyFrom( veh->GetSavedXSecCurve() );
-        }
-    }
-    else if ( veh->GetSavedXSec() ) // Fall back to XSecCurve in saved XSec
-    {
-        duplicate_saved_crv = CreateXSecCurve( veh->GetSavedXSec()->GetXSecCurve()->GetType() );
-        if ( duplicate_saved_crv )
-        {
-            duplicate_saved_crv->CopyFrom( veh->GetSavedXSec()->GetXSecCurve() );
-        }
+        return;
     }
 
+    XSecCurve* duplicate_saved_crv = CreateXSecCurve( source->GetType() );
     if ( duplicate_saved_crv )
     {
+        duplicate_saved_crv->CopyFrom( source );
+
         // The slot keeps its identity, and the pasted curve keeps the copies of the source's
         // attributes as well as the slot's own.  A copy that names one of the pasted curve's
         // Parms goes on naming it under the ID it takes.
@@ -633,7 +610,6 @@ void XSecSurf::PasteXSecCurve( int index )
 
         xs->SetXSecCurve( duplicate_saved_crv );
     }
-
 }
 
 //==== Change XSec Type ====//

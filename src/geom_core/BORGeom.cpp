@@ -338,20 +338,7 @@ void BORGeom::CopyXSecCurve()
         return;
     }
 
-    if ( veh->GetSavedXSecCurve() && veh->GetSavedXSecCurve()->GetType() != m_XSCurve->GetType() )
-    {
-        veh->DeleteSavedXSecCurve();
-    }
-
-    if ( !veh->GetSavedXSecCurve() )
-    {
-        veh->SetSavedXSecCurve( XSecSurf::CreateXSecCurve( m_XSCurve->GetType() ) );
-    }
-
-    if ( veh->GetSavedXSecCurve() )
-    {
-        veh->GetSavedXSecCurve()->CopyFrom( m_XSCurve );
-    }
+    veh->SaveXSecCurve( m_XSCurve );
 }
 
 void BORGeom::PasteXSecCurve()
@@ -363,17 +350,7 @@ void BORGeom::PasteXSecCurve()
         return;
     }
 
-    XSecCurve* source = nullptr;
-
-    if ( veh->GetSavedXSecCurve() )
-    {
-        source = veh->GetSavedXSecCurve();
-    }
-    else if ( veh->GetSavedXSec() ) // Fall back to XSecCurve in saved XSec
-    {
-        source = veh->GetSavedXSec()->GetXSecCurve();
-    }
-
+    XSecCurve* source = veh->GetXSecCurveToPaste();
     if ( source )
     {
         if ( source->GetType() != m_XSCurve->GetType() )

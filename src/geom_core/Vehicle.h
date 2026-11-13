@@ -112,6 +112,11 @@ public:
     XSecCurve * GetSavedXSecCurve();
     void DeleteSavedXSecCurve();
 
+    // Copying a curve replaces whatever the clipboard held.
+    void SaveXSecCurve( XSecCurve * source );
+    // The curve a paste takes: the copied curve, or the curve of the copied section.
+    XSecCurve * GetXSecCurveToPaste();
+
     vector< TMesh* > CreateTMeshVec( int normal_set );
     vector< TMesh* > CreateTMeshVec( const vector < string > &geom_vec );
     vector< TMesh* > CreateTMeshVec( const string &geomid );
