@@ -468,11 +468,11 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
                     p->Activate();
                     if ( pprev )
                     {
-                        p->SetLowerLimit( pprev->Get() + offset );
+                        p->SetLowerLimit( pprev->Get() );
                     }
                     if ( pnxt )
                     {
-                        p->SetUpperLimit( pnxt->Get() - offset );
+                        p->SetUpperLimit( pnxt->Get() );
                     }
                 }
             }
