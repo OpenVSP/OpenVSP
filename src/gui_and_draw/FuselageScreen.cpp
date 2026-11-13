@@ -15,7 +15,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800, "Fuselage", "FuselageStack.html" )
+FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 510, 800, "Fuselage", "FuselageStack.html" )
 {
     m_CurrDisplayGroup = nullptr;
 
