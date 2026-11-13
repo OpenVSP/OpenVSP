@@ -615,9 +615,10 @@ public:
 
     // Functions to set the control point vector, parameterization, and G1 enforcement vector
     virtual void SetPntVecs( const vector<double> &u_vec, const vector<double> &x_pnt_vec, const vector<double> &y_pnt_vec, const vector<double> &
-                             z_pnt_vec, const vector<double> &r_vec, vector<bool> g1_vec = {}, vector<bool> fix_u_vec = {}, bool force_update = true );
+                             z_pnt_vec, const vector<double> &r_vec, vector<bool> g1_vec = {}, vector<bool> fix_u_vec = {},
+                             vector<bool> g0_vec = {}, bool force_update = true );
     virtual void SetPntVecs( const vector<double> &u_vec, const vector<vec3d> &pnt_vec, const vector<double> &r_vec, vector<bool> g1_vec =
-                                     {}, vector<bool> fix_u_vec = {}, bool force_update = true );
+                                     {}, vector<bool> fix_u_vec = {}, vector<bool> g0_vec = {}, bool force_update = true );
 
     // Move a control point of input index to a new 2D location. If the point moving is 
     // cubic Bezier and located on the curve, the neighboring points will move with it. 
@@ -637,12 +638,16 @@ public:
 
     // Append a new point to the parameter vectors (i.e. m_XParmVec). Note, this does not ensure 
     // proper parameterization
-    virtual void AddPt( double default_u = 0.0, double default_x = 0.0, double default_y = 0.0, double default_z = 0.0, double default_r = 0.0, bool default_g1 = false, bool default_fix_u = false );
+    virtual void AddPt( double default_u = 0.0, double default_x = 0.0, double default_y = 0.0, double default_z = 0.0, double default_r = 0.0, bool default_g1 = false, bool default_fix_u = false,
+                        bool default_g0 = false );
 
     // Delete the currently selected point, or the input index. Intermediate cubic bezier control
     // points can not be deleted.
     virtual void DeletePt();
     virtual void DeletePt( int indx );
+
+    // The point tied to point indx by a G0 flag, before or after it, or -1.
+    virtual int G0Twin( int indx );
 
     // Get the number of control points for the XSec
     virtual int GetNumPts() { return (int)m_XParmVec.size(); }
@@ -666,6 +671,7 @@ public:
     virtual vector < double > GetRVec();
     virtual vector < bool > GetG1Vec();
     virtual vector < bool > GetFixedUVec();
+    virtual vector < bool > GetG0Vec();
 
     // Split the curve at the current u (0-1) value or input value
     virtual int Split01();
@@ -713,6 +719,7 @@ public:
     vector < Parm* > m_RParmVec; // vector of corner radii
     vector < BoolParm* > m_EnforceG1Vec; // indicates whether or not to enforce G1 continuity for each CEDIT point on the curve,
     vector < BoolParm* > m_FixedUVec; // vector that identifies if ach index of m_UParmVec is held constant. This is mainly used for reparameterization
+    vector < BoolParm* > m_G0Vec; // ties the next Linear or PCHIP point to this one, a corner
 
 protected:
 
@@ -735,9 +742,22 @@ protected:
     // (called from ParmChanged)
     virtual void EnforceG1( int new_index = -1 );
 
+    // A G0 flag ties the next point to its point, a corner of a Linear or PCHIP curve.  A
+    // copy of the point is put after it when neither neighbor is at the same X and Y.
+    virtual void EnforceG0();
+    virtual bool G0Coincide( int i, int j );
+    virtual void InsertPtCopy( int indx );
+    virtual void TieG0Pt( int indx );
+
+    // Deactivates G0 flags that tie nothing and the inputs of tied points
+    virtual void UpdateG0Parms();
+
     int m_SelectPntID; // Index of the currently selected control point
 
     bool m_EnforceG1Next; // Flag to indicate if G1 should be enforced with the next or previous point
+
+    vector < Parm* > m_NewG0Vec; // G0 flags set since the last update
+    vector < Parm* > m_ChangedParmVec; // Parms set since the last update
 
     VspCurve m_UnroundedCurve;
 };

@@ -30,6 +30,7 @@ public:
     vector< Parm* > m_TParmVec;
     vector< Parm* > m_ValParmVec;
     vector < BoolParm* > m_EnforceG1Vec; // indicates whether or not to enforce G1 continuity for each CEDIT point on the curve,
+    vector < BoolParm* > m_G0Vec; // ties the next Linear or PCHIP point to this one, a corner
 
     virtual void InitParms();
 
@@ -58,10 +59,15 @@ public:
     virtual vector < double > GetTVec();
     virtual vector < double > GetValVec();
     virtual vector < bool > GetG1Vec();
+    virtual vector < bool > GetG0Vec();
 
     virtual void SetTVec( const vector < double > & vec );
     virtual void SetValVec( const vector < double > & vec );
     virtual void SetG1Vec( const vector < bool >& vec );
+    virtual void SetG0Vec( const vector < bool >& vec );
+
+    // The point tied to point indx by a G0 flag, before or after it, or -1.
+    virtual int G0Twin( int indx );
 
     virtual void RenameParms();
 
@@ -76,7 +82,8 @@ public:
     virtual void Approximate();
     virtual void ConvertTo( int newtype );
 
-    virtual void InitCurve( const vector < double >& tvec, const vector < double >& valvec, vector < bool > c1vec = {} );
+    virtual void InitCurve( const vector < double >& tvec, const vector < double >& valvec, vector < bool > c1vec = {},
+                            vector < bool > g0vec = {} );
 
     virtual void SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, const vector<bool> &c1vec = {} );
 
@@ -112,10 +119,14 @@ protected:
     virtual void ValidateCEDIT( vector < double > & vec );
 
     virtual void UpdateG1Parms();
+    virtual void UpdateG0Parms();
 
     virtual void ClearPtOrder();
 
     virtual void EnforceG1( int new_index = -1 );
+    virtual void EnforceG0();
+    virtual bool G0Coincide( int i, int j );
+    virtual void TieG0Pt( int i );
 
     Vsp1DCurve m_Curve;
 
@@ -131,6 +142,9 @@ protected:
     int m_SelectPntID;
 
     bool m_EnforceG1Next; // flag to indicate if G1 should be enforced with the next or previous point. 
+
+    vector < Parm* > m_NewG0Vec; // G0 flags set since the last update
+    vector < Parm* > m_ChangedParmVec; // Parms set since the last update
 };
 
 #endif // !defined(VSP_PCURVE__INCLUDED_)

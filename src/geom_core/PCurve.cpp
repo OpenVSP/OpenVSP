@@ -10,6 +10,7 @@
 
 #include "PCurve.h"
 #include "ParmMgr.h"
+#include <algorithm>
 #include <cfloat>
 
 PCurve::PCurve() : ParmContainer()
@@ -38,6 +39,12 @@ PCurve::~PCurve()
         delete m_EnforceG1Vec[i];
     }
     m_EnforceG1Vec.clear();
+
+    for ( int i = 0; i < m_G0Vec.size(); i++ )
+    {
+        delete m_G0Vec[i];
+    }
+    m_G0Vec.clear();
 }
 
 void PCurve::InitParms()
@@ -62,6 +69,7 @@ void PCurve::ReservePts( int n )
         vector< Parm* > tparms( n );
         vector< Parm* > vparms( n );
         vector< BoolParm* > g1parms( n );
+        vector< BoolParm* > g0parms( n );
 
         int i;
         for ( i = 0; i < n; i++ )
@@ -69,16 +77,19 @@ void PCurve::ReservePts( int n )
             tparms[i] = m_TParmVec[i];
             vparms[i] = m_ValParmVec[i];
             g1parms[i] = m_EnforceG1Vec[i];
+            g0parms[i] = m_G0Vec[i];
         }
         for ( ; i < m_TParmVec.size(); i++ )
         {
             delete m_TParmVec[i];
             delete m_ValParmVec[i];
             delete m_EnforceG1Vec[i];
+            delete m_G0Vec[i];
         }
         m_TParmVec = tparms;
         m_ValParmVec = vparms;
         m_EnforceG1Vec = g1parms;
+        m_G0Vec = g0parms;
     }
     else
     {
@@ -165,6 +176,17 @@ void PCurve::AddPt()
         bp->SetDescript( "G1 Enforcement Flag" );
         m_EnforceG1Vec.push_back( bp );
     }
+
+    bp = dynamic_cast<BoolParm*>( ParmMgr.CreateParm( vsp::PARM_BOOL_TYPE ) );
+    if ( bp )
+    {
+        int i = (int)m_G0Vec.size();
+        char str[15];
+        snprintf( str, sizeof( str ),  "G0_%d", i );
+        bp->Init( string( str ), m_GroupName, this, false, false, true );
+        bp->SetDescript( "Ties the next point to this one, a corner" );
+        m_G0Vec.push_back( bp );
+    }
 }
 
 void PCurve::DeletePt()
@@ -196,6 +218,11 @@ void PCurve::DeletePt( int indx )
                 delete m_EnforceG1Vec[indx + 1];
                 m_EnforceG1Vec.erase( m_EnforceG1Vec.begin() + indx - 1, m_EnforceG1Vec.begin() + indx + 2 );
 
+                delete m_G0Vec[indx - 1];
+                delete m_G0Vec[indx];
+                delete m_G0Vec[indx + 1];
+                m_G0Vec.erase( m_G0Vec.begin() + indx - 1, m_G0Vec.begin() + indx + 2 );
+
                 ValidateCEDIT();
             }
         }
@@ -209,6 +236,11 @@ void PCurve::DeletePt( int indx )
 
             delete m_EnforceG1Vec[indx];
             m_EnforceG1Vec.erase( m_EnforceG1Vec.begin() + indx );
+
+            // A deleted tied point unties the point before it.
+            m_G0Vec[indx - 1]->Set( false );
+            delete m_G0Vec[indx];
+            m_G0Vec.erase( m_G0Vec.begin() + indx );
 
             EnforcePtOrder();
         }
@@ -234,6 +266,16 @@ void PCurve::ParmChanged( Parm* parm_ptr, int type )
             break;
         }
     }
+
+    for ( size_t i = 0; i < m_G0Vec.size(); i++ )
+    {
+        if ( parm_ptr == m_G0Vec[i] && m_G0Vec[i]->Get() )
+        {
+            m_NewG0Vec.push_back( parm_ptr );
+        }
+    }
+
+    m_ChangedParmVec.push_back( parm_ptr );
 
     if ( m_CurveType() == vsp::CEDIT )
     {
@@ -304,6 +346,7 @@ void PCurve::ParmChanged( Parm* parm_ptr, int type )
 void PCurve::Update()
 {
     EnforceG1();
+    EnforceG0();
 
     vector < double > tvec = GetTVec();
     vector < double > valvec = GetValVec();
@@ -329,6 +372,7 @@ void PCurve::Update()
     }
 
     UpdateG1Parms();
+    UpdateG0Parms();
 
     m_LateUpdateFlag = false;
 }
@@ -438,15 +482,25 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
     }
     else  // LINEAR or PCHIP
     {
+        // A point tied by a G0 flag to the one before it shares that point's limits.
+        int n = (int)m_TParmVec.size();
         Parm *pprev = nullptr;
-        for ( int j = 0; j < m_TParmVec.size(); j++ )
+        for ( int j = 0; j < n; j++ )
         {
             Parm *p = m_TParmVec[j];
+            bool tied = ( j > 0 && m_G0Vec[j - 1]->Get() );
+
             Parm *pnxt = nullptr;
-            if ( j < m_TParmVec.size() - 1 )
+            int jnxt = j + 1;
+            while ( jnxt < n && m_G0Vec[jnxt - 1]->Get() )
             {
-                pnxt = m_TParmVec[j + 1];
+                jnxt++;
             }
+            if ( jnxt < n )
+            {
+                pnxt = m_TParmVec[jnxt];
+            }
+
             if ( p )
             {
                 if ( j == 0 )
@@ -456,12 +510,19 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
                     p->SetLowerLimit( rfirst );
                     p->SetUpperLimit( rfirst );
                 }
-                else if ( j == m_TParmVec.size() - 1 )
+                else if ( j == n - 1 )
                 {
                     p->Set( rlast );
                     p->Deactivate();
                     p->SetUpperLimit( rlast );
                     p->SetLowerLimit( rlast );
+                }
+                else if ( tied && pprev )
+                {
+                    p->SetLowerLimit( pprev->GetLowerLimit() );
+                    p->SetUpperLimit( pprev->GetUpperLimit() );
+                    p->Deactivate();
+                    m_ValParmVec[j]->Deactivate();
                 }
                 else
                 {
@@ -484,6 +545,164 @@ void PCurve::EnforcePtOrder( double rfirst, double rlast )
     m_SplitPt.SetUpperLimit( rlast );
 }
 
+// The point tied to point indx by a G0 flag, before or after it, or -1.
+int PCurve::G0Twin( int indx )
+{
+    int n = (int)m_G0Vec.size();
+    if ( indx < 0 || indx >= n )
+    {
+        return -1;
+    }
+    if ( indx > 0 && m_G0Vec[indx - 1]->Get() )
+    {
+        return indx - 1;
+    }
+    if ( indx < n - 1 && m_G0Vec[indx]->Get() )
+    {
+        return indx + 1;
+    }
+    return -1;
+}
+
+// Sets the lead Parm to the tied Parm's value when only the tied one was set.
+static void TakeTiedVal( Parm *lead, Parm *tied, const vector < Parm* > &changed )
+{
+    bool tied_set = ( std::find( changed.begin(), changed.end(), tied ) != changed.end() );
+    bool lead_set = ( std::find( changed.begin(), changed.end(), lead ) != changed.end() );
+    if ( tied_set && !lead_set && tied->Get() != lead->Get() )
+    {
+        lead->Set( tied->Get() );
+    }
+}
+
+// A G0 flag ties the next point to its point, so the two are one corner of a Linear or
+// PCHIP curve.  An end point or a tied point ties nothing.  A point and its tied point
+// take the values of whichever of them was set alone.  A newly set flag ties the next
+// point when it is at the same place; else, when the point before is at the same place,
+// the flag moves to that point.  Otherwise, and whenever the next point is the last
+// point, a copy of the point is put after it to be tied.
+void PCurve::EnforceG0()
+{
+    vector < Parm* > new_g0 = m_NewG0Vec;
+    m_NewG0Vec.clear();
+    vector < Parm* > changed = m_ChangedParmVec;
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        m_ChangedParmVec.clear();
+        return;
+    }
+
+    int n = (int)m_G0Vec.size();
+    for ( int i = 0; i < n; i++ )
+    {
+        // A point after a newly set flag is not tied when a copy will be put between them.
+        bool tied = ( i > 0 && m_G0Vec[i - 1]->Get() );
+        if ( tied && !G0Coincide( i - 1, i ) && std::find( new_g0.begin(), new_g0.end(), m_G0Vec[i - 1] ) != new_g0.end() )
+        {
+            tied = false;
+        }
+        if ( m_G0Vec[i]->Get() && ( i == 0 || i >= n - 1 || tied ) )
+        {
+            m_G0Vec[i]->Set( false );
+        }
+    }
+
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        if ( m_G0Vec[i]->Get() && std::find( new_g0.begin(), new_g0.end(), m_G0Vec[i] ) == new_g0.end() )
+        {
+            TakeTiedVal( m_TParmVec[i], m_TParmVec[i + 1], changed );
+            TakeTiedVal( m_ValParmVec[i], m_ValParmVec[i + 1], changed );
+        }
+    }
+
+    for ( int i = 1; i < n - 1; i++ )
+    {
+        bool is_new = ( std::find( new_g0.begin(), new_g0.end(), m_G0Vec[i] ) != new_g0.end() );
+        bool apart = !G0Coincide( i, i + 1 );
+        bool prev_same = ( i > 1 && !m_G0Vec[i - 2]->Get() && G0Coincide( i - 1, i ) );
+        if ( m_G0Vec[i]->Get() && ( i + 1 == n - 1 || ( is_new && apart ) ) && is_new && prev_same )
+        {
+            m_G0Vec[i]->Set( false );
+            m_G0Vec[i - 1]->Set( true );
+            m_NewG0Vec.clear();
+        }
+        else if ( m_G0Vec[i]->Get() && ( i + 1 == n - 1 || ( is_new && apart ) ) )
+        {
+            vector < double > tvec = GetTVec();
+            vector < double > valvec = GetValVec();
+            vector < bool > g1vec = GetG1Vec();
+            vector < bool > g0vec = GetG0Vec();
+
+            tvec.insert( tvec.begin() + i + 1, tvec[i] );
+            valvec.insert( valvec.begin() + i + 1, valvec[i] );
+            g1vec.insert( g1vec.begin() + i + 1, false );
+            g0vec.insert( g0vec.begin() + i + 1, false );
+
+            InitCurve( tvec, valvec, g1vec, g0vec );
+            RenameParms();
+            m_NewG0Vec.clear();
+
+            if ( m_SelectPntID > i )
+            {
+                m_SelectPntID++;
+            }
+            n++;
+        }
+    }
+
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        if ( m_G0Vec[i]->Get() )
+        {
+            TieG0Pt( i );
+        }
+    }
+
+    m_ChangedParmVec.clear();
+}
+
+// Whether points i and j are at the same place.
+bool PCurve::G0Coincide( int i, int j )
+{
+    double tol = 1.0e-6;
+    return ( std::abs( m_TParmVec[i]->Get() - m_TParmVec[j]->Get() ) < tol &&
+             std::abs( m_ValParmVec[i]->Get() - m_ValParmVec[j]->Get() ) < tol );
+}
+
+// Moves the point tied to point i onto it, sharing its limits.
+void PCurve::TieG0Pt( int i )
+{
+    Parm *lp = m_TParmVec[i];
+    Parm *tp = m_TParmVec[i + 1];
+    tp->SetLowerLimit( -1.0e12 );
+    tp->SetUpperLimit( 1.0e12 );
+    tp->Set( lp->Get() );
+    tp->SetLowerLimit( lp->GetLowerLimit() );
+    tp->SetUpperLimit( lp->GetUpperLimit() );
+    m_ValParmVec[i + 1]->Set( m_ValParmVec[i]->Get() );
+}
+
+// G0 flags are for Linear and PCHIP points that can tie the next point to them.
+void PCurve::UpdateG0Parms()
+{
+    int n = (int)m_G0Vec.size();
+    for ( int i = 0; i < n; i++ )
+    {
+        BoolParm *bp = m_G0Vec[i];
+        if ( m_CurveType() == vsp::CEDIT || i == 0 || i == n - 1 || m_G0Vec[i - 1]->Get() )
+        {
+            bp->Set( false );
+            bp->Deactivate();
+        }
+        else
+        {
+            bp->Activate();
+        }
+    }
+}
+
 void PCurve::ClearPtOrder()
 {
     for ( int j = 0; j < m_TParmVec.size(); j++ )
@@ -494,6 +713,12 @@ void PCurve::ClearPtOrder()
         {
             p->SetLowerLimit( -1.0e12 );
             p->SetUpperLimit( 1.0e12 );
+            p->Activate();
+        }
+
+        p = m_ValParmVec[j];
+        if ( p )
+        {
             p->Activate();
         }
     }
@@ -584,6 +809,21 @@ vector < bool > PCurve::GetG1Vec()
     return retvec;
 }
 
+vector < bool > PCurve::GetG0Vec()
+{
+    vector < bool > retvec( m_G0Vec.size() );
+
+    for ( size_t i = 0; i < m_G0Vec.size(); ++i )
+    {
+        BoolParm* p = m_G0Vec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
 
 void PCurve::SetTVec( const vector < double > & vec )
 {
@@ -635,6 +875,21 @@ void PCurve::SetG1Vec( const vector < bool >& vec )
     m_LateUpdateFlag = true;
 }
 
+void PCurve::SetG0Vec( const vector < bool >& vec )
+{
+    int n = (int)vec.size();
+    ReservePts( n );
+    for ( int i = 0; i < n; ++i )
+    {
+        BoolParm* bp = m_G0Vec[i];
+        if ( bp )
+        {
+            bp->Set( vec[i] );
+        }
+    }
+    m_LateUpdateFlag = true;
+}
+
 void PCurve::RenameParms()
 {
     for ( int i = 0; i < m_TParmVec.size(); i++ )
@@ -648,6 +903,9 @@ void PCurve::RenameParms()
 
         snprintf( str, sizeof( str ),  "G1_%d", i );
         m_EnforceG1Vec[i]->SetName( string( str ) );
+
+        snprintf( str, sizeof( str ),  "G0_%d", i );
+        m_G0Vec[i]->SetName( string( str ) );
     }
 }
 
@@ -662,8 +920,20 @@ void PCurve::SetPt( double t, double v, int indx, bool force_update )
         {
         case vsp::LINEAR:
         case vsp::PCHIP:
-            tp->Set( t );
-            vp->Set( v );
+          {
+            // A point and the point tied to it by a G0 flag move as one.
+            int ilead = indx;
+            if ( indx > 0 && m_G0Vec[indx - 1]->Get() )
+            {
+                ilead = indx - 1;
+            }
+            m_TParmVec[ilead]->Set( t );
+            m_ValParmVec[ilead]->Set( v );
+            if ( m_G0Vec[ilead]->Get() && ilead < (int)m_TParmVec.size() - 1 )
+            {
+                TieG0Pt( ilead );
+            }
+          }
             break;
         case vsp::CEDIT:
           {
@@ -765,23 +1035,27 @@ int PCurve::Split( const double & tsplit )
           tvec = GetTVec();
           vector < double > valvec = GetValVec();
           vector < bool > g1_vec = GetG1Vec();
+          vector < bool > g0_vec = GetG0Vec();
 
           vector < double > newtv, newvalv;
-          vector < bool > new_g1_vec;
+          vector < bool > new_g1_vec, new_g0_vec;
           newtv.reserve( tvec.size() + 1 );
           newvalv.reserve( valvec.size() + 1 );
           new_g1_vec.reserve( g1_vec.size() + 1 );
+          new_g0_vec.reserve( g0_vec.size() + 1 );
 
           if ( tsplit < tvec[0] )
           {
               newtv.push_back( tsplit );
               newvalv.push_back( vsplit );
               new_g1_vec.push_back( false );
+              new_g0_vec.push_back( false );
           }
 
           newtv.push_back( tvec[0] );
           newvalv.push_back( valvec[0] );
           new_g1_vec.push_back( g1_vec[0] );
+          new_g0_vec.push_back( g0_vec[0] );
 
           for ( int i = 1; i < tvec.size(); i++ )
           {
@@ -790,10 +1064,12 @@ int PCurve::Split( const double & tsplit )
                   newtv.push_back( tsplit );
                   newvalv.push_back( vsplit );
                   new_g1_vec.push_back( false );
+                  new_g0_vec.push_back( false );
               }
               newtv.push_back( tvec[i] );
               newvalv.push_back( valvec[i] );
               new_g1_vec.push_back( g1_vec[i] );
+              new_g0_vec.push_back( g0_vec[i] );
           }
 
           if ( tsplit >= tvec.back() )
@@ -801,9 +1077,10 @@ int PCurve::Split( const double & tsplit )
               newtv.push_back( tsplit );
               newvalv.push_back( vsplit );
               new_g1_vec.push_back( false );
+              new_g0_vec.push_back( false );
           }
 
-          InitCurve( newtv, newvalv, new_g1_vec );
+          InitCurve( newtv, newvalv, new_g1_vec, new_g0_vec );
 
       }
         break;
@@ -1013,10 +1290,18 @@ void PCurve::ConvertTo( int newtype )
     ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
 }
 
-void PCurve::InitCurve( const vector < double > & tvec, const vector < double > & valvec, vector < bool > g1vec )
+void PCurve::InitCurve( const vector < double > & tvec, const vector < double > & valvec, vector < bool > g1vec,
+                        vector < bool > g0vec )
 {
-    SetTVec( tvec );
+    if ( g0vec.size() != tvec.size() )
+    {
+        g0vec = vector < bool >( tvec.size(), false );
+    }
+
+    // Values and G0 flags first, so ordering the parameters sees which points are tied.
     SetValVec( valvec );
+    SetG0Vec( g0vec );
+    SetTVec( tvec );
 
     if ( g1vec.size() != tvec.size() )
     {

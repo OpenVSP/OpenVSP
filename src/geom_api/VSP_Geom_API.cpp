@@ -13763,10 +13763,16 @@ void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d
         return;
     }
 
-    // edit_xs->MovePnt also moves adjacent CEDIT points, so just set parm values directly
-    edit_xs->m_XParmVec[indx]->Set( new_pnt.x() );
-    edit_xs->m_YParmVec[indx]->Set( new_pnt.y() );
-    edit_xs->m_ZParmVec[indx]->Set( new_pnt.z() );
+    // edit_xs->MovePnt also moves adjacent CEDIT points, so just set parm values directly.
+    // A point tied by a G0 flag moves with its point, so its point is moved.
+    int ipt = indx;
+    if ( edit_xs->m_CurveType() != vsp::CEDIT && ipt > 0 && edit_xs->m_G0Vec[ipt - 1]->Get() )
+    {
+        ipt = ipt - 1;
+    }
+    edit_xs->m_XParmVec[ipt]->Set( new_pnt.x() );
+    edit_xs->m_YParmVec[ipt]->Set( new_pnt.y() );
+    edit_xs->m_ZParmVec[ipt]->Set( new_pnt.z() );
 
     edit_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update
 
