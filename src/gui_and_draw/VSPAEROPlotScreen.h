@@ -17,6 +17,7 @@
 #include "Cartesian.H"
 #include "ProcessUtil.h"
 #include "VSPAEROMgr.h"
+#include "ResultsPlotCanvas.h"
 
 using namespace std;
 
@@ -66,7 +67,8 @@ protected:
     GroupLayout m_ConvergenceLayout;
     GroupLayout m_ConvergenceControlLayout;
     GroupLayout m_ConvergencePlotLayout;
-    Ca_Canvas*  m_ConvergencePlotCanvas;
+    ResultsPlotCanvas* m_ConvergencePlotCanvas;
+    PlotLimitParms m_ConvergenceLimits;
 
     GroupLayout m_ConvergenceLegendLayout;
     Fl_Scroll* m_ConvergenceLegendGroup;
@@ -98,7 +100,8 @@ protected:
     GroupLayout m_LoadDistLayout;
     GroupLayout m_LoadDistControlLayout;
     GroupLayout m_LoadDistPlotLayout;
-    Ca_Canvas*  m_LoadDistPlotCanvas;
+    ResultsPlotCanvas* m_LoadDistPlotCanvas;
+    PlotLimitParms m_LoadDistLimits;
 
     GroupLayout m_LoadDistLegendLayout;
     Fl_Scroll* m_LoadDistLegendGroup;
@@ -139,7 +142,8 @@ protected:
     GroupLayout m_SweepLayout;
     GroupLayout m_SweepControlLayout;
     GroupLayout m_SweepPlotLayout;
-    Ca_Canvas*  m_SweepPlotCanvas;
+    ResultsPlotCanvas* m_SweepPlotCanvas;
+    PlotLimitParms m_SweepLimits;
 
     GroupLayout m_SweepLegendLayout;
     Fl_Scroll* m_SweepLegendGroup;
@@ -168,7 +172,8 @@ protected:
     GroupLayout m_CpSliceLayout;
     GroupLayout m_CpSliceControlLayout;
     GroupLayout m_CpSlicePlotLayout;
-    Ca_Canvas*  m_CpSlicePlotCanvas;
+    ResultsPlotCanvas* m_CpSlicePlotCanvas;
+    PlotLimitParms m_CpSliceLimits;
 
     GroupLayout m_CpSliceLegendLayout;
     Fl_Scroll* m_CpSliceLegendGroup;
@@ -209,7 +214,8 @@ protected:
     GroupLayout m_UnsteadyLayout;
     GroupLayout m_UnsteadyControlLayout;
     GroupLayout m_UnsteadyPlotLayout;
-    Ca_Canvas*  m_UnsteadyPlotCanvas;
+    ResultsPlotCanvas* m_UnsteadyPlotCanvas;
+    PlotLimitParms m_UnsteadyLimits;
 
     GroupLayout m_UnsteadyLegendLayout;
     Fl_Scroll* m_UnsteadyLegendGroup;
