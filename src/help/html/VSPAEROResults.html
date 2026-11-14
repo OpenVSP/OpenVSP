@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>VSPAERO Results</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">VSPAERO Results</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The VSPAERO Results Manager plots the results of VSPAERO runs: how
+each case converged, the span load, polars across a sweep of flow
+conditions, pressure along slices through the surface, and the time
+history of unsteady and rotor runs. It keeps every run made in the
+session, so a run can be plotted alone or laid over others to compare a
+change in the model or the settings.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tab</th>
+<th style="text-align: left;">Plots</th>
+<th style="text-align: left;">Active when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a
+href="#convergence">Convergence</a></td>
+<td style="text-align: left;">A variable, or its change, against wake
+iteration</td>
+<td style="text-align: left;">The run is steady</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#load-dist">Load Dist.</a></td>
+<td style="text-align: left;">Span load of each wing, or blade results
+by station</td>
+<td style="text-align: left;">The run has load results</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#sweep">Sweep</a></td>
+<td style="text-align: left;">One result against another across flow
+conditions</td>
+<td style="text-align: left;">Always</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#cp-slice">Cp Slice</a></td>
+<td style="text-align: left;">Pressure coefficient along each slice</td>
+<td style="text-align: left;">A run or set with slices</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#unsteady">Unsteady</a></td>
+<td style="text-align: left;">Histories, group and rotor results against
+time</td>
+<td style="text-align: left;">The run is unsteady</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#runs">Runs</a></td>
+<td style="text-align: left;">Nothing; chooses what the other tabs
+plot</td>
+<td style="text-align: left;">Always</td>
+</tr>
+</tbody>
+</table>
+<h2 id="opening-the-screen">Opening the Screen</h2>
+<p>The screen opens by itself when a VSPAERO run finishes. A steady run
+opens on the Load Dist. tab, an unsteady run on the Unsteady tab. Show
+Results Mgr on the VSPAERO screen opens it again at any time.</p>
+<p>Load Previous Results on the VSPAERO screen reads the results of the
+last run from its files and adds them to the list as a new run, beside
+the runs already held.</p>
+<h2 id="runs">Runs</h2>
+<p>Every VSPAERO run is kept until it is deleted. Launching a new run,
+or slicing the latest results with Slice Latest *.adb File, adds to the
+list and leaves earlier runs and slices in place.</p>
+<p>The Runs tab lists each VSPAERO run, and each Cp slice set made apart
+from a run, in the order they were made. The columns give the check box,
+the run's number, its name, its kind (VSPAERO or Cp Slice) and when it
+was made. Cp slices made during a run belong to that run and are not
+listed separately.</p>
+<p>The check boxes choose what the other tabs plot. Click a box, or
+select a row and press Space, to check or uncheck it. With nothing
+checked, nothing is plotted.</p>
+<p>A new run is checked alone, so each run is shown by itself when it
+finishes, as it would be with only one run kept. This works within each
+kind: a new VSPAERO run unchecks the other VSPAERO runs, and a new slice
+set unchecks the other slice sets, but neither unchecks the other kind.
+If every checked run is deleted, the newest run is checked in its
+place.</p>
+<p>Newest Only checks just the newest run and the newest separate slice
+set; use it to return to a single run after comparing. All checks
+everything.</p>
+<p>Export to *.csv on the VSPAERO screen writes the newest run,
+whichever runs are checked here.</p>
+<h3 id="names">Names</h3>
+<p>A run is named by its number until it is given a name. Double click a
+row, or select it and press Enter, to edit the name in place; Enter, or
+a click elsewhere, keeps the new name. The name is the run's nickname,
+shown also in the <a href="ResultsViewer.html">Results Viewer</a>.</p>
+<p>The numbers count every row of the list, so deleting a run renumbers
+the runs after it. Name the runs before comparing them: a name says what
+changed between them, and it does not change when the list does.</p>
+<h3 id="deleting-runs">Deleting Runs</h3>
+<p>Runs are deleted in the Results viewer (Analysis &gt; Results...),
+where each run is a VSPAERO_Wrapper and each separate slice set a
+CpSlice_Wrapper, listed with its nickname. A deleted run leaves this
+list.</p>
+<h2 id="flow-conditions">Flow Conditions</h2>
+<p>Each plot tab has a Flow Condition list. It lists each flow condition
+(angle of attack a, sideslip b, Mach M and, where the run has one,
+Reynolds number Re) once, whichever of the checked runs computed it.
+Selecting a condition plots it from every checked run that has it, so
+two runs over the same sweep are compared condition by condition.
+Several conditions may be selected at once; click a row to select it or
+clear it.</p>
+<p>The list shows each value to two significant digits, but conditions
+are told apart by their exact values. Two conditions that differ only
+past the second digit (an angle of attack of 12 and 12.4, say) get two
+rows that read the same.</p>
+<p>When the checked runs change, or a new run arrives, every condition
+is selected again, and each tab selects its default variable.</p>
+<p>The variables a tab offers are those of the newest checked run.</p>
+<h2 id="comparing-runs">Comparing Runs</h2>
+<p>With one run plotted, each line has its own color. With several,
+color shows the flow condition and variable, and marker and dash show
+the run: the same condition from two runs is drawn in one color with two
+markers and dashes. When only the runs differ (one condition and one
+variable from each), each run gets its own color as well.</p>
+<p>Five markers and five dashes are used, so marker or dash alone tells
+five runs apart. Past the last of the ten colors, colors repeat with the
+next markers and dashes.</p>
+<p>The legend, in a corner of the plot, names each line. With two or
+more runs plotted it begins each entry with the run's name, and on the
+Cp Slice tab with the name of the run, or of the slice set, the slices
+came from. Each tab's Legend choice, below its Lines and Points toggles,
+places the legend as in the <a
+href="ResultsViewer.html#style-and-legend">Results Viewer</a>: Best, the
+default, puts it in the corner that covers the fewest points and lines
+and moves it as the view changes; Upper Right, Upper Left, Lower Left
+and Lower Right fix the corner; Off hides it. The choice is saved with
+the model.</p>
+<p>Keep the number of checked runs small. Two or three runs read well;
+each further run multiplies the lines and the legend entries, and the
+markers and dashes become hard to tell apart.</p>
+<h2 id="convergence">Convergence</h2>
+<p>The Convergence tab plots the selected Y-Data against wake iteration
+for each selected flow condition. CLtot is selected by default.</p>
+<p>Residual, on by default, plots the base 10 logarithm of the change in
+the variable from one wake iteration to the next, rather than the
+variable itself. Iterations where the value did not change are left out,
+as is the first, which has no change. A steadily falling residual shows
+the wake converging; turn Residual off to see the value the case
+converged to.</p>
+<p>The tab is inactive for unsteady runs, whose histories are plotted on
+the Unsteady tab.</p>
+<h2 id="load-dist">Load Dist.</h2>
+<p>Load plots the spanwise load of each wing against span location Y,
+one line for each wing, for each selected flow condition. The section
+lift times chord over reference chord, cl*c/cref, is selected by
+default.</p>
+<p>Blade plots blade-averaged results against blade station for the
+blades selected in the Group/Rotor Selection list; CT_H is selected by
+default. Blade is available only when the run has rotors. These results
+are written for the first flow condition only, so the Flow Condition
+list then shows just that one, inactive.</p>
+<p>For an unsteady run, the Time Step selector picks which time step's
+loads are plotted, and Time shows its time.</p>
+<h2 id="sweep">Sweep</h2>
+<p>The Sweep tab plots one result against another across the selected
+flow conditions: the final value of each condition is one point, and the
+conditions of each run make one line, in the order they were computed.
+CLtot against CDtot, the drag polar, is selected by default.</p>
+<p>Several variables may be selected in one of the X-Data and Y-Data
+lists, but then only one in the other.</p>
+<p>Select Alpha as X-Data to plot lift or moment against angle of
+attack. All the selected conditions of a run are joined into one line,
+so a sweep over both angle of attack and Mach draws one zig-zag line
+through every point. Select only the conditions at one Mach number to
+draw that Mach number's curve.</p>
+<h2 id="cp-slice">Cp Slice</h2>
+<p>The Cp Slice tab plots the pressure coefficient along the selected
+slices for the selected flow conditions. Slices come from the checked
+runs that were made with Activate Slicer on, and from the checked slice
+sets.</p>
+<p>The Slice list names each cut by its axis and position (Y= 1.50 is a
+cut at Y = 1.5) once, and the Flow Condition list each condition once,
+across all the plotted runs and slice sets. A line is drawn for every
+slice that has a selected position and a selected condition. With two
+runs sliced at the same positions, selecting one cut and one condition
+plots that cut from both, for a direct comparison of the pressures.</p>
+<p>X-Axis Plotting chooses the coordinate each kind of cut is plotted
+against. Each choice is active when slices of that kind are present, and
+each starts at X. That suits a cut at constant Y or Z, plotted along the
+chord; a cut at constant X, across a fuselage for instance, lies at one
+X, so set X Cut Position Axis to Y or Z.</p>
+<p>Flip Y Axis turns the Cp axis over so negative Cp, suction, is drawn
+upward, as pressure distributions usually are.</p>
+<h2 id="unsteady">Unsteady</h2>
+<p>The Unsteady tab plots time histories of unsteady runs. Data Type
+Selection chooses what is plotted:</p>
+<ul>
+<li>History plots the run's overall results against time for each
+selected flow condition. For a P, Q or R stability run the default is
+the matching moment coefficient (CMx, CMy or CMz); otherwise CLtot.</li>
+<li>Group plots the results of each group selected in the Group/Rotor
+Selection list; CLtot by default.</li>
+<li>Rotor plots the results of each rotor selected there; Thrust by
+default.</li>
+</ul>
+<p>Group and Rotor are available only when the run has groups. Their
+results are written for the first flow condition only, so the Flow
+Condition list then shows just that one, inactive. A new unsteady run
+with groups opens on Rotor.</p>
+<p>The tab is active only for unsteady runs. Whether the plotted runs
+are steady or unsteady is taken from the oldest checked run, so check
+steady and unsteady runs separately.</p>
+<h2 id="lines-points-and-axis-limits">Lines, Points and Axis Limits</h2>
+<p>Each plot tab has its own Lines and Points toggles (Plot Lines and
+Plot Points on the Cp Slice tab), both on by default. Points alone suit
+a sweep of scattered conditions; lines alone suit long convergence
+histories, where markers crowd together. The legend samples show what is
+drawn.</p>
+<p>Each tab also keeps its own axis limits. Xmin, Xmax, Ymin and Ymax
+each have a toggle that makes the limit manual; while it is off the
+limit is automatic, set from the data and rounded outward, and its
+slider shows the value.</p>
+<h2 id="using-the-mouse-in-a-plot">Using the Mouse in a Plot</h2>
+<p>Each plot zooms, pans and reads out points with the mouse, as the
+other plots in OpenVSP do. Zooming or panning sets all four limits of
+that tab to manual at the values shown; a double click makes them
+automatic again.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Press, in OpenVSP's own scheme</th>
+<th style="text-align: left;">In a plot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Left drag, or Shift + left drag</td>
+<td style="text-align: left;">Zoom to the box drawn</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wheel</td>
+<td style="text-align: left;">Zoom about the pointer; scrolling up zooms
+in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Middle drag, or Ctrl or Cmd + left
+drag</td>
+<td style="text-align: left;">Zoom about the middle of the plot;
+dragging down zooms in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right drag, or Alt + left drag</td>
+<td style="text-align: left;">Pan</td>
+</tr>
+<tr>
+<td style="text-align: left;">Double click</td>
+<td style="text-align: left;">Restore automatic limits</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hover</td>
+<td style="text-align: left;">Read out the point under the pointer</td>
+</tr>
+</tbody>
+</table>
+<p>These are the presses of OpenVSP's own scheme; each plot follows the
+scheme and 3D View settings chosen in the preferences, as <a
+href="MouseKeyboard.html#plots">Mouse and Keyboard</a> describes.</p>
+<p>A box smaller than a few pixels across does not zoom, so a click does
+not change the limits.</p>
+<p>When the pointer is within a few pixels of a drawn point, the point
+is highlighted and the readout in the top right corner of the plot gives
+its legend entry, its index in the line (counted from zero) and its x
+and y. Elsewhere the readout gives the coordinates of the pointer. A
+line hidden by turning both Lines and Points off is not read out.</p>
+<h2 id="window-size">Window Size</h2>
+<p>The window can be resized. A wider window widens the plots; a taller
+one lengthens the plots and the Flow Condition lists beside them, which
+helps with long sweeps of conditions, and the list of runs on the Runs
+tab. The other lists and controls keep their size.</p>
+</body>
+</html>

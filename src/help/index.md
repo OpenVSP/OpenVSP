@@ -20,6 +20,7 @@ opportunity for users to contribute.
 - [Attribute Explorer](AttributeExplorer.md)
 - [Geometry Analysis](GeometryAnalysis.md)
 - [Results Viewer](ResultsViewer.md)
+- [VSPAERO Results](VSPAEROResults.md)
 - [Set Editor](SetEdit.md)
 
 ## Components

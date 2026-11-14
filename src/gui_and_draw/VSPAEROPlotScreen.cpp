@@ -72,7 +72,7 @@ static void AddSeriesLegend( ResultsPlotCanvas* canvas, const string & text, Fl_
     canvas->AddLegendEntry( text, c, lines, linestyle, sample_marker );
 }
 
-VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_PLOT_SCREEN_WIDTH, VSPAERO_PLOT_SCREEN_HEIGHT, "Results Manager - VSPAERO" )
+VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_PLOT_SCREEN_WIDTH, VSPAERO_PLOT_SCREEN_HEIGHT, "Results Manager - VSPAERO", "VSPAEROResults.html" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
