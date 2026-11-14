@@ -23,7 +23,6 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     m_FLTK_Window->callback( staticCloseCB, this );
-    m_FLTK_Window->resizable( 0 );
 
     if (!veh) return;
 
@@ -218,7 +217,7 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     m_PlotLayout.AddChoice( m_LegendChoice, "Legend:" );
 
     //==== Plot Area, Title Only ====//
-    Fl_Group* plottitle_group = new Fl_Group( 310, 25, 465, 490 );
+    Fl_Group* plottitle_group = new Fl_Group( 310, 25, 465, m_FLTK_Window->h() - 25 );
     // plottitle_group->box( Fl_Boxtype::FL_BORDER_BOX );
     plottitle_group->show();
     m_FLTK_Window->add( plottitle_group );
@@ -265,6 +264,15 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     m_ExecuteLayout.SetButtonWidth( 50 );
 
     m_ExecuteLayout.AddOutput( m_CDwResult, "CD0_w" );
+
+    // The plot takes a resize.  The tabs and the Execute area keep their size, and a strip along the
+    // bottom of the window, beneath them, takes the added height.
+    execute_group->resizable( nullptr );
+    plottitle_group->resizable( m_canvas );
+    Fl_Box* resize_box = new Fl_Box( 310, m_FLTK_Window->h() - 2, m_FLTK_Window->w() - 310, 2 );
+    m_FLTK_Window->add( resize_box );
+    m_FLTK_Window->resizable( resize_box );
+    m_FLTK_Window->size_range( m_FLTK_Window->w(), m_FLTK_Window->h() );
 
     m_SetMaxDragFlag = false;
     m_Dragging = false;
