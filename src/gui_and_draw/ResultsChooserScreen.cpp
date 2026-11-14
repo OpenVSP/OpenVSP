@@ -15,7 +15,7 @@
 
 #include <algorithm>
 
-ResultsChooserScreen::ResultsChooserScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 400, "Choose Results" )
+ResultsChooserScreen::ResultsChooserScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 400, "Choose Results", "ResultsViewer.html" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 

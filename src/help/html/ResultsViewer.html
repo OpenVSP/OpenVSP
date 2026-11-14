@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Results Viewer</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Results Viewer</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>Most analyses in OpenVSP store what they compute as a Result:
+Geometry Analysis cases, CompGeom, Planar Slice, Mass Properties,
+Projected Area, DegenGeom, VSPAERO, Wave Drag and Parasite Drag among
+them. The Results viewer is where those Results can be inspected and
+compared. The Data tab shows every value a Result holds; the Plot tab
+draws Results data against each other, across several runs at once. The
+viewer is opened by <em>Results...</em> at the top of the Analysis menu,
+or by <em>Show Results</em> on the Geometry Analysis screen.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#data-tab">Data Tab</a></td>
+<td style="text-align: left;">Data</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plots-and-curves">Plots and
+Curves</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#results-and-runs">Results and
+Runs</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#x-and-y-variables">X and Y
+Variables</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#vectors-or-across-results">Vectors or Across Results</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#axes">Axes</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#style-and-legend">Style and
+Legend</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#mouse-in-the-plot">Mouse in the
+Plot</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#export">Export</a></td>
+<td style="text-align: left;">Data, Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plots-in-the-model-file">Plots
+in the Model File</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plot-files">Plot Files</a></td>
+<td style="text-align: left;">Plot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<p>To plot one value against another from an analysis:</p>
+<ol type="1">
+<li>Run the analysis at least once, so its Results exist.</li>
+<li>On the Plot tab, press <em>Add</em> beside the Plot choice. The new
+plot starts with one empty curve.</li>
+<li>In the Results list, pick the kind of Result to plot.</li>
+<li>Pick the X variable, and one or more Y variables in the Y list.</li>
+<li>Set Runs to Newest to follow the latest run, or leave it at All to
+see every run together.</li>
+</ol>
+<p>To compare runs as a design changes, run the analysis again after
+each change; the plot draws each new run as it is made.</p>
+<h2 id="data-tab">Data Tab</h2>
+<p>The Result choice lists every Result in the order they were made, the
+newest last, and shows the newest when nothing else has been picked.
+Each entry reads nickname, case name, Results name, time and
+description; the nickname and case name lead only when the Result has
+them. A case name is the name of the Geometry Analysis case that made
+the Result, so two cases of the same analysis type can be told
+apart.</p>
+<p>A Nickname is a note for telling Results apart, such as "Baseline" or
+"Long tail". It leads the Result's entry here, in the Choose Results
+list, and in plot legends. Results are not saved with the model, and
+neither are their nicknames.</p>
+<p>The Data list shows each value's name, type and description. Picking
+one shows its contents below the list: a column for a vector of
+integers, doubles or strings, X, Y and Z columns for a vector of 3D
+points, and a table for a matrix of doubles.</p>
+<p><em>Delete</em> removes the Result shown and <em>Delete All</em>
+removes every Result. Plots that drew them draw what remains.</p>
+<h2 id="plots-and-curves">Plots and Curves</h2>
+<p>A plot is a set of axes with one or more curves on it. The Plot
+choice above the plot picks which plot is shown and edited,
+<em>Name</em> renames it, and <em>Add</em>, <em>Copy</em> and
+<em>Delete</em> make a new plot, copy the current one with all its
+curves, or remove it. A model can hold as many plots as are useful, for
+example one for lift, one for drag and one for mass. <em>Save...</em>
+writes the current plot to a plot file of its own, and <em>Load...</em>
+adds the plot a plot file holds, so a plot set up in one model can be
+used in another (see <a href="#plot-files">Plot Files</a>).</p>
+<p>A curve says what to plot: which kinds of Result, which of their
+runs, and which variables. One curve can draw several series, one for
+each Y variable and, in Vectors mode, for each run. Each line of the
+Curves list summarizes a curve as "Y vs X - kinds of Result (runs)".
+Picking a line puts that curve in the controls below. <em>Add</em> adds
+a curve that starts as a copy of the curve being edited, so a variation,
+such as the same variables from another kind of Result, takes one or two
+changes. <em>Delete</em> removes the curve being edited and <em>Delete
+All</em> removes every curve.</p>
+<p>Use more than one curve when series need different settings, such as
+different runs or different X variables on the same axes; when they
+share them, one curve with several Y variables is simpler.</p>
+<h2 id="results-and-runs">Results and Runs</h2>
+<p>The Results list shows each kind of Result that exists, with the
+number of runs of it. A kind is a Results name, such as Mass_Properties
+or VSPAERO_Polar, together with its Geometry Analysis case name when it
+has one. Several kinds can be picked at once; their variables are then
+listed together. A kind the curve plots stays listed, marked "(none)",
+while no Result of it exists, as after a model is opened.</p>
+<p>Runs picks which runs of each kind the curve plots:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Runs</th>
+<th style="text-align: left;">Plots</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">All</td>
+<td style="text-align: left;">Every run of each kind</td>
+</tr>
+<tr>
+<td style="text-align: left;">Chosen</td>
+<td style="text-align: left;">The runs checked on the Choose Results
+screen</td>
+</tr>
+<tr>
+<td style="text-align: left;">Newest</td>
+<td style="text-align: left;">Only the latest run of each kind</td>
+</tr>
+<tr>
+<td style="text-align: left;">Newest - 1</td>
+<td style="text-align: left;">The run before the latest; Newest - 2 the
+one before that, and so on</td>
+</tr>
+</tbody>
+</table>
+<p>The Newest - n entries go as far back as the curve's most-run kind
+allows. A kind with fewer runs than that draws nothing for that
+setting.</p>
+<p>Newest is the setting to follow a design as it changes: each new run
+replaces the last on the plot. All suits a short series of runs that
+belong together. A pair of curves, one at Newest and one at Newest - 1,
+shows the latest change against the run before it. Chosen picks out a
+few runs to compare from many.</p>
+<h3 id="choose-results">Choose Results</h3>
+<p>Picking Chosen, or pressing <em>Choose...</em>, opens the Choose
+Results screen for the curve being edited. It lists every Result of the
+curve's kinds, each by its nickname, case name, name, time and
+description, with a check box. Every run starts checked; unchecking one
+leaves it out of the plot, and <em>Check All</em> and <em>Check
+None</em> act on the whole list. Only the unchecked runs are remembered,
+so a Result made later is plotted until it is unchecked too. Nicknames
+make the list easier to read when many runs look alike.</p>
+<p>The choice is kept with the curve while OpenVSP runs, but it is not
+saved with the model, since the Results it names are not.</p>
+<h2 id="x-and-y-variables">X and Y Variables</h2>
+<p>The X choice and the Y list offer every numeric variable in the
+curve's runs, in the order first met. The number after each is its
+length, or "(none)" for a variable the curve plots that no current
+Result has. Variables take their labels from the Result's data
+names:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Data</th>
+<th style="text-align: left;">Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Vector of doubles, integers or
+booleans</td>
+<td style="text-align: left;">name</td>
+</tr>
+<tr>
+<td style="text-align: left;">Second or later entry with the same
+name</td>
+<td style="text-align: left;">name#1, name#2, ...</td>
+</tr>
+<tr>
+<td style="text-align: left;">Vector of 3D points</td>
+<td style="text-align: left;">name.x, name.y, name.z, and its magnitude
+|name|</td>
+</tr>
+<tr>
+<td style="text-align: left;">Matrix</td>
+<td style="text-align: left;">each column, name[:,j], or each row,
+name[i,:]</td>
+</tr>
+</tbody>
+</table>
+<p>Strings cannot be plotted. The Matrix choice decides whether a matrix
+offers its columns or its rows.</p>
+<p>Each Y variable picked makes its own series. X is shared by the
+curve's series. The first X entry, Index, plots each value against its
+place in the vector, counted from 0. When X and Y have different
+lengths, the shorter sets how many points are drawn and a note under the
+plot says so.</p>
+<h2 id="vectors-or-across-results">Vectors or Across Results</h2>
+<p>The Plot choice sets how a curve turns Results into series.</p>
+<p>Vectors plots each run's vectors: one series for each run and each Y
+variable, with X and Y taken from the same run. It is the mode for data
+that is already a curve in each Result, such as a planar slice's area
+distribution. A run that lacks the Y variable makes no series.</p>
+<p>Across Results plots one point per run: one series for each Y
+variable, through all the curve's runs in the order they were made. Each
+point takes one element of each run's vector, the first or the last as
+Element chooses. With the first X entry, Result Order, the points are
+numbered 0, 1, 2, ... by run; with an X variable, X takes the same
+element of that variable. This is the mode for a value against a design
+change, such as total mass across a series of Mass Properties runs, or a
+quantity against a value that was varied between runs. Last suits
+Results whose vectors build toward a final value, such as a VSPAERO
+convergence history, whose last entry is the converged coefficient. Runs
+that lack the data are skipped, and a note under the plot counts
+them.</p>
+<h2 id="axes">Axes</h2>
+<p>Each axis limit has a check box and a value. Unchecked, the limit is
+automatic: it holds all the data, rounded to a tidy value, and the box
+shows that value. Checked, the value typed is used. Zooming or panning
+with the mouse checks all four and sets them to the new view.
+<em>Auto</em>, or a double click in the plot, makes all four automatic
+again. Limits that cannot be drawn, such as a minimum above the maximum,
+fall back to the automatic ones.</p>
+<p><em>Log X</em> and <em>Log Y</em> make an axis logarithmic. Automatic
+limits on a log axis are whole decades. Points at zero or below cannot
+be drawn on a log axis and are left out, as are points that are not
+finite on any axis; a note under the plot counts them, and lines break
+where they were.</p>
+<h2 id="style-and-legend">Style and Legend</h2>
+<p><em>Lines</em> draws lines through each series' points and
+<em>Points</em> draws a marker at each point. A series with only one
+point that can be drawn always shows its marker.</p>
+<p>Series are styled so that what changes between them is visible. When
+only one thing varies, either the runs or the Y variables, each series
+takes the next color in turn, and past the tenth color the colors repeat
+with a new dash; the markers cycle through five shapes. When both vary,
+the color shows the Y variable and the dash and marker show the run, so
+every series of one run shares a dash and marker, and every series of
+one variable shares a color.</p>
+<p>The legend names only what tells the series apart: the run when the
+runs differ, the Y variable when the variables differ, and the X
+variable when the curves use different ones; a lone series is named by
+both its run and its variable. A run is named by its nickname and its
+case name, or its Results name when it has no case name. Runs whose
+names repeat add the time they were made, and runs made in the same
+second are numbered. Across Results, a series is named by its runs'
+names and the number of runs. Giving runs nicknames is the simplest way
+to a legend that reads well.</p>
+<p>Legend places the legend in a corner of the plot or turns it off.
+Best puts it in the corner that covers the fewest points and lines, and
+moves it as the view changes.</p>
+<h2 id="mouse-in-the-plot">Mouse in the Plot</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Press, in OpenVSP's own scheme</th>
+<th style="text-align: left;">In a plot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Left drag, or Shift + left drag</td>
+<td style="text-align: left;">Zoom to the box drawn</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wheel</td>
+<td style="text-align: left;">Zoom about the pointer; scrolling up zooms
+in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Middle drag, or Ctrl or Cmd + left
+drag</td>
+<td style="text-align: left;">Zoom about the middle of the plot;
+dragging down zooms in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right drag, or Alt + left drag</td>
+<td style="text-align: left;">Pan</td>
+</tr>
+<tr>
+<td style="text-align: left;">Double click</td>
+<td style="text-align: left;">Return to the whole plot</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hover</td>
+<td style="text-align: left;">Read out the nearest point</td>
+</tr>
+</tbody>
+</table>
+<p>These are the presses of OpenVSP's own scheme; the plot follows the
+scheme and 3D View settings chosen in the preferences, as <a
+href="MouseKeyboard.html#plots">Mouse and Keyboard</a> describes. The
+keys give a mouse of one or two buttons every action, on Windows, Linux
+and macOS alike. Hovering within a few pixels of a drawn point circles
+it and reads out, under the plot, its series, its index in the data, and
+its x and y; a series hidden by turning both Lines and Points off is not
+read out. Away from any point, the readout gives the x and y under the
+cursor. A larger window gives the plot the extra room, and a taller one
+lengthens the Results list too.</p>
+<h2 id="export">Export</h2>
+<p>On the Data tab, <em>Export CSV</em> writes the Result shown to a CSV
+file.</p>
+<p>On the Plot tab, <em>Export CSV</em> writes the data as plotted: two
+columns, X and Y, for each series, headed with the series' legend name
+and the variable, with values written in full precision. <em>Save
+Image</em> writes the plot as it is shown, as a PNG file, or as an SVG
+file when the file name ends in .svg.</p>
+<h2 id="plots-in-the-model-file">Plots in the Model File</h2>
+<p>Plots and their curves are saved with the model; Results are not. A
+curve names kinds of Result and variables, not particular Results, so
+after a model is opened its plots stay empty, with a note that there are
+no Results for each curve, until the analyses are run again. Then they
+fill from the new runs. A plot set up once can be used for every later
+study of the same model.</p>
+<p>Inserting a file brings its plots too, after the plots already in the
+model; a plot whose name is taken gets a number added. A new model
+starts with no plots.</p>
+<h2 id="plot-files">Plot Files</h2>
+<p>A plot that took a while to set up can be kept in a file of its own
+and loaded into any model. <em>Save...</em> beside the Plot choice
+writes the current plot to a plot file (*.vspplot): its name, axes,
+style and every curve, with each curve's kinds of Result, runs and
+variables. No Results are written. <em>Load...</em> reads a plot file
+and adds its plot after the plots already in the model, as the current
+plot; a plot whose name is taken gets a number added. A file can be
+loaded more than once, and each load adds another plot.</p>
+<p>A plot file names its data the same way the model file does: each
+kind of Result by its Results name and case name, and each variable by
+its label. It holds no Result IDs, so it does not depend on the model it
+was saved from. Loaded into a model whose Results match, the plot draws
+them at once. Loaded into a model without them, it behaves as a plot
+does after a model is opened: the Results list keeps each kind the curve
+names, marked (none), the X and Y lists keep its variables, the plot is
+empty with a note that there are no Results for the curve, and it fills
+when the analyses are run. A case name is the name of a Geometry
+Analysis case, so in another model the case must have the same name for
+its Results to match. Manual axis limits are kept as they were saved. A
+curve that plots chosen runs (Choose...) plots every run after a load,
+since which runs were left out names particular Results.</p>
+<h2 id="scripting">Scripting</h2>
+<p>The API can build the same plots a user builds on the Plot tab, so a
+script that runs a study can leave its plots ready to look at in the
+GUI, or saved in the model for later. Plots and curves are identified by
+ID. A plot's axes and style, and a curve's mode, element, matrix choice
+and runs, are Parms: group "ResultsPlot" for a plot (XMin, XMax, YMin,
+YMax, XMinManual, XMaxManual, YMinManual, YMaxManual, XLog, YLog,
+ShowLines, ShowPoints, Legend) and group "ResultsCurve" for a curve
+(Mode, Element, MatrixRows, Run). They are set with SetParmVal, and a
+plot is renamed with SetContainerName. The enums RESULTS_PLOT_MODE,
+RESULTS_PLOT_ELEMENT, RESULTS_PLOT_LEGEND and RESULTS_PLOT_RUN give
+their values; Run is RESULTS_RUN_CHOSEN (-1), RESULTS_RUN_ALL (0),
+RESULTS_RUN_NEWEST (1), or n for the nth newest.</p>
+<p>Unlike <em>Add</em> on the Plot tab, AddResultsCurve adds an empty
+curve.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">AddResultsPlot</td>
+<td style="text-align: left;">Add a plot, with one empty curve, and make
+it active</td>
+</tr>
+<tr>
+<td style="text-align: left;">CopyResultsPlot</td>
+<td style="text-align: left;">Copy a plot and its curves, and make the
+copy active</td>
+</tr>
+<tr>
+<td style="text-align: left;">DeleteResultsPlot</td>
+<td style="text-align: left;">Delete a plot and its curves</td>
+</tr>
+<tr>
+<td style="text-align: left;">DeleteAllResultsPlots</td>
+<td style="text-align: left;">Delete every plot</td>
+</tr>
+<tr>
+<td style="text-align: left;">WriteResultsPlotFile</td>
+<td style="text-align: left;">Write a plot to a plot file, without
+Results</td>
+</tr>
+<tr>
+<td style="text-align: left;">ReadResultsPlotFile</td>
+<td style="text-align: left;">Add the plot a plot file holds, and make
+it active</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetAllResultsPlotIDs</td>
+<td style="text-align: left;">IDs of every plot, in the order the viewer
+lists them</td>
+</tr>
+<tr>
+<td style="text-align: left;">SetActiveResultsPlot</td>
+<td style="text-align: left;">Make a plot the one the viewer shows</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetActiveResultsPlot</td>
+<td style="text-align: left;">ID of the plot the viewer shows</td>
+</tr>
+<tr>
+<td style="text-align: left;">AddResultsCurve</td>
+<td style="text-align: left;">Add an empty curve to a plot</td>
+</tr>
+<tr>
+<td style="text-align: left;">DeleteResultsCurve</td>
+<td style="text-align: left;">Delete a curve</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsCurveIDs</td>
+<td style="text-align: left;">IDs of a plot's curves, in order</td>
+</tr>
+<tr>
+<td style="text-align: left;">SetResultsCurveSources</td>
+<td style="text-align: left;">Set a curve's kinds of Result, as Results
+names and case names</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsCurveSourceNames</td>
+<td style="text-align: left;">Results names of a curve's kinds of
+Result</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsCurveSourceCaseNames</td>
+<td style="text-align: left;">Case names of a curve's kinds of Result,
+empty where there is none</td>
+</tr>
+<tr>
+<td style="text-align: left;">SetResultsCurveXVar</td>
+<td style="text-align: left;">Set a curve's X variable by label; empty
+for the index or Result order</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsCurveXVar</td>
+<td style="text-align: left;">Label of a curve's X variable</td>
+</tr>
+<tr>
+<td style="text-align: left;">SetResultsCurveYVars</td>
+<td style="text-align: left;">Set a curve's Y variables by label</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsCurveYVars</td>
+<td style="text-align: left;">Labels of a curve's Y variables</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsCurveResultIDs</td>
+<td style="text-align: left;">IDs of the Results a curve plots now,
+oldest first</td>
+</tr>
+<tr>
+<td style="text-align: left;">SetResultsCurveChosenIDs</td>
+<td style="text-align: left;">Choose the Results a curve plots when its
+runs are Chosen</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsCurveChosenIDs</td>
+<td style="text-align: left;">IDs of the Results a curve plots when its
+runs are Chosen</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsPlotVarLabels</td>
+<td style="text-align: left;">Labels of the variables in a Result that a
+curve can plot</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsPlotVarData</td>
+<td style="text-align: left;">Values of one variable in a Result, as a
+curve plots them</td>
+</tr>
+<tr>
+<td style="text-align: left;">SetResultsNickname</td>
+<td style="text-align: left;">Give a Result a nickname; an empty string
+removes it</td>
+</tr>
+<tr>
+<td style="text-align: left;">GetResultsNickname</td>
+<td style="text-align: left;">A Result's nickname, empty when it has
+none</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

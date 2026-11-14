@@ -118,6 +118,10 @@ Parms</a></td>
 <td>link, design variable and preset windows</td>
 </tr>
 <tr>
+<td><a href="#plots">Plots</a></td>
+<td>results plots, the blade curve plot and the Edit Curve view</td>
+</tr>
+<tr>
 <td><a href="#lists-and-trees">Lists and trees</a></td>
 <td>the Geom Browser and other lists</td>
 </tr>
@@ -915,6 +919,57 @@ text box, such as an advanced link's code or a script, to paste the ID.
 On Linux it is also left for a middle-click paste.</p>
 <p>The edit curve and blade curve plots take a drag of their points, and
 the Wave Drag window's area plot takes a drag of its slicing line.</p>
+<h2 id="plots">Plots</h2>
+<p>The Results Viewer's plot, the VSPAERO Results Manager's plots, the
+Wave Drag area plot, the Propeller blade curve plot and the Edit Curve
+view take the mouse alike, from the same bindings and settings as the 3D
+window. A press does in a plot what it does in the 3D window, in two
+dimensions: what rotates the view draws a box to zoom to, what pans or
+zooms the view pans or zooms the plot, and Zoom in and Zoom out step the
+zoom. A press that would go first to a waiting tool pick goes first to
+the point under it, or to Wave Drag's slice line, and moves it. The
+wheel and zoom drags follow the 3D View preferences' Wheel Direction,
+Wheel Zooms, Wheel Step, Drag Direction, Drag Zooms and Zoom Speed, but
+a zoom drag always grows with the distance moved. A double click returns
+to the whole plot, and hovering over a results plot reads out the
+nearest point.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Press, in OpenVSP's own scheme</th>
+<th style="text-align: left;">In a plot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Left drag, or Shift + left drag</td>
+<td style="text-align: left;">Zoom to the box drawn</td>
+</tr>
+<tr>
+<td style="text-align: left;">Left drag starting on a point</td>
+<td style="text-align: left;">Move the point</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wheel</td>
+<td style="text-align: left;">Zoom about the pointer; scrolling up zooms
+in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Middle drag, or Ctrl or Cmd + left
+drag</td>
+<td style="text-align: left;">Zoom about the middle of the plot;
+dragging down zooms in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right drag, or Alt + left drag</td>
+<td style="text-align: left;">Pan</td>
+</tr>
+<tr>
+<td style="text-align: left;">Double click</td>
+<td style="text-align: left;">Return to the whole plot</td>
+</tr>
+</tbody>
+</table>
 <h2 id="lists-and-trees">Lists and trees</h2>
 <ul>
 <li>Renaming: in the lists of names (Geoms, sets, links, advanced links,
@@ -927,6 +982,9 @@ double-click opens the part instead, and Enter or F2 renames it.</li>
 its name to the clipboard, ready to paste into the code.</li>
 <li>Attributes: a double-click on an attribute in an attribute editor,
 on any tab, opens it in the Attribute Explorer.</li>
+<li>Run lists: in the Runs tabs of the VSPAERO Results Manager and Wave
+Drag, a click on a check box, or Space on the selected line, checks or
+unchecks a run.</li>
 <li>Column widths: in lists with column headings, dragging the line
 between two columns sets their width.</li>
 <li>Selecting several: Shift-click selects a range and Ctrl-click adds

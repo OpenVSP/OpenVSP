@@ -96,7 +96,7 @@ string GetResultsListText( Results* res )
     return text;
 }
 
-ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : TabScreen( mgr, 1000, 800, "Results" )
+ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : TabScreen( mgr, 1000, 800, "Results", "ResultsViewer.html" )
 {
     m_CurrDisplayGroup = NULL;
 

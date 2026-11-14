@@ -9,6 +9,10 @@ Each analysis task is configured with the geometry or geometries required.  The 
 Set, Mode, or an individual component.  The secondary geometry (when required) can be either a Set, an individual
 component, or (in special cases) direct specification of a point or plane.
 
+Each run of a case stores what it computes as a Result that carries the case's name.  *Show Results*, or Analysis >
+Results..., opens the [Results Viewer](ResultsViewer.md), which can tell two cases of the same type apart and plot one
+case across its runs.
+
 Some of the analysis tasks require a specific type of geometry for the analysis.  For example, the Plane 2pt Angle
 analysis used to calculate the tail strike angle requires a 2pt Ground Plane Auxiliary Geometry for its secondary
 input.  These requirements are summarized in the following table.

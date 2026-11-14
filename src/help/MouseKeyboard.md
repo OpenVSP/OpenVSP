@@ -19,6 +19,7 @@ obvious use, including where a Parm can be dragged and dropped.
 | [Schemes](#schemes) | File > Preferences |
 | [Parm controls](#parm-controls) | every slider and value box |
 | [Dragging and dropping Parms](#dragging-and-dropping-parms) | link, design variable and preset windows |
+| [Plots](#plots) | results plots, the blade curve plot and the Edit Curve view |
 | [Lists and trees](#lists-and-trees) | the Geom Browser and other lists |
 | [Keyboard shortcuts](#keyboard-shortcuts) | menus and other windows |
 
@@ -367,6 +368,26 @@ script, to paste the ID.  On Linux it is also left for a middle-click paste.
 The edit curve and blade curve plots take a drag of their points, and the Wave Drag window's area plot takes a drag
 of its slicing line.
 
+## Plots
+
+The Results Viewer's plot, the VSPAERO Results Manager's plots, the Wave Drag area plot, the Propeller blade curve
+plot and the Edit Curve view take the mouse alike, from the same bindings and settings as the 3D window.  A press does
+in a plot what it does in the 3D window, in two dimensions: what rotates the view draws a box to zoom to, what pans or
+zooms the view pans or zooms the plot, and Zoom in and Zoom out step the zoom.  A press that would go first to a
+waiting tool pick goes first to the point under it, or to Wave Drag's slice line, and moves it.  The wheel and zoom
+drags follow the 3D View preferences' Wheel Direction, Wheel Zooms, Wheel Step, Drag Direction, Drag Zooms and Zoom
+Speed, but a zoom drag always grows with the distance moved.  A double click returns to the whole plot, and hovering
+over a results plot reads out the nearest point.
+
+| Press, in OpenVSP's own scheme                          | In a plot                                                  |
+|:--------------------------------------------------------|:-----------------------------------------------------------|
+| Left drag, or Shift + left drag                         | Zoom to the box drawn                                      |
+| Left drag starting on a point                           | Move the point                                             |
+| Wheel                                                   | Zoom about the pointer; scrolling up zooms in              |
+| Middle drag, or Ctrl or Cmd + left drag                 | Zoom about the middle of the plot; dragging down zooms in  |
+| Right drag, or Alt + left drag                          | Pan                                                        |
+| Double click                                            | Return to the whole plot                                   |
+
 ## Lists and trees
 
 - Renaming: in the lists of names (Geoms, sets, links, advanced links, attributes, modes, measures, CFD sources, FEA
@@ -376,6 +397,8 @@ of its slicing line.
 - Advanced Link: a double-click on an input or output variable copies its name to the clipboard, ready to paste into
   the code.
 - Attributes: a double-click on an attribute in an attribute editor, on any tab, opens it in the Attribute Explorer.
+- Run lists: in the Runs tabs of the VSPAERO Results Manager and Wave Drag, a click on a check box, or Space on the
+  selected line, checks or unchecks a run.
 - Column widths: in lists with column headings, dragging the line between two columns sets their width.
 - Selecting several: Shift-click selects a range and Ctrl-click adds or removes one; dragging extends the selection.
   In the Geom Browser Ctrl is Ctrl even on macOS, and Alt-click also selects every Geom below the one clicked.
