@@ -1080,12 +1080,13 @@ void WaveDragScreen::LimitsCallBack( double xmin, double xmax, double ymin, doub
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-// A press on the slice location bar drags the bar; any other press zooms or pans.
+// A press on the slice location bar drags the bar; any other press zooms or pans.  The canvas offers only a press
+// that goes to a point or line first.
 bool WaveDragScreen::PressCallBack( int event, int mx, int my )
 {
     if ( event == FL_PUSH )
     {
-        m_Dragging = Fl::event_button() == FL_LEFT_MOUSE && hittest( mx, WaveDragMgr.m_SlicingLoc(), 5 );
+        m_Dragging = hittest( mx, WaveDragMgr.m_SlicingLoc(), 5 );
         return m_Dragging;
     }
     if ( event == FL_DRAG && m_Dragging )

@@ -19,6 +19,7 @@
 #include "main.h"
 #include "MainVSPScreen.h"
 #include "NavIcons.h"
+#include "PlotNav.h"
 #include "ToolbarIcons.h"
 #include "MainGLWindow.h"
 #include "VspCaptiveWindow.h"
@@ -279,6 +280,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     VSPGUI::NavSettings nav_settings;
     nav_settings.Load();
     m_GlWin->GetNav().SetSettings( nav_settings );
+    VSPGUI::SetPlotNavSettings( nav_settings );
     m_GlWin->GetNav().SetRotateMode( nav_settings.m_StartupRotateMode );
 
     m_DeviceButton = nullptr;
@@ -1013,6 +1015,7 @@ void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
     int old_startup = m_GlWin->GetNav().GetSettings().m_StartupRotateMode;
 
     m_GlWin->GetNav().SetSettings( settings );
+    VSPGUI::SetPlotNavSettings( settings );
 
     // The rotation mode changes with the startup mode, and only then.
     if ( settings.m_StartupRotateMode != old_startup )

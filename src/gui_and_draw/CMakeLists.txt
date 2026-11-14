@@ -95,6 +95,7 @@ ParmDebugScreen.cpp
 ParmLinkScreen.cpp
 ParmScreen.cpp
 PickSetScreen.cpp
+PlotNav.cpp
 PodScreen.cpp
 PreferencesScreen.cpp
 ProjectionScreen.cpp
@@ -207,6 +208,7 @@ ParmDebugScreen.h
 ParmLinkScreen.h
 ParmScreen.h
 PickSetScreen.h
+PlotNav.h
 PodScreen.h
 PreferencesScreen.h
 ProjectionScreen.h

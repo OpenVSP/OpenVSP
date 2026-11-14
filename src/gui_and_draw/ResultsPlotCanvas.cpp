@@ -7,6 +7,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ResultsPlotCanvas.h"
+#include "PlotNav.h"
 #include "GroupLayout.h"
 
 #include "ResultsMgr.h"
@@ -529,6 +530,10 @@ ResultsPlotCanvas::ResultsPlotCanvas( int x, int y, int w, int h ) : Vsp_Canvas(
     m_LegendPlacement = vsp::RESULTS_LEGEND_BEST;
     m_Dragging = false;
     m_Panning = false;
+    m_DragZooming = false;
+    m_ZoomY = 0;
+    m_ZoomAnchorX = 0;
+    m_ZoomAnchorY = 0;
     m_PushButton = 0;
     m_PushX = m_PushY = m_DragX = m_DragY = 0;
     m_PanXMin = m_PanXMax = m_PanYMin = m_PanYMax = 0;
@@ -907,6 +912,18 @@ void ResultsPlotCanvas::UpdateReadout( int mx, int my )
     }
 }
 
+// The point a zoom keeps fixed: the pointer's, or the middle of the plot
+void ResultsPlotCanvas::AnchorPoint( int anchor, int mx, int my, int & ax, int & ay )
+{
+    ax = mx;
+    ay = my;
+    if ( anchor == VSPGUI::NAV_ANCHOR_CENTER && current_x() && current_y() )
+    {
+        ax = ( current_x()->position( current_x()->minimum() ) + current_x()->position( current_x()->maximum() ) ) / 2;
+        ay = ( current_y()->position( current_y()->minimum() ) + current_y()->position( current_y()->maximum() ) ) / 2;
+    }
+}
+
 void ResultsPlotCanvas::ZoomAbout( int mx, int my, double factor )
 {
     Ca_Axis_* xa = current_x();
@@ -1033,46 +1050,70 @@ int ResultsPlotCanvas::handle( int event )
             UpdateReadout( Fl::event_x(), Fl::event_y() );
             return 1;
         case FL_PUSH:
-            // A second button during a drag is ignored.
-            if ( m_Dragging || m_Panning || m_PressTaken )
-            {
-                return 1;
-            }
-            m_PushButton = Fl::event_button();
-            if ( m_PressCB && m_PressCB( m_PressData, FL_PUSH, Fl::event_x(), Fl::event_y() ) )
-            {
-                m_PressTaken = true;
-                return 1;
-            }
-            if ( Fl::event_clicks() > 0 && Fl::event_button() == FL_LEFT_MOUSE )
-            {
-                // Double click: back to automatic limits.
-                Fl::event_clicks( 0 );
-                m_Dragging = false;
-                ClearHighlight();
-                if ( m_LimitsCB )
+        {
+                // A second button during a drag is ignored.
+                if ( m_Dragging || m_Panning || m_DragZooming || m_PressTaken )
                 {
-                    m_LimitsCB( m_LimitsData, 0, 0, 0, 0, true );
+                    return 1;
+                }
+                m_PushButton = Fl::event_button();
+                bool pick_first = false;
+                VSPGUI::PlotNavAction action = VSPGUI::PlotNavPress( pick_first );
+                if ( pick_first && m_PressCB && m_PressCB( m_PressData, FL_PUSH, Fl::event_x(), Fl::event_y() ) )
+                {
+                    // A press the owner took does not begin a double click.
+                    Fl::event_clicks( 0 );
+                    m_PressTaken = true;
+                    return 1;
+                }
+                if ( Fl::event_clicks() > 0 && Fl::event_button() == FL_LEFT_MOUSE )
+                {
+                    // Double click: back to automatic limits.
+                    Fl::event_clicks( 0 );
+                    m_Dragging = false;
+                    ClearHighlight();
+                    if ( m_LimitsCB )
+                    {
+                        m_LimitsCB( m_LimitsData, 0, 0, 0, 0, true );
+                    }
+                    return 1;
+                }
+                m_PushX = m_DragX = Fl::event_x();
+                m_PushY = m_DragY = Fl::event_y();
+                // The press does what the 3D view's binding for it does, a rotation drawing a box to zoom to.
+                if ( action == VSPGUI::PLOT_NAV_BOX_ZOOM )
+                {
+                    m_Dragging = true;
+                }
+                else if ( action == VSPGUI::PLOT_NAV_ZOOM )
+                {
+                    m_DragZooming = true;
+                    m_ZoomY = m_PushY;
+                    AnchorPoint( VSPGUI::GetPlotNavSettings().m_DragZoomAnchor, m_PushX, m_PushY, m_ZoomAnchorX, m_ZoomAnchorY );
+                }
+                else if ( action == VSPGUI::PLOT_NAV_ZOOM_IN || action == VSPGUI::PLOT_NAV_ZOOM_OUT )
+                {
+                    int ax, ay;
+                    AnchorPoint( VSPGUI::GetPlotNavSettings().m_WheelAnchor, m_PushX, m_PushY, ax, ay );
+                    double factor = 1.15;
+                    if ( action == VSPGUI::PLOT_NAV_ZOOM_IN )
+                    {
+                        factor = 1.0 / factor;
+                    }
+                    ZoomAbout( ax, ay, factor );
+                }
+                else if ( action == VSPGUI::PLOT_NAV_PAN && current_x() && current_y() )
+                {
+                    m_Panning = true;
+                    m_PanXMin = current_x()->minimum();
+                    m_PanXMax = current_x()->maximum();
+                    m_PanYMin = current_y()->minimum();
+                    m_PanYMax = current_y()->maximum();
+                    m_PanKx = PanScale( current_x(), m_PanXMin, m_PanXMax );
+                    m_PanKy = PanScale( current_y(), m_PanYMin, m_PanYMax );
                 }
                 return 1;
-            }
-            m_PushX = m_DragX = Fl::event_x();
-            m_PushY = m_DragY = Fl::event_y();
-            if ( Fl::event_button() == FL_LEFT_MOUSE && !Fl::event_shift() )
-            {
-                m_Dragging = true;
-            }
-            else if ( current_x() && current_y() )
-            {
-                m_Panning = true;
-                m_PanXMin = current_x()->minimum();
-                m_PanXMax = current_x()->maximum();
-                m_PanYMin = current_y()->minimum();
-                m_PanYMax = current_y()->maximum();
-                m_PanKx = PanScale( current_x(), m_PanXMin, m_PanXMax );
-                m_PanKy = PanScale( current_y(), m_PanYMin, m_PanYMax );
-            }
-            return 1;
+        }
         case FL_DRAG:
             if ( m_PressTaken )
             {
@@ -1084,6 +1125,15 @@ int ResultsPlotCanvas::handle( int event )
             if ( m_Dragging )
             {
                 redraw();
+            }
+            else if ( m_DragZooming )
+            {
+                // Down zooms in and up zooms out, unless the 3D view's drag direction is reversed.
+                if ( m_DragY != m_ZoomY )
+                {
+                    ZoomAbout( m_ZoomAnchorX, m_ZoomAnchorY, VSPGUI::PlotNavDragFactor( m_DragY - m_ZoomY ) );
+                    m_ZoomY = m_DragY;
+                }
             }
             else if ( m_Panning && m_LimitsCB && current_x() && current_y() )
             {
@@ -1124,6 +1174,7 @@ int ResultsPlotCanvas::handle( int event )
                 redraw();
             }
             m_Panning = false;
+            m_DragZooming = false;
             return 1;
         case FL_MOUSEWHEEL:
         {
@@ -1132,12 +1183,9 @@ int ResultsPlotCanvas::handle( int event )
             {
                 break;
             }
-            double factor = 1.2;
-            if ( Fl::event_dy() < 0 )
-            {
-                factor = 1.0 / 1.2;
-            }
-            ZoomAbout( Fl::event_x(), Fl::event_y(), factor );
+            int ax, ay;
+            AnchorPoint( VSPGUI::GetPlotNavSettings().m_WheelAnchor, Fl::event_x(), Fl::event_y(), ax, ay );
+            ZoomAbout( ax, ay, VSPGUI::PlotNavWheelFactor( Fl::event_dy() ) );
             return 1;
         }
     }

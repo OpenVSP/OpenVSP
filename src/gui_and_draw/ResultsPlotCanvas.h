@@ -122,6 +122,7 @@ protected:
     void UpdateReadout( int mx, int my );
     bool AxisValue( Ca_Axis_* axis, int pix, double & val );
     void ZoomAbout( int mx, int my, double factor );
+    void AnchorPoint( int anchor, int mx, int my, int & ax, int & ay );
     void SendLimits( double x0, double x1, double y0, double y1 );
     void ClearHighlight();
     void SetReadout( const string & text );
@@ -143,6 +144,10 @@ protected:
 
     bool m_Dragging;
     bool m_Panning;
+    bool m_DragZooming;
+    int m_ZoomY;                    // Where a drag zoom last zoomed from
+    int m_ZoomAnchorX;              // The point a drag zoom keeps fixed
+    int m_ZoomAnchorY;
     int m_PushButton;               // Button that started the drag
     int m_PushX, m_PushY;
     int m_DragX, m_DragY;
