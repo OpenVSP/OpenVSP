@@ -235,6 +235,25 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CpSliceYAxisFlipFlag.SetDescript( "Flag to Flip Y Axis in Cp Slice Plot" );
     m_CpSlicePlotLinesFlag.Init( "CpSlicePlotLinesFlag", groupname, this, true, false, true );
     m_CpSlicePlotLinesFlag.SetDescript( "Flag to Plot Lines" );
+    m_CpSliceShowPoints.Init( "CpSliceShowPoints", groupname, this, true, false, true );
+    m_CpSliceShowPoints.SetDescript( "Flag to plot points in the Cp Slice plot" );
+
+    m_ConvergenceShowLines.Init( "ConvergenceShowLines", groupname, this, true, false, true );
+    m_ConvergenceShowLines.SetDescript( "Flag to plot lines in the Convergence plot" );
+    m_ConvergenceShowPoints.Init( "ConvergenceShowPoints", groupname, this, true, false, true );
+    m_ConvergenceShowPoints.SetDescript( "Flag to plot points in the Convergence plot" );
+    m_LoadDistShowLines.Init( "LoadDistShowLines", groupname, this, true, false, true );
+    m_LoadDistShowLines.SetDescript( "Flag to plot lines in the Load Distribution plot" );
+    m_LoadDistShowPoints.Init( "LoadDistShowPoints", groupname, this, true, false, true );
+    m_LoadDistShowPoints.SetDescript( "Flag to plot points in the Load Distribution plot" );
+    m_SweepShowLines.Init( "SweepShowLines", groupname, this, true, false, true );
+    m_SweepShowLines.SetDescript( "Flag to plot lines in the Sweep plot" );
+    m_SweepShowPoints.Init( "SweepShowPoints", groupname, this, true, false, true );
+    m_SweepShowPoints.SetDescript( "Flag to plot points in the Sweep plot" );
+    m_UnsteadyShowLines.Init( "UnsteadyShowLines", groupname, this, true, false, true );
+    m_UnsteadyShowLines.SetDescript( "Flag to plot lines in the Unsteady plot" );
+    m_UnsteadyShowPoints.Init( "UnsteadyShowPoints", groupname, this, true, false, true );
+    m_UnsteadyShowPoints.SetDescript( "Flag to plot points in the Unsteady plot" );
 
     m_UnsteadyXMinIsManual.Init( "m_UnsteadyXMinIsManual", groupname, this, 0, 0, 1 );
     m_UnsteadyXMaxIsManual.Init( "m_UnsteadyXMaxIsManual", groupname, this, 0, 0, 1 );

@@ -528,6 +528,17 @@ public:
 
     BoolParm m_CpSliceYAxisFlipFlag;
     BoolParm m_CpSlicePlotLinesFlag;
+    BoolParm m_CpSliceShowPoints;
+
+    // Whether each plot draws its series' lines and its points.
+    BoolParm m_ConvergenceShowLines;
+    BoolParm m_ConvergenceShowPoints;
+    BoolParm m_LoadDistShowLines;
+    BoolParm m_LoadDistShowPoints;
+    BoolParm m_SweepShowLines;
+    BoolParm m_SweepShowPoints;
+    BoolParm m_UnsteadyShowLines;
+    BoolParm m_UnsteadyShowPoints;
 
     BoolParm m_UnsteadyXMinIsManual;
     BoolParm m_UnsteadyXMaxIsManual;

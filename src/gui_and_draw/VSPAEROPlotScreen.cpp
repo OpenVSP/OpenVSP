@@ -38,6 +38,40 @@ static bool MadeEarlier( const string & a, const string & b )
     return ra->GetCreationCount() < rb->GetCreationCount();
 }
 
+// Draws a series as lines, points, both or neither.  The canvas reads out the points of a series it draws.
+static void AddSeries( ResultsPlotCanvas* canvas, const vector < double > & x, const vector < double > & y, Fl_Color c, int linestyle, int marker,
+                       bool lines, bool points )
+{
+    if ( lines || points )
+    {
+        canvas->AddSeriesPoints( x, y );
+    }
+
+    if ( lines && points )
+    {
+        AddPointLine( x, y, 2, c, 4, marker, linestyle );
+    }
+    else if ( lines )
+    {
+        AddPointLine( x, y, 2, c, 0, CA_NO_POINT, linestyle );
+    }
+    else if ( points )
+    {
+        AddPoint( x, y, c, 4, marker );
+    }
+}
+
+// A legend sample shows what AddSeries draws.
+static void AddSeriesLegend( GroupLayout & layout, const string & text, Fl_Color c, int linestyle, int marker, bool lines, bool points )
+{
+    int sample_marker = CA_NO_POINT;
+    if ( points )
+    {
+        sample_marker = marker;
+    }
+    layout.AddLegendEntry( text, c, lines, linestyle, sample_marker );
+}
+
 VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_PLOT_SCREEN_WIDTH, VSPAERO_PLOT_SCREEN_HEIGHT, "Results Manager - VSPAERO" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
@@ -75,8 +109,8 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     int actionButtonHeight = 6 * rowHeight;          //space reserved for action buttons at the bottom
     //  remaining space is used for the flow condition browser: what is left of the control layout
     //  after the y-data group, the space below it and the flow condition group, the legend's
-    //  divider, scroll and gap, and the action buttons, a divider and five rows
-    int convergenceActionHeight = m_ConvergenceControlLayout.GetDividerHeight() + 5 * rowHeight;
+    //  divider, scroll and gap, and the action buttons, a divider and six rows
+    int convergenceActionHeight = m_ConvergenceControlLayout.GetDividerHeight() + 6 * rowHeight;
     int flowConditionSelectHeight = m_ConvergenceControlLayout.GetH() - yDataSelectHeight - 4 * groupBorderWidth -
                                     m_ConvergenceControlLayout.GetDividerHeight() - ( legendHeight - rowHeight ) -
                                     m_ConvergenceControlLayout.GetGapHeight() - convergenceActionHeight;
@@ -149,6 +183,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     convergenceActionLayout.AddSlider( m_ConvergenceYMaxSlider, "Ymax", 1.0, "%g" );
     convergenceActionLayout.InitWidthHeightVals();
 
+    convergenceActionLayout.SetFitWidthFlag( false );
+    convergenceActionLayout.ForceNewLine();
+    convergenceActionLayout.SetButtonWidth( convergenceActionLayout.GetW() / 2 );
+    convergenceActionLayout.AddButton( m_ConvergenceLinesToggle, "Lines" );
+    convergenceActionLayout.AddButton( m_ConvergencePointsToggle, "Points" );
+
     // Plot layout
     int plotWidth = totalWidth - controlWidth - 2 * groupBorderWidth;
     int plotTopBottomMargin = 25;
@@ -191,7 +231,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
                          m_LoadDistControlLayout.GetGapHeight();
     int legendBlockHeight = m_LoadDistControlLayout.GetDividerHeight() + ( legendHeight - rowHeight ) +
                             m_LoadDistControlLayout.GetGapHeight();
-    int loadDistActionHeight = m_LoadDistControlLayout.GetDividerHeight() + 4 * rowHeight;
+    int loadDistActionHeight = m_LoadDistControlLayout.GetDividerHeight() + 5 * rowHeight;
     int loadDistFlowHeight = ( m_LoadDistControlLayout.GetH() - yDataSelectHeight - dataTypeHeight - 8 * groupBorderWidth -
                                ( 2 * windowBorderWidth - m_LoadDistLayout.GetStdHeight() ) - timeStepHeight -
                                legendBlockHeight - loadDistActionHeight ) / 2;
@@ -297,6 +337,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     loadDistActionLayout.AddSlider( m_LoadDistYMaxSlider, "Ymax", 1.0, "%g" );
     loadDistActionLayout.InitWidthHeightVals();
 
+    loadDistActionLayout.SetFitWidthFlag( false );
+    loadDistActionLayout.ForceNewLine();
+    loadDistActionLayout.SetButtonWidth( loadDistActionLayout.GetW() / 2 );
+    loadDistActionLayout.AddButton( m_LoadDistLinesToggle, "Lines" );
+    loadDistActionLayout.AddButton( m_LoadDistPointsToggle, "Points" );
+
     // Plot layout
     m_LoadDistLayout.AddX( controlWidth + 2 * groupBorderWidth );
     m_LoadDistLayout.AddSubGroupLayout( m_LoadDistPlotLayout, plotWidth, m_LoadDistLayout.GetH() - 2 * groupBorderWidth );
@@ -398,6 +444,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     sweepActionLayout.AddSlider( m_SweepYMaxSlider, "Ymax", 1.0, "%g" );
     sweepActionLayout.InitWidthHeightVals();
 
+    sweepActionLayout.SetFitWidthFlag( false );
+    sweepActionLayout.ForceNewLine();
+    sweepActionLayout.SetButtonWidth( sweepActionLayout.GetW() / 2 );
+    sweepActionLayout.AddButton( m_SweepLinesToggle, "Lines" );
+    sweepActionLayout.AddButton( m_SweepPointsToggle, "Points" );
+
     // Plot layout
     m_SweepLayout.AddX( controlWidth + 2 * groupBorderWidth );
     m_SweepLayout.AddSubGroupLayout( m_SweepPlotLayout, plotWidth, m_SweepLayout.GetH() - 2 * groupBorderWidth );
@@ -466,7 +518,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_CpSliceControlLayout.AddY( CutPosChoiceLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout flowCaseLayout;
-    m_CpSliceControlLayout.AddSubGroupLayout( flowCaseLayout, m_CpSliceControlLayout.GetW(), flowConditionSelectHeight - rowHeight - 2 * groupBorderWidth );
+    m_CpSliceControlLayout.AddSubGroupLayout( flowCaseLayout, m_CpSliceControlLayout.GetW(), flowConditionSelectHeight - 2 * rowHeight - 2 * groupBorderWidth );
     flowCaseLayout.AddDividerBox( "Flow Condition" );
     m_CpSliceCaseBrowser = flowCaseLayout.AddVspBrowser( flowCaseLayout.GetRemainY() );
     m_CpSliceCaseBrowser->callback( staticScreenCB, this );
@@ -481,7 +533,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     // Action buttons
     GroupLayout CpSliceActionLayout;
-    m_CpSliceControlLayout.AddSubGroupLayout( CpSliceActionLayout, m_CpSliceControlLayout.GetW(), actionButtonHeight );
+    m_CpSliceControlLayout.AddSubGroupLayout( CpSliceActionLayout, m_CpSliceControlLayout.GetW(), actionButtonHeight + rowHeight );
     CpSliceActionLayout.AddDividerBox( "Actions:" );
 
     CpSliceActionLayout.SetSameLineFlag( true );
@@ -526,7 +578,9 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     CpSliceActionLayout.SetButtonWidth( CpSliceActionLayout.GetW() / 2 );
 
     CpSliceActionLayout.AddButton( m_CpSliceFlipYToggle, "Flip Y Axis" );
+    CpSliceActionLayout.ForceNewLine();
     CpSliceActionLayout.AddButton( m_CpSlicePlotLinesToggle, "Plot Lines" );
+    CpSliceActionLayout.AddButton( m_CpSlicePointsToggle, "Plot Points" );
 
     // Plot layout
     m_CpSliceLayout.AddX( controlWidth + 2 * groupBorderWidth );
@@ -558,7 +612,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // layout the heights of the control layout
     yDataSelectHeight = 8 * rowHeight;
 
-    flowConditionSelectHeight = m_UnsteadyLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 9 * m_UnsteadyLayout.GetStdHeight();
+    flowConditionSelectHeight = m_UnsteadyLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 10 * m_UnsteadyLayout.GetStdHeight();
 
     GroupLayout unsteadyYDataSelectLayout;
     m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyYDataSelectLayout, m_UnsteadyControlLayout.GetW(), yDataSelectHeight );
@@ -651,6 +705,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     unsteadyActionLayout.SetFitWidthFlag( true );
     unsteadyActionLayout.AddSlider( m_UnsteadyYMaxSlider, "Ymax", 1.0, "%g" );
     unsteadyActionLayout.InitWidthHeightVals();
+
+    unsteadyActionLayout.SetFitWidthFlag( false );
+    unsteadyActionLayout.ForceNewLine();
+    unsteadyActionLayout.SetButtonWidth( unsteadyActionLayout.GetW() / 2 );
+    unsteadyActionLayout.AddButton( m_UnsteadyLinesToggle, "Lines" );
+    unsteadyActionLayout.AddButton( m_UnsteadyPointsToggle, "Points" );
 
     // Plot layout
     m_UnsteadyLayout.AddX( controlWidth + 2 * groupBorderWidth );
@@ -898,6 +958,8 @@ void VSPAEROPlotScreen::UpdateConvergenceAutoManualAxisLimits()
 {
     Ca_Axis_ *  t_Axis;
 
+    m_ConvergenceLinesToggle.Update( VSPAEROMgr.m_ConvergenceShowLines.GetID() );
+    m_ConvergencePointsToggle.Update( VSPAEROMgr.m_ConvergenceShowPoints.GetID() );
     m_ConvergenceManualXMinToggle.Update( VSPAEROMgr.m_ConvergenceXMinIsManual.GetID() );
     m_ConvergenceManualXMaxToggle.Update( VSPAEROMgr.m_ConvergenceXMaxIsManual.GetID() );
     m_ConvergenceXMinSlider.Update( VSPAEROMgr.m_ConvergenceXMin.GetID() );
@@ -972,6 +1034,8 @@ void VSPAEROPlotScreen::UpdateLoadDistAutoManualAxisLimits()
 {
     Ca_Axis_ *  t_Axis;
 
+    m_LoadDistLinesToggle.Update( VSPAEROMgr.m_LoadDistShowLines.GetID() );
+    m_LoadDistPointsToggle.Update( VSPAEROMgr.m_LoadDistShowPoints.GetID() );
     m_LoadDistManualXMinToggle.Update( VSPAEROMgr.m_LoadDistXMinIsManual.GetID() );
     m_LoadDistManualXMaxToggle.Update( VSPAEROMgr.m_LoadDistXMaxIsManual.GetID() );
     m_LoadDistXMinSlider.Update( VSPAEROMgr.m_LoadDistXMin.GetID() );
@@ -1046,6 +1110,8 @@ void VSPAEROPlotScreen::UpdateSweepAutoManualAxisLimits()
 {
     Ca_Axis_ *  t_Axis;
 
+    m_SweepLinesToggle.Update( VSPAEROMgr.m_SweepShowLines.GetID() );
+    m_SweepPointsToggle.Update( VSPAEROMgr.m_SweepShowPoints.GetID() );
     m_SweepManualXMinToggle.Update( VSPAEROMgr.m_SweepXMinIsManual.GetID() );
     m_SweepManualXMaxToggle.Update( VSPAEROMgr.m_SweepXMaxIsManual.GetID() );
     m_SweepXMinSlider.Update( VSPAEROMgr.m_SweepXMin.GetID() );
@@ -1195,12 +1261,15 @@ void VSPAEROPlotScreen::UpdateCpSliceAutoManualAxisLimits()
     // Update Flip Y Axis
     m_CpSliceFlipYToggle.Update( VSPAEROMgr.m_CpSliceYAxisFlipFlag.GetID() );
     m_CpSlicePlotLinesToggle.Update( VSPAEROMgr.m_CpSlicePlotLinesFlag.GetID() );
+    m_CpSlicePointsToggle.Update( VSPAEROMgr.m_CpSliceShowPoints.GetID() );
 }
 
 void VSPAEROPlotScreen::UpdateUnsteadyAutoManualAxisLimits()
 {
     Ca_Axis_ *  t_Axis;
 
+    m_UnsteadyLinesToggle.Update( VSPAEROMgr.m_UnsteadyShowLines.GetID() );
+    m_UnsteadyPointsToggle.Update( VSPAEROMgr.m_UnsteadyShowPoints.GetID() );
     m_UnsteadyManualXMinToggle.Update( VSPAEROMgr.m_UnsteadyXMinIsManual.GetID() );
     m_UnsteadyManualXMaxToggle.Update( VSPAEROMgr.m_UnsteadyXMaxIsManual.GetID() );
     m_UnsteadyXMinSlider.Update( VSPAEROMgr.m_UnsteadyXMin.GetID() );
@@ -2355,11 +2424,10 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
                     RunSeriesStyle( run_res, iXData * yDataSetNames.size() + iYData, xDataSetNames.size() * yDataSetNames.size(), c, linestyle, marker );
 
                     //add the data to the plot
-                    AddPointLine( xDoubleData, yDoubleData, 2, c, 4, marker, linestyle );
-                    m_SweepPlotCanvas->AddSeriesPoints( xDoubleData, yDoubleData );
+                    AddSeries( m_SweepPlotCanvas, xDoubleData, yDoubleData, c, linestyle, marker, VSPAEROMgr.m_SweepShowLines(), VSPAEROMgr.m_SweepShowPoints() );
 
                     string legendstr = RunPrefix( run_res ) + yDataSetNames[ iYData ] + " vs. " + xDataSetNames[ iXData ];
-                    m_SweepLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
+                    AddSeriesLegend( m_SweepLegendLayout, legendstr, c, linestyle, marker, VSPAEROMgr.m_SweepShowLines(), VSPAEROMgr.m_SweepShowPoints() );
                     m_SweepPlotCanvas->NameNewSeries( legendstr );
 
                     //Handle axis limits
@@ -2476,16 +2544,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     }
 
                     //add the data to the plot
-                    if ( VSPAEROMgr.m_CpSlicePlotLinesFlag() )
-                    {
-                        AddPointLine( locData, CpData, 2, c, 4, marker, linestyle );
-                        m_CpSlicePlotCanvas->AddSeriesPoints( locData, CpData );
-                    }
-                    else
-                    {
-                        AddPoint( locData, CpData, c, 4, marker );
-                        m_CpSlicePlotCanvas->AddSeriesPoints( locData, CpData );
-                    }
+                    AddSeries( m_CpSlicePlotCanvas, locData, CpData, c, linestyle, marker, VSPAEROMgr.m_CpSlicePlotLinesFlag(), VSPAEROMgr.m_CpSliceShowPoints() );
 
                     char cutbuf[256];
                     char casebuf[256];
@@ -2494,7 +2553,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     ConstructCpSliceCutString( cutbuf, sizeof( cutbuf ), res );
                     ConstructCpSliceCaseString( casebuf, sizeof( casebuf ), res );
                     string legendstr = CpSlicePrefix( id ) + cutbuf + "; " + casebuf;
-                    m_CpSliceLegendLayout.AddLegendEntry( legendstr, c, VSPAEROMgr.m_CpSlicePlotLinesFlag(), linestyle, marker );
+                    AddSeriesLegend( m_CpSliceLegendLayout, legendstr, c, linestyle, marker, VSPAEROMgr.m_CpSlicePlotLinesFlag(), VSPAEROMgr.m_CpSliceShowPoints() );
                     m_CpSlicePlotCanvas->NameNewSeries( legendstr );
 
                     //Handle axis limits
@@ -2700,13 +2759,12 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                         RunSeriesStyle( res, icase * yDataSetNames.size() + iDataSet, m_ConvergenceNumConditions * yDataSetNames.size(), c, linestyle, marker );
 
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, marker, linestyle );
-                        m_ConvergencePlotCanvas->AddSeriesPoints( xDoubleData, yDoubleData );
+                        AddSeries( m_ConvergencePlotCanvas, xDoubleData, yDoubleData, c, linestyle, marker, VSPAEROMgr.m_ConvergenceShowLines(), VSPAEROMgr.m_ConvergenceShowPoints() );
 
                         char strbuf[100];
                         ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, true );
                         string legendstr = RunPrefix( res ) + strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
-                        m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
+                        AddSeriesLegend( m_ConvergenceLegendLayout, legendstr, c, linestyle, marker, VSPAEROMgr.m_ConvergenceShowLines(), VSPAEROMgr.m_ConvergenceShowPoints() );
                         m_ConvergencePlotCanvas->NameNewSeries( legendstr );
                         m_ConvergenceiPlot++;
 
@@ -2872,8 +2930,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                         }
 
                         //add the data to the plot
-                        AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, marker, linestyle );
-                        m_LoadDistPlotCanvas->AddSeriesPoints( xDoubleData_sorted, yDoubleData_sorted );
+                        AddSeries( m_LoadDistPlotCanvas, xDoubleData_sorted, yDoubleData_sorted, c, linestyle, marker, VSPAEROMgr.m_LoadDistShowLines(), VSPAEROMgr.m_LoadDistShowPoints() );
 
                         //Handle axis limits
                         UpdateAxisLimits( m_LoadDistPlotCanvas, xDoubleData_sorted, yDoubleData_sorted, expandOnly );
@@ -2901,8 +2958,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                     if ( ( xDoubleData_orig.size() == yDoubleData.size() ) && ( !xDoubleData_orig.empty() ) )
                     {
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, marker, linestyle );
-                        m_LoadDistPlotCanvas->AddSeriesPoints( xDoubleData_orig, yDoubleData );
+                        AddSeries( m_LoadDistPlotCanvas, xDoubleData_orig, yDoubleData, c, linestyle, marker, VSPAEROMgr.m_LoadDistShowLines(), VSPAEROMgr.m_LoadDistShowPoints() );
 
                         legendstr += group_name;
 
@@ -2921,7 +2977,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                 }
 
                 legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
-                m_LoadDistLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
+                AddSeriesLegend( m_LoadDistLegendLayout, legendstr, c, linestyle, marker, VSPAEROMgr.m_LoadDistShowLines(), VSPAEROMgr.m_LoadDistShowPoints() );
                 m_LoadDistPlotCanvas->NameNewSeries( legendstr );
                 m_LoadDistiPlot++;
             }
@@ -3023,8 +3079,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
                         RunSeriesStyle( res, icase * yDataSetNames.size() + iDataSet, nseries, c, linestyle, marker );
 
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, marker, linestyle );
-                        m_UnsteadyPlotCanvas->AddSeriesPoints( xDoubleData_orig, yDoubleData );
+                        AddSeries( m_UnsteadyPlotCanvas, xDoubleData_orig, yDoubleData, c, linestyle, marker, VSPAEROMgr.m_UnsteadyShowLines(), VSPAEROMgr.m_UnsteadyShowPoints() );
 
                         char strbuf[100];
                         string legendstr = RunPrefix( res );
@@ -3042,7 +3097,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
 
                         legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
 
-                        m_UnsteadyLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
+                        AddSeriesLegend( m_UnsteadyLegendLayout, legendstr, c, linestyle, marker, VSPAEROMgr.m_UnsteadyShowLines(), VSPAEROMgr.m_UnsteadyShowPoints() );
                         m_UnsteadyPlotCanvas->NameNewSeries( legendstr );
                         m_UnsteadyiPlot++;
 
