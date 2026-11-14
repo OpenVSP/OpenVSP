@@ -47,6 +47,12 @@ public:
 
     bool hittest( int mx, double datax, int r );
 
+    // List the runs and pick those to plot: the newest when a run is new, then as checked.
+    void UpdateRuns();
+
+    // Name of a run: its nickname or "Run N", N counting every listed run.
+    string RunLabel( const string & run_id );
+
     static void staticLimitsCB( void* data, double xmin, double xmax, double ymin, double ymax, bool reset )
     {
         ( ( WaveDragScreen* )data )->LimitsCallBack( xmin, xmax, ymin, ymax, reset );
@@ -128,6 +134,14 @@ protected:
     //==== Flow Tab ====//
     GroupLayout m_FlowLayout;
     Fl_Check_Browser* m_SubSurfFlowBrowser;
+
+    //==== Runs Tab ====//
+    GroupLayout m_RunsLayout;
+    ColCheckBrowser* m_RunsBrowser;
+    vector < string > m_ListedRunIDs;    // Runs browser lines after the header: every WaveDrag Result
+    vector < string > m_KnownRunIDs;     // Every WaveDrag Result when the runs were last updated
+    vector < string > m_RunIDs;          // Runs plotted, oldest first
+    string m_NicknameRunID;              // Run whose name is being edited
 
     //==== Execute ====//
     GroupLayout m_ExecuteLayout;

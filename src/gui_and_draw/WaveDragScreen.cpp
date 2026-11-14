@@ -10,6 +10,7 @@
 #include <cmath>
 
 #include "WaveDragScreen.h"
+#include "ResultsViewer.h"
 #include "SubSurfaceMgr.h"
 #include "StlHelper.h"
 #include "VspUtil.h"
@@ -29,6 +30,7 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     Fl_Group* run_tab = AddTab( "Setup" );
     Fl_Group* flow_tab = AddTab( "Inflow/Outflow" );
     Fl_Group* plot_tab = AddTab( "Plot" );
+    Fl_Group* runs_tab = AddTab( "Runs" );
 
     run_tab->show();
 
@@ -243,6 +245,16 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     m_SubSurfFlowBrowser = m_FlowLayout.AddCheckBrowser( m_FlowLayout.GetRemainY() );
     m_SubSurfFlowBrowser->callback( staticScreenCB, this );
 
+    //==== Runs Tab ====//
+    Fl_Group* runs_group = AddSubGroup( runs_tab, 5 );
+    m_RunsLayout.SetGroupAndScreen( runs_group, this );
+
+    m_RunsLayout.AddDividerBox( "Runs to Plot" );
+    static int runs_col_widths[] = { 24, 50, 100, 45, 60, 0 };
+    m_RunsBrowser = new ColCheckBrowser( 0, 0, 10, 10 );
+    m_RunsLayout.AddColResizeBrowser( runs_col_widths, 5, m_RunsLayout.GetRemainY(), m_RunsBrowser );
+    m_RunsBrowser->Init( this, runs_group );
+
     //==== Execute Area ====//
     Fl_Group* execute_group = new Fl_Group( 5, 455, 300, 70 );
     execute_group->show();
@@ -275,6 +287,8 @@ WaveDragScreen::~WaveDragScreen()
 bool WaveDragScreen::Update()
 {
     TabScreen::Update();
+
+    UpdateRuns();
 
     char str[256];
     WaveDragMgr.Update();
@@ -476,6 +490,46 @@ void WaveDragScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
+    if ( w == m_RunsBrowser )
+    {
+        m_RunsBrowser->HidePopupInput();
+
+        int reason = m_RunsBrowser->GetCBReason();
+        if ( reason == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Results* run = ResultsMgr.FindResultsPtr( m_NicknameRunID );
+            if ( run )
+            {
+                run->SetNickname( m_RunsBrowser->GetPopupValue() );
+            }
+            m_NicknameRunID.clear();
+        }
+        else if ( reason == BROWSER_CALLBACK_CHECK )
+        {
+            m_RunIDs.clear();
+            for ( int i = 0; i < ( int ) m_ListedRunIDs.size(); i++ )
+            {
+                if ( m_RunsBrowser->IsChecked( i + 2 ) )
+                {
+                    m_RunIDs.push_back( m_ListedRunIDs[i] );
+                }
+            }
+        }
+        else if ( reason == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            int line = m_RunsBrowser->value();
+            if ( line >= 2 && line - 2 < ( int ) m_ListedRunIDs.size() )
+            {
+                m_NicknameRunID = m_ListedRunIDs[ line - 2 ];
+                Results* run = ResultsMgr.FindResultsPtr( m_NicknameRunID );
+                if ( run )
+                {
+                    m_RunsBrowser->InsertPopupInput( run->GetNickname(), line, 2 );
+                }
+            }
+        }
+    }
+
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( w == m_SubSurfFlowBrowser )
@@ -554,35 +608,237 @@ void WaveDragScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void WaveDragScreen::RedrawPlot()
+// A run's areas at one theta, read from its WaveDrag Result.
+struct WaveDragRunAreas
 {
-    if ( WaveDragMgr.m_lastmeshgeomID.empty() )
+    double m_ThetaDeg;
+    vector < double > m_X;          // Slice coordinates
+    vector < double > m_XNormFit;
+    vector < double > m_XFit;       // Fitted curve coordinates
+    vector < double > m_SliceArea;
+    vector < double > m_SliceAreaFlow;
+    vector < double > m_FitArea;
+    vector < double > m_FitAreaFlow;
+    vector < string > m_CompIDs;
+    vector < string > m_CompNames;  // Unique within the run
+    vector < vector < double > > m_CompSliceArea;
+    vector < vector < double > > m_CompFitArea;
+    vector < vector < double > > m_BuildupArea;
+    vector < vector < double > > m_BuildupFitArea;
+    double m_StartX;
+    double m_EndX;
+    double m_Volume;
+    double m_Length;
+    double m_MaxArea;
+    double m_MaxMaxArea;    // Over every theta, as the y axis is scaled
+    double m_InletArea;
+    double m_ExitArea;
+};
+
+static const vector < double > & ResultsDoubles( Results* res, const string & name, int index, bool & ok )
+{
+    static const vector < double > empty;
+    NameValData* nvd = res->FindPtr( name, index );
+    if ( !nvd )
     {
-        return;
+        ok = false;
+        return empty;
+    }
+    return nvd->GetDoubleData();
+}
+
+// Reads the run's theta nearest theta_deg.
+static bool ReadWaveDragRun( Results* res, double theta_deg, WaveDragRunAreas & run )
+{
+    if ( !res || !res->FindPtr( "Num_Cone_Sections" ) || !res->FindPtr( "Num_Comps" ) || !res->FindPtr( "Comp_Name" ) ||
+         !res->FindPtr( "Comp_ID" ) )
+    {
+        return false;
     }
 
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    bool ok = true;
+    const vector < double > & theta = ResultsDoubles( res, "Theta", 0, ok );
+    int itheta = -1;
+    for ( int i = 0; i < ( int ) theta.size(); i++ )
+    {
+        if ( itheta < 0 || std::abs( theta[i] - theta_deg ) < std::abs( theta[ itheta ] - theta_deg ) )
+        {
+            itheta = i;
+        }
+    }
+    if ( itheta < 0 || itheta >= res->FindPtr( "Num_Cone_Sections" )->GetInt( 0 ) )
+    {
+        return false;
+    }
+    run.m_ThetaDeg = theta[ itheta ];
+
+    const vector < double > & start = ResultsDoubles( res, "Start_X", 0, ok );
+    const vector < double > & end = ResultsDoubles( res, "End_X", 0, ok );
+    const vector < double > & xnorm = ResultsDoubles( res, "X_Norm", 0, ok );
+    run.m_XNormFit = ResultsDoubles( res, "X_Norm_Fit", 0, ok );
+    run.m_SliceArea = ResultsDoubles( res, "Slice_Area", itheta, ok );
+    run.m_SliceAreaFlow = ResultsDoubles( res, "Slice_Area_Flow", itheta, ok );
+    run.m_FitArea = ResultsDoubles( res, "Fit_Area", itheta, ok );
+    run.m_FitAreaFlow = ResultsDoubles( res, "Fit_Area_Flow", itheta, ok );
+    const vector < double > & volume = ResultsDoubles( res, "Volume", 0, ok );
+    const vector < double > & length = ResultsDoubles( res, "Length", 0, ok );
+    const vector < double > & max_area = ResultsDoubles( res, "MaxArea", 0, ok );
+    const vector < double > & first_area = ResultsDoubles( res, "Slice_Area", 0, ok );
+    const vector < double > & inlet = ResultsDoubles( res, "Inlet_Area", 0, ok );
+    const vector < double > & exit = ResultsDoubles( res, "Exit_Area", 0, ok );
+    if ( !ok || itheta >= ( int ) start.size() || itheta >= ( int ) end.size() || itheta >= ( int ) volume.size() ||
+         itheta >= ( int ) length.size() || itheta >= ( int ) max_area.size() || first_area.empty() || inlet.empty() || exit.empty() )
+    {
+        return false;
+    }
+
+    run.m_StartX = start[ itheta ];
+    run.m_EndX = end[ itheta ];
+    run.m_Volume = volume[ itheta ];
+    run.m_Length = length[ itheta ];
+    run.m_MaxArea = max_area[ itheta ];
+    run.m_InletArea = inlet[0];
+    run.m_ExitArea = exit[0];
+
+    run.m_MaxMaxArea = first_area[0];
+    for ( int i = 0; i < ( int ) max_area.size(); i++ )
+    {
+        run.m_MaxMaxArea = std::max( run.m_MaxMaxArea, max_area[i] );
+    }
+
+    run.m_X.clear();
+    for ( int i = 0; i < ( int ) xnorm.size(); i++ )
+    {
+        run.m_X.push_back( run.m_StartX + xnorm[i] * ( run.m_EndX - run.m_StartX ) );
+    }
+    run.m_XFit.clear();
+    for ( int i = 0; i < ( int ) run.m_XNormFit.size(); i++ )
+    {
+        run.m_XFit.push_back( run.m_StartX + run.m_XNormFit[i] * ( run.m_EndX - run.m_StartX ) );
+    }
+
+    run.m_CompIDs = res->FindPtr( "Comp_ID" )->GetStringData();
+    run.m_CompNames = res->FindPtr( "Comp_Name" )->GetStringData();
+    for ( int icomp = 1; icomp < ( int ) run.m_CompNames.size(); icomp++ )
+    {
+        int count = 1;
+        for ( int j = 0; j < icomp; j++ )
+        {
+            if ( res->FindPtr( "Comp_Name" )->GetString( j ) == res->FindPtr( "Comp_Name" )->GetString( icomp ) )
+            {
+                count++;
+            }
+        }
+        if ( count > 1 )
+        {
+            run.m_CompNames[icomp] += " " + std::to_string( count );
+        }
+    }
+    int ncomp = res->FindPtr( "Num_Comps" )->GetInt( 0 );
+    run.m_CompSliceArea.resize( ncomp );
+    run.m_CompFitArea.resize( ncomp );
+    run.m_BuildupArea.resize( ncomp );
+    run.m_BuildupFitArea.resize( ncomp );
+    for ( int icomp = 0; icomp < ncomp; icomp++ )
+    {
+        int index = itheta * ncomp + icomp;
+        run.m_CompSliceArea[icomp] = ResultsDoubles( res, "Comp_Slice_Area", index, ok );
+        run.m_CompFitArea[icomp] = ResultsDoubles( res, "Comp_Fit_Area", index, ok );
+        run.m_BuildupArea[icomp] = ResultsDoubles( res, "Buildup_Area", index, ok );
+        run.m_BuildupFitArea[icomp] = ResultsDoubles( res, "Buildup_Fit_Area", index, ok );
+    }
+    return ok && ( int ) run.m_CompNames.size() == ncomp && ( int ) run.m_CompIDs.size() == ncomp;
+}
+
+// A part keeps its place across runs: the same Geom, else the same name.
+static int FindPart( const vector < string > & part_ids, const vector < string > & part_names, const string & id, const string & name )
+{
+    for ( int i = 0; i < ( int ) part_ids.size(); i++ )
+    {
+        if ( part_ids[i] == id )
+        {
+            return i;
+        }
+    }
+    for ( int i = 0; i < ( int ) part_names.size(); i++ )
+    {
+        if ( part_names[i] == name )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void WaveDragScreen::RedrawPlot()
+{
+    Vsp_Canvas::current( m_canvas );
+    m_canvas->clear();
+    m_canvas->ClearSeriesPoints();
 
     m_LegendGroup->clear();
     m_LegendLayout.SetGroup( m_LegendGroup );
     m_LegendLayout.InitWidthHeightVals();
     m_LegendLayout.SetButtonWidth( m_LegendLayout.GetW() * 0.65 );
 
-
     int itheta = WaveDragMgr.m_ThetaIndex() - 1;
+    double theta_deg = 0.0;
+    if ( itheta >= 0 && itheta < ( int ) WaveDragMgr.m_ThetaRad.size() )
+    {
+        theta_deg = WaveDragMgr.m_ThetaRad[ itheta ] * 180.0 / M_PI;
+    }
 
-    // Sets x-axis limits to rounded down/up to about 1/10th the body length.
-    double xscale = pow( 10.0, mag( WaveDragMgr.m_EndX[itheta] - WaveDragMgr.m_StartX[itheta] ) - 1 );
-    double xmin = xscale * floor( WaveDragMgr.m_StartX[itheta] / xscale - 0.1 );
-    double xmax = xscale * ceil( WaveDragMgr.m_EndX[itheta] / xscale + 0.1 );
+    // Runs are drawn at the selected angle, or the nearest they have, which the label then gives.
+    vector < WaveDragRunAreas > runs;
+    vector < string > labels;
+    for ( int i = 0; i < ( int ) m_RunIDs.size(); i++ )
+    {
+        WaveDragRunAreas run;
+        if ( ReadWaveDragRun( ResultsMgr.FindResultsPtr( m_RunIDs[i] ), theta_deg, run ) )
+        {
+            string label = RunLabel( m_RunIDs[i] );
+            if ( std::abs( run.m_ThetaDeg - theta_deg ) > 1.0e-6 )
+            {
+                char buf[64];
+                snprintf( buf, sizeof( buf ), " (theta %.1f)", run.m_ThetaDeg );
+                label += buf;
+            }
+            runs.push_back( run );
+            labels.push_back( label );
+        }
+    }
+    int nrun = ( int ) runs.size();
+    if ( nrun == 0 )
+    {
+        return;
+    }
 
-    // Sets max y-axis value to a round number greater than maximum area value
-    double yscale = pow( 10.0, mag( WaveDragMgr.m_MaxMaxArea ) );
-    double ymax = yscale * ceil( WaveDragMgr.m_MaxMaxArea / yscale );
-
-    Vsp_Canvas::current( m_canvas );
-    m_canvas->clear();
-    m_canvas->ClearSeriesPoints();
+    // Limits that hold every run, each rounded as when it is drawn alone: x to about a tenth of
+    // the body length, y up to a round number above the largest area.
+    double xmin = 0;
+    double xmax = 0;
+    double ymax = 0;
+    for ( int irun = 0; irun < nrun; irun++ )
+    {
+        const WaveDragRunAreas & r = runs[irun];
+        double xscale = pow( 10.0, mag( r.m_EndX - r.m_StartX ) - 1 );
+        double rxmin = xscale * floor( r.m_StartX / xscale - 0.1 );
+        double rxmax = xscale * ceil( r.m_EndX / xscale + 0.1 );
+        double yscale = pow( 10.0, mag( r.m_MaxMaxArea ) );
+        double rymax = yscale * ceil( r.m_MaxMaxArea / yscale );
+        if ( irun == 0 )
+        {
+            xmin = rxmin;
+            xmax = rxmax;
+            ymax = rymax;
+        }
+        else
+        {
+            xmin = std::min( xmin, rxmin );
+            xmax = std::max( xmax, rxmax );
+            ymax = std::max( ymax, rymax );
+        }
+    }
 
     m_canvas->current_x()->minimum( xmin );
     m_canvas->current_x()->maximum( xmax );
@@ -598,103 +854,120 @@ void WaveDragScreen::RedrawPlot()
         m_canvas->current_y()->maximum( m_ZoomYMax );
     }
 
-    unsigned int numpts = WaveDragMgr.m_NumPtsFit;
-    vector< double > xfit(numpts);
-    for ( unsigned int i = 0; i < numpts; i++ )
+    int plot_type = WaveDragMgr.m_AreaPlotType();
+    bool points = WaveDragMgr.m_PointFlag();
+
+    // Parts keep one color across runs.
+    vector < string > part_ids;
+    vector < string > part_names;
+    vector < vector < int > > part_of_comp( nrun );
+    for ( int irun = 0; irun < nrun; irun++ )
     {
-        xfit[i] = WaveDragMgr.m_StartX[itheta] + WaveDragMgr.m_XNormFit[i] * ( WaveDragMgr.m_EndX[itheta] - WaveDragMgr.m_StartX[itheta] );
-    }
-
-    vector < double > xvec( WaveDragMgr.m_NSlice );
-    for ( unsigned int i = 0; i < WaveDragMgr.m_NSlice; i++ )
-    {
-        xvec[i] = WaveDragMgr.m_StartX[itheta] + WaveDragMgr.m_XNorm[i] * ( WaveDragMgr.m_EndX[itheta] - WaveDragMgr.m_StartX[itheta] );
-    }
-
-    unsigned int nstyle = 5; // Number of CA line styles.
-
-    // Legends show the markers of the slice points when they are drawn.
-    int total_marker = CA_NO_POINT;
-    if ( WaveDragMgr.m_PointFlag() )
-    {
-        total_marker = CA_ROUND;
-    }
-
-    if ( WaveDragMgr.m_AreaPlotType() == WaveDragSingleton::AREA_TOTAL )
-    {
-        AddPointLine( xfit, WaveDragMgr.m_FitAreaDistFlow[itheta], 2, FL_BLACK );
-        m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_FitAreaDistFlow[itheta] );
-
-        m_LegendLayout.AddLegendEntry( "Total", FL_BLACK, true, FL_SOLID, total_marker );
-        m_canvas->NameNewSeries( "Total" );
-
-        if ( WaveDragMgr.m_PointFlag() )
+        for ( int icomp = 0; icomp < ( int ) runs[irun].m_CompNames.size(); icomp++ )
         {
-            AddPoint( xvec, WaveDragMgr.m_SliceAreaDistFlow[itheta], FL_BLACK, 3 );
+            int ipart = FindPart( part_ids, part_names, runs[irun].m_CompIDs[icomp], runs[irun].m_CompNames[icomp] );
+            if ( ipart < 0 )
+            {
+                ipart = ( int ) part_ids.size();
+                part_ids.push_back( runs[irun].m_CompIDs[icomp] );
+                part_names.push_back( runs[irun].m_CompNames[icomp] );
+            }
+            part_of_comp[irun].push_back( ipart );
         }
     }
-    else if ( WaveDragMgr.m_AreaPlotType() == WaveDragSingleton::AREA_COMPONENTS )
+
+    for ( int irun = 0; irun < nrun; irun++ )
     {
-        m_LegendLayout.AddLegendEntry( "Total", FL_BLACK, true, FL_SOLID, total_marker );
-        m_canvas->NameNewSeries( "Total" );
+        const WaveDragRunAreas & r = runs[irun];
 
-        // Components
-        for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
+        string prefix;
+        if ( nrun > 1 )
         {
-            Fl_Color c = SeriesColor( icomp );
-            AddPointLine( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp], 2, c, 0, 1, SeriesLineStyle( icomp ) );
-            m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp] );
+            prefix = labels[irun] + ": ";
+        }
 
-            int marker = CA_NO_POINT;
-            if ( WaveDragMgr.m_PointFlag() )
+        // The total is black, dashed by run beside parts; alone, runs take colors of their own.
+        Fl_Color total_color = FL_BLACK;
+        int total_dash = FL_SOLID;
+        int total_marker = CA_ROUND;
+        if ( nrun > 1 && plot_type == WaveDragSingleton::AREA_TOTAL )
+        {
+            SeriesStyle( 0, 1, irun, nrun, total_color, total_dash, total_marker );
+        }
+        else if ( nrun > 1 )
+        {
+            Fl_Color run_color;
+            SourceSeriesStyle( 0, irun, nrun, run_color, total_dash, total_marker );
+        }
+
+        // Legends show the markers of the slice points when they are drawn.
+        int total_legend_marker = CA_NO_POINT;
+        if ( points )
+        {
+            total_legend_marker = total_marker;
+        }
+
+        if ( plot_type == WaveDragSingleton::AREA_TOTAL )
+        {
+            AddPointLine( r.m_XFit, r.m_FitAreaFlow, 2, total_color, 0, 1, total_dash );
+            m_canvas->AddSeriesPoints( r.m_XFit, r.m_FitAreaFlow );
+
+            m_LegendLayout.AddLegendEntry( prefix + "Total", total_color, true, total_dash, total_legend_marker );
+            m_canvas->NameNewSeries( prefix + "Total" );
+
+            if ( points )
             {
-                marker = SeriesMarker( icomp );
+                AddPoint( r.m_X, r.m_SliceAreaFlow, total_color, 3, total_marker );
+            }
+            continue;
+        }
+
+        if ( plot_type == WaveDragSingleton::AREA_COMPONENTS )
+        {
+            m_LegendLayout.AddLegendEntry( prefix + "Total", total_color, true, total_dash, total_legend_marker );
+        }
+
+        for ( int icomp = 0; icomp < ( int ) r.m_CompNames.size(); icomp++ )
+        {
+            int ipart = part_of_comp[irun][icomp];
+            Fl_Color c;
+            int dash;
+            int marker;
+            SeriesStyle( ipart, ( int ) part_ids.size(), irun, nrun, c, dash, marker );
+
+            const vector < double > * fit = &r.m_CompFitArea[icomp];
+            const vector < double > * pts = &r.m_CompSliceArea[icomp];
+            if ( plot_type == WaveDragSingleton::AREA_BUILDUP )
+            {
+                fit = &r.m_BuildupFitArea[icomp];
+                pts = &r.m_BuildupArea[icomp];
             }
 
-            Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );
-            if ( g )
-            {
-                m_LegendLayout.AddLegendEntry( g->GetName(), c, true, SeriesLineStyle( icomp ), marker );
-                m_canvas->NameNewSeries( g->GetName() );
-            }
+            AddPointLine( r.m_XFit, *fit, 2, c, 0, 1, dash );
+            m_canvas->AddSeriesPoints( r.m_XFit, *fit );
 
-            if ( WaveDragMgr.m_PointFlag() )
+            int legend_marker = CA_NO_POINT;
+            if ( points )
             {
-                AddPoint( xvec, WaveDragMgr.m_CompSliceAreaDist[itheta][icomp], c, 3, marker );
+                legend_marker = marker;
+            }
+            m_LegendLayout.AddLegendEntry( prefix + r.m_CompNames[icomp], c, true, dash, legend_marker );
+            m_canvas->NameNewSeries( prefix + r.m_CompNames[icomp] );
+
+            if ( points )
+            {
+                AddPoint( r.m_X, *pts, c, 3, marker );
             }
         }
-        AddPointLine( xfit, WaveDragMgr.m_FitAreaDist[itheta], 2, FL_BLACK );
-        m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_FitAreaDist[itheta] );
-        m_canvas->NameNewSeries( "Total" );
-        if ( WaveDragMgr.m_PointFlag() )
+
+        if ( plot_type == WaveDragSingleton::AREA_COMPONENTS )
         {
-            AddPoint( xvec, WaveDragMgr.m_SliceAreaDist[itheta], FL_BLACK, 3 );
-        }
-    }
-    else // AREA_BUILDUP
-    {
-        for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
-        {
-            Fl_Color c = SeriesColor( icomp );
-            AddPointLine( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp], 2, c, 0, 1, SeriesLineStyle( icomp ) );
-            m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp] );
-
-            int marker = CA_NO_POINT;
-            if ( WaveDragMgr.m_PointFlag() )
+            AddPointLine( r.m_XFit, r.m_FitArea, 2, total_color, 0, 1, total_dash );
+            m_canvas->AddSeriesPoints( r.m_XFit, r.m_FitArea );
+            m_canvas->NameNewSeries( prefix + "Total" );
+            if ( points )
             {
-                marker = SeriesMarker( icomp );
-            }
-
-            Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );
-            if ( g )
-            {
-                m_LegendLayout.AddLegendEntry( g->GetName(), c, true, SeriesLineStyle( icomp ), marker );
-                m_canvas->NameNewSeries( g->GetName() );
-            }
-
-            if ( WaveDragMgr.m_PointFlag() )
-            {
-                AddPoint( xvec, WaveDragMgr.m_BuildupAreaDist[itheta][icomp], c, 3, marker );
+                AddPoint( r.m_X, r.m_SliceArea, total_color, 3, total_marker );
             }
         }
     }
@@ -704,10 +977,14 @@ void WaveDragScreen::RedrawPlot()
     // Index 1 = Sears-Haack
     // Index 2 = von Karman Ogive
     // Index 3 = Lighthill's Body
+    // Drawn for the newest run plotted.
 
-    double Smax = WaveDragMgr.m_MaxArea[itheta];
-    double Vol = WaveDragMgr.m_Volume[itheta];
-    double len = WaveDragMgr.m_Length[itheta];
+    const WaveDragRunAreas & last = runs.back();
+    string last_prefix;
+    if ( nrun > 1 )
+    {
+        last_prefix = labels.back() + ": ";
+    }
 
     if ( WaveDragMgr.m_IdealBodyType.Get() == 0 ) // None
     {
@@ -716,37 +993,42 @@ void WaveDragScreen::RedrawPlot()
     else
     {
         vector<double> S_ideal;
+        string body;
 
         if ( WaveDragMgr.m_IdealBodyType.Get() == 1 ) // Sears-Haack curve
         {
-            WaveDragMgr.SearsHaack( WaveDragMgr.m_XNormFit, S_ideal, Vol, len );
-            m_LegendLayout.AddLegendEntry( "Sears-Haack Body", FL_BLUE );
-            m_canvas->NameNewSeries( "Sears-Haack Body" );
+            WaveDragMgr.SearsHaack( last.m_XNormFit, S_ideal, last.m_Volume, last.m_Length );
+            body = "Sears-Haack Body";
         }
         else if ( WaveDragMgr.m_IdealBodyType.Get() == 2 ) // von Karman curve
         {
-            WaveDragMgr.vonKarman( WaveDragMgr.m_XNormFit, S_ideal, Smax );
-            m_LegendLayout.AddLegendEntry( "Von Karman Ogive", FL_BLUE );
-            m_canvas->NameNewSeries( "Von Karman Ogive" );
+            WaveDragMgr.vonKarman( last.m_XNormFit, S_ideal, last.m_MaxArea );
+            body = "Von Karman Ogive";
         }
         else if ( WaveDragMgr.m_IdealBodyType.Get() == 3 ) // Lighthill curve
         {
-            WaveDragMgr.Lighthill( WaveDragMgr.m_XNormFit, S_ideal, Smax );
-            m_LegendLayout.AddLegendEntry( "Lighthill Body", FL_BLUE );
-            m_canvas->NameNewSeries( "Lighthill Body" );
+            WaveDragMgr.Lighthill( last.m_XNormFit, S_ideal, last.m_MaxArea );
+            body = "Lighthill Body";
         }
 
-        if ( WaveDragMgr.m_AreaPlotType() != WaveDragSingleton::AREA_TOTAL )
+        if ( plot_type != WaveDragSingleton::AREA_TOTAL )
         {
-            for ( int i = 0; i < WaveDragMgr.m_NumPtsFit; i++ )
+            for ( int i = 0; i < ( int ) S_ideal.size() && i < ( int ) last.m_XNormFit.size(); i++ )
             {
-                S_ideal[i] = S_ideal[i] + WaveDragMgr.m_InletArea * (1.0 - WaveDragMgr.m_XNormFit[i]) + WaveDragMgr.m_ExitArea * WaveDragMgr.m_XNormFit[i];
+                S_ideal[i] = S_ideal[i] + last.m_InletArea * ( 1.0 - last.m_XNormFit[i] ) + last.m_ExitArea * last.m_XNormFit[i];
             }
         }
 
-        AddPointLine( xfit, S_ideal, 2, FL_BLUE );
-        m_canvas->AddSeriesPoints( xfit, S_ideal );
-        m_canvas->NameNewSeries( "Optimal distribution" );
+        m_LegendLayout.AddLegendEntry( last_prefix + body, FL_BLUE );
+        AddPointLine( last.m_XFit, S_ideal, 2, FL_BLUE );
+        m_canvas->AddSeriesPoints( last.m_XFit, S_ideal );
+        m_canvas->NameNewSeries( last_prefix + body );
+    }
+
+    // The slice location belongs to the newest run, whose slices the view plane shows.
+    if ( itheta >= ( int ) WaveDragMgr.m_StartX.size() || WaveDragMgr.m_lastmeshgeomID.empty() )
+    {
+        return;
     }
 
     if( m_SetMaxDragFlag )
@@ -827,4 +1109,59 @@ bool WaveDragScreen::hittest( int mx, double datax, int r )
         }
     }
     return false;
+}
+
+void WaveDragScreen::UpdateRuns()
+{
+    vector < string > all;
+    int n = ResultsMgr.GetNumResults( "WaveDrag" );
+    for ( int i = 0; i < n; i++ )
+    {
+        all.push_back( ResultsMgr.FindResultsID( "WaveDrag", i ) );
+    }
+
+    PickRuns( all, m_KnownRunIDs, m_RunIDs );
+
+    int vpos = m_RunsBrowser->vposition();
+    int sel = m_RunsBrowser->value();
+    m_RunsBrowser->clear();
+    m_RunsBrowser->AddHeader( "@b@.Run\t@b@.Name\t@b@.Mach\t@b@.Set\t@b@.Made" );
+    m_ListedRunIDs = all;
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        Results* run = ResultsMgr.FindResultsPtr( all[i] );
+        bool checked = std::find( m_RunIDs.begin(), m_RunIDs.end(), all[i] ) != m_RunIDs.end();
+
+        char mach[64];
+        mach[0] = '\0';
+        if ( run->FindPtr( "Mach" ) )
+        {
+            snprintf( mach, sizeof( mach ), "%g", run->FindPtr( "Mach" )->GetDouble( 0 ) );
+        }
+        string set;
+        if ( run->FindPtr( "Set_Name" ) )
+        {
+            set = run->FindPtr( "Set_Name" )->GetString( 0 );
+        }
+
+        string text = "Run " + std::to_string( i + 1 ) + "\t@." + run->GetNickname() + "\t" + mach + "\t@." + set + "\t" + GetResultsTimeText( run );
+        m_RunsBrowser->AddLine( text, checked );
+    }
+    if ( sel > 0 && sel <= m_RunsBrowser->size() )
+    {
+        m_RunsBrowser->select( sel );
+    }
+    m_RunsBrowser->vposition( vpos );
+}
+
+string WaveDragScreen::RunLabel( const string & run_id )
+{
+    Results* res = ResultsMgr.FindResultsPtr( run_id );
+    if ( res && !res->GetNickname().empty() )
+    {
+        return res->GetNickname();
+    }
+
+    vector < string >::const_iterator it = std::find( m_ListedRunIDs.begin(), m_ListedRunIDs.end(), run_id );
+    return "Run " + std::to_string( ( int ) ( it - m_ListedRunIDs.begin() ) + 1 );
 }
