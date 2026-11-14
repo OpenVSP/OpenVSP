@@ -132,6 +132,9 @@ private:
 
     bool m_FreezeAxis; // Restrict the canvas from resizing when performing a click and drag operation
 
+    int m_ShownView;    // View the camera was last turned to
+    string m_ShownCurveID;  // Curve the view was last reset for
+
     // Flags to delete or split after the curve is clicked on
     bool m_DeleteActive;
     bool m_SplitActive;

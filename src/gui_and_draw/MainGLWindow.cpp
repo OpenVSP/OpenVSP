@@ -12,6 +12,7 @@
 #include <cmath>
 
 #include "MainGLWindow.h"
+#include "PlotNav.h"
 
 #include "Background3DMgr.h"
 #include "BORGeom.h"
@@ -3084,6 +3085,15 @@ EditXSecWindow::EditXSecWindow( int x, int y, int w, int h, ScreenMgr* mgr )
 {
     m_LastHit = -1;
     m_Nav.SetRotateEnabled( false );
+    m_BoxZoom = false;
+    m_Panning = false;
+    m_PointUsed = false;
+    m_PushButton = 0;
+    m_BoxX = m_BoxY = 0;
+    m_PanX = m_PanY = 0;
+    m_DragZooming = false;
+    m_ZoomY = 0;
+    m_ZoomAnchorX = m_ZoomAnchorY = 0;
 }
 
 void EditXSecWindow::update()
@@ -3113,44 +3123,202 @@ void EditXSecWindow::update()
 
 int EditXSecWindow::handle( int fl_event )
 {
-    int ret_val = VspGlWindow::handle( fl_event );
-
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
         ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
     if ( !curve_editor )
     {
-        return ret_val;
+        return VspGlWindow::handle( fl_event );
     }
 
     XSecCurve* xsc = curve_editor->GetXSecCurve();
 
     if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
     {
-        return ret_val;
+        return VspGlWindow::handle( fl_event );
     }
 
     EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
     assert( edit_curve_xs );
 
+    // The mouse in pixels from the lower left corner, as VspGlWindow::handle keeps it.
+    int x = Fl::event_x() * pixels_per_unit();
+    int y = ( h() - Fl::event_y() ) * pixels_per_unit();
 
-    if ( fl_event == FL_PUSH && !Fl::event_button2() )
+    // The mouse does what it does in the plots: a press does what the 3D view's binding for it does, a rotation
+    // drawing a box to zoom to, and a press that would go to a waiting pick there takes a control point here.  A
+    // double click shows the whole curve.
+    if ( fl_event == FL_PUSH )
     {
-        PushPoint( curve_editor, edit_curve_xs, m_mouse_x, m_mouse_y );
+        bool dragging = m_LastHit != -1 || m_BoxZoom || m_Panning || m_DragZooming || m_PointUsed;
+
+        // A press of the button already dragging means its release never came, so that drag is dropped.
+        if ( dragging && Fl::event_button() == m_PushButton )
+        {
+            EndDrag( curve_editor );
+            dragging = false;
+        }
+
+        // A second button during a drag is ignored.
+        if ( dragging )
+        {
+            return 1;
+        }
+
+        m_PushButton = Fl::event_button();
+        m_mouse_x = x;
+        m_mouse_y = y;
+
+        if ( m_PushButton == FL_LEFT_MOUSE && Fl::event_clicks() > 0 )
+        {
+            Fl::event_clicks( 0 );
+            ResetView();
+            curve_editor->Update();
+            redraw();
+            return 1;
+        }
+
+        bool pick_first = false;
+        PlotNavAction action = PlotNavPress( pick_first );
+        if ( pick_first )
+        {
+            PushPoint( curve_editor, edit_curve_xs, x, y );
+            if ( m_LastHit != -1 || m_PointUsed )
+            {
+                curve_editor->Update();
+                redraw();
+                return 1;
+            }
+        }
+
+        if ( action == PLOT_NAV_BOX_ZOOM )
+        {
+            m_BoxZoom = true;
+            m_BoxX = x;
+            m_BoxY = y;
+            getGraphicEngine()->getDisplay()->getLayoutMgr()->setStartXY( x, y );
+        }
+        else if ( action == PLOT_NAV_PAN )
+        {
+            m_Panning = true;
+            m_PanX = x;
+            m_PanY = y;
+        }
+        else if ( action == PLOT_NAV_ZOOM )
+        {
+            m_DragZooming = true;
+            m_ZoomY = y;
+            AnchorPoint( GetPlotNavSettings().m_DragZoomAnchor, x, y, m_ZoomAnchorX, m_ZoomAnchorY );
+        }
+        else if ( action == PLOT_NAV_ZOOM_IN || action == PLOT_NAV_ZOOM_OUT )
+        {
+            int ax, ay;
+            AnchorPoint( GetPlotNavSettings().m_WheelAnchor, x, y, ax, ay );
+            double factor = 1.15;
+            if ( action == PLOT_NAV_ZOOM_IN )
+            {
+                factor = 1.0 / factor;
+            }
+            ZoomAt( ax, ay, factor );
+        }
+        curve_editor->Update();
+        redraw();
+        return 1;
     }
-    else if ( fl_event == FL_DRAG && m_LastHit != -1 && !Fl::event_button2() )
+    else if ( fl_event == FL_DRAG )
     {
-        DragPoint( curve_editor, edit_curve_xs, m_mouse_x, m_mouse_y );
+        m_mouse_x = x;
+        m_mouse_y = y;
+
+        if ( m_LastHit != -1 )
+        {
+            DragPoint( curve_editor, edit_curve_xs, x, y );
+            curve_editor->Update();
+            redraw();
+            return 1;
+        }
+        else if ( m_PointUsed )
+        {
+            return 1;
+        }
+        else if ( m_BoxZoom )
+        {
+            redraw();
+            return 1;
+        }
+        else if ( m_Panning )
+        {
+            float zoom = getRelativeZoomValue();
+            glm::vec2 pan = getPanValues();
+            relativePan( pan.x + zoom * ( x - m_PanX ), pan.y + zoom * ( y - m_PanY ) );
+            m_PanX = x;
+            m_PanY = y;
+            curve_editor->Update();
+            redraw();
+            return 1;
+        }
+        else if ( m_DragZooming )
+        {
+            // The rows are counted up from the bottom, so a move down is a fall in the row.
+            if ( y != m_ZoomY )
+            {
+                ZoomAt( m_ZoomAnchorX, m_ZoomAnchorY, PlotNavDragFactor( ( m_ZoomY - y ) / pixels_per_unit() ) );
+                m_ZoomY = y;
+            }
+            curve_editor->Update();
+            redraw();
+            return 1;
+        }
+        return 1;
     }
     else if ( fl_event == FL_RELEASE )
     {
-        curve_editor->SetFreezeAxis( false );
-        // Force update the parent Geom once the point is released
-        edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
+        bool was_dragging = m_LastHit != -1 || m_BoxZoom || m_Panning || m_DragZooming || m_PointUsed;
+
+        // Only the button that started a drag ends it.
+        if ( was_dragging && Fl::event_button() != m_PushButton )
+        {
+            return 1;
+        }
+
+        if ( m_LastHit != -1 )
+        {
+            // Force update the parent Geom once the point is released
+            edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
+        }
+        else if ( m_BoxZoom )
+        {
+            ZoomToBox( m_BoxX, m_BoxY, x, y );
+        }
+        EndDrag( curve_editor );
+
+        if ( was_dragging )
+        {
+            curve_editor->Update();
+            redraw();
+        }
+        return 1;
+    }
+    else if ( fl_event == FL_MOUSEWHEEL )
+    {
+        // Sideways scrolling goes on to the parent.
+        if ( Fl::event_dy() == 0 )
+        {
+            return 0;
+        }
+        int ax, ay;
+        AnchorPoint( GetPlotNavSettings().m_WheelAnchor, x, y, ax, ay );
+        ZoomAt( ax, ay, PlotNavWheelFactor( Fl::event_dy() ) );
+        curve_editor->Update();
+        redraw();
+        return 1;
     }
 
-    if ( fl_event == FL_RELEASE || fl_event == FL_DRAG || fl_event == FL_PUSH )
+    int ret_val = VspGlWindow::handle( fl_event );
+
+    // The view has one viewport, which keeps its camera.
+    if ( !getGraphicEngine()->getDisplay()->getViewport() )
     {
-        curve_editor->Update();
+        getGraphicEngine()->getDisplay()->selectViewport( 0 );
     }
 
     return ret_val;
@@ -3194,6 +3362,8 @@ void EditXSecWindow::PushPoint( CurveEditScreen* curve_editor, EditCurveXSec* ed
         {
             edit_curve_xs->DeletePt( m_LastHit );
         }
+        m_LastHit = -1;
+        m_PointUsed = true;
     }
 
     if ( curve_editor->GetSplitActive() )
@@ -3219,6 +3389,8 @@ void EditXSecWindow::PushPoint( CurveEditScreen* curve_editor, EditCurveXSec* ed
         edit_curve_xs->m_SplitU = u_curve;
         int new_pnt = edit_curve_xs->Split01();
         curve_editor->UpdateIndexSelector( new_pnt );
+        m_LastHit = -1;
+        m_PointUsed = true;
     }
 }
 
@@ -3257,6 +3429,82 @@ int EditXSecWindow::ViewZeroIndex( EditCurveXSec* edit_curve_xs )
         izero = 0;
     }
     return izero;
+}
+
+// Zooms so the box between two pixels fills the view, keeping its aspect; a box of a few pixels is a click.
+void EditXSecWindow::ZoomToBox( int x0, int y0, int x1, int y1 )
+{
+    int dw = std::abs( x1 - x0 );
+    int dh = std::abs( y1 - y0 );
+    double w = pixel_w();
+    double h = pixel_h();
+    if ( dw <= 4 * pixels_per_unit() || dh <= 4 * pixels_per_unit() || w <= 0 || h <= 0 )
+    {
+        return;
+    }
+
+    float zoom = getRelativeZoomValue();
+    glm::vec2 pan = getPanValues();
+
+    // The box's centre in the view's coordinates, which the view then centres.
+    double cx = zoom * w * ( 0.5 * ( x0 + x1 ) / w - 0.5 ) - pan.x;
+    double cy = zoom * h * ( 0.5 * ( y0 + y1 ) / h - 0.5 ) - pan.y;
+
+    double fit = std::max( dw / w, dh / h );
+    relativeZoom( zoom * fit );
+    relativePan( -cx, -cy );
+}
+
+// Ends a drag of any kind.
+void EditXSecWindow::EndDrag( CurveEditScreen* curve_editor )
+{
+    if ( m_LastHit != -1 )
+    {
+        curve_editor->SetFreezeAxis( false );
+    }
+    m_LastHit = -1;
+    m_BoxZoom = false;
+    m_Panning = false;
+    m_DragZooming = false;
+    m_PointUsed = false;
+    getGraphicEngine()->getDisplay()->getLayoutMgr()->setStartXY( -1, -1 );
+}
+
+// Zooms by a factor about a pixel, which keeps its place; a factor above 1 shows more of the curve.
+void EditXSecWindow::ZoomAt( int px, int py, double factor )
+{
+    double w = pixel_w();
+    double h = pixel_h();
+    if ( w <= 0 || h <= 0 || !( factor > 0 ) )
+    {
+        return;
+    }
+
+    // A pixel shows the point zoom * ( pixel - half the view ) - pan, which the new pan keeps.
+    float zoom = getRelativeZoomValue();
+    glm::vec2 pan = getPanValues();
+    double zoom1 = zoom * factor;
+    relativeZoom( zoom1 );
+    relativePan( pan.x + ( zoom1 - zoom ) * ( px - 0.5 * w ), pan.y + ( zoom1 - zoom ) * ( py - 0.5 * h ) );
+}
+
+// The pixel a zoom keeps fixed: the pointer's, or the middle of the view
+void EditXSecWindow::AnchorPoint( int anchor, int x, int y, int & ax, int & ay )
+{
+    ax = x;
+    ay = y;
+    if ( anchor == NAV_ANCHOR_CENTER )
+    {
+        ax = pixel_w() / 2;
+        ay = pixel_h() / 2;
+    }
+}
+
+// The whole curve, centred, as when the editor opens.
+void EditXSecWindow::ResetView()
+{
+    relativePan( 0, 0 );
+    InitZoom();
 }
 
 vec3d EditXSecWindow::PixelToCoord( int x_pix, int y_pix )

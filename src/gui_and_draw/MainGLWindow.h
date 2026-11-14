@@ -317,11 +317,18 @@ public:
 
     void InitZoom(); // centers pan values and resets scale for zoom
 
+    // Centres the view and zooms it to show the curve.
+    void ResetView();
+
 private:
 
     void PushPoint( CurveEditScreen* curve_editor, EditCurveXSec* edit_curve_xs, int x, int y );
     void DragPoint( CurveEditScreen* curve_editor, EditCurveXSec* edit_curve_xs, int x, int y );
     int ViewZeroIndex( EditCurveXSec* edit_curve_xs );
+    void ZoomToBox( int x0, int y0, int x1, int y1 );
+    void EndDrag( CurveEditScreen* curve_editor );
+    void ZoomAt( int px, int py, double factor );
+    void AnchorPoint( int anchor, int x, int y, int & ax, int & ay );
 
     // Search for a point index within radius 'r_test' to the input pick location
     int ihit( const vec3d & mpt, double r_test, const vec3d &scale );
@@ -332,6 +339,16 @@ private:
     vector < vec3d > proj_pt_vec( const vector < vec3d > & pt_in );
 
     int m_LastHit; // Index of the previously selected point
+
+    bool m_BoxZoom;         // A left drag draws a box to zoom to
+    bool m_Panning;
+    bool m_PointUsed;       // The press deleted a point or split the curve
+    int m_PushButton;       // Button that started the drag
+    int m_BoxX, m_BoxY;     // Pixel the box started at
+    int m_PanX, m_PanY;     // Pixel the pan last moved to
+    bool m_DragZooming;
+    int m_ZoomY;            // Pixel row a drag zoom last zoomed from
+    int m_ZoomAnchorX, m_ZoomAnchorY;   // Pixel a drag zoom keeps fixed
 
 };
 }

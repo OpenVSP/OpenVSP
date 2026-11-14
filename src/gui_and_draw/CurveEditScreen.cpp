@@ -334,6 +334,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
 
     //==== Initialize Member Variables ====//
     m_FreezeAxis = false;
+    m_ShownView = -1;
     m_DeleteActive = false;
     m_SplitActive = false;
 
@@ -367,7 +368,7 @@ void CurveEditScreen::Show()
     {
         m_XSecGlWin->show();
 
-        m_XSecGlWin->InitZoom();
+        m_XSecGlWin->ResetView();
     }
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
@@ -434,17 +435,27 @@ bool CurveEditScreen::Update()
         VSPGraphic::Viewport* viewport = m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport();
         assert( viewport );
 
-        if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
+        // Turning the camera to a view also centres it, so it is turned only when the view or the curve changes.  A zoom
+        // of one view or curve means nothing in another, so the new one shows the whole curve.
+        if ( edit_curve_xs->m_View() != m_ShownView || edit_curve_xs->GetID() != m_ShownCurveID )
         {
-            m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
-        }
-        else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
-        {
-            m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_LEFT );
-        }
-        else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
-        {
-            m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_FRONT_YUP );
+            m_ShownView = edit_curve_xs->m_View();
+            m_ShownCurveID = edit_curve_xs->GetID();
+
+            if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
+            {
+                m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
+            }
+            else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
+            {
+                m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_LEFT );
+            }
+            else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
+            {
+                m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_FRONT_YUP );
+            }
+
+            m_XSecGlWin->ResetView();
         }
 
         m_XSecGlWin->clear();
@@ -1049,8 +1060,7 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
         if( gui_device == &m_ResetViewButton )
         {
-            m_XSecGlWin->relativePan( 0, 0 );
-            m_XSecGlWin->InitZoom();
+            m_XSecGlWin->ResetView();
         }
         else if( gui_device == &m_ColorPicker )
         {
