@@ -1729,8 +1729,6 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
 {
     // The current base VSPAERO file name and analysis method is used as the basis
     // to identify previous VSPAERO results from.
-    ClearAllPreviousResults();
-
     UpdateFilenames();
 
     ReadSetupFile();
@@ -1862,48 +1860,6 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
 
     res->Add( new NameValData( "ResultsVec", res_id_vec, "ID's of VSPAERO analysis results." ) );
     return res->GetID();
-}
-
-void VSPAEROMgrSingleton::ClearAllPreviousResults()
-{
-    ClearCpSliceResults();
-
-    while ( ResultsMgr.GetNumResults( "VSPAERO_History" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_History",  0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Polar" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Polar", 0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Load" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Load",  0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Stab" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Stab",  0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Group" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Group", 0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Rotor" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Rotor", 0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Blade_Avg" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Blade_Avg", 0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Blade_Last_Rev" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Blade_Last_Rev", 0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "VSPAERO_Wrapper" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Wrapper",  0 ) );
-    }
 }
 
 void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec ) const
@@ -3688,8 +3644,16 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( const string &fileName )
         fprintf( stderr, "WARNING %d: ""VSPAERO_Wrapper"" result contains no child results \n\tFile: %s \tLine:%d\n", retVal, __FILE__, __LINE__ );
     }
 
-    // Get CP Slice results if available
-    string CPresId = ResultsMgr.FindLatestResultsID( "CpSlice_Wrapper" );
+    // Get this run's CP Slice results if available
+    string CPresId;
+    for ( size_t i = 0; i < resIdVector.size(); i++ )
+    {
+        Results* kid = ResultsMgr.FindResultsPtr( resIdVector[i] );
+        if ( kid && kid->GetName() == "CpSlice_Wrapper" )
+        {
+            CPresId = resIdVector[i];
+        }
+    }
     if ( !CPresId.empty() )
     {
         vector < string > caseIdVector = ResultsMgr.GetStringResults( CPresId, "CpSlice_Case_ID_Vec" );
@@ -4280,19 +4244,6 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     if( m_SlicerProcessKill )
     {
         m_SlicerProcessKill = false;    //reset kill flag
-    }
-}
-
-void VSPAEROMgrSingleton::ClearCpSliceResults()
-{
-    // Clear previous results
-    while ( ResultsMgr.GetNumResults( "CpSlicer_Case" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlicer_Case", 0 ) );
-    }
-    while ( ResultsMgr.GetNumResults( "CpSlice_Wrapper" ) > 0 )
-    {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlice_Wrapper", 0 ) );
     }
 }
 

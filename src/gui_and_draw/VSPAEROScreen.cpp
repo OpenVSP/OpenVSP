@@ -1299,9 +1299,6 @@ void VSPAEROScreen::LaunchVSPAERO()
         { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
         else
         {
-            // Clear out previous results
-            VSPAEROMgr.ClearAllPreviousResults();
-
             VSPAEROMgr.ComputeGeometry();
 
             // Clear the solver console
@@ -1493,9 +1490,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             data.m_String = "VSPAEROSolverMessage";
             data.m_StringVec = vector < string >{ "CLEAR_TERMINAL" };
             MessageMgr::getInstance().Send( "ScreenMgr", nullptr, data );
-
-            // Clear out previous results
-            VSPAEROMgr.ClearCpSliceResults();
 
             VSPAEROMgr.ComputeCpSlices();
 

@@ -19,6 +19,8 @@
 #include "VSPAEROMgr.h"
 #include "ResultsPlotCanvas.h"
 
+#include <map>
+
 using namespace std;
 
 class VSPAEROPlotScreen;
@@ -46,7 +48,11 @@ public:
 
 protected:
 
+    void ApplyDefaultView();
+
+    bool m_DefaultViewPending;
     bool m_SelectDefaultData;
+    std::map < Fl_Browser*, vector < string > > m_ListedRowKeys;  // Key of each row a browser lists
     double m_PercentLegendColor;
 
     //==== Utility functions ====//
@@ -60,7 +66,39 @@ protected:
     static void UpdateAxisLimits( Ca_Canvas * canvas, const vector <double> &xDoubleData, const vector <double> &yDoubleData, bool expand_only );
     static void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, const vector <double> &doubleData, bool expandOnly, bool keepZero = false );
     //  general utility
-    static void ConstructFlowConditionString( char *strbuf, size_t str_siz, Results *res, bool includeResultId, bool include_recref );
+    // Pick the runs to plot: of each kind, the newest when a run is new, then as checked.
+    void UpdateRuns();
+
+    // Results of name among the plotted runs' Results, oldest run first.  Cp slices come from the
+    // plotted Cp slice sources; other Results not made by a VSPAERO run from all Results.
+    void GetRunResultIDs( const string & name, vector < string > & ids );
+    int NumRunResults( const string & name );
+    Results* FindRunResults( const string & name, int index = 0 );
+    string FindRunResultsID( const string & name, int index = 0 );
+    string FindLatestRunResultsID( const string & name );
+
+    // Name of a run: its nickname or "Run N", N counting every listed run.  RunPrefix is empty
+    // while one run is plotted; CpSlicePrefix while one Cp slice source is.
+    string RunLabel( const string & run_id );
+    string RunPrefix( Results* res );
+    string CpSlicePrefix( const string & case_id );
+
+    // Style of series iseries of nseries drawn from res.  With several runs plotted, the run
+    // sets marker and dash as the Results plot's source does.
+    void RunSeriesStyle( Results* res, int iseries, int nseries, Fl_Color & color, int & linestyle, int & marker );
+
+    // Lists each flow condition of the plotted runs' Results named name once, or only the first
+    // condition, which is then selected.  Rows keep their selection by text.  selected_ids gets
+    // the Results of the selected rows, row by row, row_of_id their row among the selected rows,
+    // and num_rows the number of selected rows.
+    void UpdateConditionBrowser( Fl_Browser* browser, const string & name, bool first_only, vector < string > & selected_ids,
+                                 std::map < string, int > & row_of_id, int & num_rows );
+    // Lists the Results ids one row per distinct key, as UpdateConditionBrowser does.
+    void ListUniqueRows( Fl_Browser* browser, const vector < string > & ids, const vector < string > & keys, const vector < string > & texts,
+                         bool first_only, vector < string > & selected_ids, std::map < string, int > & row_of_id, int & num_rows );
+    static string FlowConditionKey( Results* res );
+
+    void ConstructFlowConditionString( char *strbuf, size_t str_siz, Results *res, bool includeResultId, bool include_recref );
 
     //==== Convergence Tab ====//
     Fl_Group* m_ConvergenceTab;
@@ -79,6 +117,8 @@ protected:
     VspBrowser* m_ConvergenceYDataBrowser;
     VspBrowser* m_ConvergenceFlowConditionBrowser;
     vector< string > m_ConvergenceFlowConditionSelectedResultIDs;
+    std::map < string, int > m_ConvergenceConditionRow;
+    int m_ConvergenceNumConditions;
 
     ToggleButton m_ConvergenceManualXMinToggle;
     ToggleButton m_ConvergenceManualXMaxToggle;
@@ -128,6 +168,8 @@ protected:
     VspBrowser* m_LoadDistSelectBrowser;
     VspBrowser* m_LoadDistFlowConditionBrowser;
     vector< string > m_LoadDistFlowConditionSelectedResultIDs;
+    std::map < string, int > m_LoadDistConditionRow;
+    int m_LoadDistNumConditions;
 
     void UpdateLoadDistFlowConditionBrowser();
     void UpdateLoadDistYDataBrowser();
@@ -152,6 +194,8 @@ protected:
     VspBrowser* m_SweepYDataBrowser;
     VspBrowser* m_SweepFlowConditionBrowser;
     vector< string > m_SweepFlowConditionSelectedResultIDs;
+    std::map < string, int > m_SweepConditionRow;
+    int m_SweepNumConditions;
 
     ToggleButton m_SweepManualXMinToggle;
     ToggleButton m_SweepManualXMaxToggle;
@@ -185,8 +229,15 @@ protected:
     Choice m_ZCpSlicePosTypeChoice;
     VspBrowser* m_CpSliceCaseBrowser;
     vector< string > m_CpSliceCaseSelectedResultIDs;
-    unordered_map < int, vector < string > >  m_CpSliceCutResultIDMap;
+    std::map < string, int > m_CpSliceCaseRow;
+    int m_CpSliceNumCases;
     vector< string > m_CpSliceCutSelectedResultIDs;
+    std::map < string, int > m_CpSliceCutRow;
+    int m_CpSliceNumCuts;
+
+    vector < string > m_CpSliceSourceIDs;           // CpSlice_Wrapper Results plotted, oldest first
+    std::map < string, int > m_CpSliceSourceOfCase;  // Index in m_CpSliceSourceIDs of each slice
+    std::map < string, string > m_CpSliceOwner;     // Runs list entry of each source
 
     ToggleButton m_CpSliceManualXMinToggle;
     ToggleButton m_CpSliceManualXMaxToggle;
@@ -200,17 +251,31 @@ protected:
     ToggleButton m_CpSliceFlipYToggle;
     ToggleButton m_CpSlicePlotLinesToggle;
 
-    int m_NumCpCuts; // Number of CpSlice Cuts
-    int m_NumCpCases; // Number of Flow Condition Cases
 
     void UpdateCpSliceCaseBrowser();
-    static void ConstructCpSliceCaseString( char *strbuf, size_t strsiz, Results *res, int case_num = 1 );
+    static void ConstructCpSliceCaseString( char *strbuf, size_t strsiz, Results *res );
+    static void ConstructCpSliceCutString( char *strbuf, size_t strsiz, Results *res );
     void UpdateCpSliceCutBrowser();
 
     void RedrawCpSlicePlot();
 
     //==== Unsteady Tab ====//
     Fl_Group* m_UnsteadyTab;
+
+    //==== Runs Tab ====//
+    Fl_Group* m_RunsTab;
+    GroupLayout m_RunsLayout;
+    ColCheckBrowser* m_RunsBrowser;
+    TriggerButton m_RunsNewestButton;
+    TriggerButton m_RunsAllButton;
+
+    vector < string > m_RunIDs;          // VSPAERO_Wrapper Results plotted, oldest first
+    vector < string > m_KnownRunIDs;     // Every VSPAERO_Wrapper Result when the runs were last updated
+    vector < string > m_SliceRunIDs;     // Cp slices made apart from a run plotted, oldest first
+    vector < string > m_KnownSliceIDs;   // Every Cp slice made apart from a run
+    vector < string > m_ListedRunIDs;    // Runs browser lines after the header
+    string m_NicknameRunID;              // Run whose name is being edited
+    std::map < string, int > m_RunOfResult;  // Index in m_RunIDs of the run each Result belongs to
     GroupLayout m_UnsteadyLayout;
     GroupLayout m_UnsteadyControlLayout;
     GroupLayout m_UnsteadyPlotLayout;
@@ -226,6 +291,8 @@ protected:
     VspBrowser* m_UnsteadySelectBrowser;
     VspBrowser* m_UnsteadyFlowConditionBrowser;
     vector< string > m_UnsteadyFlowConditionSelectedResultIDs;
+    std::map < string, int > m_UnsteadyConditionRow;
+    int m_UnsteadyNumConditions;
 
     ToggleButton m_UnsteadyManualXMinToggle;
     ToggleButton m_UnsteadyManualXMaxToggle;

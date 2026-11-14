@@ -240,8 +240,6 @@ public:
     }
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    static void ClearAllPreviousResults();
-
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -303,7 +301,6 @@ public:
     string ExecuteCpSlicer( FILE * logFile = nullptr );
     void ComputeQuadTreeSlices( FILE * logFile = nullptr );
     void ExecuteQuadTreeSlicer( FILE * logFile = nullptr );
-    static void ClearCpSliceResults();
     void CreateCutsFile();
     void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }
     CpSlice* AddCpSlice();

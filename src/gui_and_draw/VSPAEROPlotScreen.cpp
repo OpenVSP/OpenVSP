@@ -13,6 +13,7 @@
 #endif
 
 #include "VSPAEROPlotScreen.h"
+#include "ResultsViewer.h"
 #include <cfloat>
 
 #include "VspUtil.h"
@@ -25,9 +26,28 @@
 #define VSPAERO_PLOT_SCREEN_WIDTH 950   //<1024
 #define VSPAERO_PLOT_SCREEN_HEIGHT 800
 
+// Orders a run's Results as they were made.
+static bool MadeEarlier( const string & a, const string & b )
+{
+    Results* ra = ResultsMgr.FindResultsPtr( a );
+    Results* rb = ResultsMgr.FindResultsPtr( b );
+    if ( !ra || !rb )
+    {
+        return false;
+    }
+    return ra->GetCreationCount() < rb->GetCreationCount();
+}
+
 VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_PLOT_SCREEN_WIDTH, VSPAERO_PLOT_SCREEN_HEIGHT, "Results Manager - VSPAERO" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
+
+    m_ConvergenceNumConditions = 0;
+    m_LoadDistNumConditions = 0;
+    m_SweepNumConditions = 0;
+    m_UnsteadyNumConditions = 0;
+    m_CpSliceNumCases = 0;
+    m_CpSliceNumCuts = 0;
 
     int windowBorderWidth = 5;
     int groupBorderWidth = 2;
@@ -660,6 +680,25 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     SetGrowWidget( m_UnsteadyPlotCanvas );
     SetGrowWidget( m_UnsteadyFlowConditionBrowser, m_UnsteadyControlLayout.GetGroup() );
 
+    //==== Runs Tab ====//
+    m_RunsTab = AddTab( "Runs" );
+    Fl_Group* runsGroup = AddSubGroup( m_RunsTab, windowBorderWidth );
+    m_RunsLayout.SetGroupAndScreen( runsGroup, this );
+    m_RunsLayout.AddDividerBox( "VSPAERO Runs to Plot" );
+    int runsBrowserHeight = m_RunsLayout.GetRemainY() - m_RunsLayout.GetStdHeight() - m_RunsLayout.GetGapHeight();
+    static int runs_col_widths[] = { 24, 60, 200, 80, 160, 0 };
+    m_RunsBrowser = new ColCheckBrowser( 0, 0, 10, 10 );
+    m_RunsLayout.AddColResizeBrowser( runs_col_widths, 5, runsBrowserHeight, m_RunsBrowser );
+    m_RunsBrowser->Init( this, runsGroup );
+    m_RunsLayout.AddYGap();
+    m_RunsLayout.SetSameLineFlag( true );
+    m_RunsLayout.SetFitWidthFlag( false );
+    m_RunsLayout.SetButtonWidth( m_RunsLayout.GetW() / 2 );
+    m_RunsLayout.AddButton( m_RunsNewestButton, "Newest Only" );
+    m_RunsLayout.AddButton( m_RunsAllButton, "All" );
+    m_RunsLayout.ForceNewLine();
+    SetGrowWidget( m_RunsBrowser, m_RunsTab );
+
     SetDefaultView();
 
     m_PercentLegendColor = 0.65;
@@ -669,11 +708,17 @@ VSPAEROPlotScreen::~VSPAEROPlotScreen()
 {
 }
 
+// Taken up by the next Update, as the solver thread calls this.
 void VSPAEROPlotScreen::SetDefaultView()
+{
+    m_DefaultViewPending = true;
+}
+
+void VSPAEROPlotScreen::ApplyDefaultView()
 {
     bool unsteady = false;
 
-    Results * res = ResultsMgr.FindResults( "VSPAERO_History" );
+    Results * res = FindRunResults( "VSPAERO_History" );
     if ( res )
     {
         if ( res->GetNumData( "Time" ) > 0 )
@@ -682,7 +727,7 @@ void VSPAEROPlotScreen::SetDefaultView()
         }
     }
 
-    int num_group = ResultsMgr.GetNumResults( "VSPAERO_Group" );
+    int num_group = NumRunResults( "VSPAERO_Group" );
 
     if ( unsteady )
     {
@@ -709,13 +754,21 @@ bool VSPAEROPlotScreen::Update()
 {
     TabScreen::Update();
 
+    UpdateRuns();
+
+    if ( m_DefaultViewPending )
+    {
+        m_DefaultViewPending = false;
+        ApplyDefaultView();
+    }
+
     bool unsteady = false;
 
-    int num_group = ResultsMgr.GetNumResults( "VSPAERO_Group" );
+    int num_group = NumRunResults( "VSPAERO_Group" );
 
-    int num_rotor = ResultsMgr.GetNumResults( "VSPAERO_Rotor" );
+    int num_rotor = NumRunResults( "VSPAERO_Rotor" );
 
-    Results * res = ResultsMgr.FindResults( "VSPAERO_History" );
+    Results * res = FindRunResults( "VSPAERO_History" );
     if ( res )
     {
         if ( res->GetNumData( "Time" ) > 0 )
@@ -776,7 +829,7 @@ bool VSPAEROPlotScreen::Update()
     // Update load distribution
     // Let's check to see what analysis method was used on the first result found
     // note that only VSPAEROMgr clear all VSPAERO_* results from the results manager each time it's run all analyses in the results 'should' have the same analysis method
-    res = ResultsMgr.FindResults( "VSPAERO_Load", 0 );
+    res = FindRunResults( "VSPAERO_Load", 0 );
     if ( res )
     {
         m_LoadDistTab->activate();
@@ -815,7 +868,7 @@ bool VSPAEROPlotScreen::Update()
     RedrawSweepPlot();
     UpdateSweepAutoManualAxisLimits();
 
-    res = ResultsMgr.FindResults( "CpSlice_Wrapper", 0 );
+    res = FindRunResults( "CpSlice_Wrapper", 0 );
     if ( res )
     {
         m_CpSliceTab->activate();
@@ -835,17 +888,6 @@ bool VSPAEROPlotScreen::Update()
     }
 
     m_FLTK_Window->redraw();
-
-    //Check to see if SelectCpSliceBrowser in VSPAERO screen is occupied with slices
-    //if not, we deactivate the CP Slice tab in the VSPAERO results Manager
-     if ( VSPAEROMgr.GetCpSliceVec().empty() )
-     {
-         m_CpSliceTab->deactivate();
-     }
-     else
-     {
-         m_CpSliceTab->activate();
-     }
 
     m_SelectDefaultData = false;
     return false;
@@ -1245,6 +1287,55 @@ void VSPAEROPlotScreen::Hide()
 //==== Callbacks ====//
 void VSPAEROPlotScreen::CallBack( Fl_Widget* w )
 {
+    if ( w == m_RunsBrowser )
+    {
+        m_RunsBrowser->HidePopupInput();
+
+        int reason = m_RunsBrowser->GetCBReason();
+        if ( reason == BROWSER_CALLBACK_POPUP_ENTER )
+        {
+            Results* run = ResultsMgr.FindResultsPtr( m_NicknameRunID );
+            if ( run )
+            {
+                run->SetNickname( m_RunsBrowser->GetPopupValue() );
+            }
+            m_NicknameRunID.clear();
+        }
+        else if ( reason == BROWSER_CALLBACK_CHECK )
+        {
+            m_RunIDs.clear();
+            m_SliceRunIDs.clear();
+            for ( int i = 0; i < ( int ) m_ListedRunIDs.size(); i++ )
+            {
+                if ( m_RunsBrowser->IsChecked( i + 2 ) )
+                {
+                    if ( std::find( m_KnownSliceIDs.begin(), m_KnownSliceIDs.end(), m_ListedRunIDs[i] ) != m_KnownSliceIDs.end() )
+                    {
+                        m_SliceRunIDs.push_back( m_ListedRunIDs[i] );
+                    }
+                    else
+                    {
+                        m_RunIDs.push_back( m_ListedRunIDs[i] );
+                    }
+                }
+            }
+            m_SelectDefaultData = true;
+        }
+        else if ( reason == BROWSER_CALLBACK_POPUP_OPEN )
+        {
+            int line = m_RunsBrowser->value();
+            if ( line >= 2 && line - 2 < ( int ) m_ListedRunIDs.size() )
+            {
+                m_NicknameRunID = m_ListedRunIDs[ line - 2 ];
+                Results* run = ResultsMgr.FindResultsPtr( m_NicknameRunID );
+                if ( run )
+                {
+                    m_RunsBrowser->InsertPopupInput( run->GetNickname(), line, 2 );
+                }
+            }
+        }
+    }
+
     // Handle multi-select of sweep browsers
     if ( w == m_SweepXDataBrowser )
     {
@@ -1314,69 +1405,39 @@ void VSPAEROPlotScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
 
+    if ( device == &m_RunsNewestButton )
+    {
+        m_RunIDs.clear();
+        if ( !m_KnownRunIDs.empty() )
+        {
+            m_RunIDs.push_back( m_KnownRunIDs.back() );
+        }
+        m_SliceRunIDs.clear();
+        if ( !m_KnownSliceIDs.empty() )
+        {
+            m_SliceRunIDs.push_back( m_KnownSliceIDs.back() );
+        }
+        m_SelectDefaultData = true;
+    }
+    else if ( device == &m_RunsAllButton )
+    {
+        m_RunIDs = m_KnownRunIDs;
+        m_SliceRunIDs = m_KnownSliceIDs;
+        m_SelectDefaultData = true;
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
 
 void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
 {
-    // keeps track of the previously selected rows (browser uses 1-based indexing)
-    vector<bool> wasSelected;
-    for ( unsigned int iCase = 1; iCase <= m_ConvergenceFlowConditionBrowser->size(); iCase++ )
-    {
-        wasSelected.push_back( m_ConvergenceFlowConditionBrowser->selected( iCase ) );
-    }
-
-    int scrollPos = m_ConvergenceFlowConditionBrowser->vposition();
-    m_ConvergenceFlowConditionBrowser->clear();
-    m_ConvergenceFlowConditionSelectedResultIDs.clear();
-
-    string resultName = "VSPAERO_History";
-
-    int numCases = ResultsMgr.GetNumResults( resultName );
-
-    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
-    {
-        Results* res = ResultsMgr.FindResults( resultName, iCase );
-        if( res )
-        {
-            char strbuf[1024];
-            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, true );
-            m_ConvergenceFlowConditionBrowser->add( strbuf );
-            if( m_SelectDefaultData )   //select ALL flow conditions
-            {
-                m_ConvergenceFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                m_ConvergenceFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                scrollPos = 0;
-            }
-            else if ( iCase < wasSelected.size() ) // restore original row selections
-            {
-                if ( wasSelected[iCase] )
-                {
-                    m_ConvergenceFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_ConvergenceFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                }
-            }
-        }   //if( res )
-    }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
-
-    m_ConvergenceFlowConditionBrowser->vposition( scrollPos );
-
+    UpdateConditionBrowser( m_ConvergenceFlowConditionBrowser, "VSPAERO_History", false, m_ConvergenceFlowConditionSelectedResultIDs,
+                            m_ConvergenceConditionRow, m_ConvergenceNumConditions );
 }
 
 void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
 {
-    // keeps track of the previously selected rows (browser uses 1-based indexing)
-    vector<bool> wasSelected;
-    for ( unsigned int iCase = 1; iCase <= m_LoadDistFlowConditionBrowser->size(); iCase++ )
-    {
-        wasSelected.push_back( m_LoadDistFlowConditionBrowser->selected( iCase ) );
-    }
-
-    int scrollPos = m_LoadDistFlowConditionBrowser->vposition();
-    m_LoadDistFlowConditionBrowser->clear();
-    m_LoadDistFlowConditionSelectedResultIDs.clear();
-
     string resultName = "VSPAERO_Load";
 
     m_LoadDistTimeIndexSelector.Update( VSPAEROMgr.m_LoadDistTimeIndex.GetID() );
@@ -1385,10 +1446,10 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
     m_LoadDistTimeIndexSelector.Deactivate();
     m_LoadDistTimeOutput.Deactivate();
 
-    int numCases = ResultsMgr.GetNumResults( resultName );
+    int numCases = NumRunResults( resultName );
     if ( numCases > 0 )
     {
-        Results* res = ResultsMgr.FindResults( resultName, 0 );
+        Results* res = FindRunResults( resultName, 0 );
         if( res )
         {
             NameValData * unsteady_nvd = res->FindPtr( "Unsteady", 0 );
@@ -1426,36 +1487,10 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         }
     }
 
-    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
-    {
-        Results* res = ResultsMgr.FindResults( resultName, iCase );
-        if( res )
-        {
-            char strbuf[1024];
-            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, false );
-            m_LoadDistFlowConditionBrowser->add( strbuf );
-            if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
-            {
-                if ( m_SelectDefaultData || ( iCase < wasSelected.size() && wasSelected[iCase] ) )   //select ALL flow conditions or restore original row selections
-                {
-                    if ( m_SelectDefaultData )
-                    {
-                        scrollPos = 0;
-                    }
-                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                }
-            }
-            else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.BLADE_SELECT_TYPE )
-            {
-                m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                m_LoadDistFlowConditionBrowser->select( iCase + 1 );
-                break; // Only list the first flow condition, since the others are ignored in the group and rotor output files
-            }
-        }   //if( res )
-    }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
-
-    m_LoadDistFlowConditionBrowser->vposition( scrollPos );
+    // Group and rotor files ignore all but the first flow condition.
+    bool first_only = VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.BLADE_SELECT_TYPE;
+    UpdateConditionBrowser( m_LoadDistFlowConditionBrowser, resultName, first_only, m_LoadDistFlowConditionSelectedResultIDs,
+                            m_LoadDistConditionRow, m_LoadDistNumConditions );
 }
 
 void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
@@ -1482,7 +1517,7 @@ void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
     else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
     {
         res_name = "VSPAERO_Blade_Avg";
-        num_case = ResultsMgr.GetNumResults( res_name );
+        num_case = NumRunResults( res_name );
         prefix = "Blade_";
         m_LoadDistSelectBrowser->activate();
         m_LoadDistFlowConditionBrowser->deactivate();
@@ -1490,7 +1525,7 @@ void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
 
     for ( unsigned int iCase = 0; iCase < num_case; iCase++ )
     {
-        Results* res = ResultsMgr.FindResults( res_name, iCase );
+        Results* res = FindRunResults( res_name, iCase );
         if ( res )
         {
             string name;
@@ -1508,6 +1543,7 @@ void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
             {
                 name = prefix + to_string( iCase );
             }
+            name = RunPrefix( res ) + name;
 
             m_LoadDistSelectBrowser->add( name.c_str() );
 
@@ -1533,164 +1569,51 @@ void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
 
 void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
 {
-    // keeps track of the previously selected rows (browser uses 1-based indexing)
-    vector<bool> wasSelected;
-    for ( unsigned int iCase = 1; iCase <= m_SweepFlowConditionBrowser->size(); iCase++ )
-    {
-        wasSelected.push_back( m_SweepFlowConditionBrowser->selected( iCase ) );
-    }
-
-    int scrollPos = m_SweepFlowConditionBrowser->vposition();
-    m_SweepFlowConditionBrowser->clear();
-    m_SweepFlowConditionSelectedResultIDs.clear();
-
-    string resultName = "VSPAERO_History";
-
-    int numCases = ResultsMgr.GetNumResults( resultName );
-    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
-    {
-        Results* res = ResultsMgr.FindResults( resultName, iCase );
-        if( res )
-        {
-            char strbuf[1024];
-            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, true );
-            m_SweepFlowConditionBrowser->add( strbuf );
-            if( m_SelectDefaultData )   //select ALL flow conditions
-            {
-                m_SweepFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                m_SweepFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                scrollPos = 0;
-            }
-            else if ( iCase < wasSelected.size() ) // restore original row selections
-            {
-                if ( wasSelected[iCase] )
-                {
-                    m_SweepFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_SweepFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                }
-            }
-        }   //if( res )
-    }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
-
-    m_SweepFlowConditionBrowser->vposition( scrollPos );
+    UpdateConditionBrowser( m_SweepFlowConditionBrowser, "VSPAERO_History", false, m_SweepFlowConditionSelectedResultIDs,
+                            m_SweepConditionRow, m_SweepNumConditions );
 }
 
 void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
 {
-    // keeps track of the previously selected rows (browser uses 1-based indexing)
-    vector<bool> wasSelected;
-    for ( unsigned int iCase = 1; iCase <= m_CpSliceCaseBrowser->size(); iCase++ )
+    vector < string > ids;
+    GetRunResultIDs( "CpSlicer_Case", ids );
+
+    vector < string > keys;
+    vector < string > texts;
+    for ( int i = 0; i < ( int ) ids.size(); i++ )
     {
-        wasSelected.push_back( m_CpSliceCaseBrowser->selected( iCase ) );
-    }
-
-    int scrollPos = m_CpSliceCaseBrowser->vposition();
-    m_CpSliceCaseBrowser->clear();
-    m_CpSliceCaseSelectedResultIDs.clear();
-
-    string resultName = "CpSlicer_Case";
-    int case_num = 1;
-
-    for ( unsigned int iCase = 0; iCase < m_NumCpCases; iCase++ )
-    {
-        Results* res = ResultsMgr.FindResults( resultName, iCase * m_NumCpCuts );
+        Results* res = ResultsMgr.FindResultsPtr( ids[i] );
+        char strbuf[1024];
+        strbuf[0] = '\0';
+        string key;
         if ( res )
         {
-            char strbuf[1024];
-            ConstructCpSliceCaseString( strbuf, sizeof( strbuf ), res, case_num );
-            case_num++;
-            m_CpSliceCaseBrowser->add( strbuf );
-            if ( m_SelectDefaultData )   //select ALL flow conditions
+            ConstructCpSliceCaseString( strbuf, sizeof( strbuf ), res );
+            const char* names[] = { "Alpha", "Beta", "Mach" };
+            for ( int k = 0; k < 3; k++ )
             {
-                // Include results of all CpSlice flow condition cases for given cut
-                for ( size_t j = 0; j < m_NumCpCuts; j++ )
+                NameValData* nvd = res->FindPtr( names[k] );
+                if ( nvd && !nvd->GetDoubleData().empty() )
                 {
-                    Results* slice_res = ResultsMgr.FindResults( resultName, iCase * m_NumCpCuts + j );
-                    if ( slice_res )
-                    {
-                        m_CpSliceCaseSelectedResultIDs.push_back( slice_res->GetID() );
-                    }
-                }
-
-                m_CpSliceCaseBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                scrollPos = 0;
-            }
-            else if ( iCase < wasSelected.size() ) // restore original row selections
-            {
-                if ( wasSelected[iCase] )
-                {
-                    // Include results of all CpSlice flow condition cases for given cut
-                    for ( size_t j = 0; j < m_NumCpCuts; j++ )
-                    {
-                        Results* slice_res = ResultsMgr.FindResults( resultName, iCase * m_NumCpCuts + j );
-                        if ( slice_res )
-                        {
-                            m_CpSliceCaseSelectedResultIDs.push_back( slice_res->GetID() );
-                        }
-                    }
-
-                    m_CpSliceCaseBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                    char buf[64];
+                    snprintf( buf, sizeof( buf ), "%.12g,", nvd->GetDoubleData().back() );
+                    key += buf;
                 }
             }
         }
+        keys.push_back( key );
+        texts.push_back( strbuf );
     }
 
-    m_CpSliceCaseBrowser->vposition( scrollPos );
+    ListUniqueRows( m_CpSliceCaseBrowser, ids, keys, texts, false, m_CpSliceCaseSelectedResultIDs, m_CpSliceCaseRow, m_CpSliceNumCases );
 }
 
 void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
 {
-    // keeps track of the previously selected rows (browser uses 1-based indexing)
-    vector<bool> wasSelected;
-    for ( unsigned int iCase = 1; iCase <= m_UnsteadyFlowConditionBrowser->size(); iCase++ )
-    {
-        wasSelected.push_back( m_UnsteadyFlowConditionBrowser->selected( iCase ) );
-    }
-
-    int scrollPos = m_UnsteadyFlowConditionBrowser->vposition();
-    m_UnsteadyFlowConditionBrowser->clear();
-    m_UnsteadyFlowConditionSelectedResultIDs.clear();
-
-    string resultName = "VSPAERO_History";
-
-    int numCases = ResultsMgr.GetNumResults( resultName );
-
-    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
-    {
-        Results* res = ResultsMgr.FindResults( resultName, iCase );
-        if ( res )
-        {
-            char strbuf[1024];
-            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, true );
-            m_UnsteadyFlowConditionBrowser->add( strbuf );
-            if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgr.HISTORY_SELECT_TYPE )
-            {
-                if ( m_SelectDefaultData )   //select ALL flow conditions
-                {
-                    m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                    scrollPos = 0;
-                }
-                else if ( iCase < wasSelected.size() ) // restore original row selections
-                {
-                    if ( wasSelected[iCase] )
-                    {
-                        m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                        m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                    }
-                }
-            }
-            else
-            {
-                m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                m_UnsteadyFlowConditionBrowser->select( iCase + 1 );
-                break; // Only list the first flow condition, since the others are ignored in the group and rotor output files
-            }
-        }   //if( res )
-    }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
-
-    m_UnsteadyFlowConditionBrowser->vposition( scrollPos );
-
+    // Group and rotor files ignore all but the first flow condition.
+    bool first_only = VSPAEROMgr.m_UnsteadyGroupSelectType.Get() != VSPAEROMgr.HISTORY_SELECT_TYPE;
+    UpdateConditionBrowser( m_UnsteadyFlowConditionBrowser, "VSPAERO_History", first_only, m_UnsteadyFlowConditionSelectedResultIDs,
+                            m_UnsteadyConditionRow, m_UnsteadyNumConditions );
 }
 
 void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
@@ -1712,7 +1635,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
     if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE )
     {
         res_name = "VSPAERO_Group";
-        num_case = ResultsMgr.GetNumResults( "VSPAERO_Group" );
+        num_case = NumRunResults( "VSPAERO_Group" );
         prefix = "Group_";
         m_UnsteadySelectBrowser->activate();
         m_UnsteadyFlowConditionBrowser->deactivate();
@@ -1720,7 +1643,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
     else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
     {
         res_name = "VSPAERO_Rotor";
-        num_case = ResultsMgr.GetNumResults( res_name );
+        num_case = NumRunResults( res_name );
         prefix = "Rotor_";
         m_UnsteadySelectBrowser->activate();
         m_UnsteadyFlowConditionBrowser->deactivate();
@@ -1733,7 +1656,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
 
     for ( unsigned int iCase = 0; iCase < num_case; iCase++ )
     {
-        Results* res = ResultsMgr.FindResults( res_name, iCase );
+        Results* res = FindRunResults( res_name, iCase );
         if ( res )
         {
             string name;
@@ -1746,6 +1669,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
             {
                 name = prefix + to_string( iCase );
             }
+            name = RunPrefix( res ) + name;
 
             m_UnsteadySelectBrowser->add( name.c_str() );
 
@@ -1831,7 +1755,7 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char *strbuf, size_t str_s
     }
 }
 
-void VSPAEROPlotScreen::ConstructCpSliceCaseString( char *strbuf, size_t strsiz, Results *res, int case_num )
+void VSPAEROPlotScreen::ConstructCpSliceCaseString( char *strbuf, size_t strsiz, Results *res )
 {
     if ( strbuf && res )
     {
@@ -1863,7 +1787,32 @@ void VSPAEROPlotScreen::ConstructCpSliceCaseString( char *strbuf, size_t strsiz,
             mach = dataVector[dataVector.size() - 1];
         }
 
-        snprintf( strbuf, strsiz, "Case %d: a=%.2g, b=%.2g, M=%.2g", case_num, alpha, beta, mach );
+        snprintf( strbuf, strsiz, "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
+    }
+}
+
+void VSPAEROPlotScreen::ConstructCpSliceCutString( char *strbuf, size_t strsiz, Results *res )
+{
+    if ( strbuf && res )
+    {
+        int type = 0;
+        double location = 0;
+
+        NameValData* nvd = res->FindPtr( "Cut_Type" );
+        if ( nvd && !nvd->GetIntData().empty() )
+        {
+            type = nvd->GetIntData().back();
+        }
+
+        nvd = res->FindPtr( "Cut_Loc" );
+        if ( nvd && !nvd->GetDoubleData().empty() )
+        {
+            location = nvd->GetDoubleData().back();
+        }
+
+        char type_char = 88 + type; // ASCII X: 88; Y: 89; Z: 90
+
+        snprintf( strbuf, strsiz, "%c= %4.2f", type_char, location );
     }
 }
 
@@ -1880,7 +1829,7 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
     m_ConvergenceYDataBrowser->clear();
 
     string resultName = "VSPAERO_History";
-    string resultID = ResultsMgr.FindLatestResultsID( resultName );
+    string resultID = FindLatestRunResultsID( resultName );
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
@@ -1927,20 +1876,20 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     int scrollPos = m_LoadDistYDataBrowser->vposition();
     m_LoadDistYDataBrowser->clear();
 
-    Results* load_res = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "VSPAERO_Load" ) );
+    Results* load_res = ResultsMgr.FindResultsPtr( FindLatestRunResultsID( "VSPAERO_Load" ) );
     Results* res = nullptr;
 
     string resultID, default_res;
 
     if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE )
     {
-        resultID = ResultsMgr.FindLatestResultsID( "VSPAERO_Load" );
+        resultID = FindLatestRunResultsID( "VSPAERO_Load" );
         res = load_res;
         default_res = "cl*c/cref";
     }
     else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
     {
-        resultID = ResultsMgr.FindLatestResultsID( "VSPAERO_Blade_Avg" );
+        resultID = FindLatestRunResultsID( "VSPAERO_Blade_Avg" );
         res = ResultsMgr.FindResultsPtr( resultID );
         default_res = "CT_H";
     }
@@ -2013,7 +1962,7 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
     m_SweepYDataBrowser->clear();
 
     string resultName = "VSPAERO_History";
-    string resultID = ResultsMgr.FindLatestResultsID( resultName );
+    string resultID = FindLatestRunResultsID( resultName );
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     if ( strcmp( resultName.c_str(), "VSPAERO_History" ) == 0 )
     {
@@ -2067,136 +2016,48 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
 
 void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
 {
-    // keeps track of the previously selected rows (browser uses 1-based indexing)
-    vector<bool> wasSelected;
-    for ( unsigned int iCase = 1; iCase <= m_CpSliceCutBrowser->size(); iCase++ )
-    {
-        wasSelected.push_back( m_CpSliceCutBrowser->selected( iCase ) );
-    }
-
-    int scrollPos = m_CpSliceCutBrowser->vposition();
-    m_CpSliceCutBrowser->clear();
-    m_CpSliceCutSelectedResultIDs.clear();
-    m_CpSliceCutResultIDMap.clear();
-
-    string wrapper_res_id = ResultsMgr.FindLatestResultsID( "CpSlice_Wrapper" );
-    Results* wrapper_res = ResultsMgr.FindResultsPtr( wrapper_res_id );
-    m_NumCpCuts = 0;
-
-    if ( wrapper_res )
-    {
-        NameValData* nvd = wrapper_res->FindPtr( "Num_Cuts" );
-        if ( nvd )
-        {
-            vector < int > dataVector = nvd->GetIntData();
-            m_NumCpCuts = dataVector[dataVector.size() - 1];
-        }
-    }
-
-    string resultName = "CpSlicer_Case";
-
-    if ( m_NumCpCuts > 0 )
-    {
-        m_NumCpCases = ResultsMgr.GetNumResults( resultName ) / m_NumCpCuts;
-    }
-    else
-    {
-        m_NumCpCases = 0;
-    }
+    vector < string > ids;
+    GetRunResultIDs( "CpSlicer_Case", ids );
 
     m_XCpSlicePosTypeChoice.Deactivate();
     m_YCpSlicePosTypeChoice.Deactivate();
     m_ZCpSlicePosTypeChoice.Deactivate();
 
-    for ( unsigned int iCut = 0; iCut < m_NumCpCuts; iCut++ )
+    vector < string > keys;
+    vector < string > texts;
+    for ( int i = 0; i < ( int ) ids.size(); i++ )
     {
-        Results* res = ResultsMgr.FindResults( resultName, iCut );
+        Results* res = ResultsMgr.FindResultsPtr( ids[i] );
+        char strbuf[1024];
+        strbuf[0] = '\0';
+        string key;
         if ( res )
         {
-            NameValData* nvd;
-            vector < double > doubledata;
-            vector < int > intdata;
+            ConstructCpSliceCutString( strbuf, sizeof( strbuf ), res );
 
-            int type = 0;
-            double location = 0;
-            int cut_num = 0;
-
-            nvd = res->FindPtr( "Cut_Type" );
-            if ( nvd )
+            NameValData* nvd = res->FindPtr( "Cut_Type" );
+            if ( nvd && !nvd->GetIntData().empty() )
             {
-                intdata = nvd->GetIntData();
-                type = intdata[intdata.size() - 1];
+                int type = nvd->GetIntData().back();
+                if ( type >= 0 && type < ( int ) m_CpSlicePosTypeChoiceVec.size() )
+                {
+                    m_CpSlicePosTypeChoiceVec[type]->Activate();
+                }
+                key = std::to_string( type ) + ",";
             }
-
             nvd = res->FindPtr( "Cut_Loc" );
-            if ( nvd )
+            if ( nvd && !nvd->GetDoubleData().empty() )
             {
-                doubledata = nvd->GetDoubleData();
-                location = doubledata[doubledata.size() - 1];
-            }
-
-            nvd = res->FindPtr( "Cut_Num" );
-            if ( nvd )
-            {
-                intdata = nvd->GetIntData();
-                cut_num = intdata[intdata.size() - 1];
-            }
-
-            char type_char = 88 + type; // ASCII X: 88; Y: 89; Z: 90
-
-            m_CpSlicePosTypeChoiceVec[type]->Activate();
-
-            char strbuf[1024];
-            snprintf( strbuf, sizeof( strbuf ),  "Cut %d: %c= %4.2f", cut_num, type_char, location );
-
-            m_CpSliceCutBrowser->add( strbuf );
-
-            if ( m_SelectDefaultData )   //select aLL flow conditions
-            {
-                // Include results of all CpSlice cuts for given flow condition case
-                for ( size_t j = 0; j < m_NumCpCases; j++ )
-                {
-                    Results* slice_res = ResultsMgr.FindResults( resultName, iCut + ( j * m_NumCpCuts ) );
-                    if ( slice_res )
-                    {
-                        m_CpSliceCutSelectedResultIDs.push_back( slice_res->GetID() );
-                    }
-                }
-
-                m_CpSliceCutBrowser->select( iCut + 1 ); //account for browser using 1-based indexing
-                scrollPos = 0;
-            }
-            else if ( iCut < wasSelected.size() ) // restore original row selections
-            {
-                if ( wasSelected[iCut] )
-                {
-                    // Include results of all CpSlice cuts for given flow condition case
-                    for ( size_t j = 0; j < m_NumCpCases; j++ )
-                    {
-                        Results* slice_res = ResultsMgr.FindResults( resultName, iCut + ( j * m_NumCpCuts ) );
-                        if ( slice_res )
-                        {
-                            m_CpSliceCutSelectedResultIDs.push_back( slice_res->GetID() );
-                        }
-                    }
-
-                    m_CpSliceCutBrowser->select( iCut + 1 ); //account for browser using 1-based indexing
-                }
-            }
-
-            // Map each result ID to cut index
-            for ( size_t j = 0; j < m_NumCpCases; j++ )
-            {
-                Results* slice_res = ResultsMgr.FindResults( resultName, iCut + ( j * m_NumCpCuts ) );
-                if ( slice_res )
-                {
-                    m_CpSliceCutResultIDMap[iCut].push_back( slice_res->GetID() );
-                }
+                char buf[64];
+                snprintf( buf, sizeof( buf ), "%.12g", nvd->GetDoubleData().back() );
+                key += buf;
             }
         }
+        keys.push_back( key );
+        texts.push_back( strbuf );
     }
 
-    m_CpSliceCutBrowser->vposition( scrollPos );
+    ListUniqueRows( m_CpSliceCutBrowser, ids, keys, texts, false, m_CpSliceCutSelectedResultIDs, m_CpSliceCutRow, m_CpSliceNumCuts );
 }
 
 void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
@@ -2235,7 +2096,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         resultName = "VSPAERO_History";
         res_ind = 0;
 
-        Results* res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
+        Results* res = FindRunResults( "VSPAERO_Stab", 0 );
         int stabType = 0;
         if ( res )
         {
@@ -2260,7 +2121,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         }
     }
 
-    string resultID = ResultsMgr.FindLatestResultsID( resultName );
+    string resultID = FindLatestRunResultsID( resultName );
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
@@ -2331,7 +2192,8 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
         bool expandOnly = false;
         for ( unsigned int iCase = 0; iCase < m_ConvergenceFlowConditionSelectedResultIDs.size(); iCase++ )
         {
-            PlotConvergence( m_ConvergenceFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
+            const string & id = m_ConvergenceFlowConditionSelectedResultIDs[iCase];
+            PlotConvergence( id, yDataSetNames, expandOnly, m_ConvergenceConditionRow[ id ] );
             expandOnly = true;
         }
     }
@@ -2378,7 +2240,8 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_LoadDistFlowConditionSelectedResultIDs.size(); iCase++ )
             {
-                PlotLoadDistribution( m_LoadDistFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
+                const string & id = m_LoadDistFlowConditionSelectedResultIDs[iCase];
+                PlotLoadDistribution( id, yDataSetNames, expandOnly, m_LoadDistConditionRow[ id ] );
                 expandOnly = true;
             }
         }
@@ -2386,7 +2249,7 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_LoadSelectedBladeVec.size(); iCase++ )
             {
-                PlotLoadDistribution(ResultsMgr.FindResultsID( "VSPAERO_Blade_Avg", m_LoadSelectedBladeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                PlotLoadDistribution(FindRunResultsID( "VSPAERO_Blade_Avg", m_LoadSelectedBladeVec[iCase] ), yDataSetNames, expandOnly, iCase );
                 expandOnly = true;
             }
         }
@@ -2417,8 +2280,6 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
         }
     }
 
-    int iplot = 0; // Serialized counter for legend colors/symbols
-
     m_SweepLegendGroup->clear();
     m_SweepLegendLayout.SetGroup( m_SweepLegendGroup );
     m_SweepLegendLayout.InitWidthHeightVals();
@@ -2429,44 +2290,82 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     int nPolarPoints = m_SweepFlowConditionSelectedResultIDs.size();
     if ( ( nPolarPoints > 0 ) && ( !xDataSetNames.empty() ) && ( !yDataSetNames.empty() ) )
     {
+        // The selected flow conditions of each run make that run's line.
+        vector < vector < string > > run_point_ids( std::max( ( int ) m_RunIDs.size(), 1 ) );
+        for ( int iPolarPoint = 0; iPolarPoint < nPolarPoints; iPolarPoint++ )
+        {
+            const string & id = m_SweepFlowConditionSelectedResultIDs[iPolarPoint];
+            int irun = 0;
+            std::map < string, int >::const_iterator it = m_RunOfResult.find( id );
+            if ( it != m_RunOfResult.end() )
+            {
+                irun = it->second;
+            }
+            run_point_ids[irun].push_back( id );
+        }
+        for ( int irun = 0; irun < ( int ) run_point_ids.size(); irun++ )
+        {
+            std::stable_sort( run_point_ids[irun].begin(), run_point_ids[irun].end(), MadeEarlier );
+        }
+
         for ( int iXData = 0; iXData < xDataSetNames.size(); iXData++ )
         {
             for ( int iYData = 0; iYData < yDataSetNames.size(); iYData++ )
             {
-                vector <double> xDoubleData;
-                vector <double> yDoubleData;
-                NameValData* tResultDataPtr;
-                int nData;
-                for ( int iPolarPoint = 0; iPolarPoint < nPolarPoints; iPolarPoint++ )
+                for ( int iRun = 0; iRun < ( int ) run_point_ids.size(); iRun++ )
                 {
-                    Results* res = ResultsMgr.FindResultsPtr( m_SweepFlowConditionSelectedResultIDs[iPolarPoint] );
-                    if ( res )
+                    if ( run_point_ids[iRun].empty() )
                     {
-                        //====Plot Stuff====//
-                        tResultDataPtr = res->FindPtr( xDataSetNames[iXData] );
-                        nData = tResultDataPtr->GetDoubleData().size();
-                        xDoubleData.push_back( tResultDataPtr->GetDouble( nData - 1 ) );
-
-                        tResultDataPtr = res->FindPtr( yDataSetNames[iYData] );
-                        nData = tResultDataPtr->GetDoubleData().size();
-                        yDoubleData.push_back( tResultDataPtr->GetDouble( nData - 1 ) );
+                        continue;
                     }
+                    vector <double> xDoubleData;
+                    vector <double> yDoubleData;
+                    NameValData* tResultDataPtr;
+                    int nData;
+                    for ( int iPolarPoint = 0; iPolarPoint < ( int ) run_point_ids[iRun].size(); iPolarPoint++ )
+                    {
+                        Results* res = ResultsMgr.FindResultsPtr( run_point_ids[iRun][iPolarPoint] );
+                        if ( res )
+                        {
+                            //====Plot Stuff====//
+                            // A run of another kind may lack the variable.
+                            tResultDataPtr = res->FindPtr( xDataSetNames[iXData] );
+                            NameValData* yResultDataPtr = res->FindPtr( yDataSetNames[iYData] );
+                            if ( !tResultDataPtr || !yResultDataPtr || tResultDataPtr->GetDoubleData().empty() || yResultDataPtr->GetDoubleData().empty() )
+                            {
+                                continue;
+                            }
+                            nData = tResultDataPtr->GetDoubleData().size();
+                            xDoubleData.push_back( tResultDataPtr->GetDouble( nData - 1 ) );
+
+                            nData = yResultDataPtr->GetDoubleData().size();
+                            yDoubleData.push_back( yResultDataPtr->GetDouble( nData - 1 ) );
+                        }
+                    }
+
+                    if ( xDoubleData.empty() )
+                    {
+                        continue;
+                    }
+
+                    Results* run_res = ResultsMgr.FindResultsPtr( run_point_ids[iRun][0] );
+                    Fl_Color c;
+                    int linestyle;
+                    int marker;
+                    RunSeriesStyle( run_res, iXData * yDataSetNames.size() + iYData, xDataSetNames.size() * yDataSetNames.size(), c, linestyle, marker );
+
+                    //add the data to the plot
+                    AddPointLine( xDoubleData, yDoubleData, 2, c, 4, marker, linestyle );
+                    m_SweepPlotCanvas->AddSeriesPoints( xDoubleData, yDoubleData );
+
+                    string legendstr = RunPrefix( run_res ) + yDataSetNames[ iYData ] + " vs. " + xDataSetNames[ iXData ];
+                    m_SweepLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
+                    m_SweepPlotCanvas->NameNewSeries( legendstr );
+
+                    //Handle axis limits
+                    UpdateAxisLimits( m_SweepPlotCanvas, xDoubleData, yDoubleData, expandOnly );
+                    expandOnly = true;
                 }
-
-                Fl_Color c = SeriesColor( iplot );
-
-                //add the data to the plot
-                AddPointLine( xDoubleData, yDoubleData, 2, c, 4, SeriesMarker( iplot ), SeriesLineStyle( iplot ) );
-                m_SweepPlotCanvas->AddSeriesPoints( xDoubleData, yDoubleData );
-
-                string legendstr = yDataSetNames[ iYData ] + " vs. " + xDataSetNames[ iXData ];
-                m_SweepLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( iplot ), SeriesMarker( iplot ) );
-                m_SweepPlotCanvas->NameNewSeries( legendstr );
-                iplot++;
-
-                //Handle axis limits
-                UpdateAxisLimits( m_SweepPlotCanvas, xDoubleData, yDoubleData, expandOnly );
-                expandOnly = true;
             }
         }
         // Annotate
@@ -2501,8 +2400,6 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
     m_CpSlicePlotCanvas->clear();
     m_CpSlicePlotCanvas->ClearSeriesPoints();
 
-    int iplot = 0; // Serialized counter for legend colors/symbols
-
     m_CpSliceLegendGroup->clear();
     m_CpSliceLegendLayout.SetGroup( m_CpSliceLegendGroup );
     m_CpSliceLegendLayout.InitWidthHeightVals();
@@ -2520,11 +2417,10 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
             {
                 if ( m_CpSliceCutSelectedResultIDs[iCut] == m_CpSliceCaseSelectedResultIDs[iCase] )
                 {
+                    const string & id = m_CpSliceCutSelectedResultIDs[iCut];
                     NameValData* tResultDataPtr = nullptr;
                     vector <double> CpData, locData;
                     int type = 0;
-                    int cut_num = 0;
-                    int case_num = 0;
 
                     Results* res = ResultsMgr.FindResultsPtr( m_CpSliceCutSelectedResultIDs[iCut] );
                     if ( res )
@@ -2534,18 +2430,6 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                         if ( tResultDataPtr )
                         {
                             CpData = tResultDataPtr->GetDoubleData();
-                        }
-
-                        tResultDataPtr = res->FindPtr( "Cut_Num" );
-                        if ( tResultDataPtr )
-                        {
-                            cut_num = tResultDataPtr->GetIntData()[0];
-                        }
-
-                        tResultDataPtr = res->FindPtr( "Case" );
-                        if ( tResultDataPtr )
-                        {
-                            case_num = tResultDataPtr->GetIntData()[0];
                         }
 
                         tResultDataPtr = res->FindPtr( "Cut_Type" );
@@ -2575,7 +2459,12 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                         }
                     }
 
-                    Fl_Color c = SeriesColor( iplot );
+                    // Color shows the cut and condition; marker and dash the slice source.
+                    Fl_Color c;
+                    int linestyle;
+                    int marker;
+                    SeriesStyle( m_CpSliceCutRow[ id ] * m_CpSliceNumCases + m_CpSliceCaseRow[ id ], m_CpSliceNumCuts * m_CpSliceNumCases,
+                                 m_CpSliceSourceOfCase[ id ], ( int ) m_CpSliceSourceIDs.size(), c, linestyle, marker );
 
                     if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
                     {
@@ -2589,20 +2478,24 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     //add the data to the plot
                     if ( VSPAEROMgr.m_CpSlicePlotLinesFlag() )
                     {
-                        AddPointLine( locData, CpData, 2, c, 4, SeriesMarker( iplot ), SeriesLineStyle( iplot ) );
+                        AddPointLine( locData, CpData, 2, c, 4, marker, linestyle );
                         m_CpSlicePlotCanvas->AddSeriesPoints( locData, CpData );
                     }
                     else
                     {
-                        AddPoint( locData, CpData, c, 4, SeriesMarker( iplot ) );
+                        AddPoint( locData, CpData, c, 4, marker );
                         m_CpSlicePlotCanvas->AddSeriesPoints( locData, CpData );
                     }
 
-                    char strbuf[1024];
-                    snprintf( strbuf, sizeof( strbuf ),  "Cut %d, Case %d", cut_num, case_num );
-                    m_CpSliceLegendLayout.AddLegendEntry( strbuf, c, VSPAEROMgr.m_CpSlicePlotLinesFlag(), SeriesLineStyle( iplot ), SeriesMarker( iplot ) );
-                    m_CpSlicePlotCanvas->NameNewSeries( strbuf );
-                    iplot++;
+                    char cutbuf[256];
+                    char casebuf[256];
+                    cutbuf[0] = '\0';
+                    casebuf[0] = '\0';
+                    ConstructCpSliceCutString( cutbuf, sizeof( cutbuf ), res );
+                    ConstructCpSliceCaseString( casebuf, sizeof( casebuf ), res );
+                    string legendstr = CpSlicePrefix( id ) + cutbuf + "; " + casebuf;
+                    m_CpSliceLegendLayout.AddLegendEntry( legendstr, c, VSPAEROMgr.m_CpSlicePlotLinesFlag(), linestyle, marker );
+                    m_CpSlicePlotCanvas->NameNewSeries( legendstr );
 
                     //Handle axis limits
                     UpdateAxisLimits( m_CpSlicePlotCanvas, locData, CpData, expandOnly );
@@ -2612,7 +2505,11 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
         }
 
         // Check for all same CpSlice cut type
-        if ( std::adjacent_find( pos_type_vec.begin(), pos_type_vec.end(), std::not_equal_to<int>() ) == pos_type_vec.end() )
+        if ( pos_type_vec.empty() )
+        {
+            m_CpSlicePlotCanvas->current_x()->copy_label( "Position" );
+        }
+        else if ( std::adjacent_find( pos_type_vec.begin(), pos_type_vec.end(), std::not_equal_to<int>() ) == pos_type_vec.end() )
         {
             char strbuf[1024];
             snprintf( strbuf, sizeof( strbuf ),  "Position: %c", ( 88 + pos_type_vec[0] ) ); // ASCII X: 88; Y: 89; Z: 90
@@ -2678,7 +2575,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
             {
-                PlotUnsteady(ResultsMgr.FindResultsID( "VSPAERO_Group", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                PlotUnsteady(FindRunResultsID( "VSPAERO_Group", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
                 expandOnly = true;
             }
         }
@@ -2686,7 +2583,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
             {
-                PlotUnsteady(ResultsMgr.FindResultsID( "VSPAERO_Rotor", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                PlotUnsteady(FindRunResultsID( "VSPAERO_Rotor", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
                 expandOnly = true;
             }
         }
@@ -2694,7 +2591,8 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadyFlowConditionSelectedResultIDs.size(); iCase++ )
             {
-                PlotUnsteady( m_UnsteadyFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
+                const string & id = m_UnsteadyFlowConditionSelectedResultIDs[iCase];
+                PlotUnsteady( id, yDataSetNames, expandOnly, m_UnsteadyConditionRow[ id ] );
                 expandOnly = true;
             }
         }
@@ -2796,16 +2694,19 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                     // check again if there are still points to plot
                     if ( !xDoubleData.empty() )
                     {
-                        Fl_Color c = SeriesColor( m_ConvergenceiPlot );
+                        Fl_Color c;
+                        int linestyle;
+                        int marker;
+                        RunSeriesStyle( res, icase * yDataSetNames.size() + iDataSet, m_ConvergenceNumConditions * yDataSetNames.size(), c, linestyle, marker );
 
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, SeriesMarker( m_ConvergenceiPlot ), SeriesLineStyle( m_ConvergenceiPlot ) );
+                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, marker, linestyle );
                         m_ConvergencePlotCanvas->AddSeriesPoints( xDoubleData, yDoubleData );
 
                         char strbuf[100];
                         ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, true );
-                        string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
-                        m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( m_ConvergenceiPlot ), SeriesMarker( m_ConvergenceiPlot ) );
+                        string legendstr = RunPrefix( res ) + strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
+                        m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
                         m_ConvergencePlotCanvas->NameNewSeries( legendstr );
                         m_ConvergenceiPlot++;
 
@@ -2919,8 +2820,17 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet], iTime );
             if ( xResultDataPtr && yResultDataPtr )
             {
-                Fl_Color c = SeriesColor( m_LoadDistiPlot );
-                string legendstr;
+                // Blades are series of their own; flow conditions otherwise.
+                int nseries = m_LoadDistNumConditions * yDataSetNames.size();
+                if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
+                {
+                    nseries = m_LoadSelectedBladeVec.size() * yDataSetNames.size();
+                }
+                Fl_Color c;
+                int linestyle;
+                int marker;
+                RunSeriesStyle( res, icase * yDataSetNames.size() + iDataSet, nseries, c, linestyle, marker );
+                string legendstr = RunPrefix( res );
 
                 if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE && spanLoadSetResultDataPtr )
                 {
@@ -2962,7 +2872,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                         }
 
                         //add the data to the plot
-                        AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, SeriesMarker( m_LoadDistiPlot ), SeriesLineStyle( m_LoadDistiPlot ) );
+                        AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, marker, linestyle );
                         m_LoadDistPlotCanvas->AddSeriesPoints( xDoubleData_sorted, yDoubleData_sorted );
 
                         //Handle axis limits
@@ -2972,7 +2882,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
 
                     char strbuf[100];
                     ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, false );
-                    legendstr = strbuf;
+                    legendstr += strbuf;
                 }
                 else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
                 {
@@ -2991,10 +2901,10 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                     if ( ( xDoubleData_orig.size() == yDoubleData.size() ) && ( !xDoubleData_orig.empty() ) )
                     {
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, SeriesMarker( m_LoadDistiPlot ), SeriesLineStyle( m_LoadDistiPlot ) );
+                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, marker, linestyle );
                         m_LoadDistPlotCanvas->AddSeriesPoints( xDoubleData_orig, yDoubleData );
 
-                        legendstr = group_name;
+                        legendstr += group_name;
 
                         if ( res->FindPtr( "Blade_Num" ) )
                         {
@@ -3011,7 +2921,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                 }
 
                 legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
-                m_LoadDistLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( m_LoadDistiPlot ), SeriesMarker( m_LoadDistiPlot ) );
+                m_LoadDistLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
                 m_LoadDistPlotCanvas->NameNewSeries( legendstr );
                 m_LoadDistiPlot++;
             }
@@ -3101,29 +3011,38 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
                     // check again if there are still points to plot
                     if ( xSize != 0 )
                     {
-                        Fl_Color c = SeriesColor( m_UnsteadyiPlot );
+                        // Groups and rotors are series of their own; flow conditions otherwise.
+                        int nseries = m_UnsteadyNumConditions * yDataSetNames.size();
+                        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() != VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
+                        {
+                            nseries = m_UnsteadySelectedTypeVec.size() * yDataSetNames.size();
+                        }
+                        Fl_Color c;
+                        int linestyle;
+                        int marker;
+                        RunSeriesStyle( res, icase * yDataSetNames.size() + iDataSet, nseries, c, linestyle, marker );
 
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, SeriesMarker( m_UnsteadyiPlot ), SeriesLineStyle( m_UnsteadyiPlot ) );
+                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, marker, linestyle );
                         m_UnsteadyPlotCanvas->AddSeriesPoints( xDoubleData_orig, yDoubleData );
 
                         char strbuf[100];
-                        string legendstr;
+                        string legendstr = RunPrefix( res );
 
                         if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE ||
                              VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
                         {
-                            legendstr = group_name;
+                            legendstr += group_name;
                         }
                         else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
                         {
                             ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, true );
-                            legendstr = strbuf;
+                            legendstr += strbuf;
                         }
 
                         legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
 
-                        m_UnsteadyLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( m_UnsteadyiPlot ), SeriesMarker( m_UnsteadyiPlot ) );
+                        m_UnsteadyLegendLayout.AddLegendEntry( legendstr, c, true, linestyle, marker );
                         m_UnsteadyPlotCanvas->NameNewSeries( legendstr );
                         m_UnsteadyiPlot++;
 
@@ -3233,3 +3152,385 @@ void VSPAEROPlotScreen::UpdateSingleAxisLimits( Ca_Axis_ * tAxis, const vector <
     }
 }
 
+
+void VSPAEROPlotScreen::UpdateRuns()
+{
+    vector < string > all;
+    int n = ResultsMgr.GetNumResults( "VSPAERO_Wrapper" );
+    for ( int i = 0; i < n; i++ )
+    {
+        all.push_back( ResultsMgr.FindResultsID( "VSPAERO_Wrapper", i ) );
+    }
+
+    // Cp slices a run made are its own; the others, from the slicer alone, are listed apart.
+    std::map < string, string > owner;
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        vector < string > kids = ResultsMgr.GetStringResults( all[i], "ResultsVec" );
+        for ( int k = 0; k < ( int ) kids.size(); k++ )
+        {
+            Results* kid = ResultsMgr.FindResultsPtr( kids[k] );
+            if ( kid && kid->GetName() == "CpSlice_Wrapper" )
+            {
+                owner[ kids[k] ] = all[i];
+            }
+        }
+    }
+    vector < string > slices;
+    int nslice = ResultsMgr.GetNumResults( "CpSlice_Wrapper" );
+    for ( int i = 0; i < nslice; i++ )
+    {
+        string id = ResultsMgr.FindResultsID( "CpSlice_Wrapper", i );
+        if ( owner.find( id ) == owner.end() )
+        {
+            slices.push_back( id );
+            owner[ id ] = id;
+        }
+    }
+
+    bool changed = PickRuns( all, m_KnownRunIDs, m_RunIDs );
+    if ( PickRuns( slices, m_KnownSliceIDs, m_SliceRunIDs ) )
+    {
+        changed = true;
+    }
+    if ( changed )
+    {
+        m_SelectDefaultData = true;
+    }
+
+    m_RunOfResult.clear();
+    for ( int irun = 0; irun < ( int ) m_RunIDs.size(); irun++ )
+    {
+        vector < string > kids = ResultsMgr.GetStringResults( m_RunIDs[irun], "ResultsVec" );
+        for ( int k = 0; k < ( int ) kids.size(); k++ )
+        {
+            m_RunOfResult[ kids[k] ] = irun;
+        }
+    }
+
+    // Cp slices of the plotted runs and the plotted slices, in the order they were made.
+    vector < std::pair < int, string > > sources;
+    for ( std::map < string, string >::const_iterator it = owner.begin(); it != owner.end(); ++it )
+    {
+        const string & own = it->second;
+        if ( std::find( m_RunIDs.begin(), m_RunIDs.end(), own ) != m_RunIDs.end() ||
+             std::find( m_SliceRunIDs.begin(), m_SliceRunIDs.end(), own ) != m_SliceRunIDs.end() )
+        {
+            Results* src = ResultsMgr.FindResultsPtr( it->first );
+            if ( src )
+            {
+                sources.push_back( std::make_pair( src->GetCreationCount(), it->first ) );
+            }
+        }
+    }
+    std::sort( sources.begin(), sources.end() );
+    m_CpSliceSourceIDs.clear();
+    m_CpSliceSourceOfCase.clear();
+    m_CpSliceOwner = owner;
+    for ( int isrc = 0; isrc < ( int ) sources.size(); isrc++ )
+    {
+        m_CpSliceSourceIDs.push_back( sources[isrc].second );
+        vector < string > cases = ResultsMgr.GetStringResults( sources[isrc].second, "CpSlice_Case_ID_Vec" );
+        for ( int k = 0; k < ( int ) cases.size(); k++ )
+        {
+            m_CpSliceSourceOfCase[ cases[k] ] = isrc;
+        }
+    }
+
+    // Runs and slices listed together, in the order they were made.
+    vector < std::pair < int, string > > listed;
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        listed.push_back( std::make_pair( ResultsMgr.FindResultsPtr( all[i] )->GetCreationCount(), all[i] ) );
+    }
+    for ( int i = 0; i < ( int ) slices.size(); i++ )
+    {
+        listed.push_back( std::make_pair( ResultsMgr.FindResultsPtr( slices[i] )->GetCreationCount(), slices[i] ) );
+    }
+    std::sort( listed.begin(), listed.end() );
+    all.clear();
+    for ( int i = 0; i < ( int ) listed.size(); i++ )
+    {
+        all.push_back( listed[i].second );
+    }
+
+    int vpos = m_RunsBrowser->vposition();
+    int sel = m_RunsBrowser->value();
+    m_RunsBrowser->clear();
+    m_RunsBrowser->AddHeader( "@b@.Run\t@b@.Name\t@b@.Kind\t@b@.Made" );
+    m_ListedRunIDs = all;
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        Results* run = ResultsMgr.FindResultsPtr( all[i] );
+        bool checked = std::find( m_RunIDs.begin(), m_RunIDs.end(), all[i] ) != m_RunIDs.end() ||
+                       std::find( m_SliceRunIDs.begin(), m_SliceRunIDs.end(), all[i] ) != m_SliceRunIDs.end();
+        string kind = "VSPAERO";
+        if ( run->GetName() == "CpSlice_Wrapper" )
+        {
+            kind = "Cp Slice";
+        }
+        string text = "Run " + std::to_string( i + 1 ) + "\t@." + run->GetNickname() + "\t" + kind + "\t" + GetResultsTimeText( run );
+        m_RunsBrowser->AddLine( text, checked );
+    }
+    if ( sel > 0 && sel <= m_RunsBrowser->size() )
+    {
+        m_RunsBrowser->select( sel );
+    }
+    m_RunsBrowser->vposition( vpos );
+
+    m_FLTK_Window->redraw();
+}
+
+void VSPAEROPlotScreen::GetRunResultIDs( const string & name, vector < string > & ids )
+{
+    ids.clear();
+
+    if ( name == "CpSlice_Wrapper" )
+    {
+        ids = m_CpSliceSourceIDs;
+        return;
+    }
+    if ( name == "CpSlicer_Case" )
+    {
+        for ( int isrc = 0; isrc < ( int ) m_CpSliceSourceIDs.size(); isrc++ )
+        {
+            vector < string > cases = ResultsMgr.GetStringResults( m_CpSliceSourceIDs[isrc], "CpSlice_Case_ID_Vec" );
+            for ( int k = 0; k < ( int ) cases.size(); k++ )
+            {
+                if ( ResultsMgr.FindResultsPtr( cases[k] ) )
+                {
+                    ids.push_back( cases[k] );
+                }
+            }
+        }
+        return;
+    }
+
+    if ( name.compare( 0, 8, "VSPAERO_" ) != 0 || m_KnownRunIDs.empty() )
+    {
+        int n = ResultsMgr.GetNumResults( name );
+        for ( int i = 0; i < n; i++ )
+        {
+            ids.push_back( ResultsMgr.FindResultsID( name, i ) );
+        }
+        return;
+    }
+
+    for ( int irun = 0; irun < ( int ) m_RunIDs.size(); irun++ )
+    {
+        vector < string > kids = ResultsMgr.GetStringResults( m_RunIDs[irun], "ResultsVec" );
+        for ( int k = 0; k < ( int ) kids.size(); k++ )
+        {
+            Results* res = ResultsMgr.FindResultsPtr( kids[k] );
+            if ( res && res->GetName() == name )
+            {
+                ids.push_back( kids[k] );
+            }
+        }
+    }
+}
+
+int VSPAEROPlotScreen::NumRunResults( const string & name )
+{
+    vector < string > ids;
+    GetRunResultIDs( name, ids );
+    return ( int ) ids.size();
+}
+
+Results* VSPAEROPlotScreen::FindRunResults( const string & name, int index )
+{
+    return ResultsMgr.FindResultsPtr( FindRunResultsID( name, index ) );
+}
+
+string VSPAEROPlotScreen::FindRunResultsID( const string & name, int index )
+{
+    vector < string > ids;
+    GetRunResultIDs( name, ids );
+    if ( index >= 0 && index < ( int ) ids.size() )
+    {
+        return ids[index];
+    }
+    return string();
+}
+
+string VSPAEROPlotScreen::FindLatestRunResultsID( const string & name )
+{
+    vector < string > ids;
+    GetRunResultIDs( name, ids );
+    if ( ids.empty() )
+    {
+        return string();
+    }
+    return ids.back();
+}
+
+string VSPAEROPlotScreen::RunLabel( const string & run_id )
+{
+    Results* res = ResultsMgr.FindResultsPtr( run_id );
+    if ( res && !res->GetNickname().empty() )
+    {
+        return res->GetNickname();
+    }
+
+    vector < string >::const_iterator it = std::find( m_ListedRunIDs.begin(), m_ListedRunIDs.end(), run_id );
+    return "Run " + std::to_string( ( int ) ( it - m_ListedRunIDs.begin() ) + 1 );
+}
+
+string VSPAEROPlotScreen::RunPrefix( Results* res )
+{
+    if ( !res || m_RunIDs.size() < 2 )
+    {
+        return string();
+    }
+    std::map < string, int >::const_iterator it = m_RunOfResult.find( res->GetID() );
+    if ( it == m_RunOfResult.end() )
+    {
+        return string();
+    }
+    return RunLabel( m_RunIDs[ it->second ] ) + ": ";
+}
+
+void VSPAEROPlotScreen::RunSeriesStyle( Results* res, int iseries, int nseries, Fl_Color & color, int & linestyle, int & marker )
+{
+    int irun = 0;
+    if ( res )
+    {
+        std::map < string, int >::const_iterator it = m_RunOfResult.find( res->GetID() );
+        if ( it != m_RunOfResult.end() )
+        {
+            irun = it->second;
+        }
+    }
+
+    SeriesStyle( iseries, nseries, irun, ( int ) m_RunIDs.size(), color, linestyle, marker );
+}
+
+// Flow condition of a Result, exact, to tell conditions apart.
+string VSPAEROPlotScreen::FlowConditionKey( Results* res )
+{
+    string key;
+    const char* names[] = { "FC_AoA_", "FC_Beta_", "FC_Mach_", "FC_ReCref_" };
+    for ( int i = 0; i < 4; i++ )
+    {
+        NameValData* nvd = res->FindPtr( names[i] );
+        if ( nvd && !nvd->GetDoubleData().empty() )
+        {
+            char buf[64];
+            snprintf( buf, sizeof( buf ), "%.12g,", nvd->GetDoubleData().back() );
+            key += buf;
+        }
+        else
+        {
+            key += "-,";
+        }
+    }
+    return key;
+}
+
+void VSPAEROPlotScreen::UpdateConditionBrowser( Fl_Browser* browser, const string & name, bool first_only, vector < string > & selected_ids,
+                                                std::map < string, int > & row_of_id, int & num_rows )
+{
+    vector < string > ids;
+    GetRunResultIDs( name, ids );
+
+    vector < string > keys;
+    vector < string > texts;
+    for ( int i = 0; i < ( int ) ids.size(); i++ )
+    {
+        Results* res = ResultsMgr.FindResultsPtr( ids[i] );
+        char strbuf[1024];
+        strbuf[0] = '\0';
+        string key;
+        if ( res )
+        {
+            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, true );
+            key = FlowConditionKey( res );
+        }
+        keys.push_back( key );
+        texts.push_back( strbuf );
+    }
+
+    ListUniqueRows( browser, ids, keys, texts, first_only, selected_ids, row_of_id, num_rows );
+}
+
+void VSPAEROPlotScreen::ListUniqueRows( Fl_Browser* browser, const vector < string > & ids, const vector < string > & keys, const vector < string > & texts,
+                                        bool first_only, vector < string > & selected_ids, std::map < string, int > & row_of_id, int & num_rows )
+{
+    vector < string > & listed_keys = m_ListedRowKeys[ browser ];
+    vector < string > was_selected;
+    for ( int i = 1; i <= browser->size() && i <= ( int ) listed_keys.size(); i++ )
+    {
+        if ( browser->selected( i ) )
+        {
+            was_selected.push_back( listed_keys[ i - 1 ] );
+        }
+    }
+
+    int scroll = browser->vposition();
+    browser->clear();
+    selected_ids.clear();
+    row_of_id.clear();
+    num_rows = 0;
+
+    // Each key once, in the order the ids first reach it.
+    vector < string > row_keys;
+    vector < string > row_texts;
+    vector < vector < string > > rows;
+    for ( int i = 0; i < ( int ) ids.size(); i++ )
+    {
+        vector < string >::const_iterator it = std::find( row_keys.begin(), row_keys.end(), keys[i] );
+        int irow = ( int ) ( it - row_keys.begin() );
+        if ( it == row_keys.end() )
+        {
+            row_keys.push_back( keys[i] );
+            row_texts.push_back( texts[i] );
+            rows.push_back( vector < string >() );
+        }
+        rows[ irow ].push_back( ids[i] );
+    }
+
+    int nlisted = ( int ) rows.size();
+    if ( first_only && nlisted > 1 )
+    {
+        nlisted = 1;
+    }
+
+    listed_keys.clear();
+    for ( int irow = 0; irow < nlisted; irow++ )
+    {
+        browser->add( row_texts[ irow ].c_str() );
+        listed_keys.push_back( row_keys[ irow ] );
+
+        bool sel = first_only || m_SelectDefaultData || std::find( was_selected.begin(), was_selected.end(), row_keys[ irow ] ) != was_selected.end();
+        if ( sel )
+        {
+            browser->select( irow + 1 );
+            for ( int k = 0; k < ( int ) rows[ irow ].size(); k++ )
+            {
+                selected_ids.push_back( rows[ irow ][k] );
+                row_of_id[ rows[ irow ][k] ] = num_rows;
+            }
+            num_rows++;
+        }
+    }
+
+    if ( m_SelectDefaultData )
+    {
+        scroll = 0;
+    }
+    browser->vposition( scroll );
+}
+
+string VSPAEROPlotScreen::CpSlicePrefix( const string & case_id )
+{
+    if ( m_CpSliceSourceIDs.size() < 2 )
+    {
+        return string();
+    }
+    std::map < string, int >::const_iterator it = m_CpSliceSourceOfCase.find( case_id );
+    if ( it == m_CpSliceSourceOfCase.end() )
+    {
+        return string();
+    }
+    return RunLabel( m_CpSliceOwner[ m_CpSliceSourceIDs[ it->second ] ] ) + ": ";
+}

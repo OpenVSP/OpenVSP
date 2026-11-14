@@ -2251,7 +2251,9 @@ string VSPAERODegenGeomAnalysis::Execute()
     return resId;
 }
 
-VSPAEROReadPreviousAnalysis::VSPAEROReadPreviousAnalysis() : Analysis( "VSPAEROReadPreviousAnalysis", "Read prior VSPAERO analysis from file." )
+VSPAEROReadPreviousAnalysis::VSPAEROReadPreviousAnalysis() : Analysis( "VSPAEROReadPreviousAnalysis",
+    "Read prior VSPAERO analysis from file.  The Results read are added to those already held, which are kept; "
+    "FindLatestResultsID finds the ones just read." )
 {
 }
 
