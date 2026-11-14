@@ -14,6 +14,7 @@
 
 #include "ScreenMgr.h"
 #include "ScreenBase.h"
+#include "ResultsPlotCanvas.h"
 #include "GuiDevice.h"
 #include "Cartesian.H"
 #include "WaveDragMgr.h"
@@ -45,6 +46,17 @@ public:
     void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
     bool hittest( int mx, double datax, int r );
+
+    static void staticLimitsCB( void* data, double xmin, double xmax, double ymin, double ymax, bool reset )
+    {
+        ( ( WaveDragScreen* )data )->LimitsCallBack( xmin, xmax, ymin, ymax, reset );
+    }
+    static bool staticPressCB( void* data, int event, int mx, int my )
+    {
+        return ( ( WaveDragScreen* )data )->PressCallBack( event, mx, my );
+    }
+    void LimitsCallBack( double xmin, double xmax, double ymin, double ymax, bool reset );
+    bool PressCallBack( int event, int mx, int my );
 
 protected:
 
@@ -105,7 +117,13 @@ protected:
     //==== Canvas ====//
     GroupLayout m_JustPlotLayout;
 
-    Vsp_Canvas* m_canvas;
+    ResultsPlotCanvas* m_canvas;
+
+    bool m_Zoomed;          // The plot shows zoomed or panned limits, not its own
+    double m_ZoomXMin;
+    double m_ZoomXMax;
+    double m_ZoomYMin;
+    double m_ZoomYMax;
 
     //==== Flow Tab ====//
     GroupLayout m_FlowLayout;

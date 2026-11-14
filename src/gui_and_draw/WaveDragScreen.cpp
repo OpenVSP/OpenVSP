@@ -230,9 +230,10 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
 
     m_JustPlotLayout.AddY( 50 );
     m_JustPlotLayout.AddX( 25 );
-    m_canvas = m_JustPlotLayout.AddCanvas( 400, 400, 0, 1, 0, 1, "", "Axis Location", "Area" );
-
-    m_canvas->callback( staticScreenCB, this );
+    m_canvas = new ResultsPlotCanvas( 0, 0, 10, 10 );
+    m_JustPlotLayout.AddCanvas( 400, 400, 0, 1, 0, 1, "", "Axis Location", "Area", m_canvas );
+    m_canvas->SetLimitsCallback( staticLimitsCB, this );
+    m_canvas->SetPressCallback( staticPressCB, this );
 
     //==== Flow Tab ====//
     Fl_Group* flow_group = AddSubGroup( flow_tab, 5 );
@@ -259,6 +260,12 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
 
     m_SetMaxDragFlag = false;
     m_Dragging = false;
+
+    m_Zoomed = false;
+    m_ZoomXMin = 0;
+    m_ZoomXMax = 1;
+    m_ZoomYMin = 0;
+    m_ZoomYMax = 1;
 }
 
 WaveDragScreen::~WaveDragScreen()
@@ -493,26 +500,6 @@ void WaveDragScreen::CallBack( Fl_Widget* w )
             }
         }
     }
-    else if ( w == m_canvas )
-    {
-        int x = Fl::event_x();
-        int y = Fl::event_y();
-
-        if ( Fl::event() == FL_PUSH )
-        {
-            m_Dragging = hittest( x, WaveDragMgr.m_SlicingLoc(), 5 );
-        }
-
-        if ( Fl::event() == FL_DRAG && m_Dragging )
-        {
-            WaveDragMgr.m_SlicingLoc = m_canvas->current_x()->value( x );
-        }
-
-        if ( Fl::event() == FL_RELEASE )
-        {
-            m_Dragging = false;
-        }
-    }
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -595,12 +582,21 @@ void WaveDragScreen::RedrawPlot()
 
     Vsp_Canvas::current( m_canvas );
     m_canvas->clear();
+    m_canvas->ClearSeriesPoints();
 
     m_canvas->current_x()->minimum( xmin );
     m_canvas->current_x()->maximum( xmax );
 
     m_canvas->current_y()->minimum( 0 );
     m_canvas->current_y()->maximum( ymax );
+
+    if ( m_Zoomed )
+    {
+        m_canvas->current_x()->minimum( m_ZoomXMin );
+        m_canvas->current_x()->maximum( m_ZoomXMax );
+        m_canvas->current_y()->minimum( m_ZoomYMin );
+        m_canvas->current_y()->maximum( m_ZoomYMax );
+    }
 
     unsigned int numpts = WaveDragMgr.m_NumPtsFit;
     vector< double > xfit(numpts);
@@ -627,8 +623,10 @@ void WaveDragScreen::RedrawPlot()
     if ( WaveDragMgr.m_AreaPlotType() == WaveDragSingleton::AREA_TOTAL )
     {
         AddPointLine( xfit, WaveDragMgr.m_FitAreaDistFlow[itheta], 2, FL_BLACK );
+        m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_FitAreaDistFlow[itheta] );
 
         m_LegendLayout.AddLegendEntry( "Total", FL_BLACK, true, FL_SOLID, total_marker );
+        m_canvas->NameNewSeries( "Total" );
 
         if ( WaveDragMgr.m_PointFlag() )
         {
@@ -638,12 +636,14 @@ void WaveDragScreen::RedrawPlot()
     else if ( WaveDragMgr.m_AreaPlotType() == WaveDragSingleton::AREA_COMPONENTS )
     {
         m_LegendLayout.AddLegendEntry( "Total", FL_BLACK, true, FL_SOLID, total_marker );
+        m_canvas->NameNewSeries( "Total" );
 
         // Components
         for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
         {
             Fl_Color c = SeriesColor( icomp );
             AddPointLine( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp], 2, c, 0, 1, SeriesLineStyle( icomp ) );
+            m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp] );
 
             int marker = CA_NO_POINT;
             if ( WaveDragMgr.m_PointFlag() )
@@ -655,6 +655,7 @@ void WaveDragScreen::RedrawPlot()
             if ( g )
             {
                 m_LegendLayout.AddLegendEntry( g->GetName(), c, true, SeriesLineStyle( icomp ), marker );
+                m_canvas->NameNewSeries( g->GetName() );
             }
 
             if ( WaveDragMgr.m_PointFlag() )
@@ -663,6 +664,8 @@ void WaveDragScreen::RedrawPlot()
             }
         }
         AddPointLine( xfit, WaveDragMgr.m_FitAreaDist[itheta], 2, FL_BLACK );
+        m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_FitAreaDist[itheta] );
+        m_canvas->NameNewSeries( "Total" );
         if ( WaveDragMgr.m_PointFlag() )
         {
             AddPoint( xvec, WaveDragMgr.m_SliceAreaDist[itheta], FL_BLACK, 3 );
@@ -674,6 +677,7 @@ void WaveDragScreen::RedrawPlot()
         {
             Fl_Color c = SeriesColor( icomp );
             AddPointLine( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp], 2, c, 0, 1, SeriesLineStyle( icomp ) );
+            m_canvas->AddSeriesPoints( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp] );
 
             int marker = CA_NO_POINT;
             if ( WaveDragMgr.m_PointFlag() )
@@ -685,6 +689,7 @@ void WaveDragScreen::RedrawPlot()
             if ( g )
             {
                 m_LegendLayout.AddLegendEntry( g->GetName(), c, true, SeriesLineStyle( icomp ), marker );
+                m_canvas->NameNewSeries( g->GetName() );
             }
 
             if ( WaveDragMgr.m_PointFlag() )
@@ -716,16 +721,19 @@ void WaveDragScreen::RedrawPlot()
         {
             WaveDragMgr.SearsHaack( WaveDragMgr.m_XNormFit, S_ideal, Vol, len );
             m_LegendLayout.AddLegendEntry( "Sears-Haack Body", FL_BLUE );
+            m_canvas->NameNewSeries( "Sears-Haack Body" );
         }
         else if ( WaveDragMgr.m_IdealBodyType.Get() == 2 ) // von Karman curve
         {
             WaveDragMgr.vonKarman( WaveDragMgr.m_XNormFit, S_ideal, Smax );
             m_LegendLayout.AddLegendEntry( "Von Karman Ogive", FL_BLUE );
+            m_canvas->NameNewSeries( "Von Karman Ogive" );
         }
         else if ( WaveDragMgr.m_IdealBodyType.Get() == 3 ) // Lighthill curve
         {
             WaveDragMgr.Lighthill( WaveDragMgr.m_XNormFit, S_ideal, Smax );
             m_LegendLayout.AddLegendEntry( "Lighthill Body", FL_BLUE );
+            m_canvas->NameNewSeries( "Lighthill Body" );
         }
 
         if ( WaveDragMgr.m_AreaPlotType() != WaveDragSingleton::AREA_TOTAL )
@@ -737,6 +745,8 @@ void WaveDragScreen::RedrawPlot()
         }
 
         AddPointLine( xfit, S_ideal, 2, FL_BLUE );
+        m_canvas->AddSeriesPoints( xfit, S_ideal );
+        m_canvas->NameNewSeries( "Optimal distribution" );
     }
 
     if( m_SetMaxDragFlag )
@@ -770,6 +780,39 @@ void WaveDragScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             WaveDragMgr.LoadDrawObjs( draw_obj_vec );
         }
     }
+}
+
+void WaveDragScreen::LimitsCallBack( double xmin, double xmax, double ymin, double ymax, bool reset )
+{
+    m_Zoomed = !reset;
+    if ( !reset )
+    {
+        m_ZoomXMin = xmin;
+        m_ZoomXMax = xmax;
+        m_ZoomYMin = ymin;
+        m_ZoomYMax = ymax;
+    }
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+// A press on the slice location bar drags the bar; any other press zooms or pans.
+bool WaveDragScreen::PressCallBack( int event, int mx, int my )
+{
+    if ( event == FL_PUSH )
+    {
+        m_Dragging = Fl::event_button() == FL_LEFT_MOUSE && hittest( mx, WaveDragMgr.m_SlicingLoc(), 5 );
+        return m_Dragging;
+    }
+    if ( event == FL_DRAG && m_Dragging )
+    {
+        WaveDragMgr.m_SlicingLoc = m_canvas->current_x()->value( mx );
+        m_ScreenMgr->SetUpdateFlag( true );
+    }
+    if ( event == FL_RELEASE )
+    {
+        m_Dragging = false;
+    }
+    return true;
 }
 
 bool WaveDragScreen::hittest( int mx, double datax, int r )
