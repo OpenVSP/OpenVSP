@@ -67,6 +67,7 @@ public:
 
     void PushSliceResults( Results* res );
     void PushDragResults( Results* res );
+    void PushPartResults( Results* res );
 
     void EvalELCurve( const vector < double > &Spts, const vector < double > &x, vector < double > &S, double &xMaxDrag, int itheta );
     void EvalELCurve( const vector < double > &conpnts, const vector < double > &Spts, const vector < double > &x, vector < double > &S, double &xMaxDrag );

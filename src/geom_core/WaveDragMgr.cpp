@@ -383,6 +383,8 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
 
     FitBuildup();
 
+    PushPartResults( res );
+
     string filename = veh->getExportFileName( vsp::WAVE_DRAG_TXT_TYPE );
 
     string str_mach;
@@ -680,6 +682,54 @@ void WaveDragSingleton::PushSliceResults( Results* res )
     res->Add( new NameValData( "X_Norm", m_XNorm, "Slice normal vector." ) );
     res->Add( new NameValData( "Start_X", m_StartX, "Slice starting coordinate." ) );
     res->Add( new NameValData( "End_X", m_EndX, "Slice ending coordinate." ) );
+}
+
+// Fitted totals and each part's area, so a run can be drawn again from its Result.
+void WaveDragSingleton::PushPartResults( Results* res )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    vector < string > names;
+    for ( int icomp = 0; icomp < m_NComp; icomp++ )
+    {
+        string name = m_CompIDVec[icomp];
+        Geom* g = nullptr;
+        if ( veh )
+        {
+            g = veh->FindGeom( m_CompIDVec[icomp] );
+        }
+        if ( g )
+        {
+            name = g->GetName();
+        }
+        names.push_back( name );
+    }
+
+    res->Add( new NameValData( "Num_Comps", m_NComp, "Number of components." ) );
+    res->Add( new NameValData( "Comp_ID", m_CompIDVec, "Component GeomIDs." ) );
+    res->Add( new NameValData( "Comp_Name", names, "Component names." ) );
+
+    res->Add( new NameValData( "X_Norm_Fit", m_XNormFit, "Normalized coordinates of the fitted areas." ) );
+    res->Add( new NameValData( "X_Max_Drag", m_XMaxDrag, "Normalized coordinate of the largest drag contribution for each theta." ) );
+
+    for ( int itheta = 0; itheta < m_NTheta; itheta++ )
+    {
+        res->Add( new NameValData( "Slice_Area_Flow", m_SliceAreaDistFlow[itheta], "Slice area less inflow and outflow for given theta." ) );
+        res->Add( new NameValData( "Fit_Area", m_FitAreaDist[itheta], "Fitted area distribution for given theta." ) );
+        res->Add( new NameValData( "Fit_Area_Flow", m_FitAreaDistFlow[itheta], "Fitted area less inflow and outflow for given theta." ) );
+    }
+
+    // Indexed by theta, then component.
+    for ( int itheta = 0; itheta < m_NTheta; itheta++ )
+    {
+        for ( int icomp = 0; icomp < m_NComp; icomp++ )
+        {
+            res->Add( new NameValData( "Comp_Slice_Area", m_CompSliceAreaDist[itheta][icomp], "Component slice area for given theta and component." ) );
+            res->Add( new NameValData( "Comp_Fit_Area", m_CompFitAreaDist[itheta][icomp], "Component fitted area for given theta and component." ) );
+            res->Add( new NameValData( "Buildup_Area", m_BuildupAreaDist[itheta][icomp], "Slice area of this and later components for given theta and component." ) );
+            res->Add( new NameValData( "Buildup_Fit_Area", m_BuildupFitAreaDist[itheta][icomp], "Fitted area of this and later components for given theta and component." ) );
+        }
+    }
 }
 
 void WaveDragSingleton::EvalELCurve( const vector < double > &Spts, const vector < double > &x, vector < double > &S, double &xMaxDrag, int itheta )
