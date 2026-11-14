@@ -368,6 +368,45 @@ void GuiDevice::OffsetX( int x )
 //======================           Input         ======================//
 //=====================================================================//
 
+//==== FractionParm Whose Result An Input Displays, Or Null ====//
+static FractionParm* InputResultParm( Parm* parm_ptr )
+{
+    if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
+    {
+        FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
+        if ( fp )
+        {
+            if ( fp->GetDisplayResultsFlag() )
+            {
+                return fp;
+            }
+        }
+    }
+    return nullptr;
+}
+
+//==== Value An Input Displays For A Parm ====//
+static double InputDisplayVal( Parm* parm_ptr )
+{
+    FractionParm* fp = InputResultParm( parm_ptr );
+    if ( fp )
+    {
+        return fp->GetResult();
+    }
+    return parm_ptr->Get();
+}
+
+//==== Set A Parm From The Value An Input Displays ====//
+static void InputSetFromDisplay( Parm* parm_ptr, double val, bool drag_flag )
+{
+    FractionParm* fp = InputResultParm( parm_ptr );
+    if ( fp )
+    {
+        val /= fp->GetRefVal(); // Unscale result to set m_Val
+    }
+    parm_ptr->SetFromDevice( val, drag_flag );
+}
+
 //==== Constructor ====//
 Input::Input() : GuiDevice()
 {
@@ -402,20 +441,7 @@ void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, VspBut
 void Input::SetValAndLimits( Parm* parm_ptr )
 {
     assert( m_Input );
-    double new_val = parm_ptr->Get();
-
-    if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
-    {
-        FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
-
-        if ( fp )
-        {
-            if ( fp->GetDisplayResultsFlag() )
-            {
-                new_val = fp->GetResult();
-            }
-        }
-    }
+    double new_val = InputDisplayVal( parm_ptr );
 
     if ( CheckValUpdate( new_val ) )
     {
@@ -457,18 +483,7 @@ void Input::DeviceCB( Fl_Widget* w )
         if (stat == exprparse::Status::SUCCESS)
         {
 #endif
-            if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
-            {
-                FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
-                if ( fp )
-                {
-                    if ( fp->GetDisplayResultsFlag() )
-                    {
-                        new_val /= fp->GetRefVal(); // Unscale result to set m_Val
-                    }
-                }
-            }
-            parm_ptr->SetFromDevice(new_val);
+            InputSetFromDisplay( parm_ptr, new_val, false );
 #ifndef NOREGEXP
         }
 #endif
