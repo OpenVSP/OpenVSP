@@ -233,13 +233,18 @@ int GetAndResetUpdateCount()
 void ReadVSPFile( const std::string & file_name )
 {
     Vehicle* veh = GetVehicle();
+
+    // Paths saved relative to the file resolve against it as it is read.
+    string prev_file_name = veh->GetVSP3FileName();
+    veh->SetVSP3FileName( file_name );
+
     int err = veh->ReadXMLFile( file_name );
     if( err != 0 )
     {
+        veh->SetVSP3FileName( prev_file_name );
         ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "ReadVSPFile::Error Reading File " + file_name );
         return;
     }
-    veh->SetVSP3FileName( file_name );
     ErrorMgr.NoError();
 }
 
