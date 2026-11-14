@@ -4776,7 +4776,7 @@ void PCurveEditor::PlotData( vector< double > x_data, vector < double > y_data, 
 
     if ( curve_type != vsp::CEDIT )
     {
-        AddPoint( x_data, y_data, FL_BLACK, 4, CA_DIAMOND );
+        AddPoint( x_data, y_data, FL_BLACK, 4, CA_DIAMOND | CA_BORDER );
     }
     else
     {
@@ -4831,15 +4831,15 @@ void PCurveEditor::PlotData( vector< double > x_data, vector < double > y_data, 
             }
         }
 
-        AddPoint( xend, yend, FL_BLACK, 4, CA_DIAMOND );
-        AddPoint( xmid, ymid, FL_GREEN, 4, CA_ROUND );
+        AddPoint( xend, yend, FL_BLACK, 4, CA_DIAMOND | CA_BORDER );
+        AddPoint( xmid, ymid, FL_GREEN, 4, CA_ROUND | CA_BORDER );
     }
 
     // Identify the selected point
     int selected_id = m_PntSelector.GetIndex();
     if ( selected_id >= 0 && selected_id < ndata )
     {
-        AddPoint( x_data[selected_id], y_data[selected_id], highlight_color, 4, CA_SQUARE );
+        AddPoint( x_data[selected_id], y_data[selected_id], highlight_color, 4, CA_SQUARE | CA_BORDER );
     }
 }
 

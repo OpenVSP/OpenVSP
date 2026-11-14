@@ -579,7 +579,7 @@ void WaveDragScreen::RedrawPlot()
     m_LegendGroup->clear();
     m_LegendLayout.SetGroup( m_LegendGroup );
     m_LegendLayout.InitWidthHeightVals();
-    m_LegendLayout.SetButtonWidth( m_LegendLayout.GetW() * 0.8 );
+    m_LegendLayout.SetButtonWidth( m_LegendLayout.GetW() * 0.65 );
 
 
     int itheta = WaveDragMgr.m_ThetaIndex() - 1;
@@ -617,11 +617,18 @@ void WaveDragScreen::RedrawPlot()
 
     unsigned int nstyle = 5; // Number of CA line styles.
 
+    // Legends show the markers of the slice points when they are drawn.
+    int total_marker = CA_NO_POINT;
+    if ( WaveDragMgr.m_PointFlag() )
+    {
+        total_marker = CA_ROUND;
+    }
+
     if ( WaveDragMgr.m_AreaPlotType() == WaveDragSingleton::AREA_TOTAL )
     {
         AddPointLine( xfit, WaveDragMgr.m_FitAreaDistFlow[itheta], 2, FL_BLACK );
 
-        m_LegendLayout.AddLegendEntry( "Total", FL_BLACK );
+        m_LegendLayout.AddLegendEntry( "Total", FL_BLACK, true, FL_SOLID, total_marker );
 
         if ( WaveDragMgr.m_PointFlag() )
         {
@@ -630,23 +637,29 @@ void WaveDragScreen::RedrawPlot()
     }
     else if ( WaveDragMgr.m_AreaPlotType() == WaveDragSingleton::AREA_COMPONENTS )
     {
-        m_LegendLayout.AddLegendEntry( "Total", FL_BLACK );
+        m_LegendLayout.AddLegendEntry( "Total", FL_BLACK, true, FL_SOLID, total_marker );
 
         // Components
         for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
         {
             Fl_Color c = SeriesColor( icomp );
-            AddPointLine( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp], 2, c );
+            AddPointLine( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp], 2, c, 0, 1, SeriesLineStyle( icomp ) );
+
+            int marker = CA_NO_POINT;
+            if ( WaveDragMgr.m_PointFlag() )
+            {
+                marker = SeriesMarker( icomp );
+            }
 
             Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );
             if ( g )
             {
-                m_LegendLayout.AddLegendEntry( g->GetName(), c );
+                m_LegendLayout.AddLegendEntry( g->GetName(), c, true, SeriesLineStyle( icomp ), marker );
             }
 
             if ( WaveDragMgr.m_PointFlag() )
             {
-                AddPoint( xvec, WaveDragMgr.m_CompSliceAreaDist[itheta][icomp], c, 3, StyleWheel( icomp ) );
+                AddPoint( xvec, WaveDragMgr.m_CompSliceAreaDist[itheta][icomp], c, 3, marker );
             }
         }
         AddPointLine( xfit, WaveDragMgr.m_FitAreaDist[itheta], 2, FL_BLACK );
@@ -660,17 +673,23 @@ void WaveDragScreen::RedrawPlot()
         for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
         {
             Fl_Color c = SeriesColor( icomp );
-            AddPointLine( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp], 2, c );
+            AddPointLine( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp], 2, c, 0, 1, SeriesLineStyle( icomp ) );
+
+            int marker = CA_NO_POINT;
+            if ( WaveDragMgr.m_PointFlag() )
+            {
+                marker = SeriesMarker( icomp );
+            }
 
             Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );
             if ( g )
             {
-                m_LegendLayout.AddLegendEntry( g->GetName(), c );
+                m_LegendLayout.AddLegendEntry( g->GetName(), c, true, SeriesLineStyle( icomp ), marker );
             }
 
             if ( WaveDragMgr.m_PointFlag() )
             {
-                AddPoint( xvec, WaveDragMgr.m_BuildupAreaDist[itheta][icomp], c, 3, StyleWheel( icomp ) );
+                AddPoint( xvec, WaveDragMgr.m_BuildupAreaDist[itheta][icomp], c, 3, marker );
             }
         }
     }

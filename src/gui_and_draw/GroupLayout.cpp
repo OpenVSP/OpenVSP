@@ -896,7 +896,46 @@ void GroupLayout::AddResizeBox( )
     NewLineX();
 }
 
-void GroupLayout::AddLegendEntry( const string& text, Fl_Color c )
+// Sample of a plotted line and its marker, on the plot's white.
+class LegendLineBox : public Fl_Box
+{
+public:
+    LegendLineBox( int x, int y, int w, int h, Fl_Color c, bool show_line, int linestyle, int marker ) : Fl_Box( x, y, w, h )
+    {
+        m_LineColor = c;
+        m_ShowLine = show_line;
+        m_LineStyle = linestyle;
+        m_Marker = marker;
+    }
+
+    void draw()
+    {
+        fl_color( FL_WHITE );
+        fl_rectf( x(), y(), w(), h() );
+
+        int cy = y() + h() / 2;
+        if ( m_ShowLine )
+        {
+            fl_color( m_LineColor );
+            fl_line_style( m_LineStyle, 2 );
+            fl_line( x() + 4, cy, x() + w() - 5, cy );
+            fl_line_style( 0 );
+        }
+        if ( m_Marker != CA_NO_POINT )
+        {
+            DrawPlotMarker( m_Marker, x() + w() / 2, cy, 6, m_LineColor );
+            fl_line_style( 0 );
+        }
+    }
+
+protected:
+    Fl_Color m_LineColor;
+    bool m_ShowLine;
+    int m_LineStyle;
+    int m_Marker;
+};
+
+void GroupLayout::AddLegendEntry( const string& text, Fl_Color c, bool show_line, int linestyle, int marker )
 {
     assert( m_Group && m_Screen );
 
@@ -913,9 +952,7 @@ void GroupLayout::AddLegendEntry( const string& text, Fl_Color c )
 
     int dw = FitWidth( m_ButtonWidth, m_ButtonWidth );
 
-    Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_StdHeight );
-    flbox->box( FL_FLAT_BOX );
-    flbox->color( c );
+    Fl_Box* flbox = new LegendLineBox( m_X, m_Y, dw, m_StdHeight, c, show_line, linestyle, marker );
     m_Group->add( flbox );
     m_Group->resizable( flbox );
 
@@ -1006,7 +1043,7 @@ Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doub
 }
 
 //==== Create Cartesian Point Line ====//
-void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize, int pointstyle )
+void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize, int pointstyle, int linestyle )
 {
     int n = xdata.size();
     
@@ -1016,22 +1053,23 @@ void AddPointLine( const vector <double> & xdata, const vector <double> & ydata,
         return;
     }
 
-    Ca_LinePoint* LP = 0;
+    // One polyline, so a dash runs on across the points.
+    Ca_PolyLine* LP = 0;
     for( int i=0; i<n; i++ )
     {
-        LP = new Ca_LinePoint( LP, xdata[i], ydata[i], linewidth, color, pointstyle|CA_BORDER, 0.0 );
+        LP = new Ca_PolyLine( LP, xdata[i], ydata[i], linestyle, linewidth, color, pointstyle, 0.0 );
     }
     // Second pass to plot symbols on top of line.
     for( int i=0; i<n; i++ )
     {
-        new Ca_Point( xdata[i], ydata[i], color, pointstyle|CA_BORDER, pointsize );
+        new Ca_Point( xdata[i], ydata[i], color, pointstyle, pointsize );
     }
 }
 
 //==== Create Cartesian Point ====//
 void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize, int pointstyle )
 {
-    new Ca_Point( x, y, color, pointstyle|CA_BORDER, pointsize );
+    new Ca_Point( x, y, color, pointstyle, pointsize );
 }
 
 //==== Create Cartesian Point ====//
@@ -1041,7 +1079,36 @@ void AddPoint( const vector < double > & x, const vector < double > & y, Fl_Colo
 
     for( int i=0; i<n; i++ )
     {
-        new Ca_Point( x[i], y[i], color, pointstyle|CA_BORDER, pointsize );
+        new Ca_Point( x[i], y[i], color, pointstyle, pointsize );
+    }
+}
+
+//==== Markers ====//
+void DrawPlotMarker( int marker, int x, int y, int size, Fl_Color color )
+{
+    int r = size / 2 + 1;
+    fl_color( color );
+    fl_line_style( FL_SOLID, 1 );
+    switch ( marker )
+    {
+        case CA_ROUND:
+            fl_pie( x - r, y - r, 2 * r + 1, 2 * r + 1, 0, 360 );
+            break;
+        case CA_SQUARE:
+            fl_rectf( x - r, y - r, 2 * r + 1, 2 * r + 1 );
+            break;
+        case CA_UP_TRIANGLE:
+            fl_polygon( x - r, y + r, x + r, y + r, x, y - r );
+            break;
+        case CA_DOWN_TRIANGLE:
+            fl_polygon( x - r, y - r, x + r, y - r, x, y + r );
+            break;
+        case CA_DIAMOND:
+            fl_polygon( x - r, y, x, y - r, x + r, y, x, y + r );
+            break;
+        default:
+            fl_point( x, y );
+            break;
     }
 }
 
@@ -2249,8 +2316,45 @@ Fl_Color SeriesColor( int i )
     return fl_rgb_color( ( uchar ) std::lround( c.x() * 255 ), ( uchar ) std::lround( c.y() * 255 ), ( uchar ) std::lround( c.z() * 255 ) );
 }
 
+int LineDash( int k )
+{
+    static const int dashes[] = { FL_SOLID, FL_DASH, FL_DOT, FL_DASHDOT, FL_DASHDOTDOT };
+    return dashes[ k % 5 ];
+}
+
+int SeriesLineStyle( int i )
+{
+    return LineDash( i / DrawObj::NUM_SEQUENCE_COLORS );
+}
+
+void SourceSeriesStyle( int iseries, int isrc, int nsrc, Fl_Color & color, int & linestyle, int & marker )
+{
+    int k = ( iseries / DrawObj::NUM_SEQUENCE_COLORS ) * nsrc + isrc;
+    color = SeriesColor( iseries );
+    linestyle = LineDash( k );
+    marker = SeriesMarker( k + k / 5 );
+}
+
+void SeriesStyle( int iseries, int nseries, int isrc, int nsrc, Fl_Color & color, int & linestyle, int & marker )
+{
+    if ( nseries > 1 && nsrc > 1 )
+    {
+        SourceSeriesStyle( iseries, isrc, nsrc, color, linestyle, marker );
+        return;
+    }
+
+    int i = iseries;
+    if ( nsrc > 1 )
+    {
+        i = isrc;
+    }
+    color = SeriesColor( i );
+    linestyle = SeriesLineStyle( i );
+    marker = SeriesMarker( i );
+}
+
 // Rotate through Cartesian symbol styles.
-int StyleWheel( int i )
+int SeriesMarker( int i )
 {
     // There are 5 true styles, but the 0th style is no-symbol at all.
     int nstyle = 5;

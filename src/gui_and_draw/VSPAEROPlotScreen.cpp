@@ -642,7 +642,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     SetDefaultView();
 
-    m_PercentLegendColor = 0.8;
+    m_PercentLegendColor = 0.65;
 }
 
 VSPAEROPlotScreen::~VSPAEROPlotScreen()
@@ -2429,10 +2429,10 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
                 Fl_Color c = SeriesColor( iplot );
 
                 //add the data to the plot
-                AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( iplot ) );
+                AddPointLine( xDoubleData, yDoubleData, 2, c, 4, SeriesMarker( iplot ), SeriesLineStyle( iplot ) );
 
                 string legendstr = yDataSetNames[ iYData ] + " vs. " + xDataSetNames[ iXData ];
-                m_SweepLegendLayout.AddLegendEntry( legendstr, c );
+                m_SweepLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( iplot ), SeriesMarker( iplot ) );
                 iplot++;
 
                 //Handle axis limits
@@ -2559,16 +2559,16 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     //add the data to the plot
                     if ( VSPAEROMgr.m_CpSlicePlotLinesFlag() )
                     {
-                        AddPointLine( locData, CpData, 2, c, 4, StyleWheel( iplot ) );
+                        AddPointLine( locData, CpData, 2, c, 4, SeriesMarker( iplot ), SeriesLineStyle( iplot ) );
                     }
                     else
                     {
-                        AddPoint( locData, CpData, c, 4, StyleWheel( iplot ) );
+                        AddPoint( locData, CpData, c, 4, SeriesMarker( iplot ) );
                     }
 
                     char strbuf[1024];
                     snprintf( strbuf, sizeof( strbuf ),  "Cut %d, Case %d", cut_num, case_num );
-                    m_CpSliceLegendLayout.AddLegendEntry( strbuf, c );
+                    m_CpSliceLegendLayout.AddLegendEntry( strbuf, c, VSPAEROMgr.m_CpSlicePlotLinesFlag(), SeriesLineStyle( iplot ), SeriesMarker( iplot ) );
                     iplot++;
 
                     //Handle axis limits
@@ -2765,12 +2765,12 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                         Fl_Color c = SeriesColor( m_ConvergenceiPlot );
 
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
+                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, SeriesMarker( m_ConvergenceiPlot ), SeriesLineStyle( m_ConvergenceiPlot ) );
 
                         char strbuf[100];
                         ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, true );
                         string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
-                        m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
+                        m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( m_ConvergenceiPlot ), SeriesMarker( m_ConvergenceiPlot ) );
                         m_ConvergenceiPlot++;
 
                         //Handle Axis limits
@@ -2926,7 +2926,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                         }
 
                         //add the data to the plot
-                        AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, StyleWheel( m_LoadDistiPlot ) );
+                        AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, SeriesMarker( m_LoadDistiPlot ), SeriesLineStyle( m_LoadDistiPlot ) );
 
                         //Handle axis limits
                         UpdateAxisLimits( m_LoadDistPlotCanvas, xDoubleData_sorted, yDoubleData_sorted, expandOnly );
@@ -2954,7 +2954,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                     if ( ( xDoubleData_orig.size() == yDoubleData.size() ) && ( !xDoubleData_orig.empty() ) )
                     {
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, StyleWheel( m_LoadDistiPlot ) );
+                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, SeriesMarker( m_LoadDistiPlot ), SeriesLineStyle( m_LoadDistiPlot ) );
 
                         legendstr = group_name;
 
@@ -2973,7 +2973,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
                 }
 
                 legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
-                m_LoadDistLegendLayout.AddLegendEntry( legendstr, c );
+                m_LoadDistLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( m_LoadDistiPlot ), SeriesMarker( m_LoadDistiPlot ) );
                 m_LoadDistiPlot++;
             }
         }
@@ -3065,7 +3065,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
                         Fl_Color c = SeriesColor( m_UnsteadyiPlot );
 
                         //add the normalized data to the plot
-                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, StyleWheel( m_UnsteadyiPlot ) );
+                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, SeriesMarker( m_UnsteadyiPlot ), SeriesLineStyle( m_UnsteadyiPlot ) );
 
                         char strbuf[100];
                         string legendstr;
@@ -3083,7 +3083,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
 
                         legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
 
-                        m_UnsteadyLegendLayout.AddLegendEntry( legendstr, c );
+                        m_UnsteadyLegendLayout.AddLegendEntry( legendstr, c, true, SeriesLineStyle( m_UnsteadyiPlot ), SeriesMarker( m_UnsteadyiPlot ) );
                         m_UnsteadyiPlot++;
 
                         //Handle Axis limits

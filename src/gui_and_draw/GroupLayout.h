@@ -139,7 +139,8 @@ public:
     void AddResizeBox( );
 
     Vsp_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel );
-    void AddLegendEntry( const string& text, Fl_Color c );
+    // A legend line: the text, then a sample of the line and marker as plotted.
+    void AddLegendEntry( const string& text, Fl_Color c, bool show_line = true, int linestyle = FL_SOLID, int marker = CA_NO_POINT );
 
     void AddSlider(  SliderAdjRangeInput& slid_adj_input, const char* label,
                      double range, const char* format, int used_w = 0, bool log_slider = false );
@@ -249,12 +250,26 @@ private:
     vector< SliderAdjRangeInput* > m_Slider_Cleanup;
 };
 
-void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize = 0, int pointstyle = 1 );
+void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize = 0, int pointstyle = 1, int linestyle = FL_SOLID );
 void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
 void AddPoint( const vector <double> & xdata,  const vector <double> & ydata, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
 Fl_Color SeriesColor( int i );
-int StyleWheel( int i );
+// Dash pattern k, solid first.
+int LineDash( int k );
+// Dash of plot series i: solid through the first pass of the colors, then a new dash each pass.
+int SeriesLineStyle( int i );
+// Marker of plot series i.
+int SeriesMarker( int i );
+// Style of series iseries from source isrc of nsrc when both vary: color shows the series, marker
+// and dash the source.  Past the last color, colors repeat with the sources' next styles.  Dash or
+// marker alone tells five sources and passes apart, both together twenty-five.
+void SourceSeriesStyle( int iseries, int isrc, int nsrc, Fl_Color & color, int & linestyle, int & marker );
+// Style of series iseries of nseries from source isrc of nsrc: by both when both vary, else by
+// the one that varies.
+void SeriesStyle( int iseries, int nseries, int isrc, int nsrc, Fl_Color & color, int & linestyle, int & marker );
 void DebugLabelSize( Fl_Widget *widget );
+// Draw a Cartesian point style at pixel x, y.
+void DrawPlotMarker( int marker, int x, int y, int size, Fl_Color color );
 
 
 template < typename T >
