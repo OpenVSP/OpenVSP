@@ -49,6 +49,8 @@ protected:
     GroupLayout* m_OptionsCurrDisplayGroup;
     void OptionsDisplayGroup( GroupLayout* group );
     void UpdateAzElScrollGroup();
+    void AddFileRow( GroupLayout &layout, ToggleButton &toggle, const char* label, StringOutput &output, TriggerButton &select );
+    void SelectFile( int file_type, const char* title, const char* filter );
 
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
@@ -177,6 +179,14 @@ protected:
     ToggleButton m_CompGeomHalfMesh;
     ToggleButton m_CompGeomSubsurfs;
 
+    ToggleButton m_CompGeomTxtToggle;
+    StringOutput m_CompGeomTxtOutput;
+    TriggerButton m_CompGeomTxtSelect;
+
+    ToggleButton m_CompGeomCsvToggle;
+    StringOutput m_CompGeomCsvOutput;
+    TriggerButton m_CompGeomCsvSelect;
+
     // Planar Slice
     Choice m_PlanarDirChoice;
 
@@ -186,6 +196,10 @@ protected:
 
     ToggleButton m_PlanarAutoButton;
     ToggleButton m_PlanarMeasureDuctButton;
+
+    ToggleButton m_SliceTxtToggle;
+    StringOutput m_SliceTxtOutput;
+    TriggerButton m_SliceTxtSelect;
 
     // Projection
     ToggleButton m_TargetHullButton;
@@ -208,9 +222,17 @@ protected:
 
     GeomPicker m_DirectionGeomPicker;
 
+    ToggleButton m_ProjAreaCsvToggle;
+    StringOutput m_ProjAreaCsvOutput;
+    TriggerButton m_ProjAreaCsvSelect;
+
     // Mass Prop
     SliderAdjRangeInput m_MassNumSlicesSlider;
     Choice m_MassDirChoice;
+
+    ToggleButton m_MassPropTxtToggle;
+    StringOutput m_MassPropTxtOutput;
+    TriggerButton m_MassPropTxtSelect;
 
 
     TriggerButton m_Evaluate;

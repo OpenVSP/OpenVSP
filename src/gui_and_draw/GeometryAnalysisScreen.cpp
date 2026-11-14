@@ -134,7 +134,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.ForceNewLine( 0 );
     m_GCaseLayout.AddYGap();
 
-    int optH = 10 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
+    int optH = 11 * m_GCaseLayout.GetStdHeight() + m_GCaseLayout.GetDividerHeight();
     m_GCaseLayout.AddSubGroupLayout( m_OptionsLayout, m_GCaseLayout.GetW(), optH );
     m_GCaseLayout.AddY( optH );
 
@@ -397,6 +397,11 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_CompGeomLayout.AddButton( m_CompGeomHalfMesh, "Half Mesh" );
     m_CompGeomLayout.AddButton( m_CompGeomSubsurfs, "Subsurfs" );
+    m_CompGeomLayout.AddYGap();
+
+    m_CompGeomLayout.AddDividerBox( "File Export" );
+    AddFileRow( m_CompGeomLayout, m_CompGeomTxtToggle, ".txt", m_CompGeomTxtOutput, m_CompGeomTxtSelect );
+    AddFileRow( m_CompGeomLayout, m_CompGeomCsvToggle, ".csv", m_CompGeomCsvOutput, m_CompGeomCsvSelect );
 
 
     m_PlanarSliceLayout.SetButtonWidth( m_PlanarSliceLayout.GetChoiceButtonWidth() );
@@ -425,6 +430,9 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_PlanarSliceLayout.AddButton( m_PlanarMeasureDuctButton, "Measure Duct" );
     m_PlanarSliceLayout.AddYGap();
 
+    m_PlanarSliceLayout.AddDividerBox( "File Export" );
+    AddFileRow( m_PlanarSliceLayout, m_SliceTxtToggle, ".txt", m_SliceTxtOutput, m_SliceTxtSelect );
+
     int halfw = ( m_ProjectionOptionsLayout.GetW() - 5 ) / 2;
 
     m_ProjectionOptionsLayout.AddSubGroupLayout( m_ProjectionSub1Layout, halfw, m_ProjectionOptionsLayout.GetRemainY() );
@@ -445,6 +453,10 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_ProjectionSub1Layout.AddButton( m_TargetHullButton, "Primary Convex Hull" );
     m_ProjectionSub1Layout.AddButton( m_BoundaryHullButton, "Secondary Convex Hull" );
+
+    m_ProjectionSub1Layout.AddYGap();
+    m_ProjectionSub1Layout.AddDividerBox( "File Export" );
+    AddFileRow( m_ProjectionSub1Layout, m_ProjAreaCsvToggle, ".csv", m_ProjAreaCsvOutput, m_ProjAreaCsvSelect );
 
 
     m_ProjectionDirectionLayout.SetFitWidthFlag( true );
@@ -527,6 +539,9 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_MassDirChoice.AddItem( "Z", vsp::Z_DIR );
     m_MassPropLayout.AddChoice( m_MassDirChoice, "Slice Direction" );
     m_MassPropLayout.AddYGap();
+
+    m_MassPropLayout.AddDividerBox( "File Export" );
+    AddFileRow( m_MassPropLayout, m_MassPropTxtToggle, ".txt", m_MassPropTxtOutput, m_MassPropTxtSelect );
 
 
 
@@ -655,6 +670,11 @@ bool GeometryAnalysisScreen::Update()
         m_CompGeomHalfMesh.Update( gcase->m_HalfMeshFlag.GetID() );
         m_CompGeomSubsurfs.Update( gcase->m_UseSubSurfFlag.GetID() );
 
+        m_CompGeomTxtToggle.Update( gcase->m_CompGeomTxtFileFlag.GetID() );
+        m_CompGeomTxtOutput.Update( gcase->GetFileName( vsp::COMP_GEOM_TXT_TYPE ) );
+        m_CompGeomCsvToggle.Update( gcase->m_CompGeomCsvFileFlag.GetID() );
+        m_CompGeomCsvOutput.Update( gcase->GetFileName( vsp::COMP_GEOM_CSV_TYPE ) );
+
         // Planar Slice
         m_PlanarDirChoice.Update( gcase->m_SliceDir.GetID() );
 
@@ -664,6 +684,9 @@ bool GeometryAnalysisScreen::Update()
 
         m_PlanarAutoButton.Update( gcase->m_AutoBoundsFlag.GetID() );
         m_PlanarMeasureDuctButton.Update( gcase->m_PlanarMeasureDuct.GetID() );
+
+        m_SliceTxtToggle.Update( gcase->m_SliceTxtFileFlag.GetID() );
+        m_SliceTxtOutput.Update( gcase->GetFileName( vsp::SLICE_TXT_TYPE ) );
 
         // Projected Area
         m_BoundaryEnableButton.Update( gcase->m_BoundaryEnableFlag.GetID() );
@@ -680,6 +703,9 @@ bool GeometryAnalysisScreen::Update()
         m_DiskSegmentBreakdownButton.Update( gcase->m_DiskSegmentBreakdownFlag.GetID() );
 
         m_TargetHullButton.Update( gcase->m_TargetHullFlag.GetID() );
+
+        m_ProjAreaCsvToggle.Update( gcase->m_ProjAreaCsvFileFlag.GetID() );
+        m_ProjAreaCsvOutput.Update( gcase->GetFileName( vsp::PROJ_AREA_CSV_TYPE ) );
 
 
         if ( gcase->m_GeometryAnalysisType() == vsp::PROJ_AREA &&
@@ -722,6 +748,9 @@ bool GeometryAnalysisScreen::Update()
         // Mass Prop
         m_MassNumSlicesSlider.Update( gcase->m_NumSlices.GetID() );
         m_MassDirChoice.Update( gcase->m_SliceDir.GetID() );
+
+        m_MassPropTxtToggle.Update( gcase->m_MassPropTxtFileFlag.GetID() );
+        m_MassPropTxtOutput.Update( gcase->GetFileName( vsp::MASS_PROP_TXT_TYPE ) );
 
 
         // Handle single geom that require special types.
@@ -1248,6 +1277,48 @@ void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
     }
 }
 
+// A row of a file flag, the file name, and a button to choose the file.
+void GeometryAnalysisScreen::AddFileRow( GroupLayout &layout, ToggleButton &toggle, const char* label, StringOutput &output, TriggerButton &select )
+{
+    int bw = layout.GetButtonWidth();
+    int togglew = 50;
+    int selw = 25;
+
+    layout.SetSameLineFlag( true );
+
+    layout.SetFitWidthFlag( false );
+    layout.SetButtonWidth( togglew );
+    layout.AddButton( toggle, label );
+
+    layout.SetFitWidthFlag( true );
+    layout.SetButtonWidth( 0 );
+    layout.AddOutput( output, "", togglew + selw );
+
+    layout.SetFitWidthFlag( false );
+    layout.SetButtonWidth( selw );
+    layout.AddButton( select, "..." );
+
+    layout.ForceNewLine();
+    layout.SetSameLineFlag( false );
+    layout.SetFitWidthFlag( true );
+    layout.SetButtonWidth( bw );
+}
+
+void GeometryAnalysisScreen::SelectFile( int file_type, const char* title, const char* filter )
+{
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
+    if ( gcase )
+    {
+        string fname = m_ScreenMgr->FileChooser( title, filter, vsp::SAVE );
+
+        // A cancelled chooser keeps the name.
+        if ( fname.compare( "" ) != 0 && fname.compare( "/" ) != 0 )
+        {
+            gcase->SetFileName( file_type, fname );
+        }
+    }
+}
+
 void GeometryAnalysisScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
@@ -1599,6 +1670,26 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 }
             }
         }
+    }
+    else if ( gui_device == &m_CompGeomTxtSelect )
+    {
+        SelectFile( vsp::COMP_GEOM_TXT_TYPE, "Select CompGeom output file.", "*.txt" );
+    }
+    else if ( gui_device == &m_CompGeomCsvSelect )
+    {
+        SelectFile( vsp::COMP_GEOM_CSV_TYPE, "Select CompGeom output file.", "*.csv" );
+    }
+    else if ( gui_device == &m_SliceTxtSelect )
+    {
+        SelectFile( vsp::SLICE_TXT_TYPE, "Select Planar Slice output file.", "*.txt" );
+    }
+    else if ( gui_device == &m_ProjAreaCsvSelect )
+    {
+        SelectFile( vsp::PROJ_AREA_CSV_TYPE, "Select Projected Area output file.", "*.csv" );
+    }
+    else if ( gui_device == &m_MassPropTxtSelect )
+    {
+        SelectFile( vsp::MASS_PROP_TXT_TYPE, "Select Mass Properties output file.", "*.txt" );
     }
     else if ( gui_device == &m_MakeMeshGeom )
     {
