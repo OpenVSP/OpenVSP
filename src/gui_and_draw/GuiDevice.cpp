@@ -19,6 +19,8 @@
 #include "VspUtil.h"
 #include "StringUtil.h"
 #include <cfloat>  //For DBL_EPSILON
+#include <FL/fl_draw.H>
+#include <FL/Fl_Rect.H>
 
 // Xlib.h does a horrible '#define Status int' which causes problems for exprparse.
 // This should clean it up locally.
@@ -5333,6 +5335,8 @@ VspBrowser::VspBrowser( int X, int Y, int W, int H, const char* L ) : Fl_Browser
     m_DoubleClickFlag = true;
     m_HotKeyFlag = true;
 
+    m_CheckToggled = false;
+
     m_CBReason = BROWSER_CALLBACK_UNKNOWN;
 }
 
@@ -5500,7 +5504,12 @@ void VspBrowser::BrowserCB( Fl_Widget* w )
     // init to reason "unknown"
     m_CBReason = BROWSER_CALLBACK_UNKNOWN;
 
-    if ( Fl::callback_reason() == FL_REASON_USER )
+    if ( m_CheckToggled )
+    {
+        m_CheckToggled = false;
+        m_CBReason = BROWSER_CALLBACK_CHECK;
+    }
+    else if ( Fl::callback_reason() == FL_REASON_USER )
     {
         // "open" reason only possible from VspBrowser::handle()
         m_CBReason = BROWSER_CALLBACK_POPUP_OPEN;
@@ -5800,4 +5809,167 @@ int ColResizeBrowser::copy( int clipboard )
         return 1;
     }
     return 0;
+}
+
+//=====================================================================//
+//===================         ColCheckBrowser       ===================//
+//=====================================================================//
+
+ColCheckBrowser::ColCheckBrowser( int X, int Y, int W, int H, const char* L ) : ColResizeBrowser( X, Y, W, H, L )
+{
+    m_PushOnCheck = false;
+    m_ToggledLine = 0;
+}
+
+void ColCheckBrowser::clear()
+{
+    ColResizeBrowser::clear();
+    m_Checked.clear();
+}
+
+void ColCheckBrowser::AddLine( const string & text, bool checked )
+{
+    string line = string( 1, column_char() ) + text;
+    add( line.c_str() );
+    if ( checked )
+    {
+        m_Checked.push_back( 1 );
+    }
+    else
+    {
+        m_Checked.push_back( 0 );
+    }
+}
+
+void ColCheckBrowser::AddHeader( const string & text )
+{
+    string line = string( 1, column_char() ) + text;
+    add( line.c_str() );
+    m_Checked.push_back( -1 );
+}
+
+bool ColCheckBrowser::IsChecked( int line ) const
+{
+    if ( line < 1 || line > ( int ) m_Checked.size() )
+    {
+        return false;
+    }
+    return m_Checked[ line - 1 ] == 1;
+}
+
+void ColCheckBrowser::SetChecked( int line, bool checked )
+{
+    if ( line < 1 || line > ( int ) m_Checked.size() || m_Checked[ line - 1 ] < 0 )
+    {
+        return;
+    }
+    if ( checked )
+    {
+        m_Checked[ line - 1 ] = 1;
+    }
+    else
+    {
+        m_Checked[ line - 1 ] = 0;
+    }
+    redraw();
+}
+
+void ColCheckBrowser::Toggle( int line )
+{
+    SetChecked( line, !IsChecked( line ) );
+    m_ToggledLine = line;
+    m_CheckToggled = true;
+    do_callback( FL_REASON_CHANGED );
+}
+
+// The line whose check box is under the mouse, or 0.
+int ColCheckBrowser::CheckLineAtMouse()
+{
+    int X, Y, W, H;
+    Fl_Browser::bbox( X, Y, W, H );
+    if ( !Fl::event_inside( X, Y, W, H ) || !column_widths() || column_widths()[0] <= 0 )
+    {
+        return 0;
+    }
+
+    // The column's right edge is left for resizing, measured from x() as which_col_near_mouse does.
+    int colx = x() - hposition();
+    if ( Fl::event_x() < colx || Fl::event_x() >= colx + column_widths()[0] - 4 )
+    {
+        return 0;
+    }
+
+    void* item = find_item( Fl::event_y() );
+    if ( !item )
+    {
+        return 0;
+    }
+
+    int line = lineno( item );
+    if ( line < 1 || line > ( int ) m_Checked.size() || m_Checked[ line - 1 ] < 0 )
+    {
+        return 0;
+    }
+    return line;
+}
+
+int ColCheckBrowser::handle( int e )
+{
+    // An open name input takes the click, as in other browsers.
+    if ( e == FL_PUSH && !GetPopupState() && Fl::event_button() == FL_LEFT_MOUSE )
+    {
+        int line = CheckLineAtMouse();
+        if ( line > 0 )
+        {
+            m_PushOnCheck = true;
+            Toggle( line );
+            return 1;
+        }
+    }
+    else if ( ( e == FL_DRAG || e == FL_RELEASE ) && m_PushOnCheck )
+    {
+        if ( e == FL_RELEASE )
+        {
+            m_PushOnCheck = false;
+        }
+        return 1;
+    }
+    else if ( e == FL_KEYBOARD && Fl::event_key() == ' ' && !GetPopupState() )
+    {
+        if ( value() > 0 && value() <= ( int ) m_Checked.size() && m_Checked[ value() - 1 ] >= 0 )
+        {
+            Toggle( value() );
+            return 1;
+        }
+    }
+
+    return ColResizeBrowser::handle( e );
+}
+
+void ColCheckBrowser::item_draw( void* item, int X, int Y, int W, int H ) const
+{
+    ColResizeBrowser::item_draw( item, X, Y, W, H );
+
+    int line = lineno( item );
+    if ( line < 1 || line > ( int ) m_Checked.size() || m_Checked[ line - 1 ] < 0 )
+    {
+        return;
+    }
+
+    int size = std::min( textsize(), H - 2 );
+    int bx = X + 4;
+    int by = Y + ( H - size ) / 2;
+
+    Fl_Color c = FL_FOREGROUND_COLOR;
+    if ( !active_r() )
+    {
+        c = fl_inactive( c );
+    }
+    fl_color( c );
+    fl_loop( bx, by, bx, by + size, bx + size, by + size, bx + size, by );
+
+    if ( m_Checked[ line - 1 ] == 1 )
+    {
+        fl_draw_check( Fl_Rect( bx + 1, by + 1, size - 1, size - 1 ), c );
+    }
 }

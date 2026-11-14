@@ -2075,7 +2075,7 @@ VspBrowser* GroupLayout::AddVspBrowser( int height )
 }
 
 //==== Add Column Resize Browser ====//
-ColResizeBrowser* GroupLayout::AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height )
+ColResizeBrowser* GroupLayout::AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height, ColResizeBrowser* browser )
 {
     assert( m_Group && m_Screen && width_array_ptr );
 
@@ -2102,7 +2102,15 @@ ColResizeBrowser* GroupLayout::AddColResizeBrowser( int* width_array_ptr, size_t
         printf( "\n" );
     }
 
-    ColResizeBrowser* browser = new ColResizeBrowser( m_X, m_Y, m_W, height );
+    // A caller's browser, such as a ColCheckBrowser, is placed here.
+    if ( browser )
+    {
+        browser->resize( m_X, m_Y, m_W, height );
+    }
+    else
+    {
+        browser = new ColResizeBrowser( m_X, m_Y, m_W, height );
+    }
     browser->type( FL_HOLD_BROWSER );
     browser->textsize( 12 );
     browser->labelfont( 13 );

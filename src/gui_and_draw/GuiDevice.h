@@ -1566,6 +1566,7 @@ enum VspBrowser_Callback_Reason {
   BROWSER_CALLBACK_SELECT,     ///< an item was selected
   BROWSER_CALLBACK_POPUP_ENTER,   ///< the popup input had a callback
   BROWSER_CALLBACK_POPUP_OPEN,   ///< the popup input is opened
+  BROWSER_CALLBACK_CHECK,   ///< a line's check box was toggled
 };
 
 class VspBrowser : public Fl_Browser
@@ -1618,6 +1619,8 @@ protected:
     Fl_Input* m_PopupInput;
     Fl_Group* m_PopupGroup;
     VspScreen* m_Screen;
+
+    bool m_CheckToggled;
 
 private:
     bool m_DoubleClickFlag;
@@ -1708,6 +1711,45 @@ private:
     int       m_HPos;            // Horizontal scroll position
 
     vector < string > m_CopyText;
+};
+
+// A column browser with a check box in the first column of each line.
+class ColCheckBrowser : public ColResizeBrowser
+{
+public:
+
+    ColCheckBrowser( int X, int Y, int W, int H, const char* L = 0 );
+
+    void clear();
+
+    // The text starts in the second column.  A header line has no check box.
+    void AddLine( const string & text, bool checked );
+    void AddHeader( const string & text );
+
+    // Lines are numbered from 1.
+    bool IsChecked( int line ) const;
+    void SetChecked( int line, bool checked );
+
+    // The line whose box the last BROWSER_CALLBACK_CHECK toggled.
+    int GetToggledLine() const
+    {
+        return m_ToggledLine;
+    }
+
+protected:
+
+    int handle( int e ) override;
+
+    void item_draw( void* item, int X, int Y, int W, int H ) const override;
+
+private:
+
+    int CheckLineAtMouse();
+    void Toggle( int line );
+
+    vector < int > m_Checked;   // -1 no box, 0 clear, 1 checked
+    bool m_PushOnCheck;
+    int m_ToggledLine;
 };
 
 #endif // !defined(GUIDEVICE__INCLUDED_)
