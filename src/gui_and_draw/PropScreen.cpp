@@ -601,8 +601,6 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
     m_BladeAziLayout.SetSameLineFlag( false );
     m_BladeAziLayout.SetFitWidthFlag( true );
 
-    m_FLTK_Window->resizable( m_BladeAziScroll );
-
     m_MoreLayout.SetFitWidthFlag( true );
     m_MoreLayout.SetSameLineFlag( true );
     m_MoreLayout.AddOutput( m_BalanceX1Output, "X1 Balance", "%5.3g", m_MoreLayout.GetW() / 2.0 );
@@ -668,6 +666,15 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
 
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ), vsp::SS_CONTROL );
     m_SubSurfChoice.UpdateItems();
+
+    // A taller window grows the blade curve plot and the azimuth list; every other widget keeps its height.
+    m_FLTK_Window->resizable( m_MenuTabs );
+    for ( int i = 0; i < ( int ) m_TabGroupVec.size(); i++ )
+    {
+        KeepHeights( m_TabGroupVec[i] );
+    }
+    SetGrowWidget( m_CurveEditor.GetCanvas(), plot_tab );
+    SetGrowWidget( m_BladeAziScroll, more_tab );
 }
 
 //==== Show Pod Screen ====//

@@ -1510,6 +1510,11 @@ public:
     virtual void Update( PCurve *curve );
     virtual void Update( PCurve *curve, PCurve *curveb, const string &labelb );
 
+    Vsp_Canvas* GetCanvas()
+    {
+        return m_canvas;
+    }
+
     // GUI devices for the curve editor
     SliderAdjRangeInput m_SplitPtSlider;
     Fl_Button* m_SplitButton;
