@@ -10,6 +10,7 @@
 #include "GroupLayout.h"
 
 #include "ResultsMgr.h"
+#include "ScreenMgr.h"
 
 #include <FL/fl_draw.H>
 
@@ -530,6 +531,11 @@ ResultsPlotCanvas::ResultsPlotCanvas( int x, int y, int w, int h ) : Vsp_Canvas(
     m_LimitsData = nullptr;
     m_ReadoutCB = nullptr;
     m_ReadoutData = nullptr;
+
+    m_PressCB = nullptr;
+    m_PressData = nullptr;
+    m_PressTaken = false;
+    m_NumNamed = 0;
 }
 
 void ResultsPlotCanvas::SetLegend( const vector < ResultsLegendEntry > & entries, int placement )
@@ -549,6 +555,36 @@ void ResultsPlotCanvas::SetSeriesPoints( const vector < vector < double > > & x,
     m_PtGen++;
     m_HighSeries = -1;
     m_HighIndex = -1;
+}
+
+void ResultsPlotCanvas::ClearSeriesPoints()
+{
+    m_PtX.clear();
+    m_PtY.clear();
+    m_PtNames.clear();
+    m_PtIndex.clear();
+    m_NumNamed = 0;
+    m_PtGen++;
+    m_HighSeries = -1;
+    m_HighIndex = -1;
+}
+
+void ResultsPlotCanvas::AddSeriesPoints( const vector < double > & x, const vector < double > & y )
+{
+    size_t n = std::min( x.size(), y.size() );
+    m_PtX.push_back( vector < double > ( x.begin(), x.begin() + n ) );
+    m_PtY.push_back( vector < double > ( y.begin(), y.begin() + n ) );
+    m_PtNames.push_back( string() );
+    m_PtGen++;
+}
+
+void ResultsPlotCanvas::NameNewSeries( const string & name )
+{
+    for ( int i = m_NumNamed; i < ( int ) m_PtNames.size(); i++ )
+    {
+        m_PtNames[i] = name;
+    }
+    m_NumNamed = ( int ) m_PtNames.size();
 }
 
 void ResultsPlotCanvas::draw()
@@ -572,6 +608,7 @@ void ResultsPlotCanvas::draw()
     }
 
     DrawLegend();
+    DrawReadout();
 
     // Zoom box.
     if ( m_Dragging )
@@ -827,10 +864,7 @@ void ResultsPlotCanvas::UpdateReadout( int mx, int my )
         }
     }
 
-    if ( m_ReadoutCB )
-    {
-        m_ReadoutCB( m_ReadoutData, string( buf ) );
-    }
+    SetReadout( string( buf ) );
 
     if ( old_series != m_HighSeries || old_index != m_HighIndex )
     {
@@ -883,11 +917,41 @@ void ResultsPlotCanvas::ClearHighlight()
 {
     m_HighSeries = -1;
     m_HighIndex = -1;
+    SetReadout( string() );
+    redraw();
+}
+
+void ResultsPlotCanvas::SetReadout( const string & text )
+{
     if ( m_ReadoutCB )
     {
-        m_ReadoutCB( m_ReadoutData, string() );
+        m_ReadoutCB( m_ReadoutData, text );
     }
-    redraw();
+    else if ( text != m_Readout )
+    {
+        m_Readout = text;
+        redraw();
+    }
+}
+
+// The readout in the canvas's top right corner, when no callback shows it.
+void ResultsPlotCanvas::DrawReadout()
+{
+    if ( m_ReadoutCB || m_Readout.empty() )
+    {
+        return;
+    }
+    fl_font( FL_HELVETICA, 11 );
+    int tw = ( int ) fl_width( m_Readout.c_str() );
+    int th = fl_height();
+    int bx = std::max( x() + 2, x() + w() - tw - 10 );
+    int by = y() + 2;
+    fl_color( FL_WHITE );
+    fl_rectf( bx, by, tw + 8, th + 4 );
+    fl_color( fl_gray_ramp( 12 ) );
+    fl_rect( bx, by, tw + 8, th + 4 );
+    fl_color( FL_BLACK );
+    fl_draw( m_Readout.c_str(), bx + 4, by + 2 + th - fl_descent() );
 }
 
 // Pixels per unit, or per unit of log, at the limits the axis was last drawn with.
@@ -935,11 +999,16 @@ int ResultsPlotCanvas::handle( int event )
             return 1;
         case FL_PUSH:
             // A second button during a drag is ignored.
-            if ( m_Dragging || m_Panning )
+            if ( m_Dragging || m_Panning || m_PressTaken )
             {
                 return 1;
             }
             m_PushButton = Fl::event_button();
+            if ( m_PressCB && m_PressCB( m_PressData, FL_PUSH, Fl::event_x(), Fl::event_y() ) )
+            {
+                m_PressTaken = true;
+                return 1;
+            }
             if ( Fl::event_clicks() > 0 && Fl::event_button() == FL_LEFT_MOUSE )
             {
                 // Double click: back to automatic limits.
@@ -970,6 +1039,11 @@ int ResultsPlotCanvas::handle( int event )
             }
             return 1;
         case FL_DRAG:
+            if ( m_PressTaken )
+            {
+                m_PressCB( m_PressData, FL_DRAG, Fl::event_x(), Fl::event_y() );
+                return 1;
+            }
             m_DragX = Fl::event_x();
             m_DragY = Fl::event_y();
             if ( m_Dragging )
@@ -991,6 +1065,12 @@ int ResultsPlotCanvas::handle( int event )
             // Only the button that started a drag ends it.
             if ( Fl::event_button() != m_PushButton )
             {
+                return 1;
+            }
+            if ( m_PressTaken )
+            {
+                m_PressTaken = false;
+                m_PressCB( m_PressData, FL_RELEASE, Fl::event_x(), Fl::event_y() );
                 return 1;
             }
             if ( m_Dragging )
@@ -1027,4 +1107,65 @@ int ResultsPlotCanvas::handle( int event )
         }
     }
     return Ca_Canvas::handle( event );
+}
+
+PlotLimitParms::PlotLimitParms()
+{
+    m_ScreenMgr = nullptr;
+    m_XMinManual = nullptr;
+    m_XMaxManual = nullptr;
+    m_YMinManual = nullptr;
+    m_YMaxManual = nullptr;
+    m_XMin = nullptr;
+    m_XMax = nullptr;
+    m_YMin = nullptr;
+    m_YMax = nullptr;
+}
+
+void PlotLimitParms::Link( ScreenMgr* mgr, BoolParm & xmin_manual, BoolParm & xmax_manual, BoolParm & ymin_manual, BoolParm & ymax_manual,
+                           Parm & xmin, Parm & xmax, Parm & ymin, Parm & ymax )
+{
+    m_ScreenMgr = mgr;
+    m_XMinManual = &xmin_manual;
+    m_XMaxManual = &xmax_manual;
+    m_YMinManual = &ymin_manual;
+    m_YMaxManual = &ymax_manual;
+    m_XMin = &xmin;
+    m_XMax = &xmax;
+    m_YMin = &ymin;
+    m_YMax = &ymax;
+}
+
+void SetPlotLimitParms( void* data, double xmin, double xmax, double ymin, double ymax, bool reset )
+{
+    PlotLimitParms* p = ( PlotLimitParms* ) data;
+    if ( !p || !p->m_XMinManual || !p->m_XMaxManual || !p->m_YMinManual || !p->m_YMaxManual ||
+         !p->m_XMin || !p->m_XMax || !p->m_YMin || !p->m_YMax )
+    {
+        return;
+    }
+
+    if ( reset )
+    {
+        p->m_XMinManual->Set( false );
+        p->m_XMaxManual->Set( false );
+        p->m_YMinManual->Set( false );
+        p->m_YMaxManual->Set( false );
+    }
+    else
+    {
+        p->m_XMin->Set( xmin );
+        p->m_XMax->Set( xmax );
+        p->m_YMin->Set( ymin );
+        p->m_YMax->Set( ymax );
+        p->m_XMinManual->Set( true );
+        p->m_XMaxManual->Set( true );
+        p->m_YMinManual->Set( true );
+        p->m_YMaxManual->Set( true );
+    }
+
+    if ( p->m_ScreenMgr )
+    {
+        p->m_ScreenMgr->SetUpdateFlag( true );
+    }
 }

@@ -87,12 +87,25 @@ public:
         m_LimitsData = data;
     }
 
-    // Called when the readout text changes.
+    // Called when the readout text changes.  Without it, the canvas shows the readout itself.
     typedef void ( *ReadoutCB )( void* data, const string & text );
     void SetReadoutCallback( ReadoutCB cb, void* data )
     {
         m_ReadoutCB = cb;
         m_ReadoutData = data;
+    }
+
+    // Points of one more series, for the readout; NameNewSeries names those added since it last ran.
+    void ClearSeriesPoints();
+    void AddSeriesPoints( const vector < double > & x, const vector < double > & y );
+    void NameNewSeries( const string & name );
+
+    // Offered each mouse press first; returning true takes the press and its drag and release.
+    typedef bool ( *PressCB )( void* data, int event, int mx, int my );
+    void SetPressCallback( PressCB cb, void* data )
+    {
+        m_PressCB = cb;
+        m_PressData = data;
     }
 
 protected:
@@ -106,6 +119,8 @@ protected:
     void ZoomAbout( int mx, int my, double factor );
     void SendLimits( double x0, double x1, double y0, double y1 );
     void ClearHighlight();
+    void SetReadout( const string & text );
+    void DrawReadout();
     double PanScale( Ca_Axis_* axis, double amin, double amax );
     void PanShift( Ca_Axis_* axis, double k, int dpix, double & amin, double & amax );
 
@@ -136,7 +151,39 @@ protected:
     void* m_LimitsData;
     ReadoutCB m_ReadoutCB;
     void* m_ReadoutData;
+    string m_Readout;       // Shown on the canvas when there is no readout callback
+    int m_NumNamed;         // Series named by NameNewSeries
+
+    PressCB m_PressCB;
+    void* m_PressData;
+    bool m_PressTaken;      // The owner took the press under way
 };
+
+// Manual axis limit Parms that a canvas's zoom, pan and double click set.
+class ScreenMgr;
+class PlotLimitParms
+{
+public:
+    PlotLimitParms();
+
+    // Set the Parms a canvas's limit callback sets.
+    void Link( ScreenMgr* mgr, BoolParm & xmin_manual, BoolParm & xmax_manual, BoolParm & ymin_manual, BoolParm & ymax_manual,
+               Parm & xmin, Parm & xmax, Parm & ymin, Parm & ymax );
+
+    ScreenMgr* m_ScreenMgr;     // Told to update the screens after a change
+
+    BoolParm* m_XMinManual;
+    BoolParm* m_XMaxManual;
+    BoolParm* m_YMinManual;
+    BoolParm* m_YMaxManual;
+    Parm* m_XMin;
+    Parm* m_XMax;
+    Parm* m_YMin;
+    Parm* m_YMax;
+};
+
+// A ResultsPlotCanvas::LimitsCB for data that is a PlotLimitParms: new limits are set by hand, reset makes them automatic.
+void SetPlotLimitParms( void* data, double xmin, double xmax, double ymin, double ymax, bool reset );
 
 // A pixel position as an int, held within a range that drawing and int casts can take.
 int ResultsPixel( double p );
