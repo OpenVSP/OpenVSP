@@ -10,6 +10,7 @@
 #endif
 
 #include "GuiDevice.h"
+#include "ResultsPlotCanvas.h"
 #include "ParmMgr.h"
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
@@ -4733,6 +4734,12 @@ PCurveEditor::PCurveEditor()
     m_DeleteActive = false;
     m_SplitActive = false;
 
+    m_Zoomed = false;
+    m_ZoomXMin = m_ZoomYMin = 0;
+    m_ZoomXMax = m_ZoomYMax = 1;
+    m_AutoYMin = 0;
+    m_AutoYMax = 1;
+
     m_CallbackFlag = false;
     m_UpdateIndexSelector = false;
 
@@ -4762,7 +4769,13 @@ void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscr
     m_SplitPickButton = splitpickbutton;
     m_PtLayout = ptlayout;
 
-    m_canvas->callback( StaticDeviceCB, this );
+    // The plot zooms and pans as Results plots do, and offers each press here first.
+    ResultsPlotCanvas* plot_canvas = dynamic_cast < ResultsPlotCanvas* > ( m_canvas );
+    if ( plot_canvas )
+    {
+        plot_canvas->SetPressCallback( StaticPressCB, this );
+        plot_canvas->SetLimitsCallback( StaticLimitsCB, this );
+    }
     m_SplitButton->callback( StaticDeviceCB, this );
     m_DelButton->callback( StaticDeviceCB, this );
     m_DelPickButton->callback( StaticDeviceCB, this );
@@ -5044,66 +5057,7 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
         return;
     }
 
-    if ( Fl::event_inside( m_canvas ) )
-    {
-    }
-
-    if ( w == m_canvas )
-    {
-        int x = Fl::event_x();
-        int y = Fl::event_y();
-
-        if ( Fl::event() == FL_PUSH )
-        {
-            m_UpdateIndexSelector = false; // Don't update the index selector if a point on the canvas is selected
-
-            m_LastHit = ihit( x, y, 5 );
-
-            if ( m_LastHit != -1 )
-            {
-                m_Curve->SetSelectPntID( m_LastHit );
-                m_PntSelector.SetIndex( m_LastHit );
-            }
-
-            if ( m_DeleteActive )
-            {
-                m_DeleteActive = false;
-
-                if ( m_LastHit >= 0 )
-                {
-                    m_Curve->DeletePt( m_LastHit );
-                }
-            }
-
-            if ( m_SplitActive )
-            {
-                m_SplitActive = false;
-
-                double sx = m_canvas->current_x()->value( x );
-
-                if ( sx > m_Curve->GetRFirst() && sx < m_Curve->GetRLast() )
-                {
-                    m_Curve->m_SplitPt = sx;
-                    int new_pnt = m_Curve->Split();
-                    m_PntSelector.SetMinMaxLimits( 0, m_Curve->GetNumPts() - 1 );
-                    m_PntSelector.SetIndex( new_pnt );
-                }
-            }
-        }
-
-        if ( Fl::event() == FL_DRAG && m_LastHit != -1 )
-        {
-            m_Curve->SetPt( m_canvas->current_x()->value( x ), m_canvas->current_y()->value( y ), m_LastHit );
-            m_FreezeAxis = true;
-        }
-
-        if ( Fl::event() == FL_RELEASE )
-        {
-            m_FreezeAxis = false;
-            m_Curve->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update the parent Geom once the point is released
-        }
-    }
-    else if ( w == m_SplitButton )
+    if ( w == m_SplitButton )
     {
         int new_pnt = m_Curve->Split();
         m_PntSelector.SetMinMaxLimits( 0, m_Curve->GetNumPts() - 1 );
@@ -5139,8 +5093,95 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
+bool PCurveEditor::PressCB( int event, int mx, int my )
+{
+    if ( !m_Curve || m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        return false;
+    }
+
+    if ( event == FL_PUSH )
+    {
+        // The canvas offers only a press that goes to a point first.
+        int hit = ihit( mx, my, 5 );
+        if ( hit == -1 && !m_DeleteActive && !m_SplitActive )
+        {
+            return false;
+        }
+
+        m_UpdateIndexSelector = false; // Don't update the index selector if a point on the canvas is selected
+
+        m_LastHit = hit;
+
+        if ( m_LastHit != -1 )
+        {
+            m_Curve->SetSelectPntID( m_LastHit );
+            m_PntSelector.SetIndex( m_LastHit );
+        }
+
+        if ( m_DeleteActive )
+        {
+            m_DeleteActive = false;
+
+            if ( m_LastHit >= 0 )
+            {
+                m_Curve->DeletePt( m_LastHit );
+            }
+            m_LastHit = -1;
+        }
+
+        if ( m_SplitActive )
+        {
+            m_SplitActive = false;
+
+            double sx = m_canvas->current_x()->value( mx );
+
+            if ( sx > m_Curve->GetRFirst() && sx < m_Curve->GetRLast() )
+            {
+                m_Curve->m_SplitPt = sx;
+                int new_pnt = m_Curve->Split();
+                m_PntSelector.SetMinMaxLimits( 0, m_Curve->GetNumPts() - 1 );
+                m_PntSelector.SetIndex( new_pnt );
+            }
+            m_LastHit = -1;
+        }
+    }
+    else if ( event == FL_DRAG && m_LastHit != -1 )
+    {
+        m_Curve->SetPt( m_canvas->current_x()->value( mx ), m_canvas->current_y()->value( my ), m_LastHit );
+        m_FreezeAxis = true;
+    }
+    else if ( event == FL_RELEASE )
+    {
+        m_LastHit = -1;
+        m_FreezeAxis = false;
+        m_Curve->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update the parent Geom once the point is released
+    }
+
+    m_CallbackFlag = true;
+
+    m_Screen->GuiDeviceCallBack( this );
+    return true;
+}
+
+void PCurveEditor::LimitsCB( double xmin, double xmax, double ymin, double ymax, bool reset )
+{
+    m_Zoomed = !reset;
+    m_ZoomXMin = xmin;
+    m_ZoomXMax = xmax;
+    m_ZoomYMin = ymin;
+    m_ZoomYMax = ymax;
+    Update();
+    m_canvas->redraw();
+}
+
 void PCurveEditor::Update( PCurve *curve, PCurve *curveb, const string &labelb )
 {
+    // Another curve starts from its own limits.
+    if ( curve != m_Curve )
+    {
+        m_Zoomed = false;
+    }
     m_Curve = curve;
     m_CurveB = curveb;
     m_LabelB = labelb;
@@ -5150,6 +5191,10 @@ void PCurveEditor::Update( PCurve *curve, PCurve *curveb, const string &labelb )
 
 void PCurveEditor::Update( PCurve *curve )
 {
+    if ( curve != m_Curve )
+    {
+        m_Zoomed = false;
+    }
     m_Curve = curve;
     m_CurveB = nullptr;
     Update();
@@ -5231,9 +5276,38 @@ void PCurveEditor::Update()
             all_y_data.insert( all_y_data.end(), ydata.begin(), ydata.end() );
 
             UpdateAxisLimits( all_x_data, all_y_data );
+            m_AutoYMin = m_canvas->current_y()->minimum();
+            m_AutoYMax = m_canvas->current_y()->maximum();
 
             m_canvas->current_x()->copy_label( m_Curve->GetXDsipName().c_str() );
             m_canvas->current_y()->copy_label( m_Curve->GetYDsipName().c_str() );
+        }
+
+        if ( m_Zoomed )
+        {
+            m_canvas->current_x()->minimum( m_ZoomXMin );
+            m_canvas->current_x()->maximum( m_ZoomXMax );
+            m_canvas->current_y()->minimum( m_ZoomYMin );
+            m_canvas->current_y()->maximum( m_ZoomYMax );
+
+            // The second axis takes the same part of its own range.
+            if ( m_CurveB && m_AutoYMax > m_AutoYMin )
+            {
+                double smax = m_canvas->m_Ysecondary->maximum();
+                double smin = m_canvas->m_Ysecondary->minimum();
+                double k = ( smax - smin ) / ( m_AutoYMax - m_AutoYMin );
+                m_canvas->m_Ysecondary->minimum( smin + ( m_ZoomYMin - m_AutoYMin ) * k );
+                m_canvas->m_Ysecondary->maximum( smin + ( m_ZoomYMax - m_AutoYMin ) * k );
+            }
+        }
+
+        // The readout gives the control points.
+        ResultsPlotCanvas* plot_canvas = dynamic_cast < ResultsPlotCanvas* > ( m_canvas );
+        if ( plot_canvas )
+        {
+            plot_canvas->ClearSeriesPoints();
+            plot_canvas->AddSeriesPoints( xdata, ydata );
+            plot_canvas->NameNewSeries( m_Curve->GetYDsipName() );
         }
 
         unsigned int n = m_Curve->GetNumPts();

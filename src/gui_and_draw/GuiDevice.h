@@ -1488,6 +1488,20 @@ public:
     // Used to set delete active or split active flags 
     virtual void DeviceCB( Fl_Widget* w );
 
+    // A press on a control point, or while a delete or split is armed, picks, drags, deletes or splits; any other
+    // press zooms or pans the plot.
+    static bool StaticPressCB( void* data, int event, int mx, int my )
+    {
+        return static_cast < PCurveEditor* > ( data )->PressCB( event, mx, my );
+    }
+    bool PressCB( int event, int mx, int my );
+
+    static void StaticLimitsCB( void* data, double xmin, double xmax, double ymin, double ymax, bool reset )
+    {
+        static_cast < PCurveEditor* > ( data )->LimitsCB( xmin, xmax, ymin, ymax, reset );
+    }
+    void LimitsCB( double xmin, double xmax, double ymin, double ymax, bool reset );
+
     // Check if two locations are within an input radius 'r'. Used to identify
     // if the selected pixel on the canvas is close enough to a control point
     virtual bool hittest( int mx, int my, double datax, double datay, int r );
@@ -1548,6 +1562,11 @@ protected:
     vector < CheckButton > m_EnforceG1Vec;
 
     bool m_FreezeAxis; // Restrict the canvas from resizing when performing a click and drag operation
+
+    // Limits the plot was zoomed or panned to, kept until a double click or another curve
+    bool m_Zoomed;
+    double m_ZoomXMin, m_ZoomXMax, m_ZoomYMin, m_ZoomYMax;
+    double m_AutoYMin, m_AutoYMax;      // The main y axis's own limits, which the second y axis's zoom follows
 
     // Flags to delete or split after the curve is clicked on
     bool m_DeleteActive;

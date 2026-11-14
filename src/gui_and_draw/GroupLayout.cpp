@@ -8,6 +8,7 @@
 #include "GroupLayout.h"
 #include "DrawObj.h"
 #include "ScreenBase.h"
+#include "ResultsPlotCanvas.h"
 #include <FL/Fl_Value_Slider.H>
 #include <typeinfo>
 #include <FL/Fl_Tabs.H>
@@ -1972,7 +1973,7 @@ void GroupLayout::AddPCurveEditor( PCurveEditor& curve_editor )
 
     AddY( 25 );
 
-    canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
+    canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y", new ResultsPlotCanvas( 0, 0, 10, 10 ) );
 
     split_label = "r/R Split";
 
