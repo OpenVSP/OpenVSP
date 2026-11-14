@@ -60,6 +60,10 @@ static const char * ActionName( int action )
         return "Rotation center";
     case VSPGUI::NAV_SELECT:
         return "Select Geom";
+    case VSPGUI::NAV_ZOOM_IN:
+        return "Zoom in";
+    case VSPGUI::NAV_ZOOM_OUT:
+        return "Zoom out";
     default:
         return "Tool picks only";
     }
@@ -371,9 +375,11 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ButtonsLayout.AddYGap();
     m_ButtonsLayout.AddDividerBox( "Selected Binding" );
 
-    for ( int a = VSPGUI::NAV_ROTATE; a <= VSPGUI::NAV_SELECT; a++ )
+    const int actions[] = { VSPGUI::NAV_ROTATE, VSPGUI::NAV_ROLL, VSPGUI::NAV_PAN, VSPGUI::NAV_ZOOM, VSPGUI::NAV_ZOOM_IN,
+                            VSPGUI::NAV_ZOOM_OUT, VSPGUI::NAV_ZOOM_BOX, VSPGUI::NAV_SET_PIVOT, VSPGUI::NAV_SELECT };
+    for ( int i = 0; i < ( int )( sizeof( actions ) / sizeof( actions[0] ) ); i++ )
     {
-        m_ActionChoice.AddItem( ActionName( a ), a );
+        m_ActionChoice.AddItem( ActionName( actions[i] ), actions[i] );
     }
     m_ActionChoice.AddItem( ActionName( VSPGUI::NAV_NONE ), VSPGUI::NAV_NONE );
     m_ActionChoice.UpdateItems();
@@ -715,6 +721,10 @@ bool PreferencesScreen::ReadBinding( GuiDevice * device )
     else if ( device == &m_ActionChoice )
     {
         b.m_Action = ( VSPGUI::NavAction )m_ActionChoice.GetVal();
+        if ( b.m_Action == VSPGUI::NAV_ZOOM_IN || b.m_Action == VSPGUI::NAV_ZOOM_OUT )
+        {
+            b.m_Trigger = VSPGUI::NAV_ON_DRAG;
+        }
     }
     else if ( device == &m_TriggerChoice )
     {
@@ -882,6 +892,12 @@ void PreferencesScreen::ShowBindings()
         {
             edits[i]->Deactivate();
         }
+    }
+    // Zoom in and Zoom out act at the press; On does not apply.
+    if ( has_sel && ( bindings[ m_SelBinding ].m_Action == VSPGUI::NAV_ZOOM_IN ||
+                      bindings[ m_SelBinding ].m_Action == VSPGUI::NAV_ZOOM_OUT ) )
+    {
+        m_TriggerChoice.Deactivate();
     }
     if ( has_sel && m_PressBox->m_HasPress )
     {

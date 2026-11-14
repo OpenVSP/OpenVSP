@@ -31,6 +31,16 @@ namespace VSPGUI
 static const int NAV_BUTTONS = FL_BUTTON1 | FL_BUTTON2 | FL_BUTTON3 | FL_BUTTON4 | FL_BUTTON5;
 static const int NAV_MODIFIERS = FL_SHIFT | FL_CTRL | FL_ALT | FL_META;
 
+// Zoom in and Zoom out: a wheel notch's factor, and how a held press repeats it, in seconds.
+static const double NAV_STEP_ZOOM = 1.15;
+static const double NAV_STEP_DELAY = 0.4;
+static const double NAV_STEP_INTERVAL = 0.1;
+
+static bool IsStepZoom( int action )
+{
+    return action == NAV_ZOOM_IN || action == NAV_ZOOM_OUT;
+}
+
 NavSettings::NavSettings()
 {
     m_StartupRotateMode = NAV_ROTATE_BALL;
@@ -419,6 +429,11 @@ NavController::NavController( VspGlWindow * win )
     SetSettings( m_Settings );
 }
 
+NavController::~NavController()
+{
+    Fl::remove_timeout( RepeatZoom, this );
+}
+
 void NavController::SetSettings( const NavSettings & settings )
 {
     // New bindings end any gesture.
@@ -542,6 +557,7 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
 {
     NavAction before = m_Action;
 
+    Fl::remove_timeout( RepeatZoom, this );
     if ( m_Action == NAV_ZOOM_BOX )
     {
         EndZoomBox( false, x, y );
@@ -619,6 +635,14 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
         return;
     }
 
+    if ( drag && IsStepZoom( drag->m_Action ) )
+    {
+        // A step zoom acts at the press, without waiting to see whether it is a click.
+        m_PendingClick = nullptr;
+        Start( drag->m_Action, x, y );
+        return;
+    }
+
     if ( m_Settings.m_Profile.m_ClickDistance > 0 && ( m_PendingClick || CountButtons( press.m_Buttons ) == 1 ) )
     {
         // Wait to see whether this is a click, or the first button of a chord.
@@ -670,6 +694,11 @@ void NavController::Start( NavAction action, int x, int y )
     else if ( m_Action == NAV_BOX_SELECT )
     {
         m_Win->BeginBoxSelect( x, y );
+    }
+    else if ( IsStepZoom( m_Action ) )
+    {
+        StepZoom( m_Action, x, y );
+        Fl::add_timeout( NAV_STEP_DELAY, RepeatZoom, this );
     }
 }
 
@@ -782,6 +811,8 @@ void NavController::Release( int x, int y )
     int released = EventButtonBit();
     int buttons = Fl::event_state() & NAV_BUTTONS & ~released;
 
+    Fl::remove_timeout( RepeatZoom, this );
+
     if ( m_Action == NAV_BOX_SELECT )
     {
         // Only the left button ends a box selection.
@@ -868,6 +899,7 @@ bool NavController::Cancel()
 
 void NavController::Abandon()
 {
+    Fl::remove_timeout( RepeatZoom, this );
     if ( m_Action == NAV_ZOOM_BOX )
     {
         EndZoomBox( false, m_PressX, m_PressY );
@@ -1112,6 +1144,37 @@ void NavController::ZoomAt( VSPGraphic::Camera * camera, double factor, int anch
     else
     {
         camera->zoomToward( factor, x, y );
+    }
+}
+
+void NavController::StepZoom( int action, int x, int y )
+{
+    VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
+    if ( !camera )
+    {
+        return;
+    }
+
+    double factor = NAV_STEP_ZOOM;
+    if ( action == NAV_ZOOM_IN )
+    {
+        factor = 1.0 / NAV_STEP_ZOOM;
+    }
+    ZoomAt( camera, factor, m_Settings.m_WheelAnchor, x, y );
+    FollowPivot( camera );
+
+    m_Win->UpdateZoomParms();
+    m_Win->UpdatePanParms();
+    m_Win->redraw();
+}
+
+void NavController::RepeatZoom( void * data )
+{
+    NavController * nav = ( NavController * )data;
+    if ( IsStepZoom( nav->m_Action ) )
+    {
+        nav->StepZoom( nav->m_Action, nav->m_PressX, nav->m_PressY );
+        Fl::repeat_timeout( NAV_STEP_INTERVAL, RepeatZoom, data );
     }
 }
 

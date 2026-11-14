@@ -617,11 +617,13 @@ std::string NavDescribe( const NavPress & press )
 
 std::string NavProfile::Summary() const
 {
-    const NavAction actions[] = { NAV_ROTATE, NAV_PAN, NAV_ZOOM, NAV_ROLL, NAV_ZOOM_BOX, NAV_SET_PIVOT, NAV_SELECT };
-    const char * labels[] = { "Rotate", "Pan", "Zoom", "Roll", "Zoom box", "Rotation center", "Select" };
+    const NavAction actions[] = { NAV_ROTATE, NAV_PAN, NAV_ZOOM, NAV_ZOOM_IN, NAV_ZOOM_OUT, NAV_ROLL, NAV_ZOOM_BOX,
+                                  NAV_SET_PIVOT, NAV_SELECT };
+    const char * labels[] = { "Rotate", "Pan", "Zoom", "Zoom in", "Zoom out", "Roll", "Zoom box", "Rotation center",
+                              "Select" };
 
     std::string s;
-    for ( int a = 0; a < 7; a++ )
+    for ( int a = 0; a < 9; a++ )
     {
         std::string list;
         for ( int i = 0; i < ( int )m_Bindings.size(); i++ )
@@ -774,8 +776,9 @@ std::vector < int > NavProfile::Shadowed() const
 }
 
 // Names for the text form.  These are stored, so they never change.
-static const char * const ACTION_NAMES[] = { "None", "Rotate", "Roll", "Pan", "Zoom", "ZoomBox", "SetPivot", "Select" };
-static const int NUM_ACTIONS = 8;
+static const char * const ACTION_NAMES[] = { "None", "Rotate", "Roll", "Pan", "Zoom", "ZoomBox", "SetPivot", "Select",
+                                             "ZoomIn", "ZoomOut" };
+static const int NUM_ACTIONS = 10;
 
 struct NavBit
 {
@@ -1096,6 +1099,12 @@ bool NavProfile::SetBindingsText( const std::string & text )
             return false;
         }
         b.m_PickFirst = pick;
+
+        // Zoom in and Zoom out act at the press whatever the trigger read.
+        if ( b.m_Action == NAV_ZOOM_IN || b.m_Action == NAV_ZOOM_OUT )
+        {
+            b.m_Trigger = NAV_ON_DRAG;
+        }
 
         bindings.push_back( b );
     }

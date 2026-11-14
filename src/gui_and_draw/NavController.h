@@ -122,6 +122,7 @@ class NavController
 public:
 
     NavController( VspGlWindow * win );
+    ~NavController();
 
     void SetSettings( const NavSettings & settings );
     const NavSettings & GetSettings() const
@@ -184,6 +185,13 @@ private:
     void Click( const NavBinding * b, int x, int y );
 
     void DragZoom( int x, int y );
+
+    // One wheel step of NAV_ZOOM_IN or NAV_ZOOM_OUT in the selected viewport, at x y or its
+    // center as the wheel zooms.
+    void StepZoom( int action, int x, int y );
+
+    // While a Zoom in or Zoom out press is held, step again.
+    static void RepeatZoom( void * data );
 
     // Turn about the surface under the mouse for this drag, if there is one.
     void StartPivot( VSPGraphic::Camera * camera, int x, int y );
