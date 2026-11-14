@@ -534,7 +534,7 @@ void GroupLayout::AddSlider( SliderAdjRange3Input& slid_adj_input,
 
     Fl_Input* input3 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
-    input2->type( FL_FLOAT_INPUT );
+    input3->type( FL_FLOAT_INPUT );
 #endif
     input3->box( FL_THIN_DOWN_BOX );
     input3->textsize( 12 );
