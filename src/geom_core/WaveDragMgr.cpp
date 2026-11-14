@@ -337,15 +337,15 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
         }
     }
 
+    // Delete MeshGeom from previous wave drag tool run
+    veh->DeleteGeomVec( { m_lastmeshgeomID } );
+
     // Terminates slicing routine if no Geoms in desired set
     vector<string> geomlist = veh->GetGeomSet( set );
     if ( geomlist.empty() )
     {
         return string();
     }
-
-    // Delete MeshGeom from previous wave drag tool run
-    veh->DeleteGeomVec( { m_lastmeshgeomID } );
 
     // Run slicing routine
     m_lastmeshgeomID = WaveDragSlice( set, numSlices, numRots, Mach, Flow_vec, Symm );
@@ -462,7 +462,11 @@ string WaveDragSingleton::WaveDragSlice( int set, int numSlices, int numRots, do
         return id;
     }
 
-    veh->HideAllExcept( id );
+    // The Shown set keeps its components, so a later run finds them.
+    if ( set != vsp::SET_SHOWN )
+    {
+        veh->HideAllExcept( id );
+    }
 
     MeshGeom* mesh_ptr = ( MeshGeom* ) veh->FindGeom( id );
     if ( !mesh_ptr )
