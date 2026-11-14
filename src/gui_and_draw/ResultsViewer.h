@@ -18,6 +18,12 @@ class Results;
 
 // Text for a Result in lists: nickname and case name when it has them, type, time and description.
 string GetResultsListText( Results* res );
+// Time a Result was made, as Results lists show it.
+string GetResultsTimeText( Results* res );
+// Keeps the checked runs among all, in the order of all, and checks only the newest when a run
+// is new to known, as plots of one run at a time did, or when every checked run is gone.
+// Returns whether the checked runs changed.
+bool PickRuns( const vector < string > & all, vector < string > & known, vector < string > & checked );
 
 class ResultsViewer : public TabScreen
 {

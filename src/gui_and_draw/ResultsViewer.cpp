@@ -23,8 +23,8 @@
 #include <ctime>
 #include <limits>
 
-// Text for a Result in lists: nickname and case name when it has them, type, time and description.
-string GetResultsListText( Results* res )
+// Time a Result was made, as Results lists show it.
+string GetResultsTimeText( Results* res )
 {
     if ( !res )
     {
@@ -35,6 +35,53 @@ string GetResultsListText( Results* res )
     time_t r_time = res->GetTimestamp();
     struct tm *r_tp = localtime( &r_time );
     strftime( timestr, sizeof( timestr ), "%r %D", r_tp );
+    return string( timestr );
+}
+
+bool PickRuns( const vector < string > & all, vector < string > & known, vector < string > & checked )
+{
+    bool fresh = false;
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        if ( std::find( known.begin(), known.end(), all[i] ) == known.end() )
+        {
+            fresh = true;
+        }
+    }
+    known = all;
+
+    vector < string > runs;
+    for ( int i = 0; i < ( int ) checked.size(); i++ )
+    {
+        if ( std::find( all.begin(), all.end(), checked[i] ) != all.end() )
+        {
+            runs.push_back( checked[i] );
+        }
+    }
+    // The newest stands in when the checked runs are gone, but not when the user unchecked them all.
+    if ( ( fresh || ( runs.empty() && !checked.empty() ) ) && !all.empty() )
+    {
+        runs.assign( 1, all.back() );
+    }
+    bool changed = runs != checked;
+
+    checked.clear();
+    for ( int i = 0; i < ( int ) all.size(); i++ )
+    {
+        if ( std::find( runs.begin(), runs.end(), all[i] ) != runs.end() )
+        {
+            checked.push_back( all[i] );
+        }
+    }
+    return changed;
+}
+
+string GetResultsListText( Results* res )
+{
+    if ( !res )
+    {
+        return string();
+    }
 
     string text;
     if ( !res->GetNickname().empty() )
@@ -45,7 +92,7 @@ string GetResultsListText( Results* res )
     {
         text += GetResultsCaseName( res ) + " - ";
     }
-    text += res->GetName() + " - " + string( timestr ) + " - " + res->GetDoc();
+    text += res->GetName() + " - " + GetResultsTimeText( res ) + " - " + res->GetDoc();
     return text;
 }
 
