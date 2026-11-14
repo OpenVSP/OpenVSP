@@ -2391,7 +2391,6 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     }
 
     int iplot = 0; // Serialized counter for legend colors/symbols
-    int nlines = xDataSetNames.size() * yDataSetNames.size();
 
     m_SweepLegendGroup->clear();
     m_SweepLegendLayout.SetGroup( m_SweepLegendGroup );
@@ -2427,7 +2426,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
                     }
                 }
 
-                Fl_Color c = ColorWheel( iplot, nlines );
+                Fl_Color c = SeriesColor( iplot );
 
                 //add the data to the plot
                 AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( iplot ) );
@@ -2473,7 +2472,6 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
     m_CpSlicePlotCanvas->clear();
 
     int iplot = 0; // Serialized counter for legend colors/symbols
-    int nlines = m_CpSliceCaseSelectedResultIDs.size() * m_CpSliceCutSelectedResultIDs.size();
 
     m_CpSliceLegendGroup->clear();
     m_CpSliceLegendLayout.SetGroup( m_CpSliceLegendGroup );
@@ -2547,7 +2545,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                         }
                     }
 
-                    Fl_Color c = ColorWheel( iplot, nlines );
+                    Fl_Color c = SeriesColor( iplot );
 
                     if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
                     {
@@ -2764,7 +2762,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                     // check again if there are still points to plot
                     if ( !xDoubleData.empty() )
                     {
-                        Fl_Color c = ColorWheel( m_ConvergenceiPlot, m_ConvergenceNLines );
+                        Fl_Color c = SeriesColor( m_ConvergenceiPlot );
 
                         //add the normalized data to the plot
                         AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
@@ -2885,7 +2883,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( const string &resultID, vector <st
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet], iTime );
             if ( xResultDataPtr && yResultDataPtr )
             {
-                Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
+                Fl_Color c = SeriesColor( m_LoadDistiPlot );
                 string legendstr;
 
                 if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE && spanLoadSetResultDataPtr )
@@ -3064,7 +3062,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
                     // check again if there are still points to plot
                     if ( xSize != 0 )
                     {
-                        Fl_Color c = ColorWheel( m_UnsteadyiPlot, m_UnsteadyNLines );
+                        Fl_Color c = SeriesColor( m_UnsteadyiPlot );
 
                         //add the normalized data to the plot
                         AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, StyleWheel( m_UnsteadyiPlot ) );

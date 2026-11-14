@@ -635,7 +635,7 @@ void WaveDragScreen::RedrawPlot()
         // Components
         for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
         {
-            Fl_Color c = ColorWheel( icomp, WaveDragMgr.m_NComp );
+            Fl_Color c = SeriesColor( icomp );
             AddPointLine( xfit, WaveDragMgr.m_CompFitAreaDist[itheta][icomp], 2, c );
 
             Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );
@@ -659,7 +659,7 @@ void WaveDragScreen::RedrawPlot()
     {
         for ( int icomp = 0; icomp < WaveDragMgr.m_NComp; icomp++ )
         {
-            Fl_Color c = ColorWheel( icomp, WaveDragMgr.m_NComp );
+            Fl_Color c = SeriesColor( icomp );
             AddPointLine( xfit, WaveDragMgr.m_BuildupFitAreaDist[itheta][icomp], 2, c );
 
             Geom *g = veh->FindGeom( WaveDragMgr.m_CompIDVec[icomp] );

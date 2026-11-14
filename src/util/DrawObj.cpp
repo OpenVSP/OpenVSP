@@ -345,6 +345,31 @@ vec3d DrawObj::ColorWheel( double angle )
 
 }
 
+// Petroff 10, M. A. Petroff, "Accessible Color Sequences for Data Visualization," arXiv:2107.02270.
+// Any first N colors stay apart in normal vision and in simulated color vision deficiencies.
+vec3d DrawObj::SequenceColor( int i )
+{
+    static const unsigned char rgb[ NUM_SEQUENCE_COLORS ][ 3 ] = {
+        { 0x3F, 0x90, 0xDA }, // blue
+        { 0xFF, 0xA9, 0x0E }, // orange
+        { 0xBD, 0x1F, 0x01 }, // red
+        { 0x94, 0xA4, 0xA2 }, // gray
+        { 0x83, 0x2D, 0xB6 }, // purple
+        { 0xA9, 0x6B, 0x59 }, // brown
+        { 0xE7, 0x63, 0x00 }, // dark orange
+        { 0xB9, 0xAC, 0x70 }, // tan
+        { 0x71, 0x75, 0x81 }, // dark gray
+        { 0x92, 0xDA, 0xDD }, // light blue
+    };
+
+    int k = i % NUM_SEQUENCE_COLORS;
+    if ( k < 0 )
+    {
+        k += NUM_SEQUENCE_COLORS;
+    }
+    return vec3d( rgb[k][0] / 255.0, rgb[k][1] / 255.0, rgb[k][2] / 255.0 );
+}
+
 vec3d DrawObj::Color( int color )
 {
     switch( color ) {

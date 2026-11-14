@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GroupLayout.h"
+#include "DrawObj.h"
 #include "ScreenBase.h"
 #include <FL/Fl_Value_Slider.H>
 #include <typeinfo>
@@ -2241,30 +2242,11 @@ Fl_Color_Chooser* GroupLayout::AddFlColorChooser(int height)
     return color_chooser;
 }
 
-// nhue prime is good
-Fl_Color ColorWheel( int i, int nunique, int nhue )
+// Color of plot series i, from the shared sequence.
+Fl_Color SeriesColor( int i )
 {
-    // Golden ratio.
-    // double phi = ( 1.0 + sqrt( 5.0 ) ) / 2.0;
-
-    double h, s, v, r, g, b;
-
-    int npass = ( nunique / nhue ) + 1; // floor implied by integer division.
-
-    int hbase = i % nhue;
-
-    // h is [0,6)
-    h = ( hbase +  (i - hbase) * 1.0 / (nhue * npass) ) * 6.0 / nhue;
-
-    // Uniformly distributed pseudo-random.
-    // h = ( i * phi - floor( i * phi ) ) * 6.0;
-    // s and v are [0,1]
-    s = 0.7;
-    v = 0.95;
-
-    Fl_Color_Chooser::hsv2rgb( h, s, v, r, g, b );
-    Fl_Color c = fl_rgb_color( r * 255, g * 255, b * 255 );
-    return c;
+    vec3d c = DrawObj::SequenceColor( i );
+    return fl_rgb_color( ( uchar ) std::lround( c.x() * 255 ), ( uchar ) std::lround( c.y() * 255 ), ( uchar ) std::lround( c.z() * 255 ) );
 }
 
 // Rotate through Cartesian symbol styles.

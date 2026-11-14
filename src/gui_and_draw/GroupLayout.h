@@ -252,7 +252,7 @@ private:
 void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize = 0, int pointstyle = 1 );
 void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
 void AddPoint( const vector <double> & xdata,  const vector <double> & ydata, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
-Fl_Color ColorWheel( int i, int nunique, int nhue = 7 );
+Fl_Color SeriesColor( int i );
 int StyleWheel( int i );
 void DebugLabelSize( Fl_Widget *widget );
 

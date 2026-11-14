@@ -74,6 +74,10 @@ public:
     */
 
     static vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
+
+    // Color i of an ordered sequence for telling things apart; repeats after NUM_SEQUENCE_COLORS.
+    static vec3d SequenceColor( int i );
+    static const int NUM_SEQUENCE_COLORS = 10;
     static vec3d Color( int color );
     static int reasonColorMap( int reason );
 
