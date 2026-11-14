@@ -4784,6 +4784,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@+ GetGeometryAnalysisCutoutVec( const string & in geom_analysis_id )", asMETHOD( ScriptMgrSingleton, GetGeometryAnalysisCutoutVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetGeometryAnalysisFileName( const string & in geom_analysis_id, int file_type, const string & in file_name )", asFUNCTION( vsp::SetGeometryAnalysisFileName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeometryAnalysisFileName( const string & in geom_analysis_id, int file_type )", asFUNCTION( vsp::GetGeometryAnalysisFileName ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
 
     r = se->RegisterGlobalFunction( "void DeleteGeometryAnalysis( const string & in id )", asFUNCTION( vsp::DeleteGeometryAnalysis ), asCALL_CDECL );

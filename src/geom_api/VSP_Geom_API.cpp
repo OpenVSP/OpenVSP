@@ -19461,6 +19461,42 @@ std::vector < std::string > GetGeometryAnalysisCutoutVec( const std::string & ge
     return gcase->m_CutoutVec;
 }
 
+void SetGeometryAnalysisFileName( const std::string & geom_analysis_id, int file_type, const std::string & file_name )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "SetGeometryAnalysisFileName" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    if ( !GeometryAnalysisCase::IsFileType( file_type ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetGeometryAnalysisFileName::Invalid file type " + to_string( file_type ) );
+        return;
+    }
+
+    gcase->SetFileName( file_type, file_name );
+    ErrorMgr.NoError();
+}
+
+std::string GetGeometryAnalysisFileName( const std::string & geom_analysis_id, int file_type )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisFileName" );
+    if ( !gcase )
+    {
+        return std::string();
+    }
+
+    if ( !GeometryAnalysisCase::IsFileType( file_type ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetGeometryAnalysisFileName::Invalid file type " + to_string( file_type ) );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->GetFileName( file_type );
+}
+
 //================ Measure Tool Display Functions ====================//
 
 void ShowAllRulers()

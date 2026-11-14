@@ -6717,6 +6717,93 @@ extern std::vector < std::string > GetGeometryAnalysisCutoutVec( const std::stri
     \ingroup Analysis
 */
 /*!
+    Set the name of a file a Geometry Analysis writes, or an empty string to return to the default name.
+
+    The COMP_GEOM, PLANAR_SLICE, PROJ_AREA, and MASS_PROP analyses can write the files their legacy forms
+    write.  Each file is written only when its flag is set.  The flags are Parms of the case in group
+    InterferenceCase, off by default:  CompGeomTxtFileFlag (COMP_GEOM_TXT_TYPE) and CompGeomCsvFileFlag
+    (COMP_GEOM_CSV_TYPE) for COMP_GEOM, SliceTxtFileFlag (SLICE_TXT_TYPE) for PLANAR_SLICE,
+    ProjAreaCsvFileFlag (PROJ_AREA_CSV_TYPE) for PROJ_AREA, and MassPropTxtFileFlag (MASS_PROP_TXT_TYPE)
+    for MASS_PROP.  A name that is set is saved with the model, relative to the model file.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    SetParmVal( FindParm( ga_id, "IntererenceCheckType", "InterferenceCase" ), COMP_GEOM );
+    SetParmVal( FindParm( ga_id, "CompGeomTxtFileFlag", "InterferenceCase" ), 1.0 );
+
+    SetGeometryAnalysisFileName( ga_id, COMP_GEOM_TXT_TYPE, "MyCompGeom.txt" );
+
+    if ( GetGeometryAnalysisFileName( ga_id, COMP_GEOM_TXT_TYPE ) != "MyCompGeom.txt" )
+    {
+        Print( "ERROR: SetGeometryAnalysisFileName did not set the name" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    SetParmVal( FindParm( ga_id, "IntererenceCheckType", "InterferenceCase" ), COMP_GEOM )
+    SetParmVal( FindParm( ga_id, "CompGeomTxtFileFlag", "InterferenceCase" ), 1.0 )
+
+    SetGeometryAnalysisFileName( ga_id, COMP_GEOM_TXT_TYPE, "MyCompGeom.txt" )
+
+    assert GetGeometryAnalysisFileName( ga_id, COMP_GEOM_TXT_TYPE ) == "MyCompGeom.txt", "SetGeometryAnalysisFileName did not set the name"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeometryAnalysisFileName, COMPUTATION_FILE_TYPE
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] file_type int File type enum (i.e. COMP_GEOM_TXT_TYPE, SLICE_TXT_TYPE)
+    \param [in] file_name string File name, or an empty string for the default
+*/
+
+extern void SetGeometryAnalysisFileName( const std::string & geom_analysis_id, int file_type, const std::string & file_name );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the name of a file a Geometry Analysis writes.  Until a name is set, this is the default:  the model's
+    file name without .vsp3, the case name with spaces made underscores, and the suffix of the legacy file
+    (i.e. _CompGeom.txt, _CompGeom.csv, _Slice.txt, _ProjArea.csv, _MassProps.txt).
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string fname = GetGeometryAnalysisFileName( ga_id, SLICE_TXT_TYPE );
+
+    if ( fname.findFirst( "_Slice.txt" ) < 0 )
+    {
+        Print( "ERROR: GetGeometryAnalysisFileName did not return the default name" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    fname = GetGeometryAnalysisFileName( ga_id, SLICE_TXT_TYPE )
+
+    assert fname.endswith( "_Slice.txt" ), "GetGeometryAnalysisFileName did not return the default name"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeometryAnalysisFileName, COMPUTATION_FILE_TYPE
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] file_type int File type enum (i.e. COMP_GEOM_TXT_TYPE, SLICE_TXT_TYPE)
+    \return string File name
+*/
+
+extern std::string GetGeometryAnalysisFileName( const std::string & geom_analysis_id, int file_type );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
     Delete one geometry analysis case.
     \forcpponly
     \code{.cpp}
