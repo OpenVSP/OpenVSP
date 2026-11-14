@@ -373,28 +373,12 @@ void NGonMeshGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_
 
     marker_vec.resize( nwwake + nbwake + nbpwake + NUM_NGON_DEFECT_MARKERS + nlabel );
 
-    // Calculate constants for color sequence.
-    const int ncgrp = nwwake + nbwake + nbpwake; // Number of basic colors
-    const int ncstep = 1;
-    const double nctodeg = 360.0/(ncgrp*ncstep);
-
     int iwake = 0;
     for ( int iwwake = 0; iwwake < nwwake + nbwake; iwwake++, iwake++ )
     {
         DrawObj &wake_do = marker_vec[ iwake ];
 
-        // Color sequence -- go around color wheel ncstep times with slight
-        // offset from ncgrp basic colors.
-        // Note, (cnt/ncgrp) uses integer division resulting in floor.
-        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
-
-        if ( deg > 360 )
-        {
-            deg = (int)deg % 360;
-        }
-
-        vec3d rgb = wake_do.ColorWheel( deg );
-        rgb.normalize();
+        vec3d rgb = DrawObj::TagColor( iwake );
 
         wake_do.m_Type = DrawObj::VSP_LINE_STRIP;
         wake_do.m_LineWidth = 5;
@@ -431,18 +415,7 @@ void NGonMeshGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_
     {
         DrawObj &node_do = marker_vec[ iwake ];
 
-        // Color sequence -- go around color wheel ncstep times with slight
-        // offset from ncgrp basic colors.
-        // Note, (cnt/ncgrp) uses integer division resulting in floor.
-        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
-
-        if ( deg > 360 )
-        {
-            deg = (int)deg % 360;
-        }
-
-        vec3d rgb = node_do.ColorWheel( deg );
-        rgb.normalize();
+        vec3d rgb = DrawObj::TagColor( iwake );
 
         node_do.m_Type = DrawObj::VSP_POINTS;
         node_do.m_PointSize = 8;
@@ -602,51 +575,14 @@ void PGMeshRole::LoadPGDrawObjs( vector < DrawObj > &draw_obj_vec, int drawtype,
         return;
     }
 
-    // Calculate constants for color sequence.
-    const int ncgrp = 6; // Number of basic colors
-    const int ncstep = (int)ceil((double)num_uniq_tags/(double)ncgrp);
-    const double nctodeg = 360.0/(ncgrp*ncstep);
-
     for ( int i = 0 ; i < num_uniq_tags ; i++ )
     {
-        // Color sequence -- go around color wheel ncstep times with slight
-        // offset from ncgrp basic colors.
-        // Note, (cnt/ncgrp) uses integer division resulting in floor.
-        double deg = 0 + ( ( i % ncgrp ) * ncstep + ( i / ncgrp ) ) * nctodeg;
-
-        if ( deg > 360 )
-        {
-            deg = (int)deg % 360;
-        }
-
-        vec3d rgb = draw_obj_vec[i].ColorWheel( deg );
-        rgb.normalize();
+        vec3d rgb = DrawObj::TagColor( i );
 
         for ( int j = 0; j < 2; j++ )
         {
             int k = j * num_uniq_tags + i;
-            draw_obj_vec[ k ].m_MaterialInfo.Ambient[ 0 ] = ( float ) rgb.x() / 5.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Ambient[ 1 ] = ( float ) rgb.y() / 5.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Ambient[ 2 ] = ( float ) rgb.z() / 5.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Ambient[ 3 ] = ( float ) 1.0f;
-
-            draw_obj_vec[ k ].m_MaterialInfo.Diffuse[ 0 ] = 0.4f + ( float ) rgb.x() / 10.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Diffuse[ 1 ] = 0.4f + ( float ) rgb.y() / 10.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Diffuse[ 2 ] = 0.4f + ( float ) rgb.z() / 10.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Diffuse[ 3 ] = 1.0f;
-
-            draw_obj_vec[ k ].m_MaterialInfo.Specular[ 0 ] = 0.04f + 0.7f * ( float ) rgb.x();
-            draw_obj_vec[ k ].m_MaterialInfo.Specular[ 1 ] = 0.04f + 0.7f * ( float ) rgb.y();
-            draw_obj_vec[ k ].m_MaterialInfo.Specular[ 2 ] = 0.04f + 0.7f * ( float ) rgb.z();
-            draw_obj_vec[ k ].m_MaterialInfo.Specular[ 3 ] = 1.0f;
-
-            draw_obj_vec[ k ].m_MaterialInfo.Emission[ 0 ] = ( float ) rgb.x() / 20.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Emission[ 1 ] = ( float ) rgb.y() / 20.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Emission[ 2 ] = ( float ) rgb.z() / 20.0f;
-            draw_obj_vec[ k ].m_MaterialInfo.Emission[ 3 ] = 1.0f;
-
-            draw_obj_vec[ k ].m_MaterialInfo.Shininess = 32.0f;
-
+            draw_obj_vec[ k ].SetTagMaterial( rgb );
             draw_obj_vec[ k ].m_LineColor = rgb;
         }
 

@@ -601,11 +601,6 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
 
     if ( m_DrawElementFlagVec.size() == m_NumFeaParts + m_NumFeaSubSurfs )
     {
-        // Calculate constants for color sequence.
-        const int ncgrp = 6; // Number of basic colors
-        const double ncstep = (int)ceil( (double)( 4 * ( m_NumFeaParts + m_NumFeaSubSurfs ) ) / (double)ncgrp );
-        const double nctodeg = 360.0 / ( ncgrp*ncstep );
-
         for ( int iprt = 0; iprt < m_NumFeaParts; iprt++ )
         {
             m_FeaNodeDO[iprt].m_Type = DrawObj::VSP_POINTS;
@@ -686,13 +681,8 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
 
             if ( st_settings->m_ColorFacesFlag )
             {
-                // Color sequence -- go around color wheel ncstep times with slight
-                // offset from ncgrp basic colors.
-                // Note, (cnt/ncgrp) uses integer division resulting in floor.
-                double deg = (( iprt % ncgrp ) * ncstep + ( iprt / ncgrp ) ) * nctodeg;
-                double deg2 = ((( m_NumFeaParts + iprt ) % ncgrp ) * ncstep + (( m_NumFeaParts + iprt ) / ncgrp ) ) * nctodeg;
-                vec3d rgb = m_FeaTriElementDO[iprt].ColorWheel( deg );
-                rgb.normalize();
+                // Parts, then their caps, subsurfaces and subsurface caps take colors in turn.
+                vec3d rgb = DrawObj::TagColor( iprt );
 
                 if ( m_FixPointFeaPartFlagVec[iprt] )
                 {
@@ -700,33 +690,10 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                     m_FeaQuadElementDO[iprt].m_PointColor = rgb;
                 }
 
-                m_CapFeaElementDO[iprt].m_LineColor = m_CapFeaElementDO[iprt].ColorWheel( deg2 );
+                m_CapFeaElementDO[iprt].m_LineColor = DrawObj::TagColor( m_NumFeaParts + iprt );
 
-                for ( int icomp = 0; icomp < 3; icomp++ )
-                {
-                    m_FeaTriElementDO[iprt].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp] / 5.0f;
-                    m_FeaTriElementDO[iprt].m_MaterialInfo.Diffuse[icomp] = 0.4f + (float)rgb.v[icomp] / 10.0f;
-                    m_FeaTriElementDO[iprt].m_MaterialInfo.Specular[icomp] = 0.04f + 0.7f * (float)rgb.v[icomp];
-                    m_FeaTriElementDO[iprt].m_MaterialInfo.Emission[icomp] = (float)rgb.v[icomp] / 20.0f;
-
-                    m_FeaQuadElementDO[iprt].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp] / 5.0f;
-                    m_FeaQuadElementDO[iprt].m_MaterialInfo.Diffuse[icomp] = 0.4f + (float)rgb.v[icomp] / 10.0f;
-                    m_FeaQuadElementDO[iprt].m_MaterialInfo.Specular[icomp] = 0.04f + 0.7f * (float)rgb.v[icomp];
-                    m_FeaQuadElementDO[iprt].m_MaterialInfo.Emission[icomp] = (float)rgb.v[icomp] / 20.0f;
-                }
-                m_FeaTriElementDO[iprt].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_FeaTriElementDO[iprt].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_FeaTriElementDO[iprt].m_MaterialInfo.Specular[3] = 1.0f;
-                m_FeaTriElementDO[iprt].m_MaterialInfo.Emission[3] = 1.0f;
-
-                m_FeaTriElementDO[iprt].m_MaterialInfo.Shininess = 32.0f;
-
-                m_FeaQuadElementDO[iprt].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_FeaQuadElementDO[iprt].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_FeaQuadElementDO[iprt].m_MaterialInfo.Specular[3] = 1.0f;
-                m_FeaQuadElementDO[iprt].m_MaterialInfo.Emission[3] = 1.0f;
-
-                m_FeaQuadElementDO[iprt].m_MaterialInfo.Shininess = 32.0f;
+                m_FeaTriElementDO[iprt].SetTagMaterial( rgb );
+                m_FeaQuadElementDO[iprt].SetTagMaterial( rgb );
             }
             else
             {
@@ -828,40 +795,12 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
 
             if ( st_settings->m_ColorFacesFlag )
             {
-                // Color sequence -- go around color wheel ncstep times with slight
-                // offset from ncgrp basic colors.
-                // Note, (cnt/ncgrp) uses integer division resulting in floor.
-                double deg = ((( m_NumFeaParts + iss ) % ncgrp ) * ncstep + (( m_NumFeaParts + iss ) / ncgrp ) ) * nctodeg;
-                double deg2 = ((( 1 + m_NumFeaParts + m_NumFeaSubSurfs + iss ) % ncgrp ) * ncstep + (( 1 + m_NumFeaParts + m_NumFeaSubSurfs + iss ) / ncgrp ) ) * nctodeg;
-                vec3d rgb = m_SSTriElementDO[iss].ColorWheel( deg );
-                rgb.normalize();
+                vec3d rgb = DrawObj::TagColor( 2 * m_NumFeaParts + iss );
 
-                m_SSCapFeaElementDO[iss].m_LineColor = m_SSCapFeaElementDO[iss].ColorWheel( deg2 );
+                m_SSCapFeaElementDO[iss].m_LineColor = DrawObj::TagColor( 2 * m_NumFeaParts + m_NumFeaSubSurfs + iss );
 
-                for ( int icomp = 0; icomp < 3; icomp++ )
-                {
-                    m_SSTriElementDO[iss].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp] / 5.0f;
-                    m_SSTriElementDO[iss].m_MaterialInfo.Diffuse[icomp] = 0.4f + (float)rgb.v[icomp] / 10.0f;
-                    m_SSTriElementDO[iss].m_MaterialInfo.Specular[icomp] = 0.04f + 0.7f * (float)rgb.v[icomp];
-                    m_SSTriElementDO[iss].m_MaterialInfo.Emission[icomp] = (float)rgb.v[icomp] / 20.0f;
-
-                    m_SSQuadElementDO[iss].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp] / 5.0f;
-                    m_SSQuadElementDO[iss].m_MaterialInfo.Diffuse[icomp] = 0.4f + (float)rgb.v[icomp] / 10.0f;
-                    m_SSQuadElementDO[iss].m_MaterialInfo.Specular[icomp] = 0.04f + 0.7f * (float)rgb.v[icomp];
-                    m_SSQuadElementDO[iss].m_MaterialInfo.Emission[icomp] = (float)rgb.v[icomp] / 20.0f;
-                }
-                m_SSTriElementDO[iss].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_SSTriElementDO[iss].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_SSTriElementDO[iss].m_MaterialInfo.Specular[3] = 1.0f;
-                m_SSTriElementDO[iss].m_MaterialInfo.Emission[3] = 1.0f;
-
-                m_SSQuadElementDO[iss].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_SSQuadElementDO[iss].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_SSQuadElementDO[iss].m_MaterialInfo.Specular[3] = 1.0f;
-                m_SSQuadElementDO[iss].m_MaterialInfo.Emission[3] = 1.0f;
-
-                m_SSTriElementDO[iss].m_MaterialInfo.Shininess = 32.0f;
-                m_SSQuadElementDO[iss].m_MaterialInfo.Shininess = 32.0f;
+                m_SSTriElementDO[iss].SetTagMaterial( rgb );
+                m_SSQuadElementDO[iss].SetTagMaterial( rgb );
             }
             else
             {

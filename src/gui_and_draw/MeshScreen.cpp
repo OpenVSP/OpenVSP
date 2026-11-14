@@ -37,7 +37,7 @@ MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Mesh", "M
 
     m_OtherLayout.AddYGap();
     m_OtherLayout.SetButtonWidth( 2 * m_OtherLayout.GetRemainX() / 5 );
-    m_OtherLayout.AddSlider( m_StartColorDegree, "Start Color Degree", 100, " %5.0f" );
+    m_OtherLayout.AddSlider( m_StartColorDegree, "Start Color", 100, " %5.0f" );
 
 }
 

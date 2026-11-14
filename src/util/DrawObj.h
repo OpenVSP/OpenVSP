@@ -78,6 +78,14 @@ public:
     // Color i of an ordered sequence for telling things apart; repeats after NUM_SEQUENCE_COLORS.
     static vec3d SequenceColor( int i );
     static const int NUM_SEQUENCE_COLORS = 10;
+
+    // Color i of a long sequence for telling many tagged surfaces apart; repeats after
+    // NUM_TAG_COLORS.
+    static vec3d TagColor( int i );
+    static const int NUM_TAG_COLORS = 256;
+
+    // Material showing a tag's color across its lit surface, with a faint white highlight.
+    void SetTagMaterial( const vec3d & rgb );
     static vec3d Color( int color );
     static int reasonColorMap( int reason );
 

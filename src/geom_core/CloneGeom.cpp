@@ -2581,7 +2581,7 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         // Colour by tag when subsurfaces are shown, as the original does.
         if ( GetOriginalTMesh() && m_GuiDraw.GetDispSubSurfFlag() )
         {
-            TMeshRole::SetTagDrawObjColors( m_WireShadeDrawObj_vec, GetTMeshColorStartDegree(), GetTMeshSingleTagMap().size() );
+            TMeshRole::SetTagDrawObjColors( m_WireShadeDrawObj_vec, GetTMeshColorStartDegree() );
         }
 
         TMeshRole::SetTriDrawObjTypes( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType() );

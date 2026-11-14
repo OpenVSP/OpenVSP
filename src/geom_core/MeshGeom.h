@@ -83,8 +83,8 @@ public:
     // structured mesh, which draws nothing.
     static void SetTriDrawObjTypes( vector< DrawObj > &draw_obj_vec, int drawtype );
 
-    // Colour one draw object per subsurface tag, going round the colour wheel.
-    static void SetTagDrawObjColors( vector< DrawObj > &draw_obj_vec, int startdegree, int num_uniq_tags );
+    // Colour one draw object per subsurface tag, in turn from the tag color sequence.
+    static void SetTagDrawObjColors( vector< DrawObj > &draw_obj_vec, int startcolor );
 };
 
 class MeshGeom : public Geom, public TMeshRole

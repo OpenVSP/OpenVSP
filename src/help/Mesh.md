@@ -81,8 +81,8 @@ A file that holds no triangles is not imported.
 Each triangle of a mesh can carry tags: numbers that say which component and which sub-surfaces it came from.  A
 CompGeom mesh is tagged by component and, when sub-surfaces are intersected, by sub-surface; a Cart3D file brings
 its own component numbers.  With *Sub* on in the Geom Browser, the mesh is drawn one color per combination of tags,
-going round the color wheel.  *Start Color Degree* on the Other tab sets where on the wheel the first color is: 0
-is red, 120 green and 240 blue.  It also colors the outlines a projected area draws.
+taken in turn from a sequence of 256 distinct colors.  *Start Color* on the Other tab sets where in the sequence the
+first color is.  It also colors the outlines a projected area draws.
 
 ## Converting a Mesh
 

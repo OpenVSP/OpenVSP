@@ -8787,10 +8787,6 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     }
 
     unsigned int num_tags = SubSurfaceMgr.GetNumTags();
-    // Calculate constants for color sequence.
-    const int ncgrp = 6; // Number of basic colors
-    const int ncstep = (int)ceil((double)num_tags/(double)ncgrp);
-    const double nctodeg = 360.0/(ncgrp*ncstep);
 
     if ( m_TagDO.size() == 2 * num_tags )
     {
@@ -8842,39 +8838,9 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::TAG )
             {
-                // Color sequence -- go around color wheel ncstep times with slight
-                // offset from ncgrp basic colors.
-                // Note, (cnt/ncgrp) uses integer division resulting in floor.
-                double deg = ((i % ncgrp) * ncstep + (i / ncgrp)) * nctodeg;
-                vec3d rgb = m_TagDO[i].ColorWheel( deg );
-                rgb.normalize();
-
-                for ( int icomp = 0; icomp < 3; icomp++ )
-                {
-                    m_TagDO[i].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp]/5.0f;
-                    m_TagDO[i].m_MaterialInfo.Diffuse[icomp] = 0.4f + (float)rgb.v[icomp]/10.0f;
-                    m_TagDO[i].m_MaterialInfo.Specular[icomp] = 0.04f + 0.7f * (float)rgb.v[icomp];
-                    m_TagDO[i].m_MaterialInfo.Emission[icomp] = (float)rgb.v[icomp]/20.0f;
-
-                    m_TagDO[i + num_tags].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp]/5.0f;
-                    m_TagDO[i + num_tags].m_MaterialInfo.Diffuse[icomp] = 0.4f + (float)rgb.v[icomp]/10.0f;
-                    m_TagDO[i + num_tags].m_MaterialInfo.Specular[icomp] = 0.04f + 0.7f * (float)rgb.v[icomp];
-                    m_TagDO[i + num_tags].m_MaterialInfo.Emission[icomp] = (float)rgb.v[icomp]/20.0f;
-                }
-                m_TagDO[i].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_TagDO[i].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_TagDO[i].m_MaterialInfo.Specular[3] = 1.0f;
-                m_TagDO[i].m_MaterialInfo.Emission[3] = 1.0f;
-
-                m_TagDO[i].m_MaterialInfo.Shininess = 32.0f;
-
-
-                m_TagDO[i + num_tags].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_TagDO[i + num_tags].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_TagDO[i + num_tags].m_MaterialInfo.Specular[3] = 1.0f;
-                m_TagDO[i + num_tags].m_MaterialInfo.Emission[3] = 1.0f;
-
-                m_TagDO[i + num_tags].m_MaterialInfo.Shininess = 32.0f;
+                vec3d rgb = DrawObj::TagColor( i );
+                m_TagDO[i].SetTagMaterial( rgb );
+                m_TagDO[i + num_tags].SetTagMaterial( rgb );
             }
             else
             {
