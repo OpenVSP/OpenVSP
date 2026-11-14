@@ -216,6 +216,14 @@ shape.  *Del* deletes the selected point, with its handles; the root and tip poi
 and *Del Pick* act on the next click in the plot: Split Pick splits the curve at the $r/R$ clicked, and Del Pick
 deletes the point clicked.
 
+Away from a point, the mouse moves the view as in the other plots; see [Mouse and Keyboard](MouseKeyboard.md#plots).  In
+OpenVSP's own scheme a left drag zooms to the box it draws; the wheel, a middle drag or a left drag with Ctrl or Cmd
+zooms, dragging down to zoom in; a right drag, or a left drag with Alt, pans.  A double click returns to the whole
+curve.  The view stays as zoomed while points are dragged, split or deleted, until the double click or another curve is
+chosen, so a crowded root or tip can be edited close up.  Hovering over a point reads out its $r/R$ and value.  On the
+Thick curve the black line, the thickness as a fraction of the radius, keeps its own axis at the right, which zooms with
+the plot.  A taller window gives the plot the extra height.
+
 Linear suits a straight taper or a linear twist.  Cubic Bezier is the easiest type to shape by hand, since its
 handles set the slope at each point.  PCHIP passes through every point, but its shape between them is hard to
 steer; it is the type a BEM import gives (see [BEM Files](#bem-files)).  *Convert to* Approximate Cubic Bezier refits

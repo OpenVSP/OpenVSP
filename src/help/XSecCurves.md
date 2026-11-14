@@ -269,6 +269,13 @@ Points can be dragged in the window's plot, or typed in the table below it (Figu
 highlighted.  *Split U* adds a point at the U given, and *Split Pick* where the curve is clicked; *Delete Selected* and
 *Delete Pick* remove one.  On a Bezier curve these act on a point on the curve together with its two tangent points.
 
+Away from a point, the mouse moves the view as in the other plots; see [Mouse and Keyboard](MouseKeyboard.md#plots).  In
+OpenVSP's own scheme a left drag zooms to the box it draws, keeping the plot's scale the same in both directions; the
+wheel zooms about the pointer, and a middle drag or a left drag with Ctrl or Cmd zooms about the middle of the view,
+dragging down to zoom in; a right drag, or a left drag with Alt, pans.  The view stays as zoomed while points are
+edited, so a small detail can be shaped close up.  A double click, *Reset Zoom & Pan* on the Display tab, another View
+or another section returns to the whole curve.  A larger window gives the plot the extra room.
+
 In the plot, the points on the curve are black and, on a Bezier curve, the tangent points green, each joined to its
 point on the curve by a blue line.  The selected point is yellow, or grey when R-L Symmetry is on and it lies on the
 left half, which follows the right.  In the table the selected point's labels are yellow, and a tangent point's U, R,
