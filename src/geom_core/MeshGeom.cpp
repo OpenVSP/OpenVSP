@@ -1849,7 +1849,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
     double size = m_BBox.GetLargestDist() * 1.02;
 
     // Set up theta angles around the cone.
-    WaveDragMgr.SetupTheta( coneSections );
+    WaveDragMgr.SetupTheta( coneSections, Symm );
 
     //==== "Smart" Start/End Slice and Tube Routine ====//
     // Uses Mach and theta angles with aircraft nodes to determine start/end locations for slicing and

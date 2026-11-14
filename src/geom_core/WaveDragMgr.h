@@ -49,7 +49,7 @@ public:
     string SliceAndAnalyze( int set, int numSlices, int numRots, double Mach,
                             const vector <string> & Flow_vec, bool Symm, bool useMode, const string &modeID );
 
-    void SetupTheta( int ntheta );
+    void SetupTheta( int ntheta, bool symm );
     void Setup( int nslice, int ncomp );
 
     static string WaveDragSlice( int set, int numSlices, int numRots, double Mach,
@@ -100,6 +100,7 @@ public:
 
     // Tool
     string m_lastmeshgeomID;
+    bool m_Symm;            // The run's rotation angles span half the circle
 
     // Viewing Plane
     DrawObj m_ShadeMeshViewPlane;

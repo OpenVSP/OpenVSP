@@ -64,6 +64,7 @@ WaveDragSingleton::WaveDragSingleton() : ParmContainer()
     m_PointFlag.Init( "PointPlotFlag", "WaveDrag", this, true, 0, 1 );
 
     m_lastmeshgeomID = string();
+    m_Symm = true;
     m_NumPtsFit = 100;
 
     m_XNormFit.resize( m_NumPtsFit );
@@ -404,9 +405,10 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
     return res->GetID();
 }
 
-void WaveDragSingleton::SetupTheta( int ntheta )
+void WaveDragSingleton::SetupTheta( int ntheta, bool symm )
 {
     m_NTheta = ntheta;
+    m_Symm = symm;
 
     m_ThetaIndex.SetUpperLimit( m_NTheta );
 
@@ -417,7 +419,7 @@ void WaveDragSingleton::SetupTheta( int ntheta )
     for ( int i = 0; i < m_NTheta; i++ )
     {
         m_ThetaRad[i] = ( 2.0 * M_PI * (double)i ) / ( m_NTheta );
-        if ( m_SymmFlag() )
+        if ( m_Symm )
         {
             m_ThetaRad[i] = ( M_PI * (double)i ) / ( m_NTheta - 1 );
         }
@@ -533,7 +535,7 @@ void WaveDragSingleton::CalcDrag( )
     // Calculate drag around control cylinder and integrate.
     double D = 0;
     double dtheta = 1.0 / m_NTheta;
-    if ( m_SymmFlag() )
+    if ( m_Symm )
     {
         dtheta = 1.0 / ( m_NTheta - 1 );
     }
@@ -564,7 +566,7 @@ void WaveDragSingleton::CalcDrag( )
     for ( int i = 0; i < m_NTheta; i++ )
     {
         double k = 1.0;
-        if ( m_SymmFlag() && ( i == 0 || i == m_NTheta - 1 ) )
+        if ( m_Symm && ( i == 0 || i == m_NTheta - 1 ) )
         {
             k = 0.5;
         }
