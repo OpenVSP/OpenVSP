@@ -3133,98 +3133,13 @@ int EditXSecWindow::handle( int fl_event )
     assert( edit_curve_xs );
 
 
-    int izero = -1;
-    if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
-    {
-        izero = 2;
-    }
-    else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
-    {
-        izero = 1;
-    }
-    else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
-    {
-        izero = 0;
-    }
-
-
     if ( fl_event == FL_PUSH && !Fl::event_button2() )
     {
-        vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
-
-        vec3d scalefac( 1, 1, 1 );
-        if ( !edit_curve_xs->m_AbsoluteFlag() )
-        {
-
-            scalefac.scale_x( edit_curve_xs->GetWidth() );
-            scalefac.scale_y( edit_curve_xs->GetHeight() );
-            scalefac.scale_z( edit_curve_xs->m_Depth() );
-            scalefac[izero] = 0;
-        }
-
-        // Diameter of point + 10% considered "hit"
-        double hit_r = pixels_per_unit() * 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
-
-        float zoom = getRelativeZoomValue();
-        m_LastHit = ihit( coord, hit_r * zoom, scalefac );
-
-        if ( m_LastHit != -1 )
-        {
-            edit_curve_xs->SetSelectPntID( m_LastHit );
-            curve_editor->UpdateIndexSelector( m_LastHit, false );
-        }
-
-        if ( curve_editor->GetDeleteActive() )
-        {
-            curve_editor->SetDeleteActive( false );
-
-            if ( m_LastHit >= 0 )
-            {
-                edit_curve_xs->DeletePt( m_LastHit );
-            }
-        }
-
-        if ( curve_editor->GetSplitActive() )
-        {
-            curve_editor->SetSplitActive( false );
-
-            // Scale by width and height
-            vec3d split_pnt = coord;
-            if ( !edit_curve_xs->m_AbsoluteFlag() )
-            {
-                split_pnt.scale_x( edit_curve_xs->GetWidth() );
-                split_pnt.scale_y( edit_curve_xs->GetHeight() );
-                split_pnt.scale_z( edit_curve_xs->m_Depth() );
-            }
-
-            double u_curve;
-            VspCurve base_curve = edit_curve_xs->GetBaseEditCurve();
-
-            base_curve.OffsetX( -0.5 * edit_curve_xs->GetWidth() );
-            base_curve.ZeroI( izero );
-            base_curve.FindNearest01( u_curve, split_pnt );
-
-            edit_curve_xs->m_SplitU = u_curve;
-            int new_pnt = edit_curve_xs->Split01();
-            curve_editor->UpdateIndexSelector( new_pnt );
-        }
+        PushPoint( curve_editor, edit_curve_xs, m_mouse_x, m_mouse_y );
     }
     else if ( fl_event == FL_DRAG && m_LastHit != -1 && !Fl::event_button2() )
     {
-        vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
-
-        // Scale by width and height
-        vec3d move_pnt = coord;
-        if ( edit_curve_xs->m_AbsoluteFlag() )
-        {
-            move_pnt.scale_x( 1.0 / edit_curve_xs->GetWidth() );
-            move_pnt.scale_y( 1.0 / edit_curve_xs->GetHeight() );
-            move_pnt.scale_z( 1.0 / edit_curve_xs->m_Depth() );
-        }
-
-        edit_curve_xs->MovePnt( move_pnt, izero );
-
-        curve_editor->SetFreezeAxis( true );
+        DragPoint( curve_editor, edit_curve_xs, m_mouse_x, m_mouse_y );
     }
     else if ( fl_event == FL_RELEASE )
     {
@@ -3241,6 +3156,108 @@ int EditXSecWindow::handle( int fl_event )
     return ret_val;
 }
 
+
+// Picks the control point under the mouse, and deletes it or splits the curve there when those are armed.
+void EditXSecWindow::PushPoint( CurveEditScreen* curve_editor, EditCurveXSec* edit_curve_xs, int x, int y )
+{
+    int izero = ViewZeroIndex( edit_curve_xs );
+
+    vec3d coord = PixelToCoord( x, y );
+
+    vec3d scalefac( 1, 1, 1 );
+    if ( !edit_curve_xs->m_AbsoluteFlag() )
+    {
+
+        scalefac.scale_x( edit_curve_xs->GetWidth() );
+        scalefac.scale_y( edit_curve_xs->GetHeight() );
+        scalefac.scale_z( edit_curve_xs->m_Depth() );
+        scalefac[izero] = 0;
+    }
+
+    // Diameter of point + 10% considered "hit"
+    double hit_r = pixels_per_unit() * 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
+
+    float zoom = getRelativeZoomValue();
+    m_LastHit = ihit( coord, hit_r * zoom, scalefac );
+
+    if ( m_LastHit != -1 )
+    {
+        edit_curve_xs->SetSelectPntID( m_LastHit );
+        curve_editor->UpdateIndexSelector( m_LastHit, false );
+    }
+
+    if ( curve_editor->GetDeleteActive() )
+    {
+        curve_editor->SetDeleteActive( false );
+
+        if ( m_LastHit >= 0 )
+        {
+            edit_curve_xs->DeletePt( m_LastHit );
+        }
+    }
+
+    if ( curve_editor->GetSplitActive() )
+    {
+        curve_editor->SetSplitActive( false );
+
+        // Scale by width and height
+        vec3d split_pnt = coord;
+        if ( !edit_curve_xs->m_AbsoluteFlag() )
+        {
+            split_pnt.scale_x( edit_curve_xs->GetWidth() );
+            split_pnt.scale_y( edit_curve_xs->GetHeight() );
+            split_pnt.scale_z( edit_curve_xs->m_Depth() );
+        }
+
+        double u_curve;
+        VspCurve base_curve = edit_curve_xs->GetBaseEditCurve();
+
+        base_curve.OffsetX( -0.5 * edit_curve_xs->GetWidth() );
+        base_curve.ZeroI( izero );
+        base_curve.FindNearest01( u_curve, split_pnt );
+
+        edit_curve_xs->m_SplitU = u_curve;
+        int new_pnt = edit_curve_xs->Split01();
+        curve_editor->UpdateIndexSelector( new_pnt );
+    }
+}
+
+void EditXSecWindow::DragPoint( CurveEditScreen* curve_editor, EditCurveXSec* edit_curve_xs, int x, int y )
+{
+    vec3d coord = PixelToCoord( x, y );
+
+    // Scale by width and height
+    vec3d move_pnt = coord;
+    if ( edit_curve_xs->m_AbsoluteFlag() )
+    {
+        move_pnt.scale_x( 1.0 / edit_curve_xs->GetWidth() );
+        move_pnt.scale_y( 1.0 / edit_curve_xs->GetHeight() );
+        move_pnt.scale_z( 1.0 / edit_curve_xs->m_Depth() );
+    }
+
+    edit_curve_xs->MovePnt( move_pnt, ViewZeroIndex( edit_curve_xs ) );
+
+    curve_editor->SetFreezeAxis( true );
+}
+
+// The coordinate a view of the curve leaves out.
+int EditXSecWindow::ViewZeroIndex( EditCurveXSec* edit_curve_xs )
+{
+    int izero = -1;
+    if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
+    {
+        izero = 2;
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
+    {
+        izero = 1;
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
+    {
+        izero = 0;
+    }
+    return izero;
+}
 
 vec3d EditXSecWindow::PixelToCoord( int x_pix, int y_pix )
 {

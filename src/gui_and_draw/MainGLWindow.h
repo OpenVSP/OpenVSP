@@ -26,6 +26,8 @@ class Selectable;
 }
 
 class ScreenMgr;
+class CurveEditScreen;
+class EditCurveXSec;
 
 namespace VSPGUI
 {
@@ -316,6 +318,10 @@ public:
     void InitZoom(); // centers pan values and resets scale for zoom
 
 private:
+
+    void PushPoint( CurveEditScreen* curve_editor, EditCurveXSec* edit_curve_xs, int x, int y );
+    void DragPoint( CurveEditScreen* curve_editor, EditCurveXSec* edit_curve_xs, int x, int y );
+    int ViewZeroIndex( EditCurveXSec* edit_curve_xs );
 
     // Search for a point index within radius 'r_test' to the input pick location
     int ihit( const vec3d & mpt, double r_test, const vec3d &scale );
