@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Wave Drag</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Wave Drag</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Wave Drag tool estimates the zero-lift supersonic wave drag of a
+model by the supersonic area rule. It cuts the model with planes
+inclined at the Mach angle, measures the area of each cut, fits a smooth
+area curve through those areas, and computes the wave drag of that
+curve. This is repeated with the planes rolled to several angles about
+the X axis, and the average is divided by a reference area to give the
+wave drag coefficient. The plot shows the area distribution for one roll
+angle at a time, for the whole model, for each component, or as a
+buildup, and can compare several runs.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#how-the-wave-drag-is-computed">How the Wave Drag Is
+Computed</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#setup">Setup</a></td>
+<td style="text-align: left;">Setup tab</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#inflow-and-outflow-faces">Inflow
+and Outflow Faces</a></td>
+<td style="text-align: left;">Inflow/Outflow tab</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plot-controls">Plot
+Controls</a></td>
+<td style="text-align: left;">Plot tab</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#comparing-runs">Comparing
+Runs</a></td>
+<td style="text-align: left;">Runs tab</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#running-and-the-model-afterward">Running and the Model
+Afterward</a></td>
+<td style="text-align: left;">Execute area</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#using-the-plot">Using the
+Plot</a></td>
+<td style="text-align: left;">Plot area</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#choosing-settings">Choosing
+Settings</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>On the Setup tab, choose the Geometry Set to analyze and set the
+Mach number.</li>
+<li>Under Reference Area, choose From Model and pick the reference wing,
+or choose Manual and enter Sref.</li>
+<li>Leave Run with X-Z Symmetry on if the set is symmetric about the X-Z
+plane.</li>
+<li>If the model has engine inlets or exhausts, mark their faces on the
+Inflow/Outflow tab.</li>
+<li>Press START. The wave drag coefficient appears as CD0_w, and the
+plot shows the area distribution.</li>
+<li>Run again with more slices and rotations to check that CD0_w has
+settled (see <a href="#choosing-settings">Choosing Settings</a>).</li>
+</ol>
+<h2 id="how-the-wave-drag-is-computed">How the Wave Drag Is
+Computed</h2>
+<h3 id="mach-planes-and-rotation-angles">Mach planes and rotation
+angles</h3>
+<p>The supersonic area rule replaces the model, for each direction
+around it, by an equivalent body of revolution whose area distribution
+is the area the model presents to Mach planes facing that direction. A
+Mach plane is inclined to the free stream (the +X direction) at the Mach
+angle</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mrow><mi mathvariant="normal">arcsin</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><mi>M</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mu = \arcsin\left(\frac{1}{M}\right)
+</annotation></semantics></math></p>
+<p>and is rolled about the X axis by the rotation angle
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>.
+With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><msqrt><mrow><msup><mi>M</mi><mn>2</mn></msup><mo>−</mo><mn>1</mn></mrow></msqrt></mrow><annotation encoding="application/x-tex">\beta = \sqrt{M^2 - 1}</annotation></semantics></math>,
+the slicing plane at axis location
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>−</mo><mi>β</mi><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>y</mi><mi mathvariant="normal">sin</mi><mi>θ</mi><mo>+</mo><mi>z</mi><mi mathvariant="normal">cos</mi><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">
+x - \beta\,\left( y \sin\theta + z \cos\theta \right) = X
+</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+are measured from the center of the model's bounding box.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+is where the plane crosses the line parallel to the X axis through that
+center; it is the horizontal axis of the plot. At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\theta = 0</annotation></semantics></math>
+the plane leans aft going up (+Z), so each cut collects the disturbances
+that reach an observer far above the model at one instant; at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><msup><mn>90</mn><mo>∘</mo></msup></mrow><annotation encoding="application/x-tex">\theta = 90^\circ</annotation></semantics></math>
+it leans aft toward +Y. At Mach 1 the planes are normal to the X axis
+and every rotation angle gives the same cuts.</p>
+<h3 id="slice-areas">Slice areas</h3>
+<p>For each rotation angle, OpenVSP finds the first and last planes that
+touch the model and spaces Num Slices planes evenly between them, both
+ends included. The area of each cut is measured projected onto the Y-Z
+plane, which is the area the area rule uses. The cut honors the trimmed
+outer surface of the set: area inside two components counts once, and
+area inside a negative component does not count. Each part of a cut is
+credited to the component it lies inside, which gives the per-component
+areas; where components overlap, it goes to the one with the highest
+Priority on its Mass tab, and on a tie to the one earlier in the
+component order.</p>
+<h3 id="the-fitted-area-curve-and-the-drag">The fitted area curve and
+the drag</h3>
+<p>The slice areas are joined by the Eminton-Lord curve: of all area
+distributions that pass through the slice areas and start and end at the
+end areas, it is the one with least wave drag. Its wave drag,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>/</mi><mi>q</mi></mrow><annotation encoding="application/x-tex">D/q</annotation></semantics></math>,
+follows in closed form from the slice areas and their locations, and is
+the drag OpenVSP reports for that rotation angle. A body whose base area
+differs from its nose area adds a term for the difference; it is zero
+for a closed body. The "EmintonLord" analysis computes the same
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>/</mi><mi>q</mi></mrow><annotation encoding="application/x-tex">D/q</annotation></semantics></math>
+for any area distribution (see <a href="#scripting">Scripting</a>).</p>
+<p>The fitted curve is drawn at 100 points. The location along it where
+the curve bends most sharply (the largest magnitude of its second
+derivative) is kept as the location of largest drag for that rotation
+angle.</p>
+<h3 id="reference-area-and-the-coefficient">Reference area and the
+coefficient</h3>
+<p>The wave drag coefficient is the mean of the rotation angles' drags
+divided by the reference area. With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+rotation angles evenly spaced around the full circle,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>k</mi></msub><mo>=</mo><msup><mn>360</mn><mo>∘</mo></msup><mspace width="0.167em"></mspace><mi>k</mi><mi>/</mi><mi>N</mi></mrow><annotation encoding="application/x-tex">\theta_k = 360^\circ\,k/N</annotation></semantics></math>,</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><msub><mi>D</mi><mi>w</mi></msub></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>S</mi><mrow><mi>r</mi><mi>e</mi><mi>f</mi></mrow></msub></mfrac><mspace width="0.167em"></mspace><mfrac><mn>1</mn><mi>N</mi></mfrac><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><mfrac><mi>D</mi><mi>q</mi></mfrac><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+C_{D_w} = \frac{1}{S_{ref}}\,\frac{1}{N} \sum_{k=0}^{N-1} \frac{D}{q}(\theta_k)
+</annotation></semantics></math></p>
+<p>The reference area is either entered (Manual) or taken from a wing
+(From Model), in which case it follows that wing's total area.</p>
+<h3 id="symmetry">Symmetry</h3>
+<p>When Run with X-Z Symmetry is on, the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+rotation angles span only half the circle, from the top to the bottom
+through the +Y side, both ends included:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>k</mi></msub><mo>=</mo><msup><mn>180</mn><mo>∘</mo></msup><mspace width="0.167em"></mspace><mi>k</mi><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\theta_k = 180^\circ\,k/(N - 1)</annotation></semantics></math>.
+The other half is taken to mirror it, and the mean is a trapezoidal
+one:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><msub><mi>D</mi><mi>w</mi></msub></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>S</mi><mrow><mi>r</mi><mi>e</mi><mi>f</mi></mrow></msub></mfrac><mspace width="0.167em"></mspace><mfrac><mn>1</mn><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></mfrac><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mspace width="0.167em"></mspace><mfrac><mi>D</mi><mi>q</mi></mfrac><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>2</mn></mrow></munderover><mfrac><mi>D</mi><mi>q</mi></mfrac><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mspace width="0.167em"></mspace><mfrac><mi>D</mi><mi>q</mi></mfrac><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+C_{D_w} = \frac{1}{S_{ref}}\,\frac{1}{N - 1}\left[ \frac{1}{2}\,\frac{D}{q}(\theta_0) +
+\sum_{k=1}^{N-2} \frac{D}{q}(\theta_k) + \frac{1}{2}\,\frac{D}{q}(\theta_{N-1}) \right]
+</annotation></semantics></math></p>
+<p>The whole model is still sliced; symmetry changes only which rotation
+angles are used. For the same number of rotations it takes the same time
+and resolves the half circle twice as finely.</p>
+<h3 id="inflow-and-outflow">Inflow and outflow</h3>
+<p>An engine nacelle or inlet duct is open: air passes through it. Its
+faces are closed surfaces in the model, and slicing them as solid would
+count the whole nacelle cross section, including the air that flows
+through, as body area. Marking a face as flow-through tells OpenVSP to
+treat the captured flow instead as a stream tube.</p>
+<p>Each marked face is a sub-surface of a component. A face whose
+surface points forward is an inlet; one whose surface points aft is an
+outlet. OpenVSP moves an inlet face straight forward to well ahead of
+the model, and an outlet face straight aft to well behind it, and joins
+each to its component with straight sides parallel to the X axis. The
+stream tubes then belong to the body. Their areas, the inlet area
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">S_{in}</annotation></semantics></math>
+and exit area
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">S_{out}</annotation></semantics></math>,
+are measured across the tubes ahead of and behind the model, and the
+drag is computed from the area less a linear variation between them:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mrow><mi>f</mi><mi>l</mi><mi>o</mi><mi>w</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>S</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>S</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mspace width="0.167em"></mspace><mi>ξ</mi></mrow><annotation encoding="application/x-tex">
+S_{flow}(\xi) = S(\xi) - S_{in}\,(1 - \xi) - S_{out}\,\xi
+</annotation></semantics></math></p>
+<p>A face whose surface points both forward and aft (part of it each
+way) is ambiguous. OpenVSP reports "Ambiguous flow-through subsurface
+detected" and does not treat that face as flow-through.</p>
+<h2 id="setup">Setup</h2>
+<p>The Setup tab holds the case.</p>
+<ul>
+<li>Geometry Set or Mode chooses what is sliced. A Mode applies its
+settings to the model first, then slices the Mode's set. The Mode choice
+is available only when the model has Modes.</li>
+<li>Num Slices (3 to 100, default 20) is the number of slicing planes at
+each rotation angle.</li>
+<li>Num Rotations (3 to 30, default 10) is the number of rotation
+angles.</li>
+<li>Run with X-Z Symmetry (default on) spans the rotation angles over
+half the circle; see <a href="#symmetry">Symmetry</a>.</li>
+<li>Mach (1 to 5, default 1.5) sets the Mach angle of the planes.</li>
+<li>Reference Area: Manual uses the Sref entered. From Model uses the
+Ref. Wing chosen from the model's wings and shows its total area in
+Sref.</li>
+<li>Output File names the text file written by each run. The Mach number
+and the set name are added to the name, for example
+<code>model_WaveDrag_M1.500000_Shown.txt</code>, so runs at other
+conditions do not overwrite each other. The file lists the inlet and
+exit areas, each rotation angle's slice range and slice areas, CDWave,
+the Mach number and the set.</li>
+</ul>
+<h2 id="inflow-and-outflow-faces">Inflow and Outflow Faces</h2>
+<p>The Inflow/Outflow tab lists every sub-surface in the model as
+"component: sub-surface". Check a sub-surface to treat it as a
+flow-through face; see <a href="#inflow-and-outflow">Inflow and
+outflow</a>. Only faces on components in the set being sliced have an
+effect.</p>
+<p>Make each face a sub-surface that covers exactly the opening and
+faces one way, such as the flat front or rear cap of a nacelle. A face
+that wraps around onto the side of the component is ambiguous.</p>
+<h2 id="plot-controls">Plot Controls</h2>
+<p>The Plot tab chooses what the area plot shows.</p>
+<h3 id="displayed-rotation">Displayed rotation</h3>
+<p>The index selector steps through the rotation angles of the most
+recent run; the angle in degrees is shown beside it. The vertical axis
+is scaled to the largest area at any angle, so it stays still while
+stepping through angles and the areas can be compared by eye.</p>
+<h3 id="slice-reference">Slice reference</h3>
+<p>The vertical line on the plot marks the axis location X Loc. Drag the
+line, or set X Loc, to move it. With Plane on, the slicing plane at X
+Loc and the displayed rotation angle is drawn in the 3D view, which
+shows which part of the model a point on the plot comes from.</p>
+<ul>
+<li>X moves X Loc to the location of largest drag at the displayed
+rotation angle.</li>
+<li>X, Rot first displays the rotation angle with the largest drag, then
+moves X Loc to its location of largest drag.</li>
+</ul>
+<p>X Loc, the plane and these buttons belong to the most recent run.</p>
+<h3 id="optimal-distribution">Optimal distribution</h3>
+<p>The Select choice draws an ideal body in blue, or None, against the
+newest plotted run, sized from that run's equivalent body at the
+displayed angle, with length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>,
+volume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+(the integral of the fitted area less inflow and outflow) and largest
+area
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">S_{max}</annotation></semantics></math>:</p>
+<ul>
+<li>Sears-Haack Body (Len-Vol), the least-drag closed body of given
+length and volume,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mn>16</mn><mspace width="0.167em"></mspace><mi>V</mi></mrow><mrow><mn>3</mn><mspace width="0.167em"></mspace><mi>π</mi><mspace width="0.167em"></mspace><mi>L</mi></mrow></mfrac><msup><mrow><mo stretchy="true" form="prefix">[</mo><mn>4</mn><mspace width="0.167em"></mspace><mi>ξ</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mn>3</mn><mi>/</mi><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">S(\xi) = \frac{16\,V}{3\,\pi\,L}\left[ 4\,\xi\,(1 - \xi) \right]^{3/2}</annotation></semantics></math>.</li>
+<li>Von Karman Ogive (Len-Diam), the least-drag nose of given length and
+base area, here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">S_{max}</annotation></semantics></math>,
+reached at the end:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mn>2</mn><mspace width="0.167em"></mspace><msub><mi>S</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></mrow><mi>π</mi></mfrac><mrow><mo stretchy="true" form="prefix">[</mo><mi mathvariant="normal">arcsin</mi><msqrt><mi>ξ</mi></msqrt><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>2</mn><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><msqrt><mrow><mi>ξ</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msqrt><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">S(\xi) = \frac{2\,S_{max}}{\pi}\left[ \arcsin\sqrt{\xi} - (1 - 2\xi)\sqrt{\xi\,(1 - \xi)} \right]</annotation></semantics></math>.</li>
+<li>Lighthill Body (Len-Diam), the least-drag body of given length and
+largest area,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>S</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">[</mo><mn>2</mn><msqrt><mrow><mi>ξ</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msqrt><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>2</mn><mi>ξ</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mi mathvariant="normal">arccosh</mi><mfrac><mn>1</mn><mrow><mo stretchy="false" form="prefix">|</mo><mn>1</mn><mo>−</mo><mn>2</mn><mi>ξ</mi><mo stretchy="false" form="prefix">|</mo></mrow></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">S(\xi) = S_{max}\left[ 2\sqrt{\xi\,(1 - \xi)} - (1 - 2\xi)^2 \operatorname{arccosh}\frac{1}{|1 - 2\xi|}
+\right]</annotation></semantics></math>.</li>
+</ul>
+<p>The gap between the model's curve and the ideal body shows where area
+could be moved to reduce drag. The ideal body is drawn against the area
+less inflow and outflow in the Total style, and has the inflow and
+outflow ramp added back in the Parts and Buildup styles, so it matches
+the curves it is drawn with.</p>
+<h3 id="plot-style">Plot style</h3>
+<ul>
+<li>Total plots the fitted area less inflow and outflow, the curve whose
+drag is computed.</li>
+<li>Parts plots the fitted area of each component, with the total in
+black. These areas include any stream tubes.</li>
+<li>Buildup plots, for each component, the area of that component and
+every component after it in the model's component order. The first curve
+is the whole model, and the gap between one curve and the next is that
+component's area. Each curve is fitted on its own.</li>
+<li>Points adds markers at the slice areas, which shows how well the
+slices resolve the curve.</li>
+</ul>
+<p>The legend, in a corner of the plot, lists each curve with its color,
+dash and marker. Legend places it as in the <a
+href="ResultsViewer.html#style-and-legend">Results Viewer</a>: Best, the
+default, puts it in the corner that covers the fewest points and lines
+and moves it as the view changes; Upper Right, Upper Left, Lower Left
+and Lower Right fix the corner; Off hides it. The choice is saved with
+the model.</p>
+<h2 id="comparing-runs">Comparing Runs</h2>
+<p>The Runs tab lists every Wave Drag run in the session, numbered in
+order, with its name, Mach number, set and the time it was made. Check
+runs to plot them together. A new run is plotted alone; check earlier
+runs to add them. Click a box, or select a row and press Space, to check
+or uncheck it. Double click a run, or select it and press Enter, to give
+it a name, which then labels it in the legend. Runs are deleted in the
+<a href="ResultsViewer.html">Results Viewer</a> (Analysis &gt;
+Results...), where each is a WaveDrag Result listed with its name.</p>
+<p>Each plotted run is drawn from its stored results in the chosen plot
+style, at the displayed rotation angle. A run that does not have that
+angle (it was made with another number of rotations, or with symmetry
+set the other way) is drawn at its nearest angle, and its legend entry
+gives that angle.</p>
+<p>With several runs plotted, each run has its own dash and marker. In
+the Total style each run also has its own color. In the Parts and
+Buildup styles a component keeps one color in every run: components are
+matched by the component itself, then by name, so a component that was
+changed between runs, or one of the same name in another model, is drawn
+in the same color. In the Parts style the totals stay black, dashed by
+run.</p>
+<p>Use this to compare design changes: run, name the run, change the
+model, run again, and check both. The Buildup or Parts style then shows
+which component's area changed.</p>
+<h2 id="running-and-the-model-afterward">Running and the Model
+Afterward</h2>
+<p>START runs the analysis; CD0_w then shows the wave drag coefficient
+of that run.</p>
+<p>A run leaves a Mesh component of the sliced geometry and its slices
+in the model, named in the results. When the Shown set is sliced, the
+components stay shown along with the Mesh; on any other set only the
+Mesh is shown afterward. The next Wave Drag run deletes the previous
+Mesh before it reads the set. Other analyses do not: delete the Mesh, or
+hide it, before running another analysis on the Shown set, or it will be
+counted with the components it was made from.</p>
+<h2 id="using-the-plot">Using the Plot</h2>
+<p>The mouse works as in the other plots.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Press, in OpenVSP's own scheme</th>
+<th style="text-align: left;">In a plot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Left drag, or Shift + left drag</td>
+<td style="text-align: left;">Zoom to the box drawn</td>
+</tr>
+<tr>
+<td style="text-align: left;">Left drag starting on the slice line</td>
+<td style="text-align: left;">Move the slice line (X Loc)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wheel</td>
+<td style="text-align: left;">Zoom about the pointer; scrolling up zooms
+in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Middle drag, or Ctrl or Cmd + left
+drag</td>
+<td style="text-align: left;">Zoom about the middle of the plot;
+dragging down zooms in</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right drag, or Alt + left drag</td>
+<td style="text-align: left;">Pan</td>
+</tr>
+<tr>
+<td style="text-align: left;">Double click</td>
+<td style="text-align: left;">Restore the automatic limits</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hover</td>
+<td style="text-align: left;">Read out the nearest point, or the
+cursor</td>
+</tr>
+</tbody>
+</table>
+<p>These are the presses of OpenVSP's own scheme; the plot follows the
+scheme and 3D View settings chosen in the preferences, as <a
+href="MouseKeyboard.html#plots">Mouse and Keyboard</a> describes.</p>
+<p>The readout names the curve and gives the point's index and
+coordinates when the cursor is within a few pixels of a curve, and
+otherwise gives the cursor's coordinates. Zoomed or panned limits stay,
+through new runs and changes of angle or style, until a double click
+restores the automatic ones.</p>
+<p>The window can be resized. The plot takes all the added width and
+height; the tabs and the Execute area keep their size.</p>
+<h2 id="choosing-settings">Choosing Settings</h2>
+<p>Run time grows in proportion to Num Slices times Num Rotations. The
+wave drag depends on the curvature of the area distribution, and a
+coarse set of slices misses the sharp area changes at wing and tail
+leading and trailing edges, so CD0_w often rises as slices are added.
+Raise Num Slices until CD0_w stops changing, then raise Num Rotations
+the same way; for a model with wings expect to need more than the
+defaults. Compare designs at the same settings.</p>
+<p>Use Run with X-Z Symmetry for any model that is symmetric about the
+X-Z plane; it doubles the angular resolution at no cost. Turn it off for
+an asymmetric model, such as one with stores on one side or an oblique
+wing.</p>
+<p>To reduce wave drag, look for where the drag comes from before
+changing the shape. X, Rot finds the rotation angle with the most drag
+and the location where its area curve bends most sharply, and the Plane
+shows the cut there in the 3D view. The Buildup style then shows which
+components make up the area at that location, and the Parts style shows
+how each component's own area rises and falls. Smoothing the total curve
+toward the Sears-Haack body, by moving area away from the peak, is the
+area rule's goal.</p>
+<h2 id="scripting">Scripting</h2>
+<p>The Wave Drag tool runs as the analysis "WaveDrag". Its inputs
+default to the screen's settings.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Input</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Set</td>
+<td style="text-align: left;">Geometry Set to slice</td>
+</tr>
+<tr>
+<td style="text-align: left;">NumSlices</td>
+<td style="text-align: left;">Number of slices at each rotation
+angle</td>
+</tr>
+<tr>
+<td style="text-align: left;">NumRotSects</td>
+<td style="text-align: left;">Number of rotation angles</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mach</td>
+<td style="text-align: left;">Mach number</td>
+</tr>
+<tr>
+<td style="text-align: left;">SSFlow_vec</td>
+<td style="text-align: left;">IDs of the flow-through sub-surfaces</td>
+</tr>
+<tr>
+<td style="text-align: left;">SymmFlag</td>
+<td style="text-align: left;">Rotation angles over half the circle, as
+Run with X-Z Symmetry</td>
+</tr>
+<tr>
+<td style="text-align: left;">UseModeFlag</td>
+<td style="text-align: left;">Slice a Mode's set instead of Set</td>
+</tr>
+<tr>
+<td style="text-align: left;">ModeID</td>
+<td style="text-align: left;">Mode to apply</td>
+</tr>
+</tbody>
+</table>
+<p>The reference area is the Sref Parm of the WaveDragSettings
+container. SetWaveDragRefWingID makes it follow a wing from the next
+Update, and an empty ID returns it to Manual.</p>
+<p>The results are a "WaveDrag" Result. Quantities kept for each
+rotation angle are stored as one vector per angle, read with the angle's
+index; per-component quantities are stored one vector per angle and
+component, at index itheta * Num_Comps + icomp.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Result</th>
+<th style="text-align: left;">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">CDWave</td>
+<td style="text-align: left;">Wave drag coefficient</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mach, Set_Name</td>
+<td style="text-align: left;">Mach number and the name of the set
+sliced</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mesh_GeomID</td>
+<td style="text-align: left;">ID of the Mesh component left in the
+model</td>
+</tr>
+<tr>
+<td style="text-align: left;">Num_Slices, Num_Cone_Sections,
+Num_Comps</td>
+<td style="text-align: left;">Number of slices, rotation angles and
+components</td>
+</tr>
+<tr>
+<td style="text-align: left;">Theta</td>
+<td style="text-align: left;">Rotation angles, degrees</td>
+</tr>
+<tr>
+<td style="text-align: left;">Start_X, End_X</td>
+<td style="text-align: left;">Axis locations of the first and last
+slice, for each angle</td>
+</tr>
+<tr>
+<td style="text-align: left;">X_Norm</td>
+<td style="text-align: left;">Normalized slice locations</td>
+</tr>
+<tr>
+<td style="text-align: left;">X_Norm_Fit</td>
+<td style="text-align: left;">Normalized locations of the fitted curve's
+points</td>
+</tr>
+<tr>
+<td style="text-align: left;">Slice_Area</td>
+<td style="text-align: left;">Slice areas (one vector per angle)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Slice_Area_Flow</td>
+<td style="text-align: left;">Slice areas less inflow and outflow (one
+vector per angle)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fit_Area, Fit_Area_Flow</td>
+<td style="text-align: left;">Fitted areas, with and without inflow and
+outflow (one vector per angle)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Length, Volume, MaxArea</td>
+<td style="text-align: left;">Equivalent body length, volume and largest
+area, for each angle</td>
+</tr>
+<tr>
+<td style="text-align: left;">X_Max_Drag</td>
+<td style="text-align: left;">Normalized location of largest drag, for
+each angle</td>
+</tr>
+<tr>
+<td style="text-align: left;">Inlet_Area, Exit_Area</td>
+<td style="text-align: left;">Stream tube areas ahead of and behind the
+model</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ambiguous_Subsurf_Flag</td>
+<td style="text-align: left;">1 if a flow-through face was
+ambiguous</td>
+</tr>
+<tr>
+<td style="text-align: left;">Comp_ID, Comp_Name</td>
+<td style="text-align: left;">Component IDs and names, in component
+order</td>
+</tr>
+<tr>
+<td style="text-align: left;">Comp_Slice_Area, Comp_Fit_Area</td>
+<td style="text-align: left;">Slice and fitted areas of one component
+(index itheta * Num_Comps + icomp)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Buildup_Area, Buildup_Fit_Area</td>
+<td style="text-align: left;">Slice and fitted areas of one component
+and every one after it (same index)</td>
+</tr>
+</tbody>
+</table>
+<p>A location along the axis is Start_X + X_Norm * (End_X - Start_X) for
+that angle. For example, the areas of the third component at the first
+rotation angle are</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openvsp <span class="im">as</span> vsp</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>rid <span class="op">=</span> vsp.ExecAnalysis( <span class="st">&quot;WaveDrag&quot;</span> )</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>ncomp <span class="op">=</span> vsp.GetIntResults( rid, <span class="st">&quot;Num_Comps&quot;</span> )[<span class="dv">0</span>]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>itheta <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>icomp <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>area <span class="op">=</span> vsp.GetDoubleResults( rid, <span class="st">&quot;Comp_Slice_Area&quot;</span>, itheta <span class="op">*</span> ncomp <span class="op">+</span> icomp )</span></code></pre></div>
+<p>The "EmintonLord" analysis computes the drag of any area
+distribution: given stations X_vec and areas Area_vec (at least three,
+the same number of each), it returns Donq, the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>/</mi><mi>q</mi></mrow><annotation encoding="application/x-tex">D/q</annotation></semantics></math>
+of that curve.</p>
+</body>
+</html>

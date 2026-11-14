@@ -21,6 +21,7 @@ opportunity for users to contribute.
 - [Geometry Analysis](GeometryAnalysis.md)
 - [Results Viewer](ResultsViewer.md)
 - [VSPAERO Results](VSPAEROResults.md)
+- [Wave Drag](WaveDrag.md)
 - [Set Editor](SetEdit.md)
 
 ## Components
