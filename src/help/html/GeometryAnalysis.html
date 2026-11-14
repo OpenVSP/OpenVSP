@@ -232,6 +232,72 @@ density value for the highest priority component is used. Per-length
 density values are used to calculate the mass property contribution of
 Routing Geoms. Any object can also include specified mass properties
 that will be included.</p>
+<h2 id="file-export">File Export</h2>
+<p>Wetted Area and Volume, Planar Slice, Projected Area, and Mass
+Properties can write the same files as the CompGeom, Planar Slice,
+Projected Area, and Mass Properties screens. The File Export group at
+the bottom of the analysis options has a toggle for each file, the name
+of the file, and a button to choose another name. A file is written each
+time the analysis is evaluated with its toggle on. Every toggle is off
+for a new analysis.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Geometry Analysis Type</th>
+<th style="text-align: left;">File</th>
+<th style="text-align: left;">Flag Parm</th>
+<th style="text-align: left;">File Type</th>
+<th style="text-align: left;">Default Suffix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Wetted Area and Volume</td>
+<td style="text-align: left;">.txt</td>
+<td style="text-align: left;">CompGeomTxtFileFlag</td>
+<td style="text-align: left;">COMP_GEOM_TXT_TYPE</td>
+<td style="text-align: left;">_CompGeom.txt</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wetted Area and Volume</td>
+<td style="text-align: left;">.csv</td>
+<td style="text-align: left;">CompGeomCsvFileFlag</td>
+<td style="text-align: left;">COMP_GEOM_CSV_TYPE</td>
+<td style="text-align: left;">_CompGeom.csv</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planar Slice</td>
+<td style="text-align: left;">.txt</td>
+<td style="text-align: left;">SliceTxtFileFlag</td>
+<td style="text-align: left;">SLICE_TXT_TYPE</td>
+<td style="text-align: left;">_Slice.txt</td>
+</tr>
+<tr>
+<td style="text-align: left;">Projected Area</td>
+<td style="text-align: left;">.csv</td>
+<td style="text-align: left;">ProjAreaCsvFileFlag</td>
+<td style="text-align: left;">PROJ_AREA_CSV_TYPE</td>
+<td style="text-align: left;">_ProjArea.csv</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mass Properties</td>
+<td style="text-align: left;">.txt</td>
+<td style="text-align: left;">MassPropTxtFileFlag</td>
+<td style="text-align: left;">MASS_PROP_TXT_TYPE</td>
+<td style="text-align: left;">_MassProps.txt</td>
+</tr>
+</tbody>
+</table>
+<p>Until another name is chosen, a file is named after the model file
+and the analysis: the model's file name without .vsp3, an underscore,
+the analysis name with spaces replaced by underscores, and the suffix
+above. For example, an analysis named Wet Area in MyPlane.vsp3 writes
+MyPlane_Wet_Area_CompGeom.txt beside the model. A chosen name is saved
+with the model relative to the model file.</p>
+<p>From the API, the toggles are Parms of the analysis in group
+InterferenceCase, and the file names are set and read with
+SetGeometryAnalysisFileName and GetGeometryAnalysisFileName using the
+file type above.</p>
 <h2 id="external-interference">External Interference</h2>
 <p>Check that the primary and secondary geometries are external to one
 another. Before checking for interference, a CompGeom type analysis is

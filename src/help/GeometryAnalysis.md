@@ -65,6 +65,29 @@ density value for the highest priority component is used.  Per-length density va
 mass property contribution of Routing Geoms.  Any object can also include specified mass properties that
 will be included.
 
+## File Export
+
+Wetted Area and Volume, Planar Slice, Projected Area, and Mass Properties can write the same files as the
+CompGeom, Planar Slice, Projected Area, and Mass Properties screens.  The File Export group at the bottom of the
+analysis options has a toggle for each file, the name of the file, and a button to choose another name.  A file is
+written each time the analysis is evaluated with its toggle on.  Every toggle is off for a new analysis.
+
+| Geometry Analysis Type | File | Flag Parm           | File Type          | Default Suffix |
+|:-----------------------|:-----|:--------------------|:-------------------|:---------------|
+| Wetted Area and Volume | .txt | CompGeomTxtFileFlag | COMP_GEOM_TXT_TYPE | _CompGeom.txt  |
+| Wetted Area and Volume | .csv | CompGeomCsvFileFlag | COMP_GEOM_CSV_TYPE | _CompGeom.csv  |
+| Planar Slice           | .txt | SliceTxtFileFlag    | SLICE_TXT_TYPE     | _Slice.txt     |
+| Projected Area         | .csv | ProjAreaCsvFileFlag | PROJ_AREA_CSV_TYPE | _ProjArea.csv  |
+| Mass Properties        | .txt | MassPropTxtFileFlag | MASS_PROP_TXT_TYPE | _MassProps.txt |
+
+Until another name is chosen, a file is named after the model file and the analysis:  the model's file name
+without .vsp3, an underscore, the analysis name with spaces replaced by underscores, and the suffix above.  For
+example, an analysis named Wet Area in MyPlane.vsp3 writes MyPlane_Wet_Area_CompGeom.txt beside the model.  A
+chosen name is saved with the model relative to the model file.
+
+From the API, the toggles are Parms of the analysis in group InterferenceCase, and the file names are set and read
+with SetGeometryAnalysisFileName and GetGeometryAnalysisFileName using the file type above.
+
 ## External Interference
 
 Check that the primary and secondary geometries are external to one another.  Before checking for interference,
