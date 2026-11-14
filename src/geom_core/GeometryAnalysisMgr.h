@@ -94,6 +94,11 @@ public:
 
     string MakeMeshGeom();
 
+    static bool IsFileType( int file_type );
+    string GetFileName( int file_type ) const;
+    void SetFileName( int file_type, const string &fname );
+    string GetDefaultFileName( int file_type ) const;
+
     string m_GroupName;
 
     IntParm m_PrimarySet;
@@ -161,10 +166,20 @@ public:
     BoolParm m_DiskSegmentBreakdownFlag;
     IntParm m_DirectionType;
 
+    // Legacy file output
+    BoolParm m_CompGeomTxtFileFlag;
+    BoolParm m_CompGeomCsvFileFlag;
+    BoolParm m_SliceTxtFileFlag;
+    BoolParm m_ProjAreaCsvFileFlag;
+    BoolParm m_MassPropTxtFileFlag;
+
     IntParm m_GeometryAnalysisType;
 
     string m_LastResult;
     Parm m_LastResultValue;
+
+    // File names set for the legacy files, by file type.  A type with none uses its default.
+    unordered_map< int, string > m_FileNames;
 
     vector< TMesh* > m_TMeshVec;
     vector< TMesh* > m_SliceTMeshVec;

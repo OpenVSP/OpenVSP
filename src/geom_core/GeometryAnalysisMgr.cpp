@@ -119,6 +119,22 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_DiskSegmentBreakdownFlag.Init( "DiskSegmentBreakdownFlag", m_GroupName, this, false, false, true );
     m_DirectionType.Init( "DirectionType", m_GroupName, this, vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
 
+    // Legacy file output
+    m_CompGeomTxtFileFlag.Init( "CompGeomTxtFileFlag", m_GroupName, this, false, false, true );
+    m_CompGeomTxtFileFlag.SetDescript( "Flag to write the CompGeom txt file" );
+
+    m_CompGeomCsvFileFlag.Init( "CompGeomCsvFileFlag", m_GroupName, this, false, false, true );
+    m_CompGeomCsvFileFlag.SetDescript( "Flag to write the CompGeom csv file" );
+
+    m_SliceTxtFileFlag.Init( "SliceTxtFileFlag", m_GroupName, this, false, false, true );
+    m_SliceTxtFileFlag.SetDescript( "Flag to write the planar slice txt file" );
+
+    m_ProjAreaCsvFileFlag.Init( "ProjAreaCsvFileFlag", m_GroupName, this, false, false, true );
+    m_ProjAreaCsvFileFlag.SetDescript( "Flag to write the projected area csv file" );
+
+    m_MassPropTxtFileFlag.Init( "MassPropTxtFileFlag", m_GroupName, this, false, false, true );
+    m_MassPropTxtFileFlag.SetDescript( "Flag to write the mass properties txt file" );
+
     m_GeometryAnalysisType.Init( "IntererenceCheckType", m_GroupName, this, vsp::COMP_GEOM, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", m_GroupName, this, 0.0, -1e12, 1e12 );
@@ -1065,6 +1081,78 @@ bool GeometryAnalysisCase::GetSecondarySpreadTri( vec3d &pt, vec3d &axis, vector
     return false;
 }
 
+// Legacy files a case can write, the suffix of each default name, and the XML node holding a name set.
+static const int ga_file_types[] = { vsp::COMP_GEOM_TXT_TYPE, vsp::COMP_GEOM_CSV_TYPE, vsp::SLICE_TXT_TYPE, vsp::PROJ_AREA_CSV_TYPE, vsp::MASS_PROP_TXT_TYPE };
+static const char *ga_file_suffixes[] = { "_CompGeom.txt", "_CompGeom.csv", "_Slice.txt", "_ProjArea.csv", "_MassProps.txt" };
+static const char *ga_file_nodes[] = { "CompGeomTxtFileName", "CompGeomCsvFileName", "SliceTxtFileName", "ProjAreaCsvFileName", "MassPropTxtFileName" };
+static const int ga_num_file_types = ( sizeof( ga_file_types ) / sizeof( ga_file_types[0] ) );
+
+static int GAFileIndex( int file_type )
+{
+    for ( int i = 0; i < ga_num_file_types; i++ )
+    {
+        if ( ga_file_types[i] == file_type )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+bool GeometryAnalysisCase::IsFileType( int file_type )
+{
+    return GAFileIndex( file_type ) >= 0;
+}
+
+// The name set for a file type, or its default when none is set.
+string GeometryAnalysisCase::GetFileName( int file_type ) const
+{
+    unordered_map< int, string >::const_iterator it = m_FileNames.find( file_type );
+    if ( it != m_FileNames.end() && !it->second.empty() )
+    {
+        return it->second;
+    }
+    return GetDefaultFileName( file_type );
+}
+
+// An empty name goes back to the default.
+void GeometryAnalysisCase::SetFileName( int file_type, const string &fname )
+{
+    if ( IsFileType( file_type ) )
+    {
+        m_FileNames[ file_type ] = fname;
+    }
+}
+
+// The model's file name without .vsp3, the case name, and the suffix the legacy analysis uses.
+string GeometryAnalysisCase::GetDefaultFileName( int file_type ) const
+{
+    int indx = GAFileIndex( file_type );
+    if ( indx < 0 )
+    {
+        return string();
+    }
+
+    string fname;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        fname = veh->GetVSP3FileName();
+    }
+
+    int pos = fname.find( ".vsp3" );
+    if ( pos >= 0 )
+    {
+        fname.erase( pos, fname.length() - 1 );
+    }
+
+    string cname = m_Name;
+    StringUtil::change_space_to_underscore( cname );
+
+    fname += "_" + cname + ga_file_suffixes[ indx ];
+    return fname;
+}
+
 xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr gcase_node = xmlNewChild( node, NULL, BAD_CAST"GeometryAnalysis", NULL );
@@ -1083,6 +1171,27 @@ xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
     }
 
     XmlUtil::AddIntNode( gcase_node, "NumAzEl", (int)m_VizAzimuthVec.size() );
+
+    //===== Legacy File Names, Relative To The Model ====//
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    for ( int i = 0; i < ga_num_file_types; i++ )
+    {
+        unordered_map< int, string >::const_iterator it = m_FileNames.find( ga_file_types[i] );
+        if ( it != m_FileNames.end() && !it->second.empty() )
+        {
+            string fname = it->second;
+            if ( veh )
+            {
+                veh->MakeRelativePath( fname );
+            }
+            // A path with no relative form, such as one on another drive, stays as it is.
+            if ( fname.empty() )
+            {
+                fname = it->second;
+            }
+            XmlUtil::AddStringNode( gcase_node, ga_file_nodes[i], fname );
+        }
+    }
 
     ParmContainer::EncodeXml( gcase_node );
 
@@ -1116,6 +1225,21 @@ xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
     while ( m_VizAzimuthVec.size() < npt )
     {
         AddAzEl( 0, 0 );
+    }
+
+    //===== Legacy File Names, Relative To The Model ====//
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    for ( int i = 0; i < ga_num_file_types; i++ )
+    {
+        string fname = XmlUtil::FindString( node, ga_file_nodes[i], string() );
+        if ( !fname.empty() )
+        {
+            if ( veh )
+            {
+                veh->MakeAbsolutePath( fname );
+            }
+            m_FileNames[ ga_file_types[i] ] = fname;
+        }
     }
 
     ParmContainer::DecodeXml( node );
@@ -2250,6 +2374,16 @@ string GeometryAnalysisCase::Evaluate()
                             res->Add( new NameValData( "Result", wetareavec[ 0 ], "Wetted area result" ) );
                         }
 
+                        if ( m_CompGeomTxtFileFlag() )
+                        {
+                            res->WriteCompGeomTxtFile( GetFileName( vsp::COMP_GEOM_TXT_TYPE ) );
+                        }
+
+                        if ( m_CompGeomCsvFileFlag() )
+                        {
+                            res->WriteCompGeomCsvFile( GetFileName( vsp::COMP_GEOM_CSV_TYPE ) );
+                        }
+
                         m_TMeshVec = CopyTMeshVec( primary_tmv );
 
                         // Delete subsurface debugging meshes
@@ -2304,6 +2438,11 @@ string GeometryAnalysisCase::Evaluate()
                             }
                         }
                         res->Add( new NameValData( "Result", maxarea, "Planar slice result" ) );
+
+                        if ( m_SliceTxtFileFlag() )
+                        {
+                            res->WriteSliceFile( GetFileName( vsp::SLICE_TXT_TYPE ) );
+                        }
                     }
                 }
                 else
@@ -2396,6 +2535,11 @@ string GeometryAnalysisCase::Evaluate()
                             res->Add( new NameValData( "Result", avec[ 0 ], "Projected area result" ) );
                         }
 
+                        if ( m_ProjAreaCsvFileFlag() )
+                        {
+                            res->WriteCSVFile( GetFileName( vsp::PROJ_AREA_CSV_TYPE ) );
+                        }
+
                         // Convert solutionPolyVec3d from vector of VSP_LINE_STRIP to VSP_LINES
                         for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
                         {
@@ -2446,6 +2590,11 @@ string GeometryAnalysisCase::Evaluate()
 
                         // This will clean up pointMassVec
                         MassSlice( primary_tmv, slicevec, bbox, dg, /*degen*/ false, m_NumSlices(), m_SliceDir(), totalMass, centerOfGrav, IxxIyyIzz, IxyIxzIyz, pointMassVec, res );
+
+                        if ( m_MassPropTxtFileFlag() )
+                        {
+                            res->WriteMassProp( GetFileName( vsp::MASS_PROP_TXT_TYPE ) );
+                        }
 
                         m_TMeshVec = CopyTMeshVec( primary_tmv );
                         FlattenTMeshVec( m_TMeshVec );
