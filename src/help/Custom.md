@@ -212,8 +212,8 @@ TransportFuse shapes a body with tangent angles and strengths; Disk makes an act
 
 `InitGui` describes the screen as a list of controls, added in order with
 `AddGui( type, arg1, arg2, arg3, arg4, arg5 )`.  What each argument means depends on *type*, as the table gives it;
-most controls take a label as *arg1*, the name and group of the Parm they show as *arg2* and *arg3*, and, for a slider,
-its range as *arg4*.  Arguments may be left off from the end.  To give a later argument, pass empty strings for the
+most controls take a label as *arg1*, the name and group of the Parm they show as *arg2* and *arg3*, and, for a slider
+or an input, its range as *arg4*.  Arguments may be left off from the end.  To give a later argument, pass empty strings for the
 string arguments before it and 10.0, the default range, for *arg4*:
 `AddGui( GDEV_ADD_CHOICE_ITEM, "Abs", "", "", 10.0, "0" )`.  A tab starts a new page, and the controls after it fill
 that page from the top down.  The types that make something on a custom component's screen are these; the other
@@ -230,7 +230,7 @@ that page from the top down.  The types that make something on a custom componen
 | `GDEV_SLIDER_ADJ_RANGE_TWO_INPUT` | *arg1* label, *arg2* first Parm, *arg3* group, *arg4* range, *arg5* second Parm | A slider with two typed values, such as a Fuselage end cap's Rel and Abs length, the second Parm in the same group as the first.  One input drives the slider and the other is shown greyed.  It always needs both Parms: *arg2* without *arg5* is an error, and the slider is left out. |
 | `GDEV_SLIDER_INPUT`           | *arg1* label, *arg2* Parm, *arg3* group, *arg4* range | A slider with a typed value, of fixed range.                                |
 | `GDEV_SLIDER`                 | as `GDEV_SLIDER_INPUT`                            | The same as `GDEV_SLIDER_INPUT`.                                                |
-| `GDEV_INPUT`                  | *arg1* label, *arg2* Parm, *arg3* group           | A typed value alone.                                                            |
+| `GDEV_INPUT`                  | *arg1* label, *arg2* Parm, *arg3* group, *arg4* range | A typed value alone; *arg4* is the range it scrubs at, as a slider's range.  An *arg4* of 0 turns scrubbing off. |
 | `GDEV_OUTPUT`                 | *arg1* label, *arg2* Parm, *arg3* group           | A value shown and not editable.                                                 |
 | `GDEV_TOGGLE_BUTTON`          | *arg1* label, *arg2* Parm, *arg3* group           | An on/off button for a Bool Parm.                                               |
 | `GDEV_CHECK_BUTTON`           | *arg1* label, *arg2* Parm, *arg3* group           | A check box for a Bool Parm.                                                    |

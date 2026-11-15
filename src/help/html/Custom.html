@@ -380,10 +380,10 @@ added in order with
 <code>AddGui( type, arg1, arg2, arg3, arg4, arg5 )</code>. What each
 argument means depends on <em>type</em>, as the table gives it; most
 controls take a label as <em>arg1</em>, the name and group of the Parm
-they show as <em>arg2</em> and <em>arg3</em>, and, for a slider, its
-range as <em>arg4</em>. Arguments may be left off from the end. To give
-a later argument, pass empty strings for the string arguments before it
-and 10.0, the default range, for <em>arg4</em>:
+they show as <em>arg2</em> and <em>arg3</em>, and, for a slider or an
+input, its range as <em>arg4</em>. Arguments may be left off from the
+end. To give a later argument, pass empty strings for the string
+arguments before it and 10.0, the default range, for <em>arg4</em>:
 <code>AddGui( GDEV_ADD_CHOICE_ITEM, "Abs", "", "", 10.0, "0" )</code>. A
 tab starts a new page, and the controls after it fill that page from the
 top down. The types that make something on a custom component's screen
@@ -462,8 +462,10 @@ range.</td>
 <tr>
 <td style="text-align: left;"><code>GDEV_INPUT</code></td>
 <td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
-<em>arg3</em> group</td>
-<td style="text-align: left;">A typed value alone.</td>
+<em>arg3</em> group, <em>arg4</em> range</td>
+<td style="text-align: left;">A typed value alone; <em>arg4</em> is the
+range it scrubs at, as a slider's range. An <em>arg4</em> of 0 turns
+scrubbing off.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>GDEV_OUTPUT</code></td>

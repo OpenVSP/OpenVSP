@@ -309,6 +309,7 @@ Each slider or value box has a button with the Parm's name to its left.
   [Dragging and dropping Parms](#dragging-and-dropping-parms).
 - A value box takes arithmetic: typing `180/6` sets 30.  It understands `+ - * / ^`, brackets and exponents, but no
   functions or names.  A value applies on Enter or when the box loses the focus.
+- Alt + drag, or a right-drag, on a value box scrubs its value like a slider; see [Value boxes](#value-boxes).
 - The small buttons at either end of a slider change its range.  When the value is inside the range, the inward arrows
   halve the range about the value.  When the value is at an end, the outward arrow doubles the range, extending it past
   that end up to the Parm's own limit, and moves the value to the new end.  A bar means the Parm's own limit has been
@@ -317,6 +318,32 @@ Each slider or value box has a button with the Parm's name to its left.
   hundredth of its range.
 - Holding Alt while dragging a slider of a Geom's placement turns on Snap To's collision detection for that change, so
   the part stops at the clearance set in Model > Snap To.
+
+### Value boxes
+
+A value box shows a parameter's value as text; click in it to edit the text.
+
+Alt (Option on macOS) + drag, or a right-drag, scrubs the value instead, like a slider: drag right to increase it and
+left to decrease it.  Only sideways motion counts, and the scrub starts after a few points of it; a press released
+sooner is an ordinary click.  Alt is needed only at the start of the drag.  The pointer becomes a left-right arrow over
+a box while Alt is held, and while scrubbing.
+
+The value box of a slider row scrubs at the slider's scale: dragging across the box as far as the slider is wide moves
+the value through the slider's range, and the slider's range buttons change the rate too.  A scrub is not held to the
+slider's range: past its end the slider recenters, and the value runs on to the Parm's own limit.  Beside a logarithmic
+slider, equal motion multiplies the value by equal factors.  A value box without a slider scrubs at a fixed range of
+its own.  A fraction shown beside its dimensional value steps with that value, so both boxes move the part alike.
+
+While dragging, tap Shift to halve the sensitivity, Ctrl or Cmd (the Windows or Super key elsewhere) to double it, or
+Alt (Option on macOS) to reset it.  Each box keeps its sensitivity for its next drag, while the box exists; a fraction
+and its dimensional value share one.  Esc puts the value back as it was at the start of the drag, leaving nothing to
+undo, and the rest of that drag does nothing.  Undo takes back a whole drag at once.  A right click without a drag
+still opens the Cut / Copy / Paste menu.  Some Linux desktops take Alt + drag for moving windows; use a right-drag
+there.  Unlike Alt + drag on a slider, scrubbing a value box does not apply Snap To.
+
+Scrubbing works in the value boxes of Parms.  It does not work in index selectors, counters, table cells such as the
+Parasite Drag table's, or name boxes, nor in a box whose value cannot be stepped, such as a dimensional value whose
+reference is zero.
 
 ## Dragging and dropping Parms
 
