@@ -236,7 +236,7 @@ public:
 
     virtual double SetResult( double val );
     virtual double SetResultFromLink( double val );
-    virtual double SetResultFromDevice( double val );
+    virtual double SetResultFromDevice( double val, bool drag_flag = false );
 
     virtual void SetDisplayResultFlag( bool flag )  { m_DisplayResultFlag = flag; }
     virtual bool GetDisplayResultsFlag()            { return m_DisplayResultFlag; }

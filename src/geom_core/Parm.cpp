@@ -777,11 +777,11 @@ double FractionParm::SetResultFromLink( double res_val )
 }
 
 //==== Set Result From Device ====//
-double FractionParm::SetResultFromDevice( double res_val )
+double FractionParm::SetResultFromDevice( double res_val, bool drag_flag )
 {
     if ( std::abs( m_RefVal ) > DBL_EPSILON )
     {
-        SetFromDevice( res_val / m_RefVal );
+        SetFromDevice( res_val / m_RefVal, drag_flag );
     }
 
     return m_ResultVal;
