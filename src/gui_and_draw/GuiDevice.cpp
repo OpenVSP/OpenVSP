@@ -839,8 +839,8 @@ void SliderAdjRange::MinButtonCB( Parm* parm_ptr )
 
     if ( m_MinStopState == SAR_STOP )
     {
-        m_MinBound =  m_MinBound - 0.5 * ( m_MaxBound - m_MinBound );
-        m_HalfRange = m_MaxBound - m_MinBound;
+        m_MinBound = max( m_MinBound - ( m_MaxBound - m_MinBound ), parm_ptr->GetLowerLimit() );
+        m_HalfRange = 0.5 * ( m_MaxBound - m_MinBound );
         parm_ptr->SetFromDevice( m_MinBound );
     }
     else
@@ -863,8 +863,8 @@ void SliderAdjRange::MaxButtonCB( Parm* parm_ptr )
 
     if ( m_MaxStopState == SAR_STOP )
     {
-        m_MaxBound =  m_MaxBound + 0.5 * ( m_MaxBound - m_MinBound );
-        m_HalfRange = m_MaxBound - m_MinBound;
+        m_MaxBound = min( m_MaxBound + ( m_MaxBound - m_MinBound ), parm_ptr->GetUpperLimit() );
+        m_HalfRange = 0.5 * ( m_MaxBound - m_MinBound );
         parm_ptr->SetFromDevice( m_MaxBound );
     }
     else

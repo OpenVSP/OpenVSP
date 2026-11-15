@@ -309,10 +309,10 @@ Each slider or value box has a button with the Parm's name to its left.
   [Dragging and dropping Parms](#dragging-and-dropping-parms).
 - A value box takes arithmetic: typing `180/6` sets 30.  It understands `+ - * / ^`, brackets and exponents, but no
   functions or names.  A value applies on Enter or when the box loses the focus.
-- The small buttons at either end of a slider change its range.  When the value is inside the range, the inward
-  arrows halve the range about the value.  When the value is at an end, the outward arrow extends the range by half and
-  moves the value to the new end.  A bar means the Parm's own limit has been reached.  Typing a value outside the
-  slider's range recenters the range on it.
+- The small buttons at either end of a slider change its range.  When the value is inside the range, the inward arrows
+  halve the range about the value.  When the value is at an end, the outward arrow doubles the range, extending it past
+  that end up to the Parm's own limit, and moves the value to the new end.  A bar means the Parm's own limit has been
+  reached.  Typing a value outside the slider's range recenters the range on it.
 - Clicking on a slider's track jumps the value there, and the arrow keys nudge a slider that has the focus by one
   hundredth of its range.
 - Holding Alt while dragging a slider of a Geom's placement turns on Snap To's collision detection for that change, so
