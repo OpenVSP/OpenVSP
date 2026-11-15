@@ -9021,7 +9021,15 @@ static std::vector < int > GetDriverGroupImpl( const std::string & geom_id, int 
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
+        // An actuator disk has one driver group, so section_index is not used.
+        RotorDisk* disk = dynamic_cast < RotorDisk* > ( ParmMgr.FindParmContainer( geom_id ) );
+        if ( disk )
+        {
+            ErrorMgr.NoError();
+            return disk->m_DriverGroup.GetChoices();
+        }
+
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom or Actuator Disk " + geom_id );
         return choices;
     }
 
@@ -9095,7 +9103,29 @@ static void SetDriverGroupImpl( const std::string & geom_id, int section_index, 
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
+        // An actuator disk has one driver group, so section_index is not used.
+        RotorDisk* disk = dynamic_cast < RotorDisk* > ( ParmMgr.FindParmContainer( geom_id ) );
+        if ( disk )
+        {
+            std::vector < int > prevchoices = disk->m_DriverGroup.GetChoices();
+
+            disk->m_DriverGroup.SetChoice( 0, driver_0 );
+            disk->m_DriverGroup.SetChoice( 1, driver_1 );
+            disk->m_DriverGroup.SetChoice( 2, driver_2 );
+
+            bool valid = disk->m_DriverGroup.ValidDrivers( disk->m_DriverGroup.GetChoices() );
+            if ( !valid )
+            {
+                ErrorMgr.AddError( VSP_INVALID_DRIVERS, caller + "::Invalid actuator disk drivers." );
+                disk->m_DriverGroup.SetChoices( prevchoices );
+                return;
+            }
+
+            ErrorMgr.NoError();
+            return;
+        }
+
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom or Actuator Disk " + geom_id );
         return;
     }
 
