@@ -147,6 +147,7 @@ VspDragInput::VspDragInput( int X, int Y, int W, int H, const char *L ) : Fl_Inp
     m_PressButton = 0;
     m_ModState = 0;
     m_CursorSet = false;
+    m_PushFocus = false;
 }
 
 VspDragInput::~VspDragInput()
@@ -193,7 +194,7 @@ int VspDragInput::handle( int event )
             Fl::add_timeout( ModifierPollTime, ModifierPollCB, this );
             return 1;
         }
-        break;
+        return PushToInput();
 
     case FL_DRAG:
         if ( m_DragState != DRAG_NONE )
@@ -232,7 +233,7 @@ int VspDragInput::handle( int event )
             // opens the Fl_Input menu here.
             m_DragState = DRAG_NONE;
             Fl::remove_timeout( ModifierPollCB, this );
-            Fl_Input::handle( FL_PUSH );
+            PushToInput();
             return Fl_Input::handle( FL_RELEASE );
         }
         else if ( m_DragState != DRAG_NONE )
@@ -304,11 +305,61 @@ int VspDragInput::handle( int event )
         EndPress( false );
         break;
 
+    case FL_FOCUS:
+    {
+        int ret = Fl_Input::handle( event );
+        // Editing starts at the end, where an expression like *12 applies.  A
+        // press has placed the cursor, Fl_Input keeps a Tab's select all, and
+        // arrow key navigation enters from the side it came from.
+        int key = Fl::event_key();
+        bool arrow = Fl::event() == FL_KEYBOARD &&
+                     ( key == FL_Left || key == FL_Right || key == FL_Up || key == FL_Down );
+        if ( !m_PushFocus && !arrow && insert_position() == mark() )
+        {
+            insert_position( size() );
+        }
+        return ret;
+    }
+
+    case FL_UNFOCUS:
+    {
+        int ret = Fl_Input::handle( event );
+        insert_position( 0 );
+        return ret;
+    }
+
     default:
         break;
     }
 
     return Fl_Input::handle( event );
+}
+
+//==== Draw The Start Of The Text Unless The Box Is Being Edited ====//
+void VspDragInput::draw()
+{
+    ShowStart();
+    Fl_Input::draw();
+}
+
+//==== Pass A Press To Fl_Input, Which Places The Cursor At It ====//
+int VspDragInput::PushToInput()
+{
+    m_PushFocus = true;
+    int ret = Fl_Input::handle( FL_PUSH );
+    m_PushFocus = false;
+    return ret;
+}
+
+//==== Show The Most Significant Digits Of A Box Without Focus ====//
+// Fl_Input scrolls to keep the cursor in view, and value() puts the cursor at
+// the end, so a number wider than the box would show its last digits.
+void VspDragInput::ShowStart()
+{
+    if ( Fl::focus() != this )
+    {
+        insert_position( 0 );
+    }
 }
 
 //==== Begin A Scrub From The Device's Value At The Press ====//

@@ -119,6 +119,7 @@ public:
     VspDragInput( int X, int Y, int W, int H, const char *L = 0 );
     ~VspDragInput();
     int handle( int event );
+    void draw();
 
     void SetDevice( GuiDevice* device )     { m_Device = device; }
     void PairSensitivity( VspDragInput* partner );
@@ -138,6 +139,8 @@ protected:
     void SetSensitivity( double sensitivity );
     bool SetScrubVal( double val );
     void UpdateCursor( bool inside );
+    int PushToInput();
+    void ShowStart();
     static void ModifierPollCB( void* data );
 
     static VspDragInput* m_ScrubInput;
@@ -161,6 +164,7 @@ protected:
     int m_ModState;         // The modifier keys down at the last event of the press
     string m_ScrubParmID;
     bool m_CursorSet;       // This box set the window's cursor
+    bool m_PushFocus;       // Fl_Input is handling a press, which places the cursor
 };
 
 class Vsp_Group : public Fl_Group

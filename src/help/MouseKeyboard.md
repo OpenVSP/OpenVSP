@@ -321,7 +321,8 @@ Each slider or value box has a button with the Parm's name to its left.
 
 ### Value boxes
 
-A value box shows a parameter's value as text; click in it to edit the text.
+A value box shows a parameter's value as text; click in it to edit the text.  A value too long for its box shows its
+leading digits and sign; while you edit it, the box scrolls to follow the cursor.
 
 Alt (Option on macOS) + drag, or a right-drag, scrubs the value instead, like a slider: drag right to increase it and
 left to decrease it.  Only sideways motion counts, and the scrub starts after a few points of it; a press released
