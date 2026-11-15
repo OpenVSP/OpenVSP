@@ -1513,6 +1513,9 @@ void ScreenMgr::SetWindowMode( int mode )
         return;
     }
 
+    // Set first, as moving a shown screen shows it again
+    m_WindowMode = mode;
+
     vector< VspScreen* > screens;
     GetWindowScreens( screens );
 
@@ -1531,8 +1534,6 @@ void ScreenMgr::SetWindowMode( int mode )
             screens[i]->SetCaptive( nullptr );
         }
     }
-
-    m_WindowMode = mode;
 }
 
 int ScreenMgr::GetWindowModePref()

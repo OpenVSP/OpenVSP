@@ -14,6 +14,7 @@
 
 #include "PreferencesScreen.h"
 #include "MainVSPScreen.h"
+#include "ScreenMgr.h"
 #include "NavController.h"
 #include "NavDevice.h"
 
@@ -172,6 +173,8 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_SelBinding = -1;
     m_FCTypeAtShow = vsp::FC_OPENVSP;
     m_ToolbarAtShow = TOOLBAR_MEDIUM;
+    m_WindowModeAtShow = vsp::WINDOW_MODE_FREE;
+    m_ModeChanging = false;
 
     //==== General ====//
     Fl_Group * gen_tab = AddTab( "General" );
@@ -197,6 +200,15 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ToolbarChoice.UpdateItems();
     m_GenLayout.AddChoice( m_ToolbarChoice, "Toolbar" );
     m_ToolbarChoice.GetFlChoice()->tooltip( "The row of buttons under the menu bar.  Window > Toolbar also shows or hides it." );
+
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddDividerBox( "Windows" );
+
+    m_WindowModeChoice.AddItem( "Free Windows", vsp::WINDOW_MODE_FREE );
+    m_WindowModeChoice.AddItem( "Captive Windows", vsp::WINDOW_MODE_CAPTIVE );
+    m_WindowModeChoice.UpdateItems();
+    m_GenLayout.AddChoice( m_WindowModeChoice, "Screens" );
+    m_WindowModeChoice.GetFlChoice()->tooltip( "Each screen a window of its own, or inside the main window over the 3D view." );
 
     //==== 3D View ====//
     Fl_Group * view_tab = AddTab( "3D View" );
@@ -544,15 +556,17 @@ bool PreferencesScreen::Update()
 void PreferencesScreen::Show()
 {
     // Opening the window again keeps what it was reverting to.
-    if ( !IsShown() )
+    if ( !IsShown() && !m_ModeChanging )
     {
         m_FCTypeAtShow = GetFCType();
         m_NavAtShow.Load();
         m_ToolbarAtShow = GetToolbarSize();
+        m_WindowModeAtShow = m_ScreenMgr->GetWindowMode();
     }
 
     m_FCTypeChoice.SetVal( GetFCType() );
     m_ToolbarChoice.SetVal( GetToolbarSize() );
+    m_WindowModeChoice.SetVal( m_ScreenMgr->GetWindowMode() );
 
     m_Nav.Load();
     ShowNav();
@@ -1185,12 +1199,18 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SetToolbarSize( m_ToolbarChoice.GetVal() );
     }
+    else if ( device == &m_WindowModeChoice )
+    {
+        SetWindowMode( m_WindowModeChoice.GetVal() );
+    }
     else if ( device == &m_DefaultsButton )
     {
         SetFCType( vsp::FC_OPENVSP );
         m_FCTypeChoice.SetVal( vsp::FC_OPENVSP );
         SetToolbarSize( TOOLBAR_MEDIUM );
         m_ToolbarChoice.SetVal( TOOLBAR_MEDIUM );
+        SetWindowMode( vsp::WINDOW_MODE_FREE );
+        m_WindowModeChoice.SetVal( vsp::WINDOW_MODE_FREE );
         m_Nav = VSPGUI::NavSettings();
         ShowNav();
         ApplyNav();
@@ -1201,6 +1221,8 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
         m_FCTypeChoice.SetVal( m_FCTypeAtShow );
         SetToolbarSize( m_ToolbarAtShow );
         m_ToolbarChoice.SetVal( m_ToolbarAtShow );
+        SetWindowMode( m_WindowModeAtShow );
+        m_WindowModeChoice.SetVal( m_WindowModeAtShow );
         m_Nav = m_NavAtShow;
         ShowNav();
         ApplyNav();
@@ -1251,6 +1273,25 @@ void PreferencesScreen::SetToolbarSize( int size )
     {
         main->SetToolbarSize( size );
     }
+}
+
+void PreferencesScreen::SetWindowMode( int mode )
+{
+    ScreenMgr::SetWindowModePref( mode );
+
+    // After this control's callback, as its window moves
+    if ( mode != m_ScreenMgr->GetWindowMode() )
+    {
+        Fl::add_timeout( 0.0, StaticWindowModeCB, this );
+    }
+}
+
+void PreferencesScreen::StaticWindowModeCB( void* data )
+{
+    PreferencesScreen* ps = static_cast< PreferencesScreen* >( data );
+    ps->m_ModeChanging = true;
+    ps->m_ScreenMgr->SetWindowMode( ScreenMgr::GetWindowModePref() );
+    ps->m_ModeChanging = false;
 }
 
 void PreferencesScreen::ApplyNav()

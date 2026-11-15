@@ -47,6 +47,9 @@ public:
     int GetToolbarSize();
     void SetToolbarSize( int size );
 
+    // Keeps the window mode, a vsp::WINDOW_MODE, in the preferences and shows the screens that way
+    void SetWindowMode( int mode );
+
 protected:
 
     // Show m_Nav in the controls.
@@ -78,6 +81,9 @@ protected:
     // Save m_Nav and use it in the main window now.
     void ApplyNav();
 
+    // Shows the screens as the window mode kept in the preferences says
+    static void StaticWindowModeCB( void* data );
+
     // The 3D interaction settings being edited.
     VSPGUI::NavSettings m_Nav;
 
@@ -85,6 +91,10 @@ protected:
     VSPGUI::NavSettings m_NavAtShow;
     int m_FCTypeAtShow;
     int m_ToolbarAtShow;
+    int m_WindowModeAtShow;
+
+    // True while the screens move to another window mode, which shows this window again.
+    bool m_ModeChanging;
 
     // Index of the selected binding, or -1.
     int m_SelBinding;
@@ -93,6 +103,7 @@ protected:
     GroupLayout m_GenLayout;
     Choice m_FCTypeChoice;
     Choice m_ToolbarChoice;
+    Choice m_WindowModeChoice;
 
     // 3D View tab.
     GroupLayout m_ViewLayout;
