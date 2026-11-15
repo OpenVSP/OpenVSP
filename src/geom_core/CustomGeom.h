@@ -140,8 +140,9 @@ public:
     \endcode
     \endforcpponly
     A control that shows a Parm (a slider, input, output, button, counter, index selector, choice or radio
-    group) takes its label as arg1 and the Parm's name and group as arg2 and arg3; a slider takes its range as
-    arg4.  A control given no Parm is tied to one with AddUpdateGui.  An index selector and a radio group show
+    group) takes its label as arg1 and the Parm's name and group as arg2 and arg3; a slider or an input takes
+    its range as arg4, a half width, which for an input sets how fast the value scrubs.  A control given no
+    Parm is tied to one with AddUpdateGui.  An index selector and a radio group show
     no label.  A GDEV_SLIDER_ADJ_RANGE_TWO_INPUT shows the Parm arg2 in its first input and the Parm arg5, in
     the same group, in its second, as a Fuselage's end cap length shows its Rel and Abs values; the first
     drives the slider unless AddUpdateGui says otherwise.  It always shows two Parms: arg2 without arg5 is an
@@ -163,7 +164,7 @@ public:
     \param [in] arg1 string Label of most controls; title, width or format of the others
     \param [in] arg2 string Name of the Parm a control shows
     \param [in] arg3 string Name of the group of the Parm in arg2
-    \param [in] arg4 double Range of a slider
+    \param [in] arg4 double Range of a slider or an input, a half width
     \param [in] arg5 string Name of the Parm in a two input slider's second input, or the integer value of a
     choice item
     \return int GUI device index

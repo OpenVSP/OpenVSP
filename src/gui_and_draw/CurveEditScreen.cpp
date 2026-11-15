@@ -1238,7 +1238,7 @@ void CurveEditScreen::RedrawXYSliders( int num_pts, int curve_type )
 
             for(int i = 0; i < num_inputs; i++ )
             {
-                m_PtLayout.AddInput( m_InputVecVec[i][n], "AUTO_UPDATE", "%9.4f" );
+                m_PtLayout.AddInput( m_InputVecVec[i][n], "AUTO_UPDATE", "%9.4f", 0, 0.5 );
 
                 m_PtLayout.AddX( gap_w );
             }
@@ -1262,7 +1262,7 @@ void CurveEditScreen::RedrawXYSliders( int num_pts, int curve_type )
 
             for(int i = 0; i < num_inputs; i++ )
             {
-                m_PtLayout.AddInput( m_InputVecVec[i][n], "AUTO_UPDATE", "%9.4f" );
+                m_PtLayout.AddInput( m_InputVecVec[i][n], "AUTO_UPDATE", "%9.4f", 0, 0.5 );
 
                 m_PtLayout.AddX( gap_w );
             }

@@ -162,7 +162,7 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
     else if ( def.m_Type == vsp::GDEV_INPUT )
     {
         Input* input = new Input();
-        m_Layout.AddInput( *input, ( const char* )def.m_Label.c_str(), m_Format.c_str() );
+        m_Layout.AddInput( *input, ( const char* )def.m_Label.c_str(), m_Format.c_str(), 0, def.m_Range );
         gui_dev = input;
     }
     else if ( def.m_Type == vsp::GDEV_OUTPUT )

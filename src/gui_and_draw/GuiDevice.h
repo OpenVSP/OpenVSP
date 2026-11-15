@@ -290,7 +290,10 @@ class Input : public GuiDevice
 {
 public:
     Input();
-    virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button = nullptr );
+    // range is a half width, as a slider's is: a scrub across a slider's width spans twice it.  A slider
+    // beside the box, given by SetScrubSlider, sets the scale instead.
+    virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button,
+                       double range );
 
     virtual void SetFormat( const char* format )
     {

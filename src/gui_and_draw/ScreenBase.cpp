@@ -2152,14 +2152,14 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_MassPropLayout.AddDividerBox( "Volume-Based Mass Properties" );
 
-    m_MassPropLayout.AddInput( m_DensityInput, "Density", " %7.6f" );
+    m_MassPropLayout.AddInput( m_DensityInput, "Density", " %7.6f", 0, 1.0 );
     m_MassPropLayout.AddCounter( m_PriorCounter, "Priority" );
 
     m_MassPropLayout.AddYGap();
     m_MassPropLayout.AddDividerBox( "OML-Based Mass Properties" );
 
     m_MassPropLayout.AddButton( m_ThinShellButton, "Include Thin Shell" );
-    m_MassPropLayout.AddInput( m_ShellMassAreaInput, "Mass/Area", " %7.6f" );
+    m_MassPropLayout.AddInput( m_ShellMassAreaInput, "Mass/Area", " %7.6f", 0, 1.0 );
 
     m_MassPropLayout.AddYGap();
     m_MassPropLayout.AddDividerBox( "Specified Mass Properties" );

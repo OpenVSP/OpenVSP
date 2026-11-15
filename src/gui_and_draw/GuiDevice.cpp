@@ -845,7 +845,7 @@ Input::Input() : GuiDevice()
 }
 
 //==== Init ====//
-void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button )
+void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button, double range )
 {
     assert( input );
     GuiDevice::Init( screen );
@@ -853,6 +853,7 @@ void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, VspBut
     AddWidget( input, true );
 
     SetFormat( format );
+    m_ScrubRange = range;
     m_Input = input;
     m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Input->callback( StaticDeviceCB, this );
@@ -1466,7 +1467,7 @@ void SliderInput::Init( VspScreen* screen, VspSlider* slider, Fl_Input* input,
 
     m_Slider.Init( screen, slider, range, log_slider );
 
-    m_Input.Init( screen, input, format );
+    m_Input.Init( screen, input, format, nullptr, range );
     m_Input.SetScrubSlider( &m_Slider );
 
     ClearAllWidgets();
@@ -1512,7 +1513,7 @@ void SliderAdjRangeInput::Init( VspScreen* screen, VspSlider* slider, Fl_Button*
     }
 
     m_Slider.Init( screen, slider, lbutton, rbutton, range, log_slider );
-    m_Input.Init( screen, input, format );
+    m_Input.Init( screen, input, format, nullptr, range );
     m_Input.SetScrubSlider( &m_Slider );
 
     ClearAllWidgets();
@@ -1557,8 +1558,8 @@ void SliderAdjRange2Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button
     }
 
     m_Slider.Init( screen, slider, lbutton, rbutton, range );
-    m_Input1.Init( screen, input1, format );
-    m_Input2.Init( screen, input2, format );
+    m_Input1.Init( screen, input1, format, nullptr, range );
+    m_Input2.Init( screen, input2, format, nullptr, range );
     m_Input1.SetScrubSlider( &m_Slider );
     m_Input2.SetScrubSlider( &m_Slider );
 
@@ -1654,11 +1655,11 @@ void SliderAdjRange3Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button
     }
 
     m_Slider.Init( screen, slider, lbutton, rbutton, range );
-    m_Input1.Init( screen, input1, format );
-    m_Input2.Init( screen, input2, format );
+    m_Input1.Init( screen, input1, format, nullptr, range );
+    m_Input2.Init( screen, input2, format, nullptr, range );
     m_Input1.SetScrubSlider( &m_Slider );
     m_Input2.SetScrubSlider( &m_Slider );
-    m_Input3.Init( screen, input3, format );
+    m_Input3.Init( screen, input3, format, nullptr, range );
     m_Input3.SetScrubSlider( &m_Slider );
 
 }
@@ -2725,7 +2726,7 @@ void FractParmSlider::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbu
     }
 
     m_Slider.Init( screen, slider, lbutton, rbutton, range );
-    m_FractInput.Init( screen, fract_input, format );
+    m_FractInput.Init( screen, fract_input, format, nullptr, range );
     m_FractInput.SetScrubSlider( &m_Slider );
     m_ResultFlInput = result_input;
     m_ResultFlInput->callback( StaticDeviceCB, this );
@@ -4250,8 +4251,8 @@ void SkinControl::Init( VspScreen* screen,
     m_SliderL.Init( screen, sliderL, minButtonL, maxButtonL, range );
     m_SliderR.Init( screen, sliderR, minButtonR, maxButtonR, range );
 
-    m_InputL.Init( screen, inputL, format );
-    m_InputR.Init( screen, inputR, format );
+    m_InputL.Init( screen, inputL, format, nullptr, range );
+    m_InputR.Init( screen, inputR, format, nullptr, range );
     m_InputL.SetScrubSlider( &m_SliderL );
     m_InputR.SetScrubSlider( &m_SliderR );
 

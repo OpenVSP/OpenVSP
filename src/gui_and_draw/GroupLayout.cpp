@@ -1153,7 +1153,7 @@ void GroupLayout::AddOutput( Output& output, const char* label, const char* form
 }
 
 //==== Create & Init Float Input  ====//
-void GroupLayout::AddInput( Input& input, const char* label, const char* format, int used_w )
+void GroupLayout::AddInput( Input& input, const char* label, const char* format, int used_w, double range )
 {
     assert( m_Group && m_Screen );
 
@@ -1180,7 +1180,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format,
     AddY( m_StdHeight );
     NewLineX();
 
-    input.Init( m_Screen, flinput, format, button );
+    input.Init( m_Screen, flinput, format, button, range );
 
     if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
     {
@@ -1188,7 +1188,8 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format,
     }
 }
 
-void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format)
+void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format,
+                                           double range )
 {
     assert( m_Group && m_Screen );
 
@@ -1212,11 +1213,11 @@ void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input,
     string left_button_label;
     left_button_label = string(label) + " Start";
     SetInputWidth(tInputWidth);
-    AddInput( start_input, left_button_label.c_str(), format );
+    AddInput( start_input, left_button_label.c_str(), format, 0, range );
 
     SetButtonWidth( tButtonWidth );
-    AddInput( end_input, "End", format );
-    AddInput( npts_input, "Npts", "%3.0f" );    // this is an integer input
+    AddInput( end_input, "End", format, 0, range );
+    AddInput( npts_input, "Npts", "%3.0f", 0, 10.0 );    // this is an integer input
 
     // reset object settings
     SetButtonWidth( tButtonWidthOrig );

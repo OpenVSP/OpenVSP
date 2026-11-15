@@ -521,7 +521,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_FixPointEditLayout.SetSliderWidth( massw );
     m_FixPointEditLayout.SetInputWidth( massw );
 
-    m_FixPointEditLayout.AddInput( m_FixPointMassInput, "Mass", "%5.3g" );
+    m_FixPointEditLayout.AddInput( m_FixPointMassInput, "Mass", "%5.3g", 0, 1.0 );
 
     m_FixPointEditLayout.SetChoiceButtonWidth( 0 );
     m_FixPointMassUnitChoice.AddItem( "lbm", vsp::MASS_UNIT_LBM );
