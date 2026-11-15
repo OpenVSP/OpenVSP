@@ -121,6 +121,7 @@ public:
     int handle( int event );
 
     void SetDevice( GuiDevice* device )     { m_Device = device; }
+    void PairSensitivity( VspDragInput* partner );
 
     static bool IsScrubbing()               { return m_ScrubInput != nullptr; }
 
@@ -151,6 +152,7 @@ protected:
     double m_BaseVal;
     double m_Step;
     double m_Sensitivity;
+    VspDragInput* m_SensitivityPartner;
     double m_LowerLimit;
     double m_UpperLimit;
     bool m_ValChanged;
@@ -912,6 +914,8 @@ public:
 //  virtual void SetResultFormat( const char* format )  { m_ResultFlInput.SetFormat( format ); }
 
     virtual void DeviceCB( Fl_Widget* w );
+    virtual bool GetScrubStart( Fl_Widget* w, double & val, double & lower, double & upper, double & step );
+    virtual bool ScrubCB( Fl_Widget* w, double val, bool drag_flag );
     virtual void SetButtonNameUpdate( bool flag )
     {
         m_ParmButton.SetButtonNameUpdate( flag );
@@ -930,6 +934,9 @@ protected:
 
     Fl_Input* m_ResultFlInput;
     string m_Format;
+
+    double m_ScrubPressResult;      // The result at the press of a scrub of the result box
+    double m_ScrubPressParmVal;     // The Parm's value at that press
 
     bool m_ParmButtonFlag;
     ParmButton m_ParmButton;

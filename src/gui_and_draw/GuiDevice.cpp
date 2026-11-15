@@ -140,6 +140,7 @@ VspDragInput::VspDragInput( int X, int Y, int W, int H, const char *L ) : Fl_Inp
     m_BaseVal = 0.0;
     m_Step = 0.0;
     m_Sensitivity = 1.0;
+    m_SensitivityPartner = nullptr;
     m_LowerLimit = 0.0;
     m_UpperLimit = 0.0;
     m_ValChanged = false;
@@ -159,6 +160,18 @@ VspDragInput::~VspDragInput()
     {
         m_ScrubInput = nullptr;
     }
+    if ( m_SensitivityPartner )
+    {
+        m_SensitivityPartner->m_SensitivityPartner = nullptr;
+    }
+}
+
+//==== Two Boxes That Share One Sensitivity ====//
+void VspDragInput::PairSensitivity( VspDragInput* partner )
+{
+    m_SensitivityPartner = partner;
+    partner->m_SensitivityPartner = this;
+    partner->m_Sensitivity = m_Sensitivity;
 }
 
 int VspDragInput::handle( int event )
@@ -417,6 +430,10 @@ void VspDragInput::SetSensitivity( double sensitivity )
     }
 
     m_Sensitivity = sensitivity;
+    if ( m_SensitivityPartner )
+    {
+        m_SensitivityPartner->m_Sensitivity = sensitivity;
+    }
 }
 
 //==== Restore The Value From The Press, Taking Back The Scrub's Undo Entry ====//
@@ -2690,6 +2707,8 @@ FractParmSlider::FractParmSlider() : GuiDevice()
     m_Type = vsp::GDEV_FRACT_PARM_SLIDER;
     m_ResultFlInput = nullptr;
     m_Format = string( " %7.5f" );
+    m_ScrubPressResult = 0.0;
+    m_ScrubPressParmVal = 0.0;
 }
 
 //==== Init ====//
@@ -2710,6 +2729,22 @@ void FractParmSlider::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbu
     m_FractInput.SetScrubSlider( &m_Slider );
     m_ResultFlInput = result_input;
     m_ResultFlInput->callback( StaticDeviceCB, this );
+
+    // Both boxes scrub at the step of the result and share one sensitivity.
+    VspDragInput* drag_input = dynamic_cast< VspDragInput* >( fract_input );
+    if ( drag_input )
+    {
+        drag_input->SetDevice( this );
+    }
+    VspDragInput* result_drag_input = dynamic_cast< VspDragInput* >( result_input );
+    if ( result_drag_input )
+    {
+        result_drag_input->SetDevice( this );
+        if ( drag_input )
+        {
+            drag_input->PairSensitivity( result_drag_input );
+        }
+    }
 
     ClearAllWidgets();
     AddWidget( parm_button );
@@ -2828,6 +2863,83 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
     }
 
     m_Screen->GuiDeviceCallBack( this );
+}
+
+//==== Scrub Start: The Fraction Box Steps At The Slider's Scale, The Result Box At That Times The Ref ====//
+bool FractParmSlider::GetScrubStart( Fl_Widget* w, double & val, double & lower, double & upper, double & step )
+{
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        return false;
+    }
+
+    FractionParm* fract_parm_ptr = dynamic_cast< FractionParm* > ( SetParmID( m_ParmID ) );
+    if ( !fract_parm_ptr )
+    {
+        return false;
+    }
+
+    if ( w != m_ResultFlInput )
+    {
+        return m_FractInput.GetScrubStart( w, val, lower, upper, step );
+    }
+
+    double ref = fract_parm_ptr->GetRefVal();
+    if ( std::abs( ref ) <= DBL_EPSILON )
+    {
+        return false;
+    }
+
+    double fract_val, fract_lower, fract_upper, fract_step;
+    if ( !m_FractInput.GetScrubStart( w, fract_val, fract_lower, fract_upper, fract_step ) )
+    {
+        return false;
+    }
+
+    val = fract_parm_ptr->GetResult();
+    ResultLimits( fract_parm_ptr, lower, upper );
+    step = fract_step * std::abs( ref );
+
+    m_ScrubPressResult = val;
+    m_ScrubPressParmVal = fract_parm_ptr->Get();
+    return true;
+}
+
+//==== Scrub CallBack: The Result Box Sets The Result, The Fraction Box Its Input ====//
+bool FractParmSlider::ScrubCB( Fl_Widget* w, double val, bool drag_flag )
+{
+    if ( w != m_ResultFlInput )
+    {
+        return m_FractInput.ScrubCB( w, val, drag_flag );
+    }
+
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        return false;
+    }
+
+    FractionParm* fract_parm_ptr = dynamic_cast< FractionParm* > ( SetParmID( m_ParmID ) );
+    if ( !fract_parm_ptr )
+    {
+        return false;
+    }
+
+    double old_val = fract_parm_ptr->Get();
+
+    // The result from the press sets the Parm's own value from then, exactly.
+    if ( val == m_ScrubPressResult )
+    {
+        fract_parm_ptr->SetFromDevice( m_ScrubPressParmVal, drag_flag );
+    }
+    else
+    {
+        fract_parm_ptr->SetResultFromDevice( val, drag_flag );
+    }
+    bool changed = ( fract_parm_ptr->Get() != old_val );
+
+    m_Screen->GuiDeviceCallBack( this );
+
+    return changed;
 }
 
 ////=====================================================================//
