@@ -321,14 +321,14 @@ public:
     virtual void SetMinBound( double minb )
     {
         m_MinBound = minb;
-        m_HalfRange = m_MaxBound - m_MinBound;
+        m_HalfRange = 0.5 * ( m_MaxBound - m_MinBound );
         m_Slider->bounds( m_MinBound, m_MaxBound );
     }
 
     virtual void SetMaxBound( double maxb )
     {
         m_MaxBound = maxb;
-        m_HalfRange = m_MaxBound - m_MinBound;
+        m_HalfRange = 0.5 * ( m_MaxBound - m_MinBound );
         m_Slider->bounds( m_MinBound, m_MaxBound );
     }
 
