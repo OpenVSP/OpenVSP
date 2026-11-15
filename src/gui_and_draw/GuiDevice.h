@@ -49,6 +49,8 @@ using std::map;
 class Parm;
 class VspScreen;
 class GroupLayout;
+class GuiDevice;
+class Slider;
 
 //====GuiDevice - Handles Interaction Between Parms and FLTK Widgets ====//
 
@@ -110,6 +112,55 @@ public:
     int handle( int event );
 };
 
+//==== Input Box Whose GuiDevice Value Scrubs With Alt + Drag Or Right Drag ====//
+class VspDragInput : public Fl_Input
+{
+public:
+    VspDragInput( int X, int Y, int W, int H, const char *L = 0 );
+    ~VspDragInput();
+    int handle( int event );
+
+    void SetDevice( GuiDevice* device )     { m_Device = device; }
+
+    static bool IsScrubbing()               { return m_ScrubInput != nullptr; }
+
+protected:
+
+    enum { DRAG_NONE, DRAG_PRESSED, DRAG_SCRUB, DRAG_DONE };
+
+    void StartScrub();
+    void Scrub();
+    void CancelScrub();
+    bool PressLost();
+    void EndPress( bool inside );
+    bool SensitivityTap( int key );
+    void SetSensitivity( double sensitivity );
+    bool SetScrubVal( double val );
+    void UpdateCursor( bool inside );
+    static void ModifierPollCB( void* data );
+
+    static VspDragInput* m_ScrubInput;
+
+    GuiDevice* m_Device;
+
+    int m_DragState;
+    int m_PressX;
+    int m_LastX;
+    int m_BaseX;
+    double m_PressVal;
+    double m_BaseVal;
+    double m_Step;
+    double m_Sensitivity;
+    double m_LowerLimit;
+    double m_UpperLimit;
+    bool m_ValChanged;
+
+    int m_PressButton;
+    int m_ModState;         // The modifier keys down at the last event of the press
+    string m_ScrubParmID;
+    bool m_CursorSet;       // This box set the window's cursor
+};
+
 class Vsp_Group : public Fl_Group
 {
 public:
@@ -168,6 +219,17 @@ public:
     static void StaticDeviceCB( Fl_Widget *w, void* data )
     {
         static_cast< GuiDevice* >( data )->DeviceCB( w );
+    }
+
+    // Scrub start for a VspDragInput of this device: shown value, limits and step per point
+    virtual bool GetScrubStart( Fl_Widget* w, double & val, double & lower, double & upper, double & step )
+    {
+        return false;
+    }
+    // Sets the value a VspDragInput of this device scrubs to; true if the Parm changed
+    virtual bool ScrubCB( Fl_Widget* w, double val, bool drag_flag )
+    {
+        return false;
     }
 
 protected:
@@ -233,6 +295,13 @@ public:
         m_Format = format;
     }
     virtual void DeviceCB( Fl_Widget* w );
+    virtual bool GetScrubStart( Fl_Widget* w, double & val, double & lower, double & upper, double & step );
+    virtual bool ScrubCB( Fl_Widget* w, double val, bool drag_flag );
+    // The slider beside the box, whose scale a scrub of the box follows.
+    virtual void SetScrubSlider( Slider* slider )
+    {
+        m_ScrubSlider = slider;
+    }
     virtual void SetButtonNameUpdate( bool flag )
     {
         m_ParmButton.SetButtonNameUpdate( flag );
@@ -254,6 +323,11 @@ protected:
 
     Fl_Input* m_Input;
     string m_Format;
+
+    Slider* m_ScrubSlider;
+    double m_ScrubRange;
+    double m_ScrubPressVal;         // The scrub's value at the press, in its own (log) coordinate
+    double m_ScrubPressParmVal;     // The Parm's value at the press
 
     bool m_ParmButtonFlag;
     ParmButton m_ParmButton;
@@ -318,6 +392,13 @@ public:
         m_HalfRange = range;
     }
 
+    virtual double GetScrubStep();
+    // The widget's value is log10 of the Parm's.
+    virtual bool GetLogWidgetFlag()
+    {
+        return m_LogSliderFlag;
+    }
+
     virtual void SetMinBound( double minb )
     {
         m_MinBound = minb;
@@ -356,6 +437,12 @@ public:
                        Fl_Button* rbutton, double range, bool log_slider = false );
 
     virtual void DeviceCB( Fl_Widget* w );
+
+    // The SliderAdjRange widget is linear, whatever its log flag.
+    virtual bool GetLogWidgetFlag()
+    {
+        return false;
+    }
 
 
 protected:

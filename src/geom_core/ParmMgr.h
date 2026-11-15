@@ -32,6 +32,7 @@ private:
     ParmMgrSingleton& operator=( ParmMgrSingleton const& copy ) = delete; // Not Implemented
 
     bool m_LastUndoFlag;
+    bool m_LastUndoPushed;      // Making m_LastUndo pushed the one before it onto the stack
     ParmUndo m_LastUndo;
     std::stack< ParmUndo > m_ParmUndoStack;
 
@@ -67,6 +68,8 @@ public:
     bool ValidateParmContainerMap();
 
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
+    // Takes back the entry AddToUndoStack made last, as if that change had not been made.
+    void DropLastUndo();
     void UnDo();
     void ClearUndo();
 

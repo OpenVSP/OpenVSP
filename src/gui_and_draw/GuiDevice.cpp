@@ -98,6 +98,384 @@ int VspButton::handle(int event)
     return ret;
 }
 
+//==== Screen Points Of Motion Before A Press Becomes A Scrub ====//
+static const int ScrubThreshold = 3;
+
+//==== The Modifier Keys A Scrub Watches, And How Often A Press Looks For Their Release ====//
+static const int ScrubModifiers = FL_SHIFT | FL_CTRL | FL_META | FL_ALT;
+static const double ModifierPollTime = 0.03;
+
+//==== The Event State Bit Of A Modifier Key, Zero For Other Keys ====//
+static int ModifierBit( int key )
+{
+    if ( key == FL_Shift_L || key == FL_Shift_R )
+    {
+        return FL_SHIFT;
+    }
+    if ( key == FL_Control_L || key == FL_Control_R )
+    {
+        return FL_CTRL;
+    }
+    if ( key == FL_Meta_L || key == FL_Meta_R )
+    {
+        return FL_META;
+    }
+    if ( key == FL_Alt_L || key == FL_Alt_R )
+    {
+        return FL_ALT;
+    }
+    return 0;
+}
+
+VspDragInput* VspDragInput::m_ScrubInput = nullptr;
+
+VspDragInput::VspDragInput( int X, int Y, int W, int H, const char *L ) : Fl_Input( X, Y, W, H, L )
+{
+    m_Device = nullptr;
+    m_DragState = DRAG_NONE;
+    m_PressX = 0;
+    m_LastX = 0;
+    m_BaseX = 0;
+    m_PressVal = 0.0;
+    m_BaseVal = 0.0;
+    m_Step = 0.0;
+    m_Sensitivity = 1.0;
+    m_LowerLimit = 0.0;
+    m_UpperLimit = 0.0;
+    m_ValChanged = false;
+    m_PressButton = 0;
+    m_ModState = 0;
+    m_CursorSet = false;
+}
+
+VspDragInput::~VspDragInput()
+{
+    Fl::remove_timeout( ModifierPollCB, this );
+    if ( m_CursorSet && window() )
+    {
+        window()->cursor( FL_CURSOR_DEFAULT );
+    }
+    if ( m_ScrubInput == this )
+    {
+        m_ScrubInput = nullptr;
+    }
+}
+
+int VspDragInput::handle( int event )
+{
+    switch ( event )
+    {
+    case FL_PUSH:
+        if ( m_DragState != DRAG_NONE )
+        {
+            return 1;
+        }
+        if ( m_Device && ( Fl::event_button() == FL_RIGHT_MOUSE ||
+                           ( Fl::event_button() == FL_LEFT_MOUSE && Fl::event_state( FL_ALT ) ) ) )
+        {
+            m_DragState = DRAG_PRESSED;
+            m_PressX = Fl::event_x();
+            m_PressButton = Fl::event_button();
+            m_ModState = Fl::event_state() & ScrubModifiers;
+            Fl::add_timeout( ModifierPollTime, ModifierPollCB, this );
+            return 1;
+        }
+        break;
+
+    case FL_DRAG:
+        if ( m_DragState != DRAG_NONE )
+        {
+            if ( PressLost() )
+            {
+                EndPress( false );
+                return 1;
+            }
+            m_ModState = Fl::event_state() & ScrubModifiers;
+        }
+
+        if ( m_DragState == DRAG_PRESSED )
+        {
+            if ( std::abs( Fl::event_x() - m_PressX ) > ScrubThreshold )
+            {
+                StartScrub();
+            }
+            return 1;
+        }
+        else if ( m_DragState == DRAG_SCRUB )
+        {
+            Scrub();
+            return 1;
+        }
+        else if ( m_DragState == DRAG_DONE )
+        {
+            return 1;
+        }
+        break;
+
+    case FL_RELEASE:
+        if ( m_DragState == DRAG_PRESSED )
+        {
+            // A press that never became a scrub is a plain click; a right click
+            // opens the Fl_Input menu here.
+            m_DragState = DRAG_NONE;
+            Fl::remove_timeout( ModifierPollCB, this );
+            Fl_Input::handle( FL_PUSH );
+            return Fl_Input::handle( FL_RELEASE );
+        }
+        else if ( m_DragState != DRAG_NONE )
+        {
+            EndPress( Fl::event_inside( this ) );
+            return 1;
+        }
+        break;
+
+    case FL_KEYBOARD:
+    case FL_SHORTCUT:
+        if ( m_DragState != DRAG_NONE && PressLost() )
+        {
+            EndPress( false );
+        }
+
+        // A press takes every key, so no shortcut runs during it.
+        if ( m_DragState != DRAG_NONE )
+        {
+            if ( Fl::event_key() == FL_Escape )
+            {
+                if ( m_DragState == DRAG_SCRUB )
+                {
+                    CancelScrub();
+                }
+            }
+            else if ( m_DragState != DRAG_DONE )
+            {
+                SensitivityTap( Fl::event_key() );
+            }
+            return 1;
+        }
+        else if ( Fl::event_key() == FL_Alt_L || Fl::event_key() == FL_Alt_R )
+        {
+            int ret = Fl_Input::handle( event );
+            UpdateCursor( Fl::belowmouse() == this );
+            return ret;
+        }
+        break;
+
+    case FL_KEYUP:
+        if ( m_DragState != DRAG_NONE )
+        {
+            m_ModState &= ~ModifierBit( Fl::event_key() );
+        }
+        if ( Fl::event_key() == FL_Alt_L || Fl::event_key() == FL_Alt_R )
+        {
+            int ret = Fl_Input::handle( event );
+            UpdateCursor( Fl::belowmouse() == this );
+            return ret;
+        }
+        break;
+
+    case FL_ENTER:
+    case FL_MOVE:
+    {
+        int ret = Fl_Input::handle( event );
+        UpdateCursor( true );
+        return ret;
+    }
+
+    case FL_LEAVE:
+        // Fl_Input restores the cursor.
+        m_CursorSet = false;
+        break;
+
+    case FL_HIDE:
+    case FL_DEACTIVATE:
+        EndPress( false );
+        break;
+
+    default:
+        break;
+    }
+
+    return Fl_Input::handle( event );
+}
+
+//==== Begin A Scrub From The Device's Value At The Press ====//
+void VspDragInput::StartScrub()
+{
+    if ( !m_Device->GetScrubStart( this, m_PressVal, m_LowerLimit, m_UpperLimit, m_Step ) )
+    {
+        m_DragState = DRAG_DONE;
+        return;
+    }
+
+    m_DragState = DRAG_SCRUB;
+    m_ScrubInput = this;
+    m_ScrubParmID = m_Device->GetParmID();
+    m_BaseVal = m_PressVal;
+    m_BaseX = m_PressX;
+    m_LastX = m_PressX;
+    m_ValChanged = false;
+
+    UpdateCursor( true );
+    Scrub();
+}
+
+//==== Set The Value From The Motion Since The Last Re-Base ====//
+void VspDragInput::Scrub()
+{
+    int x = Fl::event_x();
+    m_LastX = x;
+
+    double val = m_BaseVal + ( x - m_BaseX ) * m_Step * m_Sensitivity;
+
+    // Re-base at a limit so motion back moves the value at once.
+    if ( val < m_LowerLimit )
+    {
+        val = m_LowerLimit;
+        m_BaseVal = val;
+        m_BaseX = x;
+    }
+    else if ( val > m_UpperLimit )
+    {
+        val = m_UpperLimit;
+        m_BaseVal = val;
+        m_BaseX = x;
+    }
+
+    SetScrubVal( val );
+}
+
+//==== End A Press Or Scrub, Keeping The Value It Reached ====//
+void VspDragInput::EndPress( bool inside )
+{
+    m_DragState = DRAG_NONE;
+    Fl::remove_timeout( ModifierPollCB, this );
+    if ( m_ScrubInput == this )
+    {
+        m_ScrubInput = nullptr;
+    }
+    UpdateCursor( inside );
+}
+
+//==== Clear The Modifier Keys Let Go During A Press ====//
+// FLTK sends a key's release only to the focus widget, but every event keeps the state.
+void VspDragInput::ModifierPollCB( void* data )
+{
+    VspDragInput* drag_input = static_cast< VspDragInput* >( data );
+    drag_input->m_ModState &= Fl::event_state();
+    Fl::repeat_timeout( ModifierPollTime, ModifierPollCB, data );
+}
+
+//==== True If The Press Has Lost Its Mouse Button Or Its Grab ====//
+bool VspDragInput::PressLost()
+{
+    return Fl::pushed() != this || !Fl::event_state( FL_BUTTON( m_PressButton ) );
+}
+
+//==== Shift Halves The Sensitivity, Ctrl Or Meta Doubles It, Alt Resets It; False For Other Keys ====//
+// A key already down, such as an Alt held from the press or a key repeat, is not a tap.
+bool VspDragInput::SensitivityTap( int key )
+{
+    int bit = ModifierBit( key );
+    if ( bit == 0 )
+    {
+        return false;
+    }
+
+    bool held = ( m_ModState & bit ) != 0;
+    m_ModState |= bit;
+    if ( held )
+    {
+        return true;
+    }
+
+    if ( key == FL_Shift_L || key == FL_Shift_R )
+    {
+        SetSensitivity( 0.5 * m_Sensitivity );
+    }
+    else if ( key == FL_Control_L || key == FL_Control_R || key == FL_Meta_L || key == FL_Meta_R )
+    {
+        SetSensitivity( 2.0 * m_Sensitivity );
+    }
+    else if ( key == FL_Alt_L || key == FL_Alt_R )
+    {
+        SetSensitivity( 1.0 );
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
+//==== Set The Sensitivity, Re-Basing A Scrub At The Last Pointer Position ====//
+void VspDragInput::SetSensitivity( double sensitivity )
+{
+    if ( m_DragState == DRAG_SCRUB )
+    {
+        m_BaseVal += ( m_LastX - m_BaseX ) * m_Step * m_Sensitivity;
+        m_BaseX = m_LastX;
+    }
+
+    m_Sensitivity = sensitivity;
+}
+
+//==== Restore The Value From The Press, Taking Back The Scrub's Undo Entry ====//
+void VspDragInput::CancelScrub()
+{
+    if ( SetScrubVal( m_PressVal ) && m_ValChanged )
+    {
+        ParmMgr.DropLastUndo();
+    }
+    m_DragState = DRAG_DONE;
+    m_ScrubInput = nullptr;
+}
+
+//==== Set The Device Value; Only The First Change Of A Scrub Makes An Undo Entry ====//
+// A device showing another Parm ends the scrub; false then, as nothing was set.
+bool VspDragInput::SetScrubVal( double val )
+{
+    if ( m_Device->GetParmID() != m_ScrubParmID )
+    {
+        m_DragState = DRAG_DONE;
+        m_ScrubInput = nullptr;
+        return false;
+    }
+
+    if ( m_Device->ScrubCB( this, val, m_ValChanged ) )
+    {
+        m_ValChanged = true;
+    }
+    return true;
+}
+
+//==== Scrub Cursor While Scrubbing Or While Alt Is Held Over The Box ====//
+// Only a box that set the cursor puts it back.
+void VspDragInput::UpdateCursor( bool inside )
+{
+    if ( !window() )
+    {
+        return;
+    }
+
+    if ( active_r() && m_Device && ( m_DragState == DRAG_SCRUB || ( inside && Fl::event_state( FL_ALT ) ) ) )
+    {
+        window()->cursor( FL_CURSOR_WE );
+        m_CursorSet = true;
+    }
+    else if ( m_CursorSet )
+    {
+        if ( inside && active_r() )
+        {
+            window()->cursor( FL_CURSOR_INSERT );
+        }
+        else
+        {
+            window()->cursor( FL_CURSOR_DEFAULT );
+        }
+        m_CursorSet = false;
+    }
+}
+
 Vsp_Group::Vsp_Group( int x, int y, int w, int h ) : Fl_Group( x, y, w, h )
 {
     m_AllowDrop = false;
@@ -407,6 +785,35 @@ static void InputSetFromDisplay( Parm* parm_ptr, double val, bool drag_flag )
     parm_ptr->SetFromDevice( val, drag_flag );
 }
 
+//==== FractionParm Limits In Result Units ====//
+static void ResultLimits( FractionParm* fp, double & lower, double & upper )
+{
+    lower = fp->GetLowerLimit() * fp->GetRefVal();
+    upper = fp->GetUpperLimit() * fp->GetRefVal();
+    if ( lower > upper )
+    {
+        std::swap( lower, upper );
+    }
+}
+
+//==== Parm Limits In The Units An Input Displays ====//
+static void InputDisplayLimits( Parm* parm_ptr, double & lower, double & upper )
+{
+    FractionParm* fp = InputResultParm( parm_ptr );
+    if ( fp )
+    {
+        ResultLimits( fp, lower, upper );
+    }
+    else
+    {
+        lower = parm_ptr->GetLowerLimit();
+        upper = parm_ptr->GetUpperLimit();
+    }
+}
+
+//==== Points Of Motion A Value Box Without A Slider Takes To Scrub Through Its Span, About A Slider's Width ====//
+static const double LoneInputScrubWidth = 200.0;
+
 //==== Constructor ====//
 Input::Input() : GuiDevice()
 {
@@ -414,6 +821,10 @@ Input::Input() : GuiDevice()
     m_Input = nullptr;
     m_Format = string( " %7.5f" );
     m_ParmButtonFlag = false;
+    m_ScrubSlider = nullptr;
+    m_ScrubRange = 10.0;
+    m_ScrubPressVal = 0.0;
+    m_ScrubPressParmVal = 0.0;
 }
 
 //==== Init ====//
@@ -428,6 +839,12 @@ void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, VspBut
     m_Input = input;
     m_Input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Input->callback( StaticDeviceCB, this );
+
+    VspDragInput* drag_input = dynamic_cast< VspDragInput* >( m_Input );
+    if ( drag_input )
+    {
+        drag_input->SetDevice( this );
+    }
 
     m_ParmButtonFlag = false;
     if ( parm_button )
@@ -490,6 +907,112 @@ void Input::DeviceCB( Fl_Widget* w )
     }
 
     m_Screen->GuiDeviceCallBack( this );
+}
+
+//==== Scrub Start: Shown Value, Limits And Step Per Point ====//
+bool Input::GetScrubStart( Fl_Widget* w, double & val, double & lower, double & upper, double & step )
+{
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        return false;
+    }
+
+    Parm* parm_ptr = SetParmID( m_ParmID );
+    if ( !parm_ptr )
+    {
+        return false;
+    }
+
+    // A result shown for a reference value of zero cannot set the Parm.
+    FractionParm* fp = InputResultParm( parm_ptr );
+    if ( fp && std::abs( fp->GetRefVal() ) <= DBL_EPSILON )
+    {
+        return false;
+    }
+
+    val = InputDisplayVal( parm_ptr );
+    InputDisplayLimits( parm_ptr, lower, upper );
+
+    if ( m_ScrubSlider )
+    {
+        // The scale of the slider's widget, in the widget's own (log) coordinate.
+        step = m_ScrubSlider->GetScrubStep();
+
+        if ( m_ScrubSlider->GetLogWidgetFlag() )
+        {
+            if ( val <= 0.0 || upper <= 0.0 )
+            {
+                return false;
+            }
+
+            val = log10( val );
+            upper = log10( upper );
+            if ( lower > 0.0 )
+            {
+                lower = log10( lower );
+            }
+            else
+            {
+                lower = -DBL_MAX;
+            }
+        }
+    }
+    else
+    {
+        // Twice the range across a slider's width, the Parm's range shown as its result.
+        step = 2.0 * std::abs( m_ScrubRange ) / LoneInputScrubWidth;
+
+        if ( fp )
+        {
+            step *= std::abs( fp->GetRefVal() );
+        }
+    }
+
+    // A zero or undefined step scrubs nothing.
+    if ( !( step > 0.0 ) )
+    {
+        return false;
+    }
+
+    m_ScrubPressVal = val;
+    m_ScrubPressParmVal = parm_ptr->Get();
+    return true;
+}
+
+//==== Scrub CallBack: Set The Parm From A Shown Value, True If It Changed ====//
+bool Input::ScrubCB( Fl_Widget* w, double val, bool drag_flag )
+{
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        return false;
+    }
+
+    Parm* parm_ptr = SetParmID( m_ParmID );
+    if ( !parm_ptr )
+    {
+        return false;
+    }
+
+    double old_val = parm_ptr->Get();
+
+    // The value from the press sets the Parm's own value from then, exactly.
+    if ( val == m_ScrubPressVal )
+    {
+        parm_ptr->SetFromDevice( m_ScrubPressParmVal, drag_flag );
+    }
+    else
+    {
+        if ( m_ScrubSlider && m_ScrubSlider->GetLogWidgetFlag() )
+        {
+            val = pow( 10.0, val );
+        }
+        InputSetFromDisplay( parm_ptr, val, drag_flag );
+    }
+    bool changed = ( parm_ptr->Get() != old_val );
+
+    m_Screen->GuiDeviceCallBack( this );
+
+    return changed;
 }
 
 //=====================================================================//
@@ -583,6 +1106,16 @@ void Slider::Init( VspScreen* screen, VspSlider* sw, double range, bool log_slid
     SetRange( range );
     m_Slider->callback( StaticDeviceCB, this );
 
+}
+
+//==== Change In The Slider's Value Per Screen Point Of Its Widget ====//
+double Slider::GetScrubStep()
+{
+    if ( m_Slider->w() <= 0 )
+    {
+        return 0.0;
+    }
+    return std::abs( m_Slider->maximum() - m_Slider->minimum() ) / m_Slider->w();
 }
 
 //==== Set Slider Value and Limits =====//
@@ -917,6 +1450,7 @@ void SliderInput::Init( VspScreen* screen, VspSlider* slider, Fl_Input* input,
     m_Slider.Init( screen, slider, range, log_slider );
 
     m_Input.Init( screen, input, format );
+    m_Input.SetScrubSlider( &m_Slider );
 
     ClearAllWidgets();
     AddWidget( parm_button );
@@ -962,6 +1496,7 @@ void SliderAdjRangeInput::Init( VspScreen* screen, VspSlider* slider, Fl_Button*
 
     m_Slider.Init( screen, slider, lbutton, rbutton, range, log_slider );
     m_Input.Init( screen, input, format );
+    m_Input.SetScrubSlider( &m_Slider );
 
     ClearAllWidgets();
     AddWidget( parm_button );
@@ -1007,6 +1542,8 @@ void SliderAdjRange2Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button
     m_Slider.Init( screen, slider, lbutton, rbutton, range );
     m_Input1.Init( screen, input1, format );
     m_Input2.Init( screen, input2, format );
+    m_Input1.SetScrubSlider( &m_Slider );
+    m_Input2.SetScrubSlider( &m_Slider );
 
     ClearAllWidgets();
     AddWidget( parm_button );
@@ -1102,7 +1639,10 @@ void SliderAdjRange3Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button
     m_Slider.Init( screen, slider, lbutton, rbutton, range );
     m_Input1.Init( screen, input1, format );
     m_Input2.Init( screen, input2, format );
+    m_Input1.SetScrubSlider( &m_Slider );
+    m_Input2.SetScrubSlider( &m_Slider );
     m_Input3.Init( screen, input3, format );
+    m_Input3.SetScrubSlider( &m_Slider );
 
 }
 
@@ -2167,6 +2707,7 @@ void FractParmSlider::Init( VspScreen* screen, VspSlider* slider, Fl_Button* lbu
 
     m_Slider.Init( screen, slider, lbutton, rbutton, range );
     m_FractInput.Init( screen, fract_input, format );
+    m_FractInput.SetScrubSlider( &m_Slider );
     m_ResultFlInput = result_input;
     m_ResultFlInput->callback( StaticDeviceCB, this );
 
@@ -3599,6 +4140,8 @@ void SkinControl::Init( VspScreen* screen,
 
     m_InputL.Init( screen, inputL, format );
     m_InputR.Init( screen, inputR, format );
+    m_InputL.SetScrubSlider( &m_SliderL );
+    m_InputR.SetScrubSlider( &m_SliderR );
 
     m_ParmButtonL.Init( screen, parm_button_L );
     m_ParmButtonR.Init( screen, parm_button_R );

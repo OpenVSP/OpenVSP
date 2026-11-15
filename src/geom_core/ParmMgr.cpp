@@ -23,6 +23,7 @@ ParmMgrSingleton::ParmMgrSingleton()
     m_NumParmChanges = 0;
     m_ChangeCnt = 0;
     m_LastUndoFlag = false;
+    m_LastUndoPushed = false;
     m_LastReset = "";
     m_DirtyFlag = true;
 }
@@ -212,11 +213,32 @@ void ParmMgrSingleton::AddToUndoStack( Parm* parm_ptr, bool drag_flag )
 
     if ( !drag_flag )
     {
+        m_LastUndoPushed = m_LastUndoFlag;
         if ( m_LastUndoFlag )
             m_ParmUndoStack.push( m_LastUndo );
         m_LastUndo = undo;
         m_LastUndoFlag = true;
     }
+}
+
+//==== Take Back The Last Undo Entry ====//
+void ParmMgrSingleton::DropLastUndo()
+{
+    if ( !m_LastUndoFlag )
+    {
+        return;
+    }
+
+    if ( m_LastUndoPushed && !m_ParmUndoStack.empty() )
+    {
+        m_LastUndo = m_ParmUndoStack.top();
+        m_ParmUndoStack.pop();
+    }
+    else
+    {
+        m_LastUndoFlag = false;
+    }
+    m_LastUndoPushed = false;
 }
 
 //==== Add Parm To Undo Stack ====//
