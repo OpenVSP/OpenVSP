@@ -5375,8 +5375,7 @@ void EditCurveXSec::ConvertTo( int newtype )
     // Reset selected control point (due to potentially added/removed points)
     m_SelectPntID = 0;
 
-    m_LateUpdateFlag = true;
-    ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
+    PntsChanged();
 }
 
 void EditCurveXSec::ReparameterizeEqualArcLength()
@@ -5661,7 +5660,7 @@ void EditCurveXSec::MovePnt( int index, const vec3d &new_pnt, bool force_update 
 
     if ( force_update )
     {
-        ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
+        PntsChanged();
     }
 }
 
@@ -5938,8 +5937,7 @@ void EditCurveXSec::SetPntVecs( const vector<double> &u_vec, const vector<double
 
     if ( force_update )
     {
-        m_LateUpdateFlag = true;
-        ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
+        PntsChanged();
     }
 }
 
@@ -6033,9 +6031,21 @@ void EditCurveXSec::DeletePt( int indx )
         // Reset selected control point (due to potentially added/removed points)
         m_SelectPntID = 0;
 
-        m_LateUpdateFlag = true;
-        ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update.
+        PntsChanged();
     }
+}
+
+// Through a point's Parm, which tells the owning Geom its surface changed; a change named by no Parm marks nothing
+// dirty.  The curve rebuilds at once, as what reads it -- the base edit curve among them -- does not ask for an update.
+void EditCurveXSec::PntsChanged()
+{
+    Parm* p = nullptr;
+    if ( !m_UParmVec.empty() )
+    {
+        p = m_UParmVec[0];
+    }
+    ParmChanged( p, Parm::SET );
+    Update();
 }
 
 void EditCurveXSec::RenameParms()

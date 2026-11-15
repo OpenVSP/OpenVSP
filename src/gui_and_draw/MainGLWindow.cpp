@@ -3365,6 +3365,7 @@ void EditXSecWindow::PushPoint( CurveEditScreen* curve_editor, EditCurveXSec* ed
         if ( m_LastHit >= 0 )
         {
             edit_curve_xs->DeletePt( m_LastHit );
+            edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
         }
         m_LastHit = -1;
         m_PointUsed = true;
@@ -3392,6 +3393,7 @@ void EditXSecWindow::PushPoint( CurveEditScreen* curve_editor, EditCurveXSec* ed
 
         edit_curve_xs->m_SplitU = u_curve;
         int new_pnt = edit_curve_xs->Split01();
+        edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
         curve_editor->UpdateIndexSelector( new_pnt );
         m_LastHit = -1;
         m_PointUsed = true;

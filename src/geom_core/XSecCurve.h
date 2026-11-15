@@ -723,6 +723,9 @@ public:
 
 protected:
 
+    // Rebuilds the curve and tells its owner the points changed, to be updated with the rest of the model
+    void PntsChanged();
+
     // Enforce left/right symmetry for the XSec. Forces control points at the 0.25 and 0.75 u 
     // locations (y-axis). The right side of the XSec is the "master" that gets mirrored.
     virtual void EnforceSymmetry();

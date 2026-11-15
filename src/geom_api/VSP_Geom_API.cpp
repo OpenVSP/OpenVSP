@@ -9880,7 +9880,6 @@ void SetXSecWidthHeight( const std::string& xsec_id, double w, double h )
         return;
     }
     xs->GetXSecCurve()->SetWidthHeight( w, h );
-    xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force Update
     ErrorMgr.NoError();
 }
 
@@ -13983,8 +13982,6 @@ void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d
     edit_xs->m_XParmVec[ipt]->Set( new_pnt.x() );
     edit_xs->m_YParmVec[ipt]->Set( new_pnt.y() );
     edit_xs->m_ZParmVec[ipt]->Set( new_pnt.z() );
-
-    edit_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE ); // Force update
 
     ErrorMgr.NoError();
 }

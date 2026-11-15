@@ -977,14 +977,17 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         int new_pnt = edit_curve_xs->Split01();
         m_PntSelector.SetMinMaxLimits( 0, edit_curve_xs->GetNumPts() - 1 );
         m_PntSelector.SetIndex( new_pnt );
+        edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
     }
     else if ( gui_device == &m_DelButton )
     {
         edit_curve_xs->DeletePt(); // Try to delete currently selected point
+        edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
     }
     else if ( gui_device == &m_ConvertButton )
     {
         edit_curve_xs->ConvertTo( edit_curve_xs->m_ConvType() );
+        edit_curve_xs->ParmChanged( nullptr, Parm::SET_FROM_DEVICE );
     }
     else if ( gui_device == &m_PntSelector )
     {

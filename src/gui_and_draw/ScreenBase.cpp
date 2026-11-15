@@ -3651,6 +3651,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
                 assert( ssint );
 
                 ssint->Intersect();
+                geom_ptr->Update();
 
                 EditCurveXSec *edit_xsec = dynamic_cast < EditCurveXSec* > ( ssint->GetXSecCurve() );
                 CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
