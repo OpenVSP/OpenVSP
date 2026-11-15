@@ -388,7 +388,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Input ====//
-    Fl_Input* input = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input->type( FL_FLOAT_INPUT );
 #endif
@@ -445,7 +445,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Input ====//
-    Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input1 = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input1->type( FL_FLOAT_INPUT );
 #endif
@@ -455,7 +455,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     m_Group->add( input1 );
     AddX( m_InputWidth );
 
-    Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input2 = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input2->type( FL_FLOAT_INPUT );
 #endif
@@ -512,7 +512,7 @@ void GroupLayout::AddSlider( SliderAdjRange3Input& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Input ====//
-    Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input1 = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input1->type( FL_FLOAT_INPUT );
 #endif
@@ -522,7 +522,7 @@ void GroupLayout::AddSlider( SliderAdjRange3Input& slid_adj_input,
     m_Group->add( input1 );
     AddX( m_InputWidth );
 
-    Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input2 = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input2->type( FL_FLOAT_INPUT );
 #endif
@@ -532,7 +532,7 @@ void GroupLayout::AddSlider( SliderAdjRange3Input& slid_adj_input,
     m_Group->add( input2 );
     AddX( m_InputWidth );
 
-    Fl_Input* input3 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input3 = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input3->type( FL_FLOAT_INPUT );
 #endif
@@ -589,7 +589,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Input ====//
-    Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input1 = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input1->type( FL_FLOAT_INPUT );
 #endif
@@ -599,7 +599,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     m_Group->add( input1 );
     AddX( m_InputWidth );
 
-    Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+    VspDragInput* input2 = new VspDragInput( m_X, m_Y, m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     input2->type( FL_FLOAT_INPUT );
 #endif
@@ -628,7 +628,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
 
     VspButton* button = nullptr;
     VspSlider* slider = nullptr;
-    Fl_Input* input = nullptr;
+    VspDragInput* input = nullptr;
     AddSliderInputWidgets( label, &button, &slider, &input, used_w );
 
     slider_input.Init( m_Screen, slider, input, range, format, button, log_slider );
@@ -639,7 +639,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     }
 }
 
-void GroupLayout::AddSliderInputWidgets( const char* label, VspButton** button, VspSlider** slider, Fl_Input** input,
+void GroupLayout::AddSliderInputWidgets( const char* label, VspButton** button, VspSlider** slider, VspDragInput** input,
                                          int used_w )
 {
     assert( m_Group && m_Screen );
@@ -660,7 +660,7 @@ void GroupLayout::AddSliderInputWidgets( const char* label, VspButton** button, 
     AddX( sw );
 
     //==== Input ====//
-    *input = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    *input = new VspDragInput( m_X, m_Y,  m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     ( *input )->type( FL_FLOAT_INPUT );
 #endif
@@ -1167,7 +1167,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format,
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
-    Fl_Input* flinput = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
+    VspDragInput* flinput = new VspDragInput( m_X, m_Y, iw, m_StdHeight );
 #ifdef NOREGEXP
     flinput->type( FL_FLOAT_INPUT );
 #endif
@@ -1648,7 +1648,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     AddX( m_RangeButtonWidth );
 
     //==== Left Input ====//
-    Fl_Input* inputL = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    VspDragInput* inputL = new VspDragInput( m_X, m_Y,  m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     inputL->type( FL_FLOAT_INPUT );
 #endif
@@ -1707,7 +1707,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     AddX( m_RangeButtonWidth );
 
     //==== Right Input ====//
-    Fl_Input* inputR = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+    VspDragInput* inputR = new VspDragInput( m_X, m_Y,  m_InputWidth, m_StdHeight );
 #ifdef NOREGEXP
     inputR->type( FL_FLOAT_INPUT );
 #endif

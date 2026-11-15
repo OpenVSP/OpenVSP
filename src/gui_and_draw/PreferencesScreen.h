@@ -120,7 +120,7 @@ protected:
     Choice m_BallSizeChoice;
     VspButton * m_BallSpeedLabel;
     VspSlider * m_BallSpeedSlider;
-    Fl_Input * m_BallSpeedInput;
+    VspDragInput * m_BallSpeedInput;
     Choice m_TurntableSpeedChoice;
     Choice m_BallOutlineChoice;
     Choice m_PivotChoice;
