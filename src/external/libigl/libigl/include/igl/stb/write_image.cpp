@@ -7,6 +7,7 @@
 // obtain one at http://mozilla.org/MPL/2.0/.
 #include "write_image.h"
 #include <stb_image_write.h>
+#include <cassert>
 #include <vector>
 #include "../pathinfo.h"
 
@@ -47,8 +48,7 @@ IGL_INLINE bool igl::stb::write_image(
 {
   const int comp = 4;                                  // 4 Channels Red, Green, Blue, Alpha
   const int stride_in_bytes = width*comp;           // Length of one row in bytes
-  using namespace std;
-  string d,b,e,f;
+  std::string d,b,e,f;
   pathinfo(image_file,d,b,e,f);
   if(e == "png")
   {

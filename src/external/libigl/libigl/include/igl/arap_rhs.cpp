@@ -10,6 +10,7 @@
 #include "verbose.h"
 #include "repdiag.h"
 #include "cat.h"
+#include <cassert>
 #include <iostream>
 
 template<typename DerivedV, typename DerivedF, typename DerivedK>
@@ -20,8 +21,6 @@ IGL_INLINE void igl::arap_rhs(
     const igl::ARAPEnergyType energy,
     Eigen::SparseCompressedBase<DerivedK>& K)
 {
-  using namespace std;
-  using namespace Eigen;
   // Number of dimensions
   int Vdim = V.cols();
   //// Number of mesh vertices

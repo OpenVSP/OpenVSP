@@ -12,6 +12,7 @@
 #include "polar_dec.h"
 #include "polar_svd.h"
 #include "C_STR.h"
+#include <cassert>
 #include <iostream>
 
 template <typename DerivedS, typename DerivedD>
@@ -20,7 +21,6 @@ IGL_INLINE void igl::fit_rotations(
   const bool single_precision,
   Eigen::PlainObjectBase<DerivedD> & R)
 {
-  using namespace std;
   const int dim = S.cols();
   const int nr = S.rows()/dim;
   assert(nr * dim == S.rows());
@@ -67,7 +67,6 @@ IGL_INLINE void igl::fit_rotations_planar(
   const Eigen::MatrixBase<DerivedS> & S,
         Eigen::PlainObjectBase<DerivedD> & R)
 { 
-  using namespace std;
   const int dim = S.cols();
   const int nr = S.rows()/dim;
   //assert(dim == 2 && "_planar input should be 2D");

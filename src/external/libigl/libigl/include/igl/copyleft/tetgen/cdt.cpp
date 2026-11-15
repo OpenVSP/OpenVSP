@@ -10,6 +10,8 @@
 #include "../../PlainMatrix.h"
 #include "tetrahedralize.h"
 
+#include <cassert>
+
 template <
   typename DerivedV, 
   typename DerivedF, 
@@ -24,8 +26,6 @@ IGL_INLINE bool igl::copyleft::tetgen::cdt(
   Eigen::PlainObjectBase<DerivedTT>& TT,
   Eigen::PlainObjectBase<DerivedTF>& TF)
 {
-  using namespace Eigen;
-  using namespace std;
   // Effective input mesh
   PlainMatrix<DerivedV,Eigen::Dynamic> U;
   PlainMatrix<DerivedF,Eigen::Dynamic> G;
@@ -36,7 +36,7 @@ IGL_INLINE bool igl::copyleft::tetgen::cdt(
     PlainMatrix<DerivedF,Eigen::Dynamic> BF;
     bounding_box(V,BV,BF);
     // scale bounding box
-    const RowVector3d mid = 
+    const Eigen::RowVector3d mid =
      (BV.colwise().minCoeff() + BV.colwise().maxCoeff()).eval()*0.5;
     BV.rowwise() -= mid;
     assert(param.bounding_box_scale >= 1.);
@@ -55,7 +55,7 @@ IGL_INLINE bool igl::copyleft::tetgen::cdt(
     G = F;
   }
   // effective flags;
-  string flags = param.flags + (param.use_bounding_box ? "" : "c");
+  std::string flags = param.flags + (param.use_bounding_box ? "" : "c");
   return tetrahedralize(U,G,flags,TV,TT,TF);
 }
 

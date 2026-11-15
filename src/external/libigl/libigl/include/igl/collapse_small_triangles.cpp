@@ -13,6 +13,8 @@
 #include "colon.h"
 #include "faces_first.h"
 
+#include <cassert>
+
 #include <limits>
 
 #include <iostream>
@@ -27,14 +29,11 @@ void igl::collapse_small_triangles(
   const double eps,
   Eigen::PlainObjectBase<DerivedFF> & FF)
 {
-  using namespace Eigen;
-  using namespace std;
-
   // Compute bounding box diagonal length
   double bbd = bounding_box_diagonal(V);
-  MatrixXd l;
+  Eigen::MatrixXd l;
   edge_lengths(V,F,l);
-  VectorXd dblA;
+  Eigen::VectorXd dblA;
   doublearea(l,0.,dblA);
 
   // Minimum area tolerance
@@ -85,7 +84,7 @@ void igl::collapse_small_triangles(
   }
 
   // Reindex faces
-  MatrixXi rF = F;
+  Eigen::MatrixXi rF = F;
   // Loop over triangles
   for(int f = 0;f<rF.rows();f++)
   {
@@ -142,7 +141,7 @@ void igl::collapse_small_triangles(
   //// force base case
   //return;
 
-  MatrixXi recFF = FF;
+  Eigen::MatrixXi recFF = FF;
   return collapse_small_triangles(V,recFF,eps,FF);
 }
 

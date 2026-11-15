@@ -6,6 +6,7 @@
 // v. 2.0. If a copy of the MPL was not distributed with this file, You can
 // obtain one at http://mozilla.org/MPL/2.0/.
 #include "writeSTL.h"
+#include <cassert>
 #include <iostream>
 
 template <typename DerivedV, typename DerivedF, typename DerivedN>
@@ -16,14 +17,13 @@ IGL_INLINE bool igl::writeSTL(
   const Eigen::MatrixBase<DerivedN> & N,
   FileEncoding encoding)
 {
-  using namespace std;
   assert(N.rows() == 0 || F.rows() == N.rows());
   if(encoding == FileEncoding::Ascii)
   {
     FILE * stl_file = fopen(filename.c_str(),"w");
     if(stl_file == NULL)
     {
-      cerr<<"IOError: "<<filename<<" could not be opened for writing."<<endl;
+      std::cerr<<"IOError: "<<filename<<" could not be opened for writing."<<std::endl;
       return false;
     }
     fprintf(stl_file,"solid %s\n",filename.c_str());
@@ -59,7 +59,7 @@ IGL_INLINE bool igl::writeSTL(
     FILE * stl_file = fopen(filename.c_str(),"wb");
     if(stl_file == NULL)
     {
-      cerr<<"IOError: "<<filename<<" could not be opened for writing."<<endl;
+      std::cerr<<"IOError: "<<filename<<" could not be opened for writing."<<std::endl;
       return false;
     }
     // Write unused 80-char header
@@ -74,7 +74,7 @@ IGL_INLINE bool igl::writeSTL(
     // Write each triangle
     for(int f = 0;f<F.rows();f++)
     {
-      vector<float> n(3,0);
+      std::vector<float> n(3,0);
       if(N.rows() > 0)
       {
         n[0] = N(f,0);
@@ -84,7 +84,7 @@ IGL_INLINE bool igl::writeSTL(
       fwrite(&n[0],sizeof(float),3,stl_file);
       for(int c = 0;c<3;c++)
       {
-        vector<float> v(3);
+        std::vector<float> v(3);
         v[0] = V(F(f,c),0);
         v[1] = V(F(f,c),1);
         v[2] = V(F(f,c),2);

@@ -9,6 +9,8 @@
 #define IGL_REDUX_H
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+
+#include <cassert>
 namespace igl
 {
   /// Perform reductions on the rows or columns of a SparseMatrix. This is
@@ -20,7 +22,7 @@ namespace igl
   ///     to use this to count (implicit) zeros.
   ///  2. This redux is more powerful in the sense that A and B may have
   ///     different types. This makes it possible to count the number of
-  ///     non-zeros in a SparseMatrix<bool> A into a VectorXi B.
+  ///     non-zeros in a Eigen::SparseMatrix<bool> A into a Eigen::VectorXi B.
   ///
   /// @param[in] A  m by n sparse matrix
   /// @param[in] dim  dimension along which to sum (1 or 2)

@@ -59,7 +59,6 @@ IGL_INLINE void igl::embree::EmbreeIntersector::init(
   if(initialized)
     deinit();
 
-  using namespace std;
 
   if(V.size() == 0 || F.size() == 0)
   {
@@ -110,10 +109,10 @@ IGL_INLINE void igl::embree::EmbreeIntersector::init(
   rtcCommitScene(scene);
 
   if(rtcGetDeviceError (device) != RTC_ERROR_NONE)
-      std::cerr << "Embree: An error occurred while initializing the provided geometry!" << endl;
+      std::cerr << "Embree: An error occurred while initializing the provided geometry!" << std::endl;
 #ifdef IGL_VERBOSE
   else
-    std::cerr << "Embree: geometry added." << endl;
+    std::cerr << "Embree: geometry added." << std::endl;
 #endif
 
   initialized = true;
@@ -245,7 +244,6 @@ igl::embree::EmbreeIntersector
   float tfar,
   int mask) const
 {
-  using namespace std;
   num_rays = 0;
   hits.clear();
   int last_id0 = -1;
@@ -283,7 +281,7 @@ igl::embree::EmbreeIntersector
         //double t_push = pow(2.0,self_hits-4)*(hit.t<eps?eps:hit.t);
         double t_push = pow(2.0,self_hits)*eps;
         #ifdef IGL_VERBOSE
-        std::cerr<<"  t_push: "<<t_push<<endl;
+        std::cerr<<"  t_push: "<<t_push<<std::endl;
         #endif
         //o = o+t_push*d;
         min_t += t_push;
@@ -299,7 +297,7 @@ igl::embree::EmbreeIntersector
         hit.t = ray.ray.tfar;
         hits.push_back(hit);
 #ifdef IGL_VERBOSE
-        std::cerr<<"  t: "<<hit.t<<endl;
+        std::cerr<<"  t: "<<hit.t<<std::endl;
 #endif
         // Instead of moving origin, just change min_t. That way calculations
         // all use exactly same origin values
@@ -315,9 +313,9 @@ igl::embree::EmbreeIntersector
 
     if(hits.size()>1000 && !large_hits_warned)
     {
-      std::cout<<"Warning: Large number of hits..."<<endl;
+      std::cout<<"Warning: Large number of hits..."<<std::endl;
       std::cout<<"[ ";
-      for(vector<Hit<float>>::iterator hit = hits.begin(); hit != hits.end();hit++)
+      for(std::vector<Hit<float>>::iterator hit = hits.begin(); hit != hits.end();hit++)
       {
         std::cout<<(hit->id+1)<<" ";
       }
@@ -325,12 +323,12 @@ igl::embree::EmbreeIntersector
       std::cout.precision(std::numeric_limits< double >::digits10);
       std::cout<<"[ ";
 
-      for(vector<Hit<float>>::iterator hit = hits.begin(); hit != hits.end(); hit++)
+      for(std::vector<Hit<float>>::iterator hit = hits.begin(); hit != hits.end(); hit++)
       {
-        std::cout<<(hit->t)<<endl;;
+        std::cout<<(hit->t)<<std::endl;
       }
 
-      std::cout<<"]"<<endl;
+      std::cout<<"]"<<std::endl;
       large_hits_warned = true;
 
       return hits.empty();
@@ -387,4 +385,59 @@ igl::embree::EmbreeIntersector
   ray.hit.geomID = RTC_INVALID_GEOMETRY_ID;
   ray.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
   ray.hit.primID = RTC_INVALID_GEOMETRY_ID;
+}
+
+IGL_INLINE int
+igl::embree::EmbreeIntersector
+::signedIntersectionsRay(
+  const OriginType    & origin,
+  const DirectionType & direction,
+  float tnear,
+  float tfar,
+  int   mask) const
+{
+  struct query_context
+  {
+    RTCRayQueryContext base; // MUST be first for the reinterpret_cast in the filter
+    int sum;
+  };
+
+  query_context q;
+  rtcInitRayQueryContext(&q.base);
+  q.sum = 0;
+
+  RTCRay ray{};
+  ray.org_x = origin[0];
+  ray.org_y = origin[1];
+  ray.org_z = origin[2];
+  ray.dir_x = direction[0];
+  ray.dir_y = direction[1];
+  ray.dir_z = direction[2];
+  ray.tnear = tnear;
+  ray.tfar  = tfar;
+  ray.mask  = static_cast<unsigned int>(mask);
+  ray.flags = 0;
+
+  RTCOccludedArguments rargs;
+  rtcInitOccludedArguments(&rargs);
+  rargs.flags = (RTCRayQueryFlags)(
+      RTC_RAY_QUERY_FLAG_COHERENT | RTC_RAY_QUERY_FLAG_INVOKE_ARGUMENT_FILTER);
+  rargs.feature_mask = RTC_FEATURE_FLAG_ALL;
+  rargs.context = &q.base;
+  rargs.filter = +[](RTCFilterFunctionNArguments const* fargs)
+  {
+    assert(fargs->N == 1 && fargs->valid[0]);
+    auto const& fray = reinterpret_cast<RTCRay&>(*fargs->ray);
+    auto const& fhit = reinterpret_cast<RTCHit&>(*fargs->hit);
+    auto const d = fray.dir_x * fhit.Ng_x
+                 + fray.dir_y * fhit.Ng_y
+                 + fray.dir_z * fhit.Ng_z;
+    reinterpret_cast<query_context*>(fargs->context)->sum += d > 0.0f ? +1 : -1;
+    // Reject the hit so traversal continues and we visit every crossing.
+    fargs->valid[0] = 0;
+  };
+  rargs.occluded = nullptr;
+
+  rtcOccluded1(scene, &ray, &rargs);
+  return q.sum;
 }

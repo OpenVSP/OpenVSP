@@ -14,6 +14,7 @@
 #include "voronoi_mass.h"
 #include "repmat.h"
 #include <Eigen/Geometry>
+#include <cassert>
 #include <iostream>
 
 // For std::enable_if
@@ -57,12 +58,12 @@ namespace igl
       using Eigen::Dynamic;
       MassMatrixType eff_type = 
         type == MASSMATRIX_TYPE_DEFAULT? MASSMATRIX_TYPE_BARYCENTRIC: type;
-      Eigen::Matrix<Scalar, Dynamic, 1> vol;
+      Eigen::Matrix<Scalar, Eigen::Dynamic, 1> vol;
       volume(V, F, vol);
       vol = vol.array().abs();
-      Matrix<typename DerivedF::Scalar,Dynamic,1> MI;
-      Matrix<typename DerivedF::Scalar,Dynamic,1> MJ;
-      Matrix<Scalar,Dynamic,1> MV;
+      Eigen::Matrix<typename DerivedF::Scalar ,Eigen::Dynamic,1> MI;
+      Eigen::Matrix<typename DerivedF::Scalar ,Eigen::Dynamic,1> MJ;
+      Eigen::Matrix<Scalar ,Eigen::Dynamic,1> MV;
   
       switch (eff_type)
       {

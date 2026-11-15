@@ -9,8 +9,7 @@
 #include "collapse_least_cost_edge.h"
 #include "edge_flaps.h"
 #include "decimate_trivial_callbacks.h"
-#include "AABB.h"
-#include "intersection_blocking_collapse_edge_callbacks.h"
+#include "block_self_intersections.h"
 #include "is_edge_manifold.h"
 #include "remove_unreferenced.h"
 #include "placeholders.h"
@@ -31,12 +30,24 @@ IGL_INLINE bool igl::decimate(
   Eigen::VectorXi & J,
   Eigen::VectorXi & I)
 {
-  igl::AABB<Eigen::MatrixXd, 3> * tree = nullptr;
+  std::vector<decimate_pre_post_collapse_callbacks_decorator> decorators;
   if(block_intersections)
   {
-    tree = new igl::AABB<Eigen::MatrixXd, 3>();
-    tree->init(V,F);
+    decorators.push_back(igl::block_self_intersections());
   }
+  return decimate(V,F,max_m,decorators,U,G,J,I);
+}
+
+IGL_INLINE bool igl::decimate(
+  const Eigen::MatrixXd & V,
+  const Eigen::MatrixXi & F,
+  const int max_m,
+  const std::vector<decimate_pre_post_collapse_callbacks_decorator> & decorators,
+  Eigen::MatrixXd & U,
+  Eigen::MatrixXi & G,
+  Eigen::VectorXi & J,
+  Eigen::VectorXi & I)
+{
   // Original number of faces
   const int orig_m = F.rows();
   // Tracking number of faces
@@ -64,12 +75,10 @@ IGL_INLINE bool igl::decimate(
   decimate_pre_collapse_callback pre_collapse;
   decimate_post_collapse_callback post_collapse;
   decimate_trivial_callbacks(pre_collapse,post_collapse);
-  if(block_intersections)
+  // Cascade the decorators: each wraps the result of the previous.
+  for(const auto & decorator : decorators)
   {
-    igl::intersection_blocking_collapse_edge_callbacks(
-      pre_collapse, post_collapse, // These will get copied as needed
-      tree,
-      pre_collapse, post_collapse);
+    decorator(VO,FO,orig_m,pre_collapse,post_collapse);
   }
   bool ret = decimate(
     VO,
@@ -88,8 +97,6 @@ IGL_INLINE bool igl::decimate(
   Eigen::VectorXi _1,I2;
   igl::remove_unreferenced(Eigen::MatrixXd(U),Eigen::MatrixXi(G),U,G,_1,I2);
   I = I(I2).eval();
-  assert(tree == nullptr || tree == tree->root());
-  delete tree;
   return ret;
 }
 
@@ -107,14 +114,12 @@ IGL_INLINE bool igl::decimate(
   )
 {
   // Decimate 1
-  using namespace Eigen;
-  using namespace std;
   // Working copies
   Eigen::MatrixXd V = OV;
   Eigen::MatrixXi F = OF;
   // Why recompute this rather than copy input?
-  VectorXi EMAP;
-  MatrixXi E,EF,EI;
+  Eigen::VectorXi EMAP;
+  Eigen::MatrixXi E,EF,EI;
   edge_flaps(F,E,EMAP,EF,EI);
   {
     Eigen::Array<bool,Eigen::Dynamic,Eigen::Dynamic> BF;
@@ -129,7 +134,7 @@ IGL_INLINE bool igl::decimate(
   // Could reserve with https://stackoverflow.com/a/29236236/148668
   Eigen::VectorXi EQ = Eigen::VectorXi::Zero(E.rows());
   // If an edge were collapsed, we'd collapse it to these points:
-  MatrixXd C(E.rows(),V.cols());
+  Eigen::MatrixXd C(E.rows(),V.cols());
   // Pushing into a vector then using constructor was slower. Maybe using
   // std::move + make_heap would squeeze out something?
   
@@ -147,7 +152,7 @@ IGL_INLINE bool igl::decimate(
       // If we were using more modern C++ then cost_and_placement could return a
       // tuple and could be unpacked into auto [cost,p] =
       // cost_and_placement(...) without much issue.
-      RowVectorXd p(1,3);
+      Eigen::RowVectorXd p(1,3);
       cost_and_placement(e,V,F,E,EMAP,EF,EI,cost,p);
       C.row(e) = p;
       costs(e) = cost;
@@ -194,7 +199,7 @@ IGL_INLINE bool igl::decimate(
     prev_e = e;
   }
   // remove all IGL_COLLAPSE_EDGE_NULL faces
-  MatrixXi F2(F.rows(),3);
+  Eigen::MatrixXi F2(F.rows(),3);
   J.resize(F.rows());
   int m = 0;
   for(int f = 0;f<F.rows();f++)
@@ -211,7 +216,7 @@ IGL_INLINE bool igl::decimate(
   }
   F2.conservativeResize(m,F2.cols());
   J.conservativeResize(m);
-  VectorXi _1;
+  Eigen::VectorXi _1;
   igl::remove_unreferenced(V,F2,U,G,_1,I);
   return clean_finish;
 }

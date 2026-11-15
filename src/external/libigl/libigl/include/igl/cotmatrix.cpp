@@ -15,17 +15,16 @@
 // Bug in unsupported/Eigen/SparseExtra needs iostream first
 #include <iostream>
 
+#include <cassert>
+
 template <typename DerivedV, typename DerivedF, typename Scalar>
 IGL_INLINE void igl::cotmatrix(
   const Eigen::MatrixBase<DerivedV> & V, 
   const Eigen::MatrixBase<DerivedF> & F, 
   Eigen::SparseMatrix<Scalar>& L)
 {
-  using namespace Eigen;
-  using namespace std;
-
   L.resize(V.rows(),V.rows());
-  Matrix<int,Dynamic,2> edges;
+  Eigen::Matrix<int ,Eigen::Dynamic,2> edges;
   int simplex_size = F.cols();
   // 3 for triangles, 4 for tets
   assert(simplex_size == 3 || simplex_size == 4);
@@ -56,10 +55,10 @@ IGL_INLINE void igl::cotmatrix(
     return;
   }
   // Gather cotangents
-  Matrix<Scalar,Dynamic,Dynamic> C;
+  Eigen::Matrix<Scalar ,Eigen::Dynamic ,Eigen::Dynamic> C;
   cotmatrix_entries(V,F,C);
   
-  vector<Triplet<Scalar> > IJV;
+  std::vector<Eigen::Triplet<Scalar> > IJV;
   IJV.reserve(F.rows()*edges.rows()*4);
   // Loop over triangles
   for(int i = 0; i < F.rows(); i++)
@@ -69,10 +68,10 @@ IGL_INLINE void igl::cotmatrix(
     {
       int source = F(i,edges(e,0));
       int dest = F(i,edges(e,1));
-      IJV.push_back(Triplet<Scalar>(source,dest,C(i,e)));
-      IJV.push_back(Triplet<Scalar>(dest,source,C(i,e)));
-      IJV.push_back(Triplet<Scalar>(source,source,-C(i,e)));
-      IJV.push_back(Triplet<Scalar>(dest,dest,-C(i,e)));
+      IJV.push_back(Eigen::Triplet<Scalar>(source,dest,C(i,e)));
+      IJV.push_back(Eigen::Triplet<Scalar>(dest,source,C(i,e)));
+      IJV.push_back(Eigen::Triplet<Scalar>(source,source,-C(i,e)));
+      IJV.push_back(Eigen::Triplet<Scalar>(dest,dest,-C(i,e)));
     }
   }
   L.setFromTriplets(IJV.begin(),IJV.end());

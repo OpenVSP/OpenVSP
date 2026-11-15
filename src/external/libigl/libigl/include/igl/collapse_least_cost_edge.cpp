@@ -9,6 +9,8 @@
 #include "collapse_edge.h"
 #include "circulation.h"
 
+#include <cassert>
+
 IGL_INLINE bool igl::collapse_least_cost_edge(
   const decimate_cost_and_placement_callback & cost_and_placement,
   const decimate_pre_collapse_callback       & pre_collapse,
@@ -28,7 +30,6 @@ IGL_INLINE bool igl::collapse_least_cost_edge(
   int & f1,
   int & f2)
 {
-  using namespace Eigen;
   using namespace igl;
   std::tuple<double,int,int> p;
   while(true)
@@ -127,7 +128,7 @@ IGL_INLINE bool igl::collapse_least_cost_edge(
     {
        // compute cost and potential placement
        double cost;
-       RowVectorXd place;
+       Eigen::RowVectorXd place;
        cost_and_placement(ei,V,F,E,EMAP,EF,EI,cost,place);
        // Increment timestamp
        EQ(ei)++;

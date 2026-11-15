@@ -10,6 +10,7 @@
 #include "barycenter.h"
 #include "doublearea.h"
 #include "PlainMatrix.h"
+#include <cassert>
 #include <iostream>
 
 template <
@@ -25,8 +26,6 @@ IGL_INLINE void igl::orient_outward(
   Eigen::PlainObjectBase<DerivedFF> & FF,
   Eigen::PlainObjectBase<DerivedI> & I)
 {
-  using namespace Eigen;
-  using namespace std;
   assert(C.rows() == F.rows());
   assert(F.cols() == 3);
   assert(V.cols() == 3);
@@ -41,9 +40,9 @@ IGL_INLINE void igl::orient_outward(
     FF = F;
   }
   PlainMatrix<DerivedV,Eigen::Dynamic,Eigen::Dynamic> N,BC,BCmean;
-  Matrix<typename DerivedV::Scalar,Dynamic,1> A;
-  VectorXd totA(num_cc), dot(num_cc);
-  Matrix<typename DerivedV::Scalar,3,1> Z(1,1,1);
+  Eigen::Matrix<typename DerivedV::Scalar ,Eigen::Dynamic,1> A;
+  Eigen::VectorXd totA(num_cc), dot(num_cc);
+  Eigen::Matrix<typename DerivedV::Scalar,3,1> Z(1,1,1);
   per_face_normals(V,F,Z.normalized(),N);
   barycenter(V,F,BC);
   doublearea(V,F,A);

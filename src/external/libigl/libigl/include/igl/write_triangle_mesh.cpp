@@ -14,6 +14,7 @@
 #include "writeSTL.h"
 #include "writeWRL.h"
 
+#include <cassert>
 #include <iostream>
 
 template <typename DerivedV, typename DerivedF>
@@ -23,9 +24,8 @@ IGL_INLINE bool igl::write_triangle_mesh(
   const Eigen::MatrixBase<DerivedF>& F,
   FileEncoding encoding)
 {
-  using namespace std;
   // dirname, basename, extension and filename
-  string d,b,e,f;
+  std::string d,b,e,f;
   pathinfo(str,d,b,e,f);
   // Convert extension to lower case
   std::transform(e.begin(), e.end(), e.begin(), ::tolower);
@@ -51,7 +51,7 @@ IGL_INLINE bool igl::write_triangle_mesh(
   }else
   {
     assert("Unsupported file format");
-    cerr<<"Unsupported file format: ."<<e<<endl;
+    std::cerr<<"Unsupported file format: ."<<e<<std::endl;
     return false;
   }
 }

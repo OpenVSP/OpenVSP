@@ -8,6 +8,7 @@
 #include "gaussian_curvature.h"
 #include "internal_angles.h"
 #include "PI.h"
+#include <cassert>
 #include <iostream>
 template <typename DerivedV, typename DerivedF, typename DerivedK>
 IGL_INLINE void igl::gaussian_curvature(
@@ -15,10 +16,8 @@ IGL_INLINE void igl::gaussian_curvature(
   const Eigen::MatrixBase<DerivedF>& F,
   Eigen::PlainObjectBase<DerivedK> & K)
 {
-  using namespace Eigen;
-  using namespace std;
   // internal corner angles
-  Matrix<
+  Eigen::Matrix<
     typename DerivedV::Scalar,
     DerivedF::RowsAtCompileTime,
     DerivedF::ColsAtCompileTime> A;

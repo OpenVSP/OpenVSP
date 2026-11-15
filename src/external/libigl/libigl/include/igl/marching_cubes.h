@@ -67,7 +67,22 @@ namespace igl
   ///
   /// @param[in] S #S list of scalar field values
   /// @param[in] GV  #S by 3 list of referenced grid vertex positions
-  /// @param[in] GI  #GI by 8 list of grid corner indices into rows of GV
+  /// @param[in] GI  #GI by 8 list of grid corner indices into rows of GV (e.g.,
+  /// as output by igl::sparse_voxel_grid) in y-x-z binary counting order.
+  template <
+    typename DerivedS, 
+    typename DerivedGV, 
+    typename DerivedGI, 
+    typename DerivedV, 
+    typename DerivedF>
+  IGL_INLINE void marching_cubes(
+    const Eigen::MatrixBase<DerivedS> & S,
+    const Eigen::MatrixBase<DerivedGV> & GV,
+    const Eigen::MatrixBase<DerivedGI> & GI,
+    const typename DerivedS::Scalar isovalue,
+    Eigen::PlainObjectBase<DerivedV> &V,
+    Eigen::PlainObjectBase<DerivedF> &F,
+    std::unordered_map<std::int64_t,int> &E2V);
   template <
     typename DerivedS, 
     typename DerivedGV, 
