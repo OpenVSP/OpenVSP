@@ -1322,7 +1322,7 @@ void SSEllipse::Update()
 //////////////////////////////////////////////////////
 
 //====== Constructor =====//
-SSXSecCurve::SSXSecCurve( const string& comp_id, int type ) : SubSurface( comp_id, type )
+SSXSecCurve::SSXSecCurve( const string& comp_id, int type, int curve_type ) : SubSurface( comp_id, type )
 {
     m_CenterU.Init( "Center_U", "SS_XsecCurve", this, 0.5, 0, 1 );
     m_CenterU.SetDescript( "Defines the U location of the curve center" );
@@ -1339,7 +1339,7 @@ SSXSecCurve::SSXSecCurve( const string& comp_id, int type ) : SubSurface( comp_i
     m_PolyFlag = false;
 
     m_XSCurve = nullptr;
-    SetXSecCurveType( vsp::XS_CIRCLE );
+    SetXSecCurveType( curve_type );
 }
 
 //===== Destructor =====//
@@ -1587,7 +1587,8 @@ void SSXSecCurve::ChangeID( const string &id )
 //////////////////////////////////////////////////////
 
 //====== Constructor =====//
-SSIntersect::SSIntersect( const string& comp_id, int type ) : SSXSecCurve( comp_id, type )
+// The edit curve an intersection is drawn with, from the start, so none is replaced by it
+SSIntersect::SSIntersect( const string& comp_id, int type ) : SSXSecCurve( comp_id, type, vsp::XS_EDIT_CURVE )
 {
     m_NCurves.Init( "NCurves", "SS_Intersect", this, 0, 0, 100 );
     m_NCurves.SetDescript( "Number of intersection curves" );

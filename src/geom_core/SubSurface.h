@@ -274,7 +274,8 @@ public:
 class SSXSecCurve : public SubSurface
 {
 public:
-    SSXSecCurve( const string& compID, int type = vsp::SS_XSEC_CURVE );
+    // The curve starts as a curve_type, an XSEC_CRV_TYPE
+    SSXSecCurve( const string& compID, int type = vsp::SS_XSEC_CURVE, int curve_type = vsp::XS_CIRCLE );
     virtual ~SSXSecCurve();
 
     virtual void Update();
