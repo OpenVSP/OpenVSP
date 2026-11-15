@@ -6063,6 +6063,15 @@ void PropDriverGroup::UpdateGroup( vector< string > parmIDs )
 
 bool PropDriverGroup::ValidDrivers( vector< int > choices )
 {
+    // Check that every selection is a driver of this group.
+    for( int i = 0; i < (int)choices.size(); i++ )
+    {
+        if( choices[i] < 0 || choices[i] >= (int)m_Nvar )
+        {
+            return false;
+        }
+    }
+
     // Check for duplicate selections.
     for( int i = 0; i < (int)choices.size() - 1; i++ )
     {

@@ -864,7 +864,18 @@ void DriverGroup::DecodeXml( xmlNodePtr & node )
     if ( n )
     {
         vector< int > tmp = XmlUtil::ExtractVectorIntNode( n, "ChoiceVec" );
-        SetChoices( tmp );
+
+        // Keep the current choices unless the file's make a valid group.
+        vector< int > choices = m_CurrChoices;
+        for ( int i = 0; i < tmp.size() && i < choices.size(); i++ )
+        {
+            choices[i] = tmp[i];
+        }
+
+        if ( ValidDrivers( choices ) )
+        {
+            SetChoices( choices );
+        }
     }
 }
 
