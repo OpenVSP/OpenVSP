@@ -283,7 +283,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
         SnapTo* snap = VehicleMgr.GetVehicle()->GetSnapToPtr();
         if ( snap )
         {
-            if ( Fl::event_alt()  )
+            if ( Fl::event_alt() && !VspDragInput::IsScrubbing() )
                 snap->m_CollisionDetection = true;
             else
                 snap->m_CollisionDetection = false;
