@@ -310,24 +310,25 @@ class Slider : public GuiDevice
 {
 public:
     Slider();
+    // range is the half width of the slider's range about the value.
     virtual void Init( VspScreen* screen, VspSlider* slider_widget, double range, bool log_slider = false );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetRange( double range )
     {
-        m_Range = range;
+        m_HalfRange = range;
     }
 
     virtual void SetMinBound( double minb )
     {
         m_MinBound = minb;
-        m_Range = m_MaxBound - m_MinBound;
+        m_HalfRange = m_MaxBound - m_MinBound;
         m_Slider->bounds( m_MinBound, m_MaxBound );
     }
 
     virtual void SetMaxBound( double maxb )
     {
         m_MaxBound = maxb;
-        m_Range = m_MaxBound - m_MinBound;
+        m_HalfRange = m_MaxBound - m_MinBound;
         m_Slider->bounds( m_MinBound, m_MaxBound );
     }
 
@@ -337,7 +338,7 @@ protected:
 
     VspSlider* m_Slider;
 //    Fl_Slider* m_OldSlider;
-    double m_Range;
+    double m_HalfRange;     // The bounds are the value plus and minus this, within the Parm's limits.
     double m_MinBound;
     double m_MaxBound;
 

@@ -550,7 +550,7 @@ Slider::Slider( ) : GuiDevice()
 {
     m_Type = vsp::GDEV_SLIDER;
     m_Slider = nullptr;
-    m_Range = 10.0;
+    m_HalfRange = 10.0;
     m_MinBound = 0.0;
     m_MaxBound = 0.0;
 }
@@ -580,8 +580,8 @@ void Slider::SetValAndLimits( Parm* parm_ptr )
 
     if ( m_NewParmFlag || new_val < ( m_MinBound - m_Tol ) || new_val > ( m_MaxBound + m_Tol ) )
     {
-        m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
-        m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
+        m_MinBound = max( new_val - m_HalfRange, parm_ptr->GetLowerLimit() );
+        m_MaxBound = min( new_val + m_HalfRange, parm_ptr->GetUpperLimit() );
 
         if ( m_LogSliderFlag )
         {
@@ -708,8 +708,8 @@ void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
             m_MaxStopState = SAR_ABS_STOP;
         }
 
-        m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
-        m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
+        m_MinBound = max( new_val - m_HalfRange, parm_ptr->GetLowerLimit() );
+        m_MaxBound = min( new_val + m_HalfRange, parm_ptr->GetUpperLimit() );
     }
 
     double scale = 1;
@@ -840,15 +840,15 @@ void SliderAdjRange::MinButtonCB( Parm* parm_ptr )
     if ( m_MinStopState == SAR_STOP )
     {
         m_MinBound =  m_MinBound - 0.5 * ( m_MaxBound - m_MinBound );
-        m_Range = m_MaxBound - m_MinBound;
+        m_HalfRange = m_MaxBound - m_MinBound;
         parm_ptr->SetFromDevice( m_MinBound );
     }
     else
     {
         double val = parm_ptr->Get();
-        m_Range *= 0.5;
-        m_MinBound = max( val - m_Range, parm_ptr->GetLowerLimit() );
-        m_MaxBound = min( val + m_Range, parm_ptr->GetUpperLimit() );
+        m_HalfRange *= 0.5;
+        m_MinBound = max( val - m_HalfRange, parm_ptr->GetLowerLimit() );
+        m_MaxBound = min( val + m_HalfRange, parm_ptr->GetUpperLimit() );
     }
     m_Slider->bounds( m_MinBound, m_MaxBound );
 }
@@ -864,15 +864,15 @@ void SliderAdjRange::MaxButtonCB( Parm* parm_ptr )
     if ( m_MaxStopState == SAR_STOP )
     {
         m_MaxBound =  m_MaxBound + 0.5 * ( m_MaxBound - m_MinBound );
-        m_Range = m_MaxBound - m_MinBound;
+        m_HalfRange = m_MaxBound - m_MinBound;
         parm_ptr->SetFromDevice( m_MaxBound );
     }
     else
     {
         double val = parm_ptr->Get();
-        m_Range *= 0.5;
-        m_MinBound = max( val - m_Range, parm_ptr->GetLowerLimit() );
-        m_MaxBound = min( val + m_Range, parm_ptr->GetUpperLimit() );
+        m_HalfRange *= 0.5;
+        m_MinBound = max( val - m_HalfRange, parm_ptr->GetLowerLimit() );
+        m_MaxBound = min( val + m_HalfRange, parm_ptr->GetUpperLimit() );
     }
     m_Slider->bounds( m_MinBound, m_MaxBound );
 }
