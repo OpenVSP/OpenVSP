@@ -26115,92 +26115,11 @@ extern std::string SplitWingXSecByID( const std::string & xsec_id );
     \ingroup Geom
 */
 /*!
-    Set the driver group for a wing section or a XSecCurve. Care has to be taken when setting these driver groups to ensure a valid combination.
-    \forcpponly
-    \code{.cpp}
-    //==== Add Wing Geometry and Set Parms ====//
-    string wing_id = AddGeom( "WING", "" );
-
-    //==== Set Wing Section Controls ====//
-    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
-
-    Update();
-
-    //==== Set Parms ====//
-    SetParmVal( wing_id, "Root_Chord", "XSec_1", 2 );
-    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
-
-    Update();
-
-    // The three chosen drivers are the values that hold; span is now solved for
-    // from the aspect ratio and the two chords.
-    double ar = GetParmVal( wing_id, "Aspect", "XSec_1" );
-    double span = GetParmVal( wing_id, "Span", "XSec_1" );
-
-    if ( !closeTo( GetParmVal( wing_id, "Root_Chord", "XSec_1" ), 2.0, 1e-6 ) ||
-         !closeTo( GetParmVal( wing_id, "Tip_Chord", "XSec_1" ), 1.0, 1e-6 ) )
-    {
-        Print( "ERROR: the driving Parms did not hold their values" );
-        __failure++;
-    }
-
-    // A section of this planform has area span * ( root + tip ) / 2, and aspect
-    // ratio span * span / area.
-    double area = span * ( 2.0 + 1.0 ) * 0.5;
-
-    if ( !closeTo( ar, span * span / area, 1e-6 ) )
-    {
-        Print( "ERROR: SetDriverGroup left the section inconsistent" );
-        __failure++;
-    }
-    \endcode
-    \endforcpponly
-    \beginPythonOnly
-    \code{.py}
-    #==== Add Wing Geometry and Set Parms ====//
-    wing_id = AddGeom( "WING", "" )
-
-    #==== Set Wing Section Controls ====//
-    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER )
-
-    Update()
-
-    #==== Set Parms ====//
-    SetParmVal( wing_id, "Root_Chord", "XSec_1", 2 )
-    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 )
-
-    Update()
-
-    # The three chosen drivers are the values that hold; span is now solved for
-    # from the aspect ratio and the two chords.
-    ar = GetParmVal( wing_id, "Aspect", "XSec_1" )
-    span = GetParmVal( wing_id, "Span", "XSec_1" )
-
-    assert abs( GetParmVal( wing_id, "Root_Chord", "XSec_1" ) - 2.0 ) < 1e-6, "the driving Parms did not hold their values"
-    assert abs( GetParmVal( wing_id, "Tip_Chord", "XSec_1" ) - 1.0 ) < 1e-6, "the driving Parms did not hold their values"
-
-    # A section of this planform has area span * ( root + tip ) / 2, and aspect
-    # ratio span * span / area.
-    area = span * ( 2.0 + 1.0 ) * 0.5
-
-    assert abs( ar - span * span / area ) < 1e-6, "SetDriverGroup left the section inconsistent"
-
-    \endcode
-    \endPythonOnly
-    \sa WING_DRIVERS, XSEC_DRIVERS
-    \param [in] geom_id string Geom ID
-    \param [in] section_index int Wing section index
-    \param [in] driver_0 int First driver enum (i.e. SPAN_WSECT_DRIVER)
-    \param [in] driver_1 int Second driver enum (i.e. ROOTC_WSECT_DRIVER)
-    \param [in] driver_2 int Third driver enum (i.e. TIPC_WSECT_DRIVER)
-    */
-
-/*!
-    \ingroup Geom
-*/
-/*!
-    Get the driver group for a wing section or an XSec.  A wing section reports three drivers; an
-    XSecCurve reports the drivers of its own driver group.
+    Get the driver group for a wing section, an XSec or a VSPAERO actuator disk.  A wing section
+    reports three of the WING_DRIVERS; the curve of an XSec reports two of the XSEC_DRIVERS, or one
+    for an XS_CIRCLE; an actuator disk, named by its ID with section_index ignored, reports three of
+    the PROP_DRIVERS.
+    SetDriverGroup lists the kinds of driver group and the enums of each.
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry ====//
@@ -26225,6 +26144,44 @@ extern std::string SplitWingXSecByID( const std::string & xsec_id );
             Print( "ERROR: GetDriverGroup did not report the drivers that were set" );
             __failure++;
         }
+    }
+
+    //==== Fuselage XSec ====//
+    string fuse_id = AddGeom( "FUSELAGE", "" );
+
+    // An XS_ELLIPSE starts with WIDTH_XSEC_DRIVER and HEIGHT_XSEC_DRIVER.
+    array < int > xsec_drivers = GetDriverGroup( fuse_id, 1 );
+
+    if ( xsec_drivers.size() != 2 || xsec_drivers[0] != WIDTH_XSEC_DRIVER || xsec_drivers[1] != HEIGHT_XSEC_DRIVER )
+    {
+        Print( "ERROR: GetDriverGroup did not report the XSec drivers" );
+        __failure++;
+    }
+
+    // A circle has one driver.
+    ChangeXSecShape( GetXSecSurf( fuse_id, 0 ), 1, XS_CIRCLE );
+
+    array < int > circle_drivers = GetDriverGroup( fuse_id, 1 );
+
+    if ( circle_drivers.size() != 1 || circle_drivers[0] != WIDTH_XSEC_DRIVER )
+    {
+        Print( "ERROR: GetDriverGroup did not report WIDTH_XSEC_DRIVER alone for a circle" );
+        __failure++;
+    }
+
+    //==== Actuator disk ====//
+    string prop_id = AddGeom( "PROP", "" );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+
+    Update();
+
+    // A disk starts with RPM_PROP_DRIVER, CT_PROP_DRIVER and CP_PROP_DRIVER.
+    array < int > disk_drivers = GetDriverGroup( FindActuatorDisk( 0 ), 0 );
+
+    if ( disk_drivers.size() != 3 || disk_drivers[0] != RPM_PROP_DRIVER || disk_drivers[1] != CT_PROP_DRIVER || disk_drivers[2] != CP_PROP_DRIVER )
+    {
+        Print( "ERROR: GetDriverGroup did not report the actuator disk drivers" );
+        __failure++;
     }
 
     // A section index past the end has to be rejected.
@@ -26260,6 +26217,26 @@ extern std::string SplitWingXSecByID( const std::string & xsec_id );
     assert drivers[1] == ROOTC_WSECT_DRIVER, "GetDriverGroup did not report the drivers that were set"
     assert drivers[2] == TIPC_WSECT_DRIVER, "GetDriverGroup did not report the drivers that were set"
 
+    #==== Fuselage XSec ====//
+    fuse_id = AddGeom( "FUSELAGE", "" )
+
+    # An XS_ELLIPSE starts with WIDTH_XSEC_DRIVER and HEIGHT_XSEC_DRIVER.
+    assert list( GetDriverGroup( fuse_id, 1 ) ) == [ WIDTH_XSEC_DRIVER, HEIGHT_XSEC_DRIVER ], "GetDriverGroup did not report the XSec drivers"
+
+    # A circle has one driver.
+    ChangeXSecShape( GetXSecSurf( fuse_id, 0 ), 1, XS_CIRCLE )
+
+    assert list( GetDriverGroup( fuse_id, 1 ) ) == [ WIDTH_XSEC_DRIVER ], "GetDriverGroup did not report WIDTH_XSEC_DRIVER alone for a circle"
+
+    #==== Actuator disk ====//
+    prop_id = AddGeom( "PROP", "" )
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK )
+
+    Update()
+
+    # A disk starts with RPM_PROP_DRIVER, CT_PROP_DRIVER and CP_PROP_DRIVER.
+    assert list( GetDriverGroup( FindActuatorDisk( 0 ), 0 ) ) == [ RPM_PROP_DRIVER, CT_PROP_DRIVER, CP_PROP_DRIVER ], "GetDriverGroup did not report the actuator disk drivers"
+
     # A section index past the end has to be rejected.  The error queue is
     # reached through the error manager singleton in Python.
     err_mgr = ErrorMgrSingleton.getInstance()
@@ -26274,9 +26251,9 @@ extern std::string SplitWingXSecByID( const std::string & xsec_id );
 
     \endcode
     \endPythonOnly
-    \sa WING_DRIVERS, XSEC_DRIVERS, SetDriverGroup, GetDriverGroupByID
-    \param [in] geom_id string Geom ID
-    \param [in] section_index int Wing section or XSec index
+    \sa WING_DRIVERS, XSEC_DRIVERS, PROP_DRIVERS, SetDriverGroup, GetDriverGroupByID
+    \param [in] geom_id string Geom ID or actuator disk ID
+    \param [in] section_index int Wing section or XSec index; ignored for a Body of Revolution or an actuator disk
     \return vector\<int\> Array of driver enums
 */
 
@@ -26331,33 +26308,414 @@ extern std::vector < int > GetDriverGroupByID( const std::string & xsec_id );
     \ingroup XSec
 */
 /*!
-    Choose which quantities drive a wing section.  A section is defined by three of its measures and
-    the rest follow; this says which three.
+    Choose the driver group of a wing section, of an XSec's curve, or of a VSPAERO actuator disk.
+    A driver group is the set of quantities that are held as independent; the user sets those Parms
+    and the others are computed from them.  Each kind of group takes its own enums and its own
+    number of drivers:
+
+    - A wing section (section_index is the wing section) takes three of the WING_DRIVERS.  A Wing's
+      airfoil XSec curves are not reached; they are set by chord and t/c.
+    - The curve of a Fuselage or Stack XSec (section_index is the XSec index) takes two of the
+      XSEC_DRIVERS, or one of WIDTH_XSEC_DRIVER and AREA_XSEC_DRIVER for an XS_CIRCLE.
+    - The curve of a Body of Revolution (section_index is ignored) takes the same as a Fuselage XSec.
+    - A VSPAERO actuator disk (geom_id is the disk ID from FindActuatorDisk; section_index is
+      ignored) takes three of the PROP_DRIVERS.  A Prop's own Geom ID does not reach its disk; it
+      reaches the curves of the blade XSecs, which accept a driver group but are sized by the blade
+      curves at Update.
+
+    Any other Geom, such as a Pod, is rejected with VSP_WRONG_GEOM_TYPE.
+
+    A combination is rejected with VSP_INVALID_DRIVERS, and the previous drivers are kept, when it
+    repeats a driver, does not determine the section or disk, or names a value that is not one of
+    the group's drivers (a NUM_ value, or SWEEP_WSECT_DRIVER, SWEEPLOC_WSECT_DRIVER or
+    SECSWEEPLOC_WSECT_DRIVER).  A wing section or a disk needs all three drivers, so leaving
+    driver_1 or driver_2 at its default of -1 is rejected.  For an XSec curve a negative driver_1 is
+    ignored and the second driver is kept, and a circle ignores driver_1 entirely.  The enums are
+    plain ints and are not checked against the kind of group: XSEC_DRIVERS passed for a wing section
+    are taken as the WING_DRIVERS of the same value.
+
+    The Parms that are not drivers are computed at the next Update.  For an actuator disk that is
+    Update() with its managers (the default) or FindActuatorDisk; Update( false ) does not solve the
+    disk.
     \forcpponly
     \code{.cpp}
-    string wid = AddGeom( "WING", "" );
+    //==== Wing section ====//
+    // Three drivers from WING_DRIVERS: AR_WSECT_DRIVER, SPAN_WSECT_DRIVER, AREA_WSECT_DRIVER,
+    // TAPER_WSECT_DRIVER, AVEC_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER,
+    // SECSWEEP_WSECT_DRIVER.  The default is SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER,
+    // TIPC_WSECT_DRIVER.  NUM_WSECT_DRIVER, SWEEP_WSECT_DRIVER, SWEEPLOC_WSECT_DRIVER and
+    // SECSWEEPLOC_WSECT_DRIVER are not drivers.
+    string wing_id = AddGeom( "WING", "" );
 
-    SetDriverGroup( wid, 1, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
 
     Update();
+
+    SetParmVal( wing_id, "Aspect", "XSec_1", 4 );
+    SetParmVal( wing_id, "Root_Chord", "XSec_1", 2 );
+    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
+
+    Update();
+
+    // Span is now solved for from the aspect ratio and the two chords.  A section of this
+    // planform has area span * ( root + tip ) / 2, and aspect ratio span * span / area,
+    // so span = AR * ( root + tip ) / 2.
+    if ( !closeTo( GetParmVal( wing_id, "Span", "XSec_1" ), 4.0 * ( 2.0 + 1.0 ) * 0.5, 1e-6 ) )
+    {
+        Print( "ERROR: the wing section did not follow its drivers" );
+        __failure++;
+    }
+
+    // Aspect ratio, span and area cannot all be drivers, so this is rejected and the drivers stay
+    // as they were.
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, SPAN_WSECT_DRIVER, AREA_WSECT_DRIVER );
+
+    if ( GetNumTotalErrors() != 1 || PopLastError().GetErrorCode() != VSP_INVALID_DRIVERS )
+    {
+        Print( "ERROR: SetDriverGroup did not reject an invalid wing combination" );
+        __failure++;
+    }
+
+    array < int > wing_drivers = GetDriverGroup( wing_id, 1 );
+
+    if ( wing_drivers[0] != AR_WSECT_DRIVER || wing_drivers[1] != ROOTC_WSECT_DRIVER || wing_drivers[2] != TIPC_WSECT_DRIVER )
+    {
+        Print( "ERROR: SetDriverGroup changed the drivers on an invalid combination" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    //==== Fuselage or Stack XSec ====//
+    // Two drivers from XSEC_DRIVERS: WIDTH_XSEC_DRIVER, AREA_XSEC_DRIVER, HEIGHT_XSEC_DRIVER,
+    // HWRATIO_XSEC_DRIVER.  The default is WIDTH_XSEC_DRIVER, HEIGHT_XSEC_DRIVER.
+    // NUM_XSEC_DRIVER is not a driver.
+    string fuse_id = AddGeom( "FUSELAGE", "" );
+
+    string fuse_xsec = GetXSec( GetXSecSurf( fuse_id, 0 ), 1 );   // An XS_ELLIPSE
+
+    SetDriverGroup( fuse_id, 1, AREA_XSEC_DRIVER, HWRATIO_XSEC_DRIVER );
+
+    SetParmVal( GetXSecParm( fuse_xsec, "Area" ), 2.0 );
+    SetParmVal( GetXSecParm( fuse_xsec, "HWRatio" ), 0.5 );
+
+    Update();
+
+    // Width and height are solved for.  An ellipse has area pi * w * h / 4, which the
+    // curve, a cubic approximation, matches to about 1e-4.
+    double w = GetParmVal( GetXSecParm( fuse_xsec, "Ellipse_Width" ) );
+    double h = GetParmVal( GetXSecParm( fuse_xsec, "Ellipse_Height" ) );
+
+    if ( !closeTo( h / w, 0.5, 1e-6 ) || !closeTo( 3.14159265358979 * w * h * 0.25, 2.0, 1e-3 ) )
+    {
+        Print( "ERROR: the fuselage XSec did not follow its drivers" );
+        __failure++;
+    }
+
+    // A repeated driver is rejected and the drivers stay as they were.
+    SetDriverGroup( fuse_id, 1, WIDTH_XSEC_DRIVER, WIDTH_XSEC_DRIVER );
+
+    if ( GetNumTotalErrors() != 1 || PopLastError().GetErrorCode() != VSP_INVALID_DRIVERS )
+    {
+        Print( "ERROR: SetDriverGroup did not reject a repeated XSec driver" );
+        __failure++;
+    }
+
+    array < int > fuse_drivers = GetDriverGroup( fuse_id, 1 );
+
+    if ( fuse_drivers[0] != AREA_XSEC_DRIVER || fuse_drivers[1] != HWRATIO_XSEC_DRIVER )
+    {
+        Print( "ERROR: SetDriverGroup changed the XSec drivers on a repeated driver" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    //==== Circle XSec ====//
+    // One driver from XSEC_DRIVERS: WIDTH_XSEC_DRIVER (the diameter) or AREA_XSEC_DRIVER.  The
+    // default is WIDTH_XSEC_DRIVER.  CIRCLE_NUM_XSEC_DRIVER is not a driver.
+    string stack_id = AddGeom( "STACK", "" );
+
+    string stack_surf = GetXSecSurf( stack_id, 0 );
+
+    ChangeXSecShape( stack_surf, 1, XS_CIRCLE );
+
+    string stack_xsec = GetXSec( stack_surf, 1 );
+
+    SetDriverGroup( stack_id, 1, AREA_XSEC_DRIVER );
+
+    SetParmVal( GetXSecParm( stack_xsec, "Area" ), 3.0 );
+
+    Update();
+
+    // The diameter is solved for.  A circle has area pi * d * d / 4, to about 1e-4 as above.
+    double d = GetParmVal( GetXSecParm( stack_xsec, "Circle_Diameter" ) );
+
+    if ( !closeTo( 3.14159265358979 * d * d * 0.25, 3.0, 1e-3 ) )
+    {
+        Print( "ERROR: the circle XSec did not follow its driver" );
+        __failure++;
+    }
+
+    //==== Body of Revolution ====//
+    // The same drivers as a Fuselage XSec, by the shape of its curve.  The section index is not used.
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_ELLIPSE );
+
+    SetDriverGroup( bor_id, 0, HEIGHT_XSEC_DRIVER, AREA_XSEC_DRIVER );
+
+    SetParmVal( bor_id, "Ellipse_Height", "XSecCurve", 1.0 );
+    SetParmVal( bor_id, "Area", "XSecCurve", 1.5 );
+
+    Update();
+
+    // The width is solved for.
+    double bw = GetParmVal( bor_id, "Ellipse_Width", "XSecCurve" );
+
+    if ( !closeTo( 3.14159265358979 * bw * 1.0 * 0.25, 1.5, 1e-3 ) )
+    {
+        Print( "ERROR: the body of revolution did not follow its drivers" );
+        __failure++;
+    }
+
+    //==== Actuator disk ====//
+    // Three drivers from PROP_DRIVERS: RPM_PROP_DRIVER, CT_PROP_DRIVER, CP_PROP_DRIVER,
+    // T_PROP_DRIVER, ETA_PROP_DRIVER, J_PROP_DRIVER, P_PROP_DRIVER, CQ_PROP_DRIVER,
+    // Q_PROP_DRIVER.  The default is RPM_PROP_DRIVER, CT_PROP_DRIVER, CP_PROP_DRIVER.
+    // NUM_PROP_DRIVER is not a driver.
+    string prop_id = AddGeom( "PROP", "" );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+    SetParmVal( prop_id, "Diameter", "Design", 6.0 );
+
+    Update();
+
+    string disk_id = FindActuatorDisk( 0 );
+
+    SetDriverGroup( disk_id, 0, RPM_PROP_DRIVER, T_PROP_DRIVER, CP_PROP_DRIVER );
+
+    SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 2000.0 );
+    SetParmVal( FindParm( disk_id, "RotorThrust", "Rotor" ), 50.0 );
+    SetParmVal( FindParm( disk_id, "RotorCP", "Rotor" ), 0.5 );
+
+    Update();
+
+    // The thrust coefficient is solved for from T = CT * rho * n * n * D^4, with n in revolutions
+    // per second and rho the VSPAERO freestream density.
+    double rho = GetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "Rho", "VSPAERO" ) );
+    double n = 2000.0 / 60.0;
+    double ct = GetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ) );
+
+    if ( !closeTo( ct * rho * n * n * 6.0 * 6.0 * 6.0 * 6.0, 50.0, 1e-6 ) )
+    {
+        Print( "ERROR: the actuator disk did not follow its drivers" );
+        __failure++;
+    }
+
+    // The three drivers hold the values they were set to.
+    if ( !closeTo( GetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ) ), 2000.0, 1e-9 ) ||
+         !closeTo( GetParmVal( FindParm( disk_id, "RotorThrust", "Rotor" ) ), 50.0, 1e-9 ) ||
+         !closeTo( GetParmVal( FindParm( disk_id, "RotorCP", "Rotor" ) ), 0.5, 1e-9 ) )
+    {
+        Print( "ERROR: the actuator disk drivers did not hold their values" );
+        __failure++;
+    }
+
+    // RPM and advance ratio cannot both be drivers, so this is rejected and the drivers stay as
+    // they were.
+    SetDriverGroup( disk_id, 0, RPM_PROP_DRIVER, J_PROP_DRIVER, CP_PROP_DRIVER );
+
+    if ( GetNumTotalErrors() != 1 || PopLastError().GetErrorCode() != VSP_INVALID_DRIVERS )
+    {
+        Print( "ERROR: SetDriverGroup did not reject an invalid actuator disk combination" );
+        __failure++;
+    }
+
+    array < int > disk_drivers = GetDriverGroup( disk_id, 0 );
+
+    if ( disk_drivers[0] != RPM_PROP_DRIVER || disk_drivers[1] != T_PROP_DRIVER || disk_drivers[2] != CP_PROP_DRIVER )
+    {
+        Print( "ERROR: SetDriverGroup changed the disk drivers on an invalid combination" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    wid = AddGeom( "WING", "" )
+    import math
 
-    SetDriverGroup( wid, 1, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER )
+    #==== Wing section ====//
+    # Three drivers from WING_DRIVERS: AR_WSECT_DRIVER, SPAN_WSECT_DRIVER, AREA_WSECT_DRIVER,
+    # TAPER_WSECT_DRIVER, AVEC_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER,
+    # SECSWEEP_WSECT_DRIVER.  The default is SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER,
+    # TIPC_WSECT_DRIVER.  NUM_WSECT_DRIVER, SWEEP_WSECT_DRIVER, SWEEPLOC_WSECT_DRIVER and
+    # SECSWEEPLOC_WSECT_DRIVER are not drivers.
+    wing_id = AddGeom( "WING", "" )
+
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER )
 
     Update()
 
+    SetParmVal( wing_id, "Aspect", "XSec_1", 4 )
+    SetParmVal( wing_id, "Root_Chord", "XSec_1", 2 )
+    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 )
+
+    Update()
+
+    # Span is now solved for from the aspect ratio and the two chords.  A section of this
+    # planform has area span * ( root + tip ) / 2, and aspect ratio span * span / area,
+    # so span = AR * ( root + tip ) / 2.
+    assert abs( GetParmVal( wing_id, "Span", "XSec_1" ) - 4.0 * ( 2.0 + 1.0 ) * 0.5 ) < 1e-6, "the wing section did not follow its drivers"
+
+    # Aspect ratio, span and area cannot all be drivers, so this is rejected and the drivers stay
+    # as they were.  The error queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, SPAN_WSECT_DRIVER, AREA_WSECT_DRIVER )
+
+    assert err_mgr.GetNumTotalErrors() == 1 and err_mgr.PopLastError().GetErrorCode() == VSP_INVALID_DRIVERS, "SetDriverGroup did not reject an invalid wing combination"
+    assert list( GetDriverGroup( wing_id, 1 ) ) == [ AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER ], "SetDriverGroup changed the drivers on an invalid combination"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    #==== Fuselage or Stack XSec ====//
+    # Two drivers from XSEC_DRIVERS: WIDTH_XSEC_DRIVER, AREA_XSEC_DRIVER, HEIGHT_XSEC_DRIVER,
+    # HWRATIO_XSEC_DRIVER.  The default is WIDTH_XSEC_DRIVER, HEIGHT_XSEC_DRIVER.
+    # NUM_XSEC_DRIVER is not a driver.
+    fuse_id = AddGeom( "FUSELAGE", "" )
+
+    fuse_xsec = GetXSec( GetXSecSurf( fuse_id, 0 ), 1 )   # An XS_ELLIPSE
+
+    SetDriverGroup( fuse_id, 1, AREA_XSEC_DRIVER, HWRATIO_XSEC_DRIVER )
+
+    SetParmVal( GetXSecParm( fuse_xsec, "Area" ), 2.0 )
+    SetParmVal( GetXSecParm( fuse_xsec, "HWRatio" ), 0.5 )
+
+    Update()
+
+    # Width and height are solved for.  An ellipse has area pi * w * h / 4, which the
+    # curve, a cubic approximation, matches to about 1e-4.
+    w = GetParmVal( GetXSecParm( fuse_xsec, "Ellipse_Width" ) )
+    h = GetParmVal( GetXSecParm( fuse_xsec, "Ellipse_Height" ) )
+
+    assert abs( h / w - 0.5 ) < 1e-6, "the fuselage XSec did not follow its drivers"
+    assert abs( math.pi * w * h * 0.25 - 2.0 ) < 1e-3, "the fuselage XSec did not follow its drivers"
+
+    # A repeated driver is rejected and the drivers stay as they were.
+    SetDriverGroup( fuse_id, 1, WIDTH_XSEC_DRIVER, WIDTH_XSEC_DRIVER )
+
+    assert err_mgr.GetNumTotalErrors() == 1 and err_mgr.PopLastError().GetErrorCode() == VSP_INVALID_DRIVERS, "SetDriverGroup did not reject a repeated XSec driver"
+    assert list( GetDriverGroup( fuse_id, 1 ) ) == [ AREA_XSEC_DRIVER, HWRATIO_XSEC_DRIVER ], "SetDriverGroup changed the XSec drivers on a repeated driver"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    #==== Circle XSec ====//
+    # One driver from XSEC_DRIVERS: WIDTH_XSEC_DRIVER (the diameter) or AREA_XSEC_DRIVER.  The
+    # default is WIDTH_XSEC_DRIVER.  CIRCLE_NUM_XSEC_DRIVER is not a driver.
+    stack_id = AddGeom( "STACK", "" )
+
+    stack_surf = GetXSecSurf( stack_id, 0 )
+
+    ChangeXSecShape( stack_surf, 1, XS_CIRCLE )
+
+    stack_xsec = GetXSec( stack_surf, 1 )
+
+    SetDriverGroup( stack_id, 1, AREA_XSEC_DRIVER )
+
+    SetParmVal( GetXSecParm( stack_xsec, "Area" ), 3.0 )
+
+    Update()
+
+    # The diameter is solved for.  A circle has area pi * d * d / 4, to about 1e-4 as above.
+    d = GetParmVal( GetXSecParm( stack_xsec, "Circle_Diameter" ) )
+
+    assert abs( math.pi * d * d * 0.25 - 3.0 ) < 1e-3, "the circle XSec did not follow its driver"
+
+    #==== Body of Revolution ====//
+    # The same drivers as a Fuselage XSec, by the shape of its curve.  The section index is not used.
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+
+    ChangeBORXSecShape( bor_id, XS_ELLIPSE )
+
+    SetDriverGroup( bor_id, 0, HEIGHT_XSEC_DRIVER, AREA_XSEC_DRIVER )
+
+    SetParmVal( bor_id, "Ellipse_Height", "XSecCurve", 1.0 )
+    SetParmVal( bor_id, "Area", "XSecCurve", 1.5 )
+
+    Update()
+
+    # The width is solved for.
+    bw = GetParmVal( bor_id, "Ellipse_Width", "XSecCurve" )
+
+    assert abs( math.pi * bw * 1.0 * 0.25 - 1.5 ) < 1e-3, "the body of revolution did not follow its drivers"
+
+    #==== Actuator disk ====//
+    # Three drivers from PROP_DRIVERS: RPM_PROP_DRIVER, CT_PROP_DRIVER, CP_PROP_DRIVER,
+    # T_PROP_DRIVER, ETA_PROP_DRIVER, J_PROP_DRIVER, P_PROP_DRIVER, CQ_PROP_DRIVER,
+    # Q_PROP_DRIVER.  The default is RPM_PROP_DRIVER, CT_PROP_DRIVER, CP_PROP_DRIVER.
+    # NUM_PROP_DRIVER is not a driver.
+    prop_id = AddGeom( "PROP", "" )
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK )
+    SetParmVal( prop_id, "Diameter", "Design", 6.0 )
+
+    Update()
+
+    disk_id = FindActuatorDisk( 0 )
+
+    SetDriverGroup( disk_id, 0, RPM_PROP_DRIVER, T_PROP_DRIVER, CP_PROP_DRIVER )
+
+    SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 2000.0 )
+    SetParmVal( FindParm( disk_id, "RotorThrust", "Rotor" ), 50.0 )
+    SetParmVal( FindParm( disk_id, "RotorCP", "Rotor" ), 0.5 )
+
+    Update()
+
+    # The thrust coefficient is solved for from T = CT * rho * n * n * D^4, with n in revolutions
+    # per second and rho the VSPAERO freestream density.
+    rho = GetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "Rho", "VSPAERO" ) )
+    n = 2000.0 / 60.0
+    ct = GetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ) )
+
+    assert abs( ct * rho * n * n * 6.0 ** 4 - 50.0 ) < 1e-6, "the actuator disk did not follow its drivers"
+
+    # The three drivers hold the values they were set to.
+    assert abs( GetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ) ) - 2000.0 ) < 1e-9, "the actuator disk drivers did not hold their values"
+    assert abs( GetParmVal( FindParm( disk_id, "RotorThrust", "Rotor" ) ) - 50.0 ) < 1e-9, "the actuator disk drivers did not hold their values"
+    assert abs( GetParmVal( FindParm( disk_id, "RotorCP", "Rotor" ) ) - 0.5 ) < 1e-9, "the actuator disk drivers did not hold their values"
+
+    # RPM and advance ratio cannot both be drivers, so this is rejected and the drivers stay as
+    # they were.
+    SetDriverGroup( disk_id, 0, RPM_PROP_DRIVER, J_PROP_DRIVER, CP_PROP_DRIVER )
+
+    assert err_mgr.GetNumTotalErrors() == 1 and err_mgr.PopLastError().GetErrorCode() == VSP_INVALID_DRIVERS, "SetDriverGroup did not reject an invalid actuator disk combination"
+    assert list( GetDriverGroup( disk_id, 0 ) ) == [ RPM_PROP_DRIVER, T_PROP_DRIVER, CP_PROP_DRIVER ], "SetDriverGroup changed the disk drivers on an invalid combination"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
     \endcode
     \endPythonOnly
-    \sa WING_DRIVERS, SetDriverGroupByID
-    \param [in] geom_id string Geom ID
-    \param [in] section_index int Wing section index
-    \param [in] driver_0 int Wing driver enum (i.e. SPAN_WSECT_DRIVER)
-    \param [in] driver_1 int Second wing driver enum
-    \param [in] driver_2 int Third wing driver enum
+    \sa WING_DRIVERS, XSEC_DRIVERS, PROP_DRIVERS, GetDriverGroup, SetDriverGroupByID, FindActuatorDisk
+    \param [in] geom_id string Geom ID or actuator disk ID
+    \param [in] section_index int Wing section or XSec index; ignored for a Body of Revolution or an actuator disk
+    \param [in] driver_0 int First driver enum (i.e. SPAN_WSECT_DRIVER or AREA_XSEC_DRIVER)
+    \param [in] driver_1 int Second driver enum (i.e. ROOTC_WSECT_DRIVER or HWRATIO_XSEC_DRIVER)
+    \param [in] driver_2 int Third driver enum, wing sections and actuator disks only (i.e. TIPC_WSECT_DRIVER)
 */
 
 extern void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1 );
