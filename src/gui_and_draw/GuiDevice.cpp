@@ -3981,7 +3981,7 @@ void ParmTreePicker::UpdateParmTree()
             }
 
             vector< string > parms;
-            pc->AddLinkableParms( parms );
+            pc->GetParmIDsUnder( parms );
             // Verify tree group names for active parms are correct.
             ParmTreeIt pit;
             for ( j = 0; j < ( int ) parms.size() ; j++ )

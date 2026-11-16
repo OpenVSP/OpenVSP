@@ -37,8 +37,11 @@
 #include "VSPAEROMgr.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
+#include "LinkMgr.h"
 
 #include <typeinfo>
+#include <set>
+#include <map>
 
 #include <string>
 #include <vector>
@@ -1101,4 +1104,137 @@ void ParmIndexTestSuite::AContainerNotListedIsLeftOutOfTheWalkAboveIt()
 
     below.SetParentContainer( string() );
     hidden.SetParentContainer( string() );
+}
+
+// Every live Parm of every live container.
+static void GetAllParms( vector< Parm* > & parms )
+{
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        vector< string > ids;
+        all[i]->GetParmIDsUnder( ids );
+        for ( int j = 0; j < ( int )ids.size(); j++ )
+        {
+            Parm* p = ParmMgr.FindParm( ids[j] );
+            if ( p && p->GetContainer() == all[i] )
+            {
+                parms.push_back( p );
+            }
+        }
+    }
+}
+
+// Whether a Parm's container, or one between it and its top, is not listed, so that the Parm is not listed
+// under its top.
+static bool IsBelowAContainerNotListed( Parm* p )
+{
+    ParmContainer* top = p->GetTopContainer();
+    for ( ParmContainer* c = p->GetContainer(); c && c != top; c = c->GetParentContainerPtr() )
+    {
+        if ( !c->GetListedFlag() )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// The Parms of every live container, by the ID of the container at the top of its parents, but for those
+// below a container that is not listed.
+static std::map< string, std::set< string > > ParmsByTop()
+{
+    vector< Parm* > parms;
+    GetAllParms( parms );
+
+    std::map< string, std::set< string > > by_top;
+    for ( int i = 0; i < ( int )parms.size(); i++ )
+    {
+        if ( !IsBelowAContainerNotListed( parms[i] ) )
+        {
+            by_top[ parms[i]->GetTopContainerID() ].insert( parms[i]->GetID() );
+        }
+    }
+    return by_top;
+}
+
+void ParmIndexTestSuite::EveryContainerListsExactlyTheParmsUnderIt()
+{
+    BuildEveryKindOfContainer();
+    std::map< string, std::set< string > > by_top = ParmsByTop();
+
+    vector< string > containers = vsp::FindContainers();
+    TEST_ASSERT( !containers.empty() );
+    for ( int i = 0; i < ( int )containers.size(); i++ )
+    {
+        vector< string > listed = vsp::FindContainerParmIDs( containers[i] );
+        std::set< string > listed_set( listed.begin(), listed.end() );
+        TEST_ASSERT( listed_set.size() == listed.size() );
+        TEST_ASSERT( listed_set == by_top[ containers[i] ] );
+    }
+}
+
+// Link all of one container to another of the same kind; whether any Parm is driven twice.
+static bool LinkingAllDrivesAParmTwice( const string & a, const string & b )
+{
+    vsp::LinkAllComp( vsp::FindContainerParmIDs( a )[0], vsp::FindContainerParmIDs( b )[0] );
+    std::set< string > driven;
+    for ( int i = 0; i < LinkMgr.GetNumLinks(); i++ )
+    {
+        if ( !driven.insert( LinkMgr.GetLink( i )->GetParmB() ).second )
+        {
+            return true;
+        }
+    }
+    return driven.empty();
+}
+
+void ParmIndexTestSuite::LinkingAllOfAContainerDrivesEachParmOnce()
+{
+    //==== Two Geoms, each with two sources and two textures ====//
+    vsp::VSPRenew();
+    string pods[2];
+    for ( int g = 0; g < 2; g++ )
+    {
+        pods[g] = vsp::AddGeom( "POD" );
+        vsp::Update();
+        for ( int k = 0; k < 2; k++ )
+        {
+            vsp::AddCFDSource( vsp::POINT_SOURCE, pods[g], 0, 0.1 + k, 0.2, 0.3, 0.5 );
+            vsp::AttachGeomTexture( pods[g], "ParmIndexTexture.png" );
+        }
+    }
+    TEST_ASSERT( !LinkingAllDrivesAParmTwice( pods[0], pods[1] ) );
+
+    //==== Two laminates, each with two layers ====//
+    vsp::VSPRenew();
+    string mats[2];
+    for ( int m = 0; m < 2; m++ )
+    {
+        mats[m] = vsp::AddFeaMaterial();
+        vsp::SetParmVal( mats[m], "FeaMaterialType", "FeaMaterial", vsp::FEA_LAMINATE );
+        vsp::AddFeaLayer( mats[m] );
+        vsp::AddFeaLayer( mats[m] );
+    }
+    TEST_ASSERT( !LinkingAllDrivesAParmTwice( mats[0], mats[1] ) );
+
+    //==== Two structures, each with two poly spars ====//
+    vsp::VSPRenew();
+    string wing = vsp::AddGeom( "WING" );
+    vsp::Update();
+    string structs[2];
+    for ( int st = 0; st < 2; st++ )
+    {
+        int is = vsp::AddFeaStruct( wing );
+        structs[st] = vsp::GetFeaStructID( wing, is );
+        vsp::AddFeaPart( wing, is, vsp::FEA_POLY_SPAR );
+        vsp::AddFeaPart( wing, is, vsp::FEA_POLY_SPAR );
+    }
+    TEST_ASSERT( !LinkingAllDrivesAParmTwice( structs[0], structs[1] ) );
+
+    while ( vsp::ErrorMgr.GetNumTotalErrors() > 0 )
+    {
+        vsp::ErrorMgr.PopLastError();
+    }
 }

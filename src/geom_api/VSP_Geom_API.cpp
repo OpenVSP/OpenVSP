@@ -5365,7 +5365,7 @@ std::vector< std::string > GetGeomParmIDs( const std::string & geom_id )
         return parm_vec;
     }
 
-    geom_ptr->AddLinkableParms( parm_vec );
+    geom_ptr->GetParmIDsUnder( parm_vec );
 
     ErrorMgr.NoError();
     return parm_vec;
@@ -6181,7 +6181,7 @@ std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id )
         return parm_vec;
     }
 
-    ss_ptr->AddLinkableParms( parm_vec );
+    ss_ptr->GetParmIDsUnder( parm_vec );
 
     ErrorMgr.NoError();
     return parm_vec;
@@ -9931,7 +9931,7 @@ std::vector< std::string > GetXSecParmIDs( const std::string & xsec_id )
         return parm_vec;
     }
 
-    xs->AddLinkableParms( parm_vec );
+    xs->GetParmIDsUnder( parm_vec );
 
     ErrorMgr.NoError();
     return parm_vec;
@@ -14997,7 +14997,7 @@ std::vector< std::string > FindContainerParmIDs( const std::string & parm_contai
         return parm_vec;
     }
 
-    pc->AddLinkableParms( parm_vec );
+    pc->GetParmIDsUnder( parm_vec );
 
     ErrorMgr.NoError();
     return parm_vec;

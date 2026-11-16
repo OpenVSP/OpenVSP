@@ -376,8 +376,8 @@ bool LinkMgrSingleton::LinkAllComp()
     }
 
     vector< string > parmAVec, parmBVec;
-    pcA->AddLinkableParms( parmAVec, pcA->GetID() );
-    pcB->AddLinkableParms( parmBVec, pcB->GetID() );
+    pcA->GetParmIDsUnder( parmAVec );
+    pcB->GetParmIDsUnder( parmBVec );
 
     for ( int k = 0 ; k < ( int )parmAVec.size() ; k++ )
     {

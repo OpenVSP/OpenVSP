@@ -436,7 +436,7 @@ static void HoldParmRefs( AttributeCollection* coll, const vector< string > & ow
 static vector< HeldParmRef > HoldOwnParmRefs( ParmContainer* top, const vector< ParmContainer* > & holders )
 {
     vector< string > own;
-    top->AddLinkableParms( own );
+    top->GetParmIDsUnder( own );
 
     vector< HeldParmRef > refs;
     for ( int i = 0; i < ( int )holders.size(); i++ )

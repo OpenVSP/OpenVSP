@@ -50,6 +50,8 @@ public:
         TEST_ADD( ParmIndexTestSuite::PolySparPointsAreNumberedAcrossTheirStructure )
         TEST_ADD( ParmIndexTestSuite::TheParmsUnderAGeomAreItsOwnAndItsPartsInOrder )
         TEST_ADD( ParmIndexTestSuite::AContainerNotListedIsLeftOutOfTheWalkAboveIt )
+        TEST_ADD( ParmIndexTestSuite::EveryContainerListsExactlyTheParmsUnderIt )
+        TEST_ADD( ParmIndexTestSuite::LinkingAllOfAContainerDrivesEachParmOnce )
     }
 
 private:
@@ -85,6 +87,8 @@ private:
     void PolySparPointsAreNumberedAcrossTheirStructure();
     void TheParmsUnderAGeomAreItsOwnAndItsPartsInOrder();
     void AContainerNotListedIsLeftOutOfTheWalkAboveIt();
+    void EveryContainerListsExactlyTheParmsUnderIt();
+    void LinkingAllOfAContainerDrivesEachParmOnce();
 };
 
 #endif
