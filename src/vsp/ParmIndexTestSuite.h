@@ -56,6 +56,10 @@ public:
         TEST_ADD( ParmIndexTestSuite::EveryListingIsSorted )
         TEST_ADD( ParmIndexTestSuite::TheListingFollowsEachChange )
         TEST_ADD( ParmIndexTestSuite::ThePickerPicksBackTheParmItShows )
+        TEST_ADD( ParmIndexTestSuite::EveryListedParmIsFoundByName )
+        TEST_ADD( ParmIndexTestSuite::AContainersOwnParmIsFoundFirst )
+        TEST_ADD( ParmIndexTestSuite::AContainersOwnParmIsFoundByItsGroupName )
+        TEST_ADD( ParmIndexTestSuite::AParmIsFoundAsSoonAsItIsMade )
     }
 
 private:
@@ -97,6 +101,10 @@ private:
     void EveryListingIsSorted();
     void TheListingFollowsEachChange();
     void ThePickerPicksBackTheParmItShows();
+    void EveryListedParmIsFoundByName();
+    void AContainersOwnParmIsFoundFirst();
+    void AContainersOwnParmIsFoundByItsGroupName();
+    void AParmIsFoundAsSoonAsItIsMade();
 };
 
 #endif

@@ -1381,3 +1381,87 @@ void ParmIndexTestSuite::ThePickerPicksBackTheParmItShows()
     }
     TEST_ASSERT( checked > 10 );
 }
+
+void ParmIndexTestSuite::EveryListedParmIsFoundByName()
+{
+    BuildEveryKindOfContainer();
+
+    int found = 0;
+    vector< string > containers = vsp::FindContainers();
+    for ( int i = 0; i < ( int )containers.size(); i++ )
+    {
+        //==== The first in the list with each name and group is the one found ====//
+        std::set< string > seen;
+        vector< string > ids = vsp::FindContainerParmIDs( containers[i] );
+        for ( int j = 0; j < ( int )ids.size(); j++ )
+        {
+            Parm* p = ParmMgr.FindParm( ids[j] );
+            if ( seen.insert( p->GetName() + "/" + p->GetDisplayGroupName() ).second )
+            {
+                TEST_ASSERT( vsp::FindParm( containers[i], p->GetName(), p->GetDisplayGroupName() ) == ids[j] );
+                found++;
+            }
+        }
+    }
+    TEST_ASSERT( found > 1000 );
+}
+
+void ParmIndexTestSuite::AContainersOwnParmIsFoundFirst()
+{
+    ParmContainer top;
+    ParmContainer below;
+    Parm child_parm;
+    Parm own_parm;
+
+    //==== The child's Parm is made first ====//
+    below.SetParentContainer( top.GetID() );
+    child_parm.Init( "Shared", "SharedGroup", &below, 1.0, 0.0, 2.0 );
+    own_parm.Init( "Shared", "SharedGroup", &top, 1.0, 0.0, 2.0 );
+
+    TEST_ASSERT( ParmMgr.FindParmUnder( &top, "Shared", "SharedGroup" ) == own_parm.GetID() );
+    TEST_ASSERT( ParmMgr.FindParmUnder( &below, "Shared", "SharedGroup" ) == child_parm.GetID() );
+
+    below.SetParentContainer( string() );
+}
+
+void ParmIndexTestSuite::AContainersOwnParmIsFoundByItsGroupName()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    string ss = vsp::AddSubSurf( pod, vsp::SS_ELLIPSE );
+    vector< string > ids = vsp::FindContainerParmIDs( ss );
+    Parm* center = nullptr;
+    for ( int i = 0; i < ( int )ids.size(); i++ )
+    {
+        if ( ParmMgr.FindParm( ids[i] )->GetName() == "Center_U" )
+        {
+            center = ParmMgr.FindParm( ids[i] );
+        }
+    }
+    TEST_ASSERT( center && center->GetDisplayGroupName() != center->GetGroupName() );
+    if ( !center )
+    {
+        return;
+    }
+
+    //==== By its display group name, and by its group name without the number the display name adds ====//
+    TEST_ASSERT( vsp::FindParm( ss, "Center_U", center->GetDisplayGroupName() ) == center->GetID() );
+    TEST_ASSERT( vsp::FindParm( ss, "Center_U", center->GetGroupName() ) == center->GetID() );
+
+    //==== Under the Geom, by its display group name ====//
+    TEST_ASSERT( vsp::FindParm( pod, "Center_U", center->GetDisplayGroupName() ) == center->GetID() );
+}
+
+void ParmIndexTestSuite::AParmIsFoundAsSoonAsItIsMade()
+{
+    vsp::VSPRenew();
+    for ( int i = 0; i < 20; i++ )
+    {
+        string pod = vsp::AddGeom( "POD" );
+        TEST_ASSERT( !vsp::FindParm( pod, "X_Rel_Location", "XForm" ).empty() );
+        string ss = vsp::AddSubSurf( pod, vsp::SS_LINE );
+        TEST_ASSERT( vsp::FindParm( ss, "Const_Line_Value", "SubSurface" ) == vsp::GetParm( ss, "Const_Line_Value", "SubSurface" ) );
+        TEST_ASSERT( !vsp::FindParm( ss, "Const_Line_Value", "SubSurface" ).empty() );
+    }
+}

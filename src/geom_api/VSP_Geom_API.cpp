@@ -14824,11 +14824,6 @@ std::string GetParmDescript( const std::string & parm_id )
 ///  Find a parm id given parm container, name and group
 static std::string FindParmImpl( const std::string & parm_container_id, const std::string& parm_name, const std::string& group_name, const std::string & caller )
 {
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();        // Make Sure Name/Group Get Mapped To Parms
-    }
-
     ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
 
     if ( !pc )
@@ -14837,7 +14832,7 @@ static std::string FindParmImpl( const std::string & parm_container_id, const st
         return std::string();
     }
 
-   std::string parm_id = pc->FindParm( parm_name, group_name );
+   std::string parm_id = ParmMgr.FindParmUnder( pc, parm_name, group_name );
    Parm* p = ParmMgr.FindParm( parm_id );
    if ( !p )
    {

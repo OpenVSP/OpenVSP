@@ -29,6 +29,9 @@ struct ParmListing
 {
     vector< string > m_GroupNames;
     unordered_map< string, vector< string > > m_GroupParmIDs;
+
+    // The first Parm in the walk with each name and display group name.
+    unordered_map< string, string > m_FirstByKey;
 };
 
 //==== Parm Manager ====//
@@ -99,6 +102,11 @@ public:
 
     // The listing of the Parms under a container, built when first asked for after the change count moved.
     const ParmListing & GetListing( ParmContainer* parm_container_ptr );
+
+    // The first Parm in the walk below a container with this name and display group name -- the container's
+    // own come first -- or, failing that, the Parm with this name and group name of the container or of a listed
+    // container directly below it.  Empty if none.
+    string FindParmUnder( ParmContainer* parm_container_ptr, const string & name, const string & group_name );
 
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     // Takes back the entry AddToUndoStack made last, as if that change had not been made.

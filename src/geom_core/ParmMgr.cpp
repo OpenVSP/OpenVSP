@@ -263,6 +263,15 @@ void ParmMgrSingleton::ParentContainerChanged( ParmContainer* pc, const string &
     m_NumParmChanges++;
 }
 
+//==== The Key A Parm Is Found Under By Name ====//
+static string NameKey( const string & name, const string & group_name )
+{
+    string key = name;
+    key += '\x1f';
+    key += group_name;
+    return key;
+}
+
 //==== The Listing Of The Parms Under A Container ====//
 const ParmListing & ParmMgrSingleton::GetListing( ParmContainer* pc )
 {
@@ -302,6 +311,9 @@ const ParmListing & ParmMgrSingleton::GetListing( ParmContainer* pc )
                 listing.m_GroupNames.push_back( group_name );
             }
             groups[ group_name ].push_back( std::pair< string, string >( parm_ids[i], p->GetName() ) );
+
+            // The first in the walk keeps the key.
+            listing.m_FirstByKey.insert( std::pair< string, string >( NameKey( p->GetName(), group_name ), parm_ids[i] ) );
         }
     }
 
@@ -324,6 +336,43 @@ const ParmListing & ParmMgrSingleton::GetListing( ParmContainer* pc )
     }
 
     return listing;
+}
+
+//==== Find A Parm By Name Among A Container's And Those Below It ====//
+string ParmMgrSingleton::FindParmUnder( ParmContainer* pc, const string & name, const string & group_name )
+{
+    if ( !pc )
+    {
+        return string();
+    }
+
+    const ParmListing & listing = GetListing( pc );
+    unordered_map< string, string >::const_iterator iter = listing.m_FirstByKey.find( NameKey( name, group_name ) );
+    if ( iter != listing.m_FirstByKey.end() )
+    {
+        return iter->second;
+    }
+
+    string id = pc->FindParm( name, group_name );
+    if ( !id.empty() )
+    {
+        return id;
+    }
+
+    //==== The Group Names Kept In The Containers Directly Below, Such As A Subsurface's Curve's ====//
+    const vector< ParmContainer* > & children = GetChildContainers( pc->GetID() );
+    for ( int i = 0 ; i < ( int )children.size() ; i++ )
+    {
+        if ( children[i]->GetListedFlag() )
+        {
+            id = children[i]->FindParm( name, group_name );
+            if ( !id.empty() )
+            {
+                return id;
+            }
+        }
+    }
+    return id;
 }
 
 const vector< ParmContainer* > & ParmMgrSingleton::GetChildContainers( const string & id ) const
