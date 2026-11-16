@@ -242,6 +242,7 @@ public:
 
     Parm m_HipABADRt;
     Parm m_HipFERt;
+    Parm m_HipIERt;
     Parm m_KneeRt;
     Parm m_AnkleRt;
 
@@ -254,14 +255,18 @@ public:
 
     Parm m_HipABADLt;
     Parm m_HipFELt;
+    Parm m_HipIELt;
     Parm m_KneeLt;
     Parm m_AnkleLt;
 
     Parm m_Back;
     Parm m_Waist;
+    Parm m_TorsoTwist;
+    Parm m_TorsoBend;
 
     Parm m_Nod;
     Parm m_RotateHead;
+    Parm m_HeadTilt;
 
 protected:
     // See MeshGeom::ScaleTriangles.  A HumanGeom has nothing to do here, but the pair is kept
@@ -337,18 +342,19 @@ protected:
 
     Matrix4d m_TVision;
 
-    void ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, Matrix4d &T );
+    void ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, const double &ang3, Matrix4d &T );
     void ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &ang1, const double &ang2, Matrix4d &T );
     void ComputeShoulderGirdleTrans( const int &ishoulder, const int &ielbow, const Matrix4d &Tbicep, bool mirror, Matrix4d &Tclav, Matrix4d &Tgh );
     void ComputeElbowTrans( const int &ishoulder, const int &ielbow, const int &ihand, const double &ang, const double &ang2, Matrix4d &T );
     void ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, Matrix4d &T );
 
-    void ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &ang1, const double &ang2, Matrix4d &T );
+    void ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &ang1, const double &ang2, const double &ang3, Matrix4d &T );
     void ComputeKneeTrans( const int &ihip, const int &iknee, const int &iankle, const double &ang, Matrix4d &T );
     void ComputeAnkleTrans( const int &iknee, const int &iankle, const int &itoe, const double &ang, Matrix4d &T );
 
-    void ComputeBackTrans( const int &iorigin, const int &iback, const int &iwaist, const double &ang, Matrix4d &T );
-    void ComputeWaistTrans( const int &iback, const int &iwaist, const int &ihip, const double &ang, Matrix4d &T );
+    void ComputeBackTrans( const int &iorigin, const int &iback, const int &iwaist, const double &ang, const double &bend, Matrix4d &T );
+    void ComputeWaistTrans( const int &iorigin, const int &iback, const int &iwaist, const int &ihip, const double &ang, const double &bend,
+                            const double &twist, Matrix4d &T );
 
     double Get_mm2UX();
 

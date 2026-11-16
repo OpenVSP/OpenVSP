@@ -115,6 +115,9 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_HipFERt.Init( "HipFERt", "Pose", this, 2.5, -15.0, 130.0 );
     m_HipFERt.SetDescript( "Right hip FE angle" );
 
+    m_HipIERt.Init( "HipIERt", "Pose", this, 0.0, -45.0, 45.0 );
+    m_HipIERt.SetDescript( "Right hip IE angle" );
+
     m_KneeRt.Init( "KneeRt", "Pose", this, 0.0, 0.0, 140.0 );
     m_KneeRt.SetDescript( "Right knee angle" );
 
@@ -145,6 +148,9 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_HipFELt.Init( "HipFELt", "Pose", this, 2.5, -15.0, 130.0 );
     m_HipFELt.SetDescript( "Left hip FE angle" );
 
+    m_HipIELt.Init( "HipIELt", "Pose", this, 0.0, -45.0, 45.0 );
+    m_HipIELt.SetDescript( "Left hip IE angle" );
+
     m_KneeLt.Init( "KneeLt", "Pose", this, 0.0, 0.0, 140.0 );
     m_KneeLt.SetDescript( "Left knee angle" );
 
@@ -157,11 +163,20 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Waist.Init( "Waist", "Pose", this, 0.0, -15, 45.0 );
     m_Waist.SetDescript( "Waist angle" );
 
+    m_TorsoTwist.Init( "TorsoTwist", "Pose", this, 0.0, -45.0, 45.0 );
+    m_TorsoTwist.SetDescript( "Torso twist angle, chest turned right positive" );
+
+    m_TorsoBend.Init( "TorsoBend", "Pose", this, 0.0, -30.0, 30.0 );
+    m_TorsoBend.SetDescript( "Torso side bend angle, bent right positive" );
+
     m_Nod.Init( "Nod", "Pose", this, 0.0, -40, 50.0 );
     m_Nod.SetDescript( "Nod angle" );
 
     m_RotateHead.Init( "RotateHead", "Pose", this, 0.0, -80, 80.0 );
     m_RotateHead.SetDescript( "Turn head angle" );
+
+    m_HeadTilt.Init( "HeadTilt", "Pose", this, 0.0, -40.0, 40.0 );
+    m_HeadTilt.SetDescript( "Head side tilt angle, tilted right positive" );
 
     m_PresetPose.Init( "PresetPose", "Pose", this, HumanGeom::STANDING, HumanGeom::STANDING, HumanGeom::SITTING );
     m_PresetPose.SetDescript( "Pose to set when triggered from GUI" );
@@ -413,6 +428,7 @@ void HumanGeom::ValidateParms( )
 
         m_HipABADLt = m_HipABADRt();
         m_HipFELt = m_HipFERt();
+        m_HipIELt = m_HipIERt();
         m_KneeLt = m_KneeRt();
         m_AnkleLt = m_AnkleRt();
     }
@@ -524,8 +540,12 @@ void HumanGeom::SetPreset()
             m_Back = 0;
             m_Waist = 0;
 
+            m_TorsoTwist = 0;
+            m_TorsoBend = 0;
+
             m_Nod = 0;
             m_RotateHead = 0;
+            m_HeadTilt = 0;
 
             m_WristRt = 0;
             m_ForearmRt = 0;
@@ -536,6 +556,7 @@ void HumanGeom::SetPreset()
 
             m_HipABADRt = 0.5;
             m_HipFERt = 2.5;
+            m_HipIERt = 0;
             m_KneeRt = 0.0;
             m_AnkleRt = 0.0;
 
@@ -545,8 +566,12 @@ void HumanGeom::SetPreset()
             m_Back = 0;
             m_Waist = 0;
 
+            m_TorsoTwist = 0;
+            m_TorsoBend = 0;
+
             m_Nod = 0;
             m_RotateHead = 0;
+            m_HeadTilt = 0;
 
             m_WristRt = 0;
             m_ForearmRt = 0;
@@ -557,6 +582,7 @@ void HumanGeom::SetPreset()
 
             m_HipABADRt = 0.5;
             m_HipFERt = 80;
+            m_HipIERt = 0;
             m_KneeRt = 80;
             m_AnkleRt = 0.0;
             break;
@@ -618,15 +644,19 @@ void HumanGeom::UpdateSurf()
     ComputeForearmTrans( LELBOW, LWRIST, LWRISTAX, LFINGER, -m_ForearmLt() * M_PI / 180.0, -m_WristLt() * M_PI / 180.0, t_ltwrist);
     t_ltwrist.postMult( t_ltforearm );
 
-    ComputeHeadTrans( ORIGIN, HEAD, m_Nod() * M_PI / 180.0, m_RotateHead() * M_PI / 180.0, t_head );
+    ComputeHeadTrans( ORIGIN, HEAD, m_Nod() * M_PI / 180.0, m_RotateHead() * M_PI / 180.0, m_HeadTilt() * M_PI / 180.0, t_head );
 
 
-    ComputeBackTrans( ORIGIN, BACK, WAIST, m_Back() * M_PI / 180.0, t_back );
+    // The side bend is split between the back and the waist; the twist turns everything below the
+    // chest about the spine.
+    double bend = m_TorsoBend() * M_PI / 180.0;
+    double twist = m_TorsoTwist() * M_PI / 180.0;
+    ComputeBackTrans( ORIGIN, BACK, WAIST, m_Back() * M_PI / 180.0, 0.5 * bend, t_back );
 
-    ComputeWaistTrans( BACK, WAIST, RHIP, m_Waist() * M_PI / 180.0, t_waist );
+    ComputeWaistTrans( ORIGIN, BACK, WAIST, RHIP, m_Waist() * M_PI / 180.0, 0.5 * bend, twist, t_waist );
     t_waist.postMult( t_back );
 
-    ComputeHipTrans( WAIST, RHIP, RKNEE, m_HipABADRt(), m_HipFERt(), t_rtthigh );
+    ComputeHipTrans( WAIST, RHIP, RKNEE, m_HipABADRt(), m_HipFERt(), m_HipIERt() * M_PI / 180.0, t_rtthigh );
     t_rtthigh.postMult( t_waist );
 
     ComputeKneeTrans( RHIP, RKNEE, RANKLE, m_KneeRt() * M_PI / 180.0, t_rtshin );
@@ -636,7 +666,7 @@ void HumanGeom::UpdateSurf()
     t_rtfoot.postMult( t_rtshin );
 
 
-    ComputeHipTrans( WAIST, LHIP, LKNEE, -m_HipABADLt(), m_HipFELt(), t_ltthigh );
+    ComputeHipTrans( WAIST, LHIP, LKNEE, -m_HipABADLt(), m_HipFELt(), -m_HipIELt() * M_PI / 180.0, t_ltthigh );
     t_ltthigh.postMult( t_waist );
 
     ComputeKneeTrans( LHIP, LKNEE, LANKLE, m_KneeLt() * M_PI / 180.0, t_ltshin );
@@ -1712,7 +1742,7 @@ void HumanGeom::ComputeAvePts( const vertmat &A, const vertmat &B, int n, vertma
     }
 }
 
-void HumanGeom::ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, Matrix4d &T )
+void HumanGeom::ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, const double &ang3, Matrix4d &T )
 {
     const vec3d &porigin = m_SkelVerts[ iorigin ];
     const vec3d &phead = m_SkelVerts[ ihead ];
@@ -1725,6 +1755,7 @@ void HumanGeom::ComputeHeadTrans( const int &iorigin, const int &ihead, const do
     T.translatev( porigin );
     T.rotate( ang, axis );
     T.rotate( ang2, vneck );
+    T.rotate( ang3, vec3d( 1, 0, 0 ) );
     T.translatev( -porigin );
 }
 
@@ -1887,13 +1918,14 @@ void HumanGeom::ComputeForearmTrans( const int &ielbow, const int &iwrist, const
     T.translatev( -pwrist );
 }
 
-void HumanGeom::ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &ang1, const double &ang2, Matrix4d &T )
+void HumanGeom::ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &ang1, const double &ang2, const double &ang3, Matrix4d &T )
 {
     const vec3d &pwaist = m_SkelVerts[ iwaist ];
     const vec3d &phip = m_SkelVerts[ ihip ];
     const vec3d &pknee = m_SkelVerts[ iknee ];
 
     vec3d vthigh = pknee - phip;
+    vec3d vaxis = vthigh;
 
     vec3d vfwd = vec3d( -1, 0, 0 );
 
@@ -1911,6 +1943,7 @@ void HumanGeom::ComputeHipTrans( const int &iwaist, const int &ihip, const int &
     T.translatev( phip );
     T.rotateX( ang1 - angles.x() + 180  );
     T.rotateY( ang2 - angles.y() );
+    T.rotate( ang3, vaxis );
     T.translatev( -phip );
 }
 
@@ -1950,7 +1983,7 @@ void HumanGeom::ComputeAnkleTrans( const int &iknee, const int &iankle, const in
     T.translatev( -pankle );
 }
 
-void HumanGeom::ComputeBackTrans( const int &iorigin, const int &iback, const int &iwaist, const double &ang, Matrix4d &T )
+void HumanGeom::ComputeBackTrans( const int &iorigin, const int &iback, const int &iwaist, const double &ang, const double &bend, Matrix4d &T )
 {
     const vec3d &porigin = m_SkelVerts[ iorigin ];
     const vec3d &pback = m_SkelVerts[ iback ];
@@ -1965,11 +1998,14 @@ void HumanGeom::ComputeBackTrans( const int &iorigin, const int &iback, const in
 
     T.translatev( pback );
     T.rotate( -ang, axis );
+    T.rotate( -bend, vec3d( 1, 0, 0 ) );
     T.translatev( -pback );
 }
 
-void HumanGeom::ComputeWaistTrans( const int &iback, const int &iwaist, const int &ihip, const double &ang, Matrix4d &T )
+void HumanGeom::ComputeWaistTrans( const int &iorigin, const int &iback, const int &iwaist, const int &ihip, const double &ang,
+                                   const double &bend, const double &twist, Matrix4d &T )
 {
+    const vec3d &porigin = m_SkelVerts[ iorigin ];
     const vec3d &pback = m_SkelVerts[ iback ];
     const vec3d &pwaist = m_SkelVerts[ iwaist ];
     vec3d phip = m_SkelVerts[ ihip ];
@@ -1984,5 +2020,11 @@ void HumanGeom::ComputeWaistTrans( const int &iback, const int &iwaist, const in
 
     T.translatev( pwaist );
     T.rotate( -ang , axis );
+    T.rotate( -bend, vec3d( 1, 0, 0 ) );
     T.translatev( -pwaist );
+
+    // The twist about the spine, from the chest's base to the waist, goes first.
+    T.translatev( porigin );
+    T.rotate( twist, pwaist - porigin );
+    T.translatev( -porigin );
 }
