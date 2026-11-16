@@ -10,6 +10,7 @@
 
 #include "ParmIndexTestSuite.h"
 #include "VSP_Geom_API.h"
+#include "APIErrorMgr.h"
 #include "APIDefines.h"
 #include "ParmMgr.h"
 #include "ParmContainer.h"
@@ -17,6 +18,9 @@
 #include "SubSurface.h"
 #include "FeaStructure.h"
 #include "StructureMgr.h"
+#include "Geom.h"
+#include "GridDensity.h"
+#include "Color.h"
 
 #include <string>
 #include <vector>
@@ -467,4 +471,36 @@ void ParmIndexTestSuite::AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold()
     TEST_ASSERT( ParmMgr.FindParmContainer( layer )->GetParentContainer() == mat );
     vector< string > conns = vsp::GetFeaAssemblyConnectionIDVec( assy );
     TEST_ASSERT( conns.size() == 1 && ParmMgr.FindParmContainer( conns[0] )->GetParentContainer() == assy );
+}
+
+void ParmIndexTestSuite::AGeomIsTheParentOfItsSourcesTexturesAndColor()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    string src = vsp::AddCFDSource( vsp::POINT_SOURCE, pod, 0, 0.1, 0.2, 0.5, 0.5 );
+    string tex = vsp::AttachGeomTexture( pod, "ParmIndexTexture.png" );
+    Geom* geom = dynamic_cast< Geom* >( ParmMgr.FindParmContainer( pod ) );
+    TEST_ASSERT( geom != nullptr );
+
+    TEST_ASSERT( ParmMgr.FindParmContainer( src )->GetParentContainer() == pod );
+    TEST_ASSERT( ParmMgr.FindParmContainer( tex )->GetParentContainer() == pod );
+    const Color* wire = geom->m_GuiDraw.getColorMgr()->GetWireColor();
+    TEST_ASSERT( wire->GetParentContainer() == pod );
+
+    //==== They follow the Geom to a new ID, as a pasted copy gets ====//
+    vsp::CopyGeomToClipboard( pod );
+    vector< string > pasted = vsp::PasteGeomClipboard();
+    TEST_ASSERT( pasted.size() == 1 && pasted[0] != pod );
+    Geom* copy = dynamic_cast< Geom* >( ParmMgr.FindParmContainer( pasted[0] ) );
+    TEST_ASSERT( copy->m_GuiDraw.getColorMgr()->GetWireColor()->GetParentContainer() == pasted[0] );
+    vector< BaseSource* > sources = copy->GetCfdMeshMainSourceVec();
+    TEST_ASSERT( sources.size() == 1 && sources[0]->GetParentContainer() == pasted[0] );
+    vector< string > textures = copy->m_GuiDraw.getTextureMgr()->GetTextureVec();
+    TEST_ASSERT( textures.size() == 1 && ParmMgr.FindParmContainer( textures[0] )->GetParentContainer() == pasted[0] );
+
+    while ( vsp::ErrorMgr.GetNumTotalErrors() > 0 )
+    {
+        vsp::ErrorMgr.PopLastError();
+    }
 }

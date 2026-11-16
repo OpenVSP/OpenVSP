@@ -32,6 +32,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::ASubsurfacesParentIsItsOwner )
         TEST_ADD( ParmIndexTestSuite::AStructureIsTheParentOfWhatItHolds )
         TEST_ADD( ParmIndexTestSuite::AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold )
+        TEST_ADD( ParmIndexTestSuite::AGeomIsTheParentOfItsSourcesTexturesAndColor )
     }
 
 private:
@@ -49,6 +50,7 @@ private:
     void ASubsurfacesParentIsItsOwner();
     void AStructureIsTheParentOfWhatItHolds();
     void AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold();
+    void AGeomIsTheParentOfItsSourcesTexturesAndColor();
 };
 
 #endif

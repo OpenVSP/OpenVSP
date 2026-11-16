@@ -1383,7 +1383,12 @@ void CloneGeom::AddDefaultSources( double base_len )
 
     original_geom->AddDefaultSources( base_len );
 
-    original_geom->TakeCfdMeshSourcesAfter( nbefore, m_MainSourceVec );
+    vector< BaseSource* > taken;
+    original_geom->TakeCfdMeshSourcesAfter( nbefore, taken );
+    for ( int i = 0 ; i < ( int )taken.size() ; i++ )
+    {
+        AddCfdMeshSource( taken[i] );
+    }
 
     SetCurrSourceID( ( int )m_MainSourceVec.size() - 1 );
 }

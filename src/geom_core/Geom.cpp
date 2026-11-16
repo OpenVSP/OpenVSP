@@ -1681,6 +1681,8 @@ void GeomXForm::BuildRigidAttachedDescendantList( vector< string > &descendant )
 //==== Constructor ====//
 Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 {
+    m_GuiDraw.SetOwnerID( m_ID );
+
     m_UpdateBlock = false;
     m_UpdateStamp = 0;
     m_CapUMinTipFound = false;
@@ -6793,6 +6795,7 @@ void Geom::ChangeID( const string &id )
     }
 
     ParmContainer::ChangeID( id );
+    m_GuiDraw.SetOwnerID( id );
 
     // The component ID: the mesher matches a subsurface to a surface by comparing that against
     // this Geom's ID, so a Geom whose ID changes has to tell its subsurfaces or they stop matching

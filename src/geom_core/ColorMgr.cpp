@@ -16,6 +16,11 @@ void ColorMgr::SetWireColor( double r, double g, double b, double a )
     m_WireColor.m_Alpha = a;
 }
 
+void ColorMgr::SetOwnerID( const std::string &id )
+{
+    m_WireColor.SetParentContainer( id );
+}
+
 const Color * ColorMgr::GetWireColor() const
 {
     return &m_WireColor;

@@ -29,6 +29,11 @@ public:
     virtual std::string AttachTexture( const std::string &fileName );
 
     /*!
+    * Name the container the textures belong to, their parent.
+    */
+    virtual void SetOwnerID( const std::string &id );
+
+    /*!
     * Remove one attached texture.  texture_id is the id generated from AttachTexture().
     */
     virtual void RemoveTexture( const std::string &texture_id );
@@ -76,5 +81,8 @@ public:
 
 protected:
     std::vector<Texture*> m_TextureList;
+
+private:
+    std::string m_OwnerID;
 };
 #endif

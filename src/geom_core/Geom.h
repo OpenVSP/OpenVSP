@@ -104,6 +104,13 @@ public:
     GeomGuiDraw();
     virtual ~GeomGuiDraw();
 
+    // Name the Geom whose textures and colors these are, their parent container.
+    void SetOwnerID( const string & id )
+    {
+        m_TextureMgr.SetOwnerID( id );
+        m_ColorMgr.SetOwnerID( id );
+    }
+
     void SetDisplayType( int t )
     {
         m_DisplayType = t;
@@ -1002,6 +1009,7 @@ public:
     virtual BaseSimpleSource* CreateSimpleSource( int type );
     virtual void AddCfdMeshSource( BaseSource* source )
     {
+        source->SetParentContainer( m_ID );
         m_MainSourceVec.push_back( source );
     }
     virtual vector< BaseSource* > GetCfdMeshMainSourceVec()

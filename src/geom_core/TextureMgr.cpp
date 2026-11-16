@@ -15,9 +15,19 @@ TextureMgr::~TextureMgr()
 std::string TextureMgr::AttachTexture( const std::string &fileName )
 {
     Texture * texture = new Texture( fileName );
+    texture->SetParentContainer( m_OwnerID );
 
     m_TextureList.push_back( texture );
     return texture->GetID(); 
+}
+
+void TextureMgr::SetOwnerID( const std::string &id )
+{
+    m_OwnerID = id;
+    for ( int i = 0; i < ( int )m_TextureList.size(); i++ )
+    {
+        m_TextureList[i]->SetParentContainer( id );
+    }
 }
 
 void TextureMgr::HandTexturesTo( TextureMgr* to )
@@ -35,6 +45,7 @@ void TextureMgr::HandTexturesTo( TextureMgr* to )
 
     for ( int i = 0; i < ( int )m_TextureList.size(); i++ )
     {
+        m_TextureList[i]->SetParentContainer( to->m_OwnerID );
         to->m_TextureList.push_back( m_TextureList[i] );
     }
 
@@ -52,6 +63,7 @@ void TextureMgr::AppendTexturesTo( TextureMgr* to )
 
     for ( int i = 0; i < ( int )m_TextureList.size(); i++ )
     {
+        m_TextureList[i]->SetParentContainer( to->m_OwnerID );
         to->m_TextureList.push_back( m_TextureList[i] );
     }
 

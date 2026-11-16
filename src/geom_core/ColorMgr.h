@@ -28,6 +28,11 @@ public:
     */
     const Color * GetWireColor() const;
 
+    /*!
+    * Name the container the colors belong to, their parent.
+    */
+    void SetOwnerID( const std::string &id );
+
 public:
     /*!
     * Encode color info to xml.
