@@ -1104,7 +1104,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                                     char str[256];
                                     snprintf( str, sizeof( str ),  "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
                                     newSurf.fullName = string( str );
-                                    newSurf.parentGeomId = ssurf->GetParentContainer();
+                                    newSurf.parentGeomId = ssurf->GetCompID();
                                     newSurf.iReflect = iReflect;
                                     newSurf.isHinge = false;
 

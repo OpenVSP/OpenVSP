@@ -7639,7 +7639,7 @@ vector < vec3d > Vehicle::ControlSurfaceHingeLine( const string & id, int isurf 
 
     if ( cs )
     {
-        string gid = cs->GetParentContainer();
+        string gid = cs->GetCompID();
         Geom *g = FindGeom( gid );
         if ( g )
         {

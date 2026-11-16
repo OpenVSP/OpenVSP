@@ -19125,7 +19125,7 @@ std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, int surf_
 
     if ( cs ) // If control surface is a valid subsurface
     {
-        string gid = cs->GetParentContainer();
+        string gid = cs->GetCompID();
         Geom *geom_ptr = veh->FindGeom( gid );
         if ( geom_ptr )
         {
