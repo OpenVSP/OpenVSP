@@ -432,49 +432,6 @@ void ParmContainer::UpdateGroupParmMap()
     LoadGroupParmVec( m_ParmVec, false );
 }
 
-//==== Find Parm ID Given GroupName and Parm Index ====//
-string ParmContainer::FindParm( const string& group_name, int parm_ind )
-{
-    string id;
-
-    unordered_map< string, vector< std::pair< string, string > > >::iterator iter = m_GroupParmMap.find( group_name );
-    if ( iter == m_GroupParmMap.end() )
-    {
-        return id;
-    }
-
-    int num_parms = ( int )iter->second.size();
-    if ( num_parms == 0 )
-    {
-        return id;
-    }
-
-    if ( parm_ind >= 0 && parm_ind < num_parms )
-    {
-        return iter->second[parm_ind].first;
-    }
-
-    return iter->second[0].first;
-}
-
-//==== Find Parm ID Given GroupName and Parm Index ====//
-string ParmContainer::FindParm( int group_ind, int parm_ind  )
-{
-    string id;
-
-    if ( ( int )m_GroupNames.size() == 0 )
-    {
-        return id;
-    }
-
-    if ( group_ind >= 0 && group_ind < ( int )m_GroupNames.size() )
-    {
-        return FindParm( m_GroupNames[group_ind], parm_ind );
-    }
-
-    return FindParm( m_GroupNames[0], parm_ind );
-}
-
 //==== Find Parm ID Given GroupName and Parm Name ====//
 // The group map may be out of date, so a Parm found there is taken only while it still exists; the API brings the
 // maps up to date first, for the display group names only they hold.
@@ -529,69 +486,6 @@ string ParmContainer::FindParm( const string& parm_name  )
     }
 
     return string();
-}
-
-//==== Get Vector of Group Names ====//
-void ParmContainer::GetGroupNames( vector< string > & group_names )
-{
-    group_names.insert( group_names.end(), m_GroupNames.begin(), m_GroupNames.end() );
-}
-
-//==== Get Vector of Group Names And Index For Given Parm ID  ====//
-int ParmContainer::GetGroupNames( const string &parm_id, vector< string > & group_names )
-{
-    int index = 0;
-
-    string group_name;
-    Parm* p = ParmMgr.FindParm( parm_id );
-    if ( p )
-    {
-        group_name = p->GetDisplayGroupName();
-    }
-
-    for ( int i = 0 ; i < ( int )m_GroupNames.size() ; i++ )
-    {
-        const string & name = m_GroupNames[i];
-        if ( name == group_name )
-        {
-            index = group_names.size();
-        }
-        group_names.push_back( name );
-    }
-    return index;
-}
-
-//==== Get Vector Parm IDs And Index For Given Parm ID  ====//
-int ParmContainer::GetParmIDs( const string &parm_id, vector< string > & parm_ids )
-{
-    int index = 0;
-
-    string group_name;
-    Parm* p = ParmMgr.FindParm( parm_id );
-    if ( p )
-    {
-        group_name = p->GetDisplayGroupName();
-    }
-
-    unordered_map< string, vector< std::pair< string, string > > >::iterator iter = m_GroupParmMap.find( group_name );
-
-    if ( iter == m_GroupParmMap.end() )
-    {
-        return index;
-    }
-
-    for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
-    {
-        if ( parm_id == iter->second[i].first )
-        {
-            index = parm_ids.size();
-        }
-
-        parm_ids.push_back( iter->second[i].first );
-    }
-
-    return index;
-
 }
 
 void ParmContainer::AddLinkableContainers( vector< string > & linkable_container_vec )

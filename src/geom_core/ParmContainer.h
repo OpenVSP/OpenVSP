@@ -97,17 +97,11 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual string FindParm( const string& group_name, int parm_ind );
     virtual string FindParm( const string& parm_name, const string& group_name );
-    virtual string FindParm( int group_ind, int parm_ind );
     virtual string FindParm( const string& name );
 
     // Rebuild the map that finds a Parm by group and name from the Parms held now.
     virtual void UpdateGroupParmMap();
-
-    virtual void GetGroupNames( vector< string > & group_names );
-    virtual int GetGroupNames( const string &parm_id, vector< string > & group_names );
-    virtual int GetParmIDs( const string &parm_id, vector< string > & parm_ids );
 
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
