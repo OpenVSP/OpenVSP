@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Human", "Human.html", false )
+HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 510, 800, "Human", "Human.html", false )
 {
     Fl_Group* design_tab = AddTab( "Anthropometric" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -107,79 +107,123 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_PoseLayout.SetFitWidthFlag( true );
 
     m_PoseLayout.AddYGap();
-    m_PoseLayout.AddDividerBox( "Body" );
+    m_PoseLayout.AddDividerBox( "Method" );
 
+    m_PoseMethodChoice.AddItem( "ARAP" );
+    m_PoseMethodChoice.AddItem( "FAST" );
+    m_PoseLayout.AddChoice( m_PoseMethodChoice, "Method" );
+
+    // Paired sliders share a row, each half the width, with short labels.
+    int half = m_PoseLayout.GetW() / 2;
+    int oldBW = m_PoseLayout.GetButtonWidth();
+
+    m_PoseLayout.SetSameLineFlag( true );
+    m_PoseLayout.SetButtonWidth( 74 );
+    m_PoseLayout.AddSlider( m_ARAPMaxIterSlider, "ARAP It.", 100, "%5.0f", half );
+    m_PoseLayout.AddSlider( m_ARAPTolSlider, "ARAP Tol", 1, "%7.3f" );
+    m_PoseLayout.ForceNewLine();
+    m_PoseLayout.AddSlider( m_FASTIterSlider, "FAST It.", 10, "%5.0f", half );
+    m_PoseLayout.ForceNewLine();
+
+    m_PoseLayout.SetSameLineFlag( false );
+    m_PoseLayout.SetButtonWidth( oldBW );
+
+    m_PoseLayout.AddYGap();
+    m_PoseLayout.AddDividerBox( "Torso" );
     m_PoseLayout.AddSlider( m_BackSlider, "Back", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_WaistSlider, "Waist", 100, "%7.3f" );
-
-    int oldDH = m_PoseLayout.GetDividerHeight();
-    m_PoseLayout.SetDividerHeight( m_PoseLayout.GetStdHeight() );
+    m_PoseLayout.AddSlider( m_TorsoTwistSlider, "Twist", 100, "%7.3f" );
+    m_PoseLayout.AddSlider( m_TorsoBendSlider, "Side Bend", 100, "%7.3f" );
 
     m_PoseLayout.AddYGap();
     m_PoseLayout.AddDividerBox( "Head" );
-
-    m_PoseLayout.SetDividerHeight( oldDH );
-
     m_PoseLayout.AddSlider( m_NodSlider, "Nod", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_RotateHeadSlider, "Rotate", 100, "%7.3f" );
+    m_PoseLayout.AddSlider( m_HeadTiltSlider, "Tilt", 100, "%7.3f" );
 
+    // The limbs: right and left side by side, each under its own divider.
     m_PoseLayout.AddYGap();
-    m_PoseLayout.AddDividerBox( "Right Side" );
-
-    m_PoseLayout.SetDividerHeight( oldDH );
-
-    m_PoseLayout.AddYGap();
-    m_PoseLayout.AddDividerBox( "Arm" );
-
-
-
-
-    m_PoseLayout.AddSlider( m_ShoulderABADRtSlider, "Shoulder AB/AD", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ShoulderFERtSlider, "Shoulder FE", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ShoulderIERtSlider, "Shoulder IE", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ElbowRtSlider, "Elbow", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ForearmRtSlider, "Forearm", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_WristRtSlider, "Wrist", 100, "%7.3f" );
-
-    m_PoseLayout.AddYGap();
-    m_PoseLayout.AddDividerBox( "Leg" );
-
-    m_PoseLayout.AddSlider( m_HipABADRtSlider, "Hip AB/AD", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_HipFERtSlider, "Hip FE", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_KneeRtSlider, "Knee", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_AnkleRtSlider, "Ankle", 100, "%7.3f" );
-
-
+    // The divider is as tall as the R/L Sym toggle beside it.
+    int oldDH = m_PoseLayout.GetDividerHeight();
     m_PoseLayout.SetDividerHeight( m_PoseLayout.GetStdHeight() );
-
-    m_PoseLayout.AddYGap();
     m_PoseLayout.SetSameLineFlag( true );
-    m_PoseLayout.AddDividerBox( "Left Side", m_PoseLayout.GetButtonWidth() );
+    m_PoseLayout.AddDividerBox( "Limbs", m_PoseLayout.GetButtonWidth() );
     m_PoseLayout.SetFitWidthFlag( false );
     m_PoseLayout.AddButton( m_RLSymButton, "R/L Sym" );
     m_PoseLayout.ForceNewLine();
     m_PoseLayout.SetFitWidthFlag( true );
     m_PoseLayout.SetSameLineFlag( false );
-
     m_PoseLayout.SetDividerHeight( oldDH );
-
     m_PoseLayout.AddYGap();
-    m_PoseLayout.AddDividerBox( "Arm" );
 
-    m_PoseLayout.AddSlider( m_ShoulderABADLtSlider, "Shoulder AB/AD", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ShoulderFELtSlider, "Shoulder FE", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ShoulderIELtSlider, "Shoulder IE", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ElbowLtSlider, "Elbow", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_ForearmLtSlider, "Forearm", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_WristLtSlider, "Wrist", 100, "%7.3f" );
+    // Only the right column is labeled, so its labels can be spelled out; the columns' sliders are
+    // the same width.
+    int limbbw = 112;
+    int colrw = ( m_PoseLayout.GetW() - 4 + limbbw ) / 2;
+    int collw = m_PoseLayout.GetW() - 4 - colrw;
+    int armh = m_PoseLayout.GetStdHeight() * 6 + m_PoseLayout.GetDividerHeight();
+    int legh = m_PoseLayout.GetStdHeight() * 5 + m_PoseLayout.GetDividerHeight();
 
+    m_PoseLayout.AddSubGroupLayout( m_ArmRtLayout, colrw, armh );
+    m_PoseLayout.AddX( colrw + 4 );
+    m_PoseLayout.AddSubGroupLayout( m_ArmLtLayout, collw, armh );
+    m_PoseLayout.ForceNewLine( 0 );
+    m_PoseLayout.AddY( armh );
     m_PoseLayout.AddYGap();
-    m_PoseLayout.AddDividerBox( "Leg" );
 
-    m_PoseLayout.AddSlider( m_HipABADLtSlider, "Hip AB/AD", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_HipFELtSlider, "Hip FE", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_KneeLtSlider, "Knee ", 100, "%7.3f" );
-    m_PoseLayout.AddSlider( m_AnkleLtSlider, "Ankle", 100, "%7.3f" );
+    m_PoseLayout.AddSubGroupLayout( m_LegRtLayout, colrw, legh );
+    m_PoseLayout.AddX( colrw + 4 );
+    m_PoseLayout.AddSubGroupLayout( m_LegLtLayout, collw, legh );
+    m_PoseLayout.ForceNewLine( 0 );
+    m_PoseLayout.AddY( legh );
+
+    AddArmSliders( m_ArmRtLayout, "Right Arm", limbbw, m_ShoulderABADRtSlider, m_ShoulderFERtSlider, m_ShoulderIERtSlider,
+                   m_ElbowRtSlider, m_ForearmRtSlider, m_WristRtSlider );
+    AddArmSliders( m_ArmLtLayout, "Left Arm", 0, m_ShoulderABADLtSlider, m_ShoulderFELtSlider, m_ShoulderIELtSlider,
+                   m_ElbowLtSlider, m_ForearmLtSlider, m_WristLtSlider );
+    AddLegSliders( m_LegRtLayout, "Right Leg", limbbw, m_HipABADRtSlider, m_HipFERtSlider, m_HipIERtSlider, m_KneeRtSlider,
+                   m_AnkleRtSlider );
+    AddLegSliders( m_LegLtLayout, "Left Leg", 0, m_HipABADLtSlider, m_HipFELtSlider, m_HipIELtSlider, m_KneeLtSlider,
+                   m_AnkleLtSlider );
+}
+
+// A limb slider's label, or none in a column without labels (bw 0).
+static const char* LimbLabel( int bw, const char* text )
+{
+    if ( bw > 0 )
+    {
+        return text;
+    }
+    return "";
+}
+
+// One arm's column of joint sliders, labeled if bw is not 0.
+void HumanGeomScreen::AddArmSliders( GroupLayout &layout, const string &title, int bw, SliderAdjRangeInput &shabad,
+                                     SliderAdjRangeInput &shfe, SliderAdjRangeInput &shie, SliderAdjRangeInput &elbow,
+                                     SliderAdjRangeInput &forearm, SliderAdjRangeInput &wrist )
+{
+    layout.SetButtonWidth( bw );
+    layout.AddDividerBox( title );
+    layout.AddSlider( shabad, LimbLabel( bw, "Shoulder AB/AD" ), 100, "%7.3f" );
+    layout.AddSlider( shfe, LimbLabel( bw, "Shoulder FE" ), 100, "%7.3f" );
+    layout.AddSlider( shie, LimbLabel( bw, "Shoulder IE" ), 100, "%7.3f" );
+    layout.AddSlider( elbow, LimbLabel( bw, "Elbow" ), 100, "%7.3f" );
+    layout.AddSlider( forearm, LimbLabel( bw, "Forearm" ), 100, "%7.3f" );
+    layout.AddSlider( wrist, LimbLabel( bw, "Wrist FE" ), 100, "%7.3f" );
+}
+
+// One leg's column of joint sliders, labeled if bw is not 0.
+void HumanGeomScreen::AddLegSliders( GroupLayout &layout, const string &title, int bw, SliderAdjRangeInput &hipabad,
+                                     SliderAdjRangeInput &hipfe, SliderAdjRangeInput &hipie, SliderAdjRangeInput &knee,
+                                     SliderAdjRangeInput &ankle )
+{
+    layout.SetButtonWidth( bw );
+    layout.AddDividerBox( title );
+    layout.AddSlider( hipabad, LimbLabel( bw, "Hip AB/AD" ), 100, "%7.3f" );
+    layout.AddSlider( hipfe, LimbLabel( bw, "Hip FE" ), 100, "%7.3f" );
+    layout.AddSlider( hipie, LimbLabel( bw, "Hip IE" ), 100, "%7.3f" );
+    layout.AddSlider( knee, LimbLabel( bw, "Knee" ), 100, "%7.3f" );
+    layout.AddSlider( ankle, LimbLabel( bw, "Ankle" ), 100, "%7.3f" );
 }
 
 
@@ -212,6 +256,21 @@ bool HumanGeomScreen::Update()
 
     m_PresetPoseChoice.Update( human_ptr->m_PresetPose.GetID() );
 
+    m_PoseMethodChoice.Update( human_ptr->m_PoseMethod.GetID() );
+    m_ARAPMaxIterSlider.Update( human_ptr->m_ARAPMaxIter.GetID() );
+    m_ARAPTolSlider.Update( human_ptr->m_ARAPTol.GetID() );
+    m_FASTIterSlider.Update( human_ptr->m_FASTIter.GetID() );
+    // Only the chosen method's settings apply.
+    if ( human_ptr->m_PoseMethod() == vsp::HUMAN_POSE_FAST )
+    {
+        m_ARAPMaxIterSlider.Deactivate();
+        m_ARAPTolSlider.Deactivate();
+    }
+    else
+    {
+        m_FASTIterSlider.Deactivate();
+    }
+
     m_RepresentationChoice.Update( human_ptr->m_Representation.GetID() );
 
     m_LenUnitChoice.Update( human_ptr->m_LenUnit.GetID() );
@@ -243,9 +302,12 @@ bool HumanGeomScreen::Update()
 
     m_BackSlider.Update( human_ptr->m_Back.GetID() );
     m_WaistSlider.Update( human_ptr->m_Waist.GetID() );
+    m_TorsoTwistSlider.Update( human_ptr->m_TorsoTwist.GetID() );
+    m_TorsoBendSlider.Update( human_ptr->m_TorsoBend.GetID() );
 
     m_NodSlider.Update( human_ptr->m_Nod.GetID() );
     m_RotateHeadSlider.Update( human_ptr->m_RotateHead.GetID() );
+    m_HeadTiltSlider.Update( human_ptr->m_HeadTilt.GetID() );
 
     m_WristRtSlider.Update( human_ptr->m_WristRt.GetID() );
     m_ForearmRtSlider.Update( human_ptr->m_ForearmRt.GetID() );
@@ -256,6 +318,7 @@ bool HumanGeomScreen::Update()
 
     m_HipABADRtSlider.Update( human_ptr->m_HipABADRt.GetID() );
     m_HipFERtSlider.Update( human_ptr->m_HipFERt.GetID() );
+    m_HipIERtSlider.Update( human_ptr->m_HipIERt.GetID() );
     m_KneeRtSlider.Update( human_ptr->m_KneeRt.GetID() );
     m_AnkleRtSlider.Update( human_ptr->m_AnkleRt.GetID() );
 
@@ -268,6 +331,7 @@ bool HumanGeomScreen::Update()
 
     m_HipABADLtSlider.Update( human_ptr->m_HipABADLt.GetID() );
     m_HipFELtSlider.Update( human_ptr->m_HipFELt.GetID() );
+    m_HipIELtSlider.Update( human_ptr->m_HipIELt.GetID() );
     m_KneeLtSlider.Update( human_ptr->m_KneeLt.GetID() );
     m_AnkleLtSlider.Update( human_ptr->m_AnkleLt.GetID() );
 
@@ -285,6 +349,7 @@ bool HumanGeomScreen::Update()
 
         m_HipABADLtSlider.Deactivate();
         m_HipFELtSlider.Deactivate();
+        m_HipIELtSlider.Deactivate();
         m_KneeLtSlider.Deactivate();
         m_AnkleLtSlider.Deactivate();
     }

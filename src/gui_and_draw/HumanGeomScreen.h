@@ -31,6 +31,12 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* d );
 
 protected:
+    void AddArmSliders( GroupLayout &layout, const string &title, int bw, SliderAdjRangeInput &shabad, SliderAdjRangeInput &shfe,
+                        SliderAdjRangeInput &shie, SliderAdjRangeInput &elbow, SliderAdjRangeInput &forearm,
+                        SliderAdjRangeInput &wrist );
+    void AddLegSliders( GroupLayout &layout, const string &title, int bw, SliderAdjRangeInput &hipabad, SliderAdjRangeInput &hipfe,
+                        SliderAdjRangeInput &hipie, SliderAdjRangeInput &knee, SliderAdjRangeInput &ankle );
+
 
     GroupLayout m_AnthropoLayout;
 
@@ -58,15 +64,27 @@ protected:
 #endif
 
     GroupLayout m_PoseLayout;
+    GroupLayout m_ArmRtLayout;
+    GroupLayout m_ArmLtLayout;
+    GroupLayout m_LegRtLayout;
+    GroupLayout m_LegLtLayout;
 
     Choice m_PresetPoseChoice;
+
+    Choice m_PoseMethodChoice;
+    SliderAdjRangeInput m_ARAPMaxIterSlider;
+    SliderAdjRangeInput m_ARAPTolSlider;
+    SliderAdjRangeInput m_FASTIterSlider;
     TriggerButton m_SetPose;
 
     SliderAdjRangeInput m_BackSlider;
     SliderAdjRangeInput m_WaistSlider;
+    SliderAdjRangeInput m_TorsoTwistSlider;
+    SliderAdjRangeInput m_TorsoBendSlider;
 
     SliderAdjRangeInput m_NodSlider;
     SliderAdjRangeInput m_RotateHeadSlider;
+    SliderAdjRangeInput m_HeadTiltSlider;
 
     ToggleButton m_RLSymButton;
 
@@ -79,6 +97,7 @@ protected:
 
     SliderAdjRangeInput m_HipABADRtSlider;
     SliderAdjRangeInput m_HipFERtSlider;
+    SliderAdjRangeInput m_HipIERtSlider;
     SliderAdjRangeInput m_KneeRtSlider;
     SliderAdjRangeInput m_AnkleRtSlider;
 
@@ -91,6 +110,7 @@ protected:
 
     SliderAdjRangeInput m_HipABADLtSlider;
     SliderAdjRangeInput m_HipFELtSlider;
+    SliderAdjRangeInput m_HipIELtSlider;
     SliderAdjRangeInput m_KneeLtSlider;
     SliderAdjRangeInput m_AnkleLtSlider;
 
