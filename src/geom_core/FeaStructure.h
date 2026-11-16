@@ -62,11 +62,14 @@ public:
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     void SetDrawFlag( bool flag );
 
+    // Number each part's and subsurface's group by where it is in the structure.  Kept as they are added,
+    // removed and reordered, as Parms are found by the numbered group.
     void ReSuffixGroupNames();
 
     void AddFeaPart( FeaPart* fea_part )
     {
         m_FeaPartVec.push_back( fea_part );
+        ReSuffixGroupNames();
     }
     FeaPart* AddFeaPart( int type );
     bool ValidFeaPartInd( int ind );
@@ -129,6 +132,7 @@ public:
     {
         sub_surf->SetParentContainer( GetID() );
         m_FeaSubSurfVec.push_back( sub_surf );
+        ReSuffixGroupNames();
     }
 
     string GetParentGeomID()

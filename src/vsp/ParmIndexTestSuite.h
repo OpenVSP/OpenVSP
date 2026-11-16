@@ -36,6 +36,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::EveryNestedContainerSitsUnderItsOwner )
         TEST_ADD( ParmIndexTestSuite::NestedContainersSitUnderTheirOwnerAfterAFileRead )
         TEST_ADD( ParmIndexTestSuite::AParmIsUnderItsOwnerAtOnce )
+        TEST_ADD( ParmIndexTestSuite::AStructuresPartsAreNumberedAsTheyChange )
     }
 
 private:
@@ -57,6 +58,7 @@ private:
     void EveryNestedContainerSitsUnderItsOwner();
     void NestedContainersSitUnderTheirOwnerAfterAFileRead();
     void AParmIsUnderItsOwnerAtOnce();
+    void AStructuresPartsAreNumberedAsTheyChange();
 };
 
 #endif

@@ -685,3 +685,53 @@ void ParmIndexTestSuite::AParmIsUnderItsOwnerAtOnce()
     Parm* thick = ParmMgr.FindParm( vsp::GetParm( layer, "Thickness", "FeaLayer" ) );
     TEST_ASSERT( thick && thick->GetTopContainerID() == mat );
 }
+
+// A part's first Parm and the group it is shown in.
+static Parm* FirstParmOf( const string & container_id )
+{
+    vector< string > ids = vsp::FindContainerParmIDs( container_id );
+    return ParmMgr.FindParm( ids[0] );
+}
+
+void ParmIndexTestSuite::AStructuresPartsAreNumberedAsTheyChange()
+{
+    vsp::VSPRenew();
+    string wing = vsp::AddGeom( "WING" );
+    vsp::Update();
+    int istruct = vsp::AddFeaStruct( wing );
+    string fea = vsp::GetFeaStructID( wing, istruct );
+    string r1 = vsp::AddFeaPart( wing, istruct, vsp::FEA_RIB );
+    string r2 = vsp::AddFeaPart( wing, istruct, vsp::FEA_RIB );
+    string s1 = vsp::AddFeaSubSurf( wing, istruct, vsp::SS_LINE );
+    string s2 = vsp::AddFeaSubSurf( wing, istruct, vsp::SS_LINE );
+
+    //==== Two parts of a kind are told apart by their numbered groups, and found by them ====//
+    Parm* p1 = FirstParmOf( r1 );
+    Parm* p2 = FirstParmOf( r2 );
+    TEST_ASSERT( p1->GetName() == p2->GetName() );
+    TEST_ASSERT( p1->GetDisplayGroupName() != p2->GetDisplayGroupName() );
+    TEST_ASSERT( vsp::FindParm( fea, p1->GetName(), p1->GetDisplayGroupName() ) == p1->GetID() );
+    TEST_ASSERT( vsp::FindParm( fea, p2->GetName(), p2->GetDisplayGroupName() ) == p2->GetID() );
+
+    Parm* q1 = FirstParmOf( s1 );
+    Parm* q2 = FirstParmOf( s2 );
+    TEST_ASSERT( q1->GetDisplayGroupName() != q2->GetDisplayGroupName() );
+    TEST_ASSERT( vsp::FindParm( fea, q2->GetName(), q2->GetDisplayGroupName() ) == q2->GetID() );
+
+    //==== Deleting the first of each renumbers the rest, which are found by their new numbers ====//
+    string g2 = p2->GetDisplayGroupName();
+    vsp::DeleteFeaPart( wing, istruct, r1 );
+    vsp::DeleteFeaSubSurf( wing, istruct, s1 );
+    TEST_ASSERT( p2->GetDisplayGroupName() != g2 );
+    TEST_ASSERT( vsp::FindParm( fea, p2->GetName(), p2->GetDisplayGroupName() ) == p2->GetID() );
+    TEST_ASSERT( vsp::FindParm( fea, q2->GetName(), q2->GetDisplayGroupName() ) == q2->GetID() );
+
+    //==== Moving a part renumbers it and those it passes ====//
+    string r3 = vsp::AddFeaPart( wing, istruct, vsp::FEA_RIB );
+    Parm* p3 = FirstParmOf( r3 );
+    string g3 = p3->GetDisplayGroupName();
+    FeaStructure* fs = StructureMgr.GetFeaStruct( fea );
+    fs->ReorderFeaPart( fs->GetFeaPartIndex( r3 ), vsp::REORDER_MOVE_TOP );
+    TEST_ASSERT( p3->GetDisplayGroupName() != g3 );
+    TEST_ASSERT( vsp::FindParm( fea, p3->GetName(), p3->GetDisplayGroupName() ) == p3->GetID() );
+}

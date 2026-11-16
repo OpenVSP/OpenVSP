@@ -163,7 +163,7 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
             {
                 FeaPart* feaskin = new FeaSkin( m_ParentGeomID, GetID() );
                 feaskin->DecodeXml( part_info );
-                m_FeaPartVec.push_back( feaskin );
+                AddFeaPart( feaskin );
             }
         }
     }
@@ -332,6 +332,7 @@ void FeaStructure::DelFeaPart( int ind )
     {
         delete m_FeaPartVec[ind];
         m_FeaPartVec.erase( m_FeaPartVec.begin() + ind );
+        ReSuffixGroupNames();
     }
 }
 
@@ -344,6 +345,7 @@ void FeaStructure::ReorderFeaPart( int ind, int action )
     }
 
     ReorderVectorIndex( m_FeaPartVec, ind, action );
+    ReSuffixGroupNames();
 }
 
 //==== Highlight Active FeaParts ====//
@@ -427,6 +429,7 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
         ssurf->m_MainSurfIndx.Set( m_MainSurfIndx );
         ssurf->SetParentContainer( GetID() );
         m_FeaSubSurfVec.push_back( ssurf );
+        ReSuffixGroupNames();
     }
 
     m_FeaSubSurfCount++;
@@ -452,6 +455,7 @@ void FeaStructure::DelFeaSubSurf( int ind )
     {
         delete m_FeaSubSurfVec[ind];
         m_FeaSubSurfVec.erase( m_FeaSubSurfVec.begin() + ind );
+        ReSuffixGroupNames();
     }
 }
 
@@ -485,6 +489,7 @@ void FeaStructure::ReorderFeaSubSurf( int ind, int action )
     }
 
     ReorderVectorIndex( m_FeaSubSurfVec, ind, action );
+    ReSuffixGroupNames();
 }
 
 bool FeaStructure::ValidFeaPartInd( int ind )
@@ -552,7 +557,7 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
                 
                 feaskin->Update();
 
-                m_FeaPartVec.push_back( feaskin );
+                AddFeaPart( feaskin );
             }
         }
     }
