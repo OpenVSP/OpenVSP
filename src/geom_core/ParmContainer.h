@@ -95,7 +95,8 @@ public:
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
-    virtual void SetParentContainer( const string & id )    { m_ParentContainer = id; }
+    // Name the container this one belongs to; ParmMgr keeps the inverse.
+    virtual void SetParentContainer( const string & id );
 
     virtual void CopyVals( ParmContainer *from );
 

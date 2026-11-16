@@ -51,6 +51,7 @@ IF( NOT VSP_NO_GRAPHICS )
     APITestSuiteVSPAERO.cpp
     APITestSuiteParasiteDrag.cpp
     APITestSuiteCFDMesh.cpp
+    ParmIndexTestSuite.cpp
     ../vsp/main.h.in
     )
 
@@ -71,6 +72,7 @@ APITestSuiteMassProp.cpp
 APITestSuiteVSPAERO.cpp
 APITestSuiteParasiteDrag.cpp
 APITestSuiteCFDMesh.cpp
+ParmIndexTestSuite.cpp
 ../vsp/main.h.in
 )
 

@@ -206,6 +206,115 @@ bool ParmMgrSingleton::ValidateParmContainerMap()
     return pass;
 }
 
+//==== Move A Container From One Parent's Children To Another's ====//
+void ParmMgrSingleton::ParentContainerChanged( ParmContainer* pc, const string & old_parent_id,
+                                               const string & new_parent_id )
+{
+    if ( !pc || old_parent_id == new_parent_id )
+    {
+        return;
+    }
+
+    if ( !old_parent_id.empty() )
+    {
+        unordered_map< string, vector< ParmContainer* > >::iterator iter = m_ChildContainerMap.find( old_parent_id );
+        if ( iter != m_ChildContainerMap.end() )
+        {
+            // From the back, where the newest is, keeping the order; once, as it is there once.
+            vector< ParmContainer* > & children = iter->second;
+            for ( int i = ( int )children.size() - 1; i >= 0; i-- )
+            {
+                if ( children[i] == pc )
+                {
+                    children.erase( children.begin() + i );
+                    break;
+                }
+            }
+            if ( children.empty() )
+            {
+                m_ChildContainerMap.erase( iter );
+            }
+        }
+    }
+
+    if ( !new_parent_id.empty() )
+    {
+        m_ChildContainerMap[ new_parent_id ].push_back( pc );
+    }
+}
+
+const vector< ParmContainer* > & ParmMgrSingleton::GetChildContainers( const string & id ) const
+{
+    static const vector< ParmContainer* > none;
+
+    unordered_map< string, vector< ParmContainer* > >::const_iterator iter = m_ChildContainerMap.find( id );
+    if ( iter == m_ChildContainerMap.end() )
+    {
+        return none;
+    }
+    return iter->second;
+}
+
+bool ParmMgrSingleton::ValidateChildContainerMap()
+{
+    bool pass = true;
+
+    // Every live container with a parent is among that parent's children, once.
+    unordered_map< string, ParmContainer* >::iterator citer;
+    for ( citer = m_ParmContainerMap.begin(); citer != m_ParmContainerMap.end(); ++citer )
+    {
+        ParmContainer* pc = citer->second;
+        if ( !pc || pc->GetParentContainer().empty() )
+        {
+            continue;
+        }
+
+        const vector< ParmContainer* > & children = GetChildContainers( pc->GetParentContainer() );
+        int count = 0;
+        for ( int i = 0; i < ( int )children.size(); i++ )
+        {
+            if ( children[i] == pc )
+            {
+                count++;
+            }
+        }
+        if ( count != 1 )
+        {
+            printf( "Container %s is %d times a child of its parent %s\n", pc->GetID().c_str(), count,
+                    pc->GetParentContainer().c_str() );
+            pass = false;
+        }
+    }
+
+    // Every child kept is live and names that parent.
+    unordered_map< string, vector< ParmContainer* > >::iterator iter;
+    for ( iter = m_ChildContainerMap.begin(); iter != m_ChildContainerMap.end(); ++iter )
+    {
+        if ( iter->second.empty() )
+        {
+            printf( "Parent %s is kept with no children\n", iter->first.c_str() );
+            pass = false;
+        }
+        for ( int i = 0; i < ( int )iter->second.size(); i++ )
+        {
+            ParmContainer* pc = iter->second[i];
+            if ( FindParmContainer( pc->GetID() ) != pc )
+            {
+                printf( "A child of %s is not a live container\n", iter->first.c_str() );
+                pass = false;
+            }
+            else if ( pc->GetParentContainer() != iter->first )
+            {
+                printf( "Container %s is a child of %s but names %s\n", pc->GetID().c_str(), iter->first.c_str(),
+                        pc->GetParentContainer().c_str() );
+                pass = false;
+            }
+        }
+    }
+
+    return pass;
+}
+
 //==== Add Parm To Undo Stack ====//
 void ParmMgrSingleton::AddToUndoStack( Parm* parm_ptr, bool drag_flag )
 {

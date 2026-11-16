@@ -21,6 +21,7 @@
 #include "APITestSuiteVSPAERO.h"
 #include "APITestSuiteParasiteDrag.h"
 #include "APITestSuiteCFDMesh.h"
+#include "ParmIndexTestSuite.h"
 #include "UtilTestSuite.h"
 
 
@@ -47,6 +48,7 @@ int run_tests()
     // Add desired suites to parent suite
     Test::Suite ts;
     ts.add(std::unique_ptr<Test::Suite>(new UtilTestSuite));
+    ts.add(std::unique_ptr<Test::Suite>(new ParmIndexTestSuite));
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuite));    //This line can be copied to add new test suites
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteMassProp));
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteParasiteDrag));

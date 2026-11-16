@@ -82,7 +82,21 @@ ParmContainer::ParmContainer()
 //==== Destructor ====//
 ParmContainer::~ParmContainer()
 {
+    // What still names this container as its parent is left with none.  Copied, as each one moves.
+    vector< ParmContainer* > children = ParmMgr.GetChildContainers( m_ID );
+    for ( int i = 0 ; i < ( int )children.size() ; i++ )
+    {
+        children[i]->SetParentContainer( string() );
+    }
+
+    ParmMgr.ParentContainerChanged( this, m_ParentContainer, string() );
     ParmMgr.RemoveParmContainer( this );
+}
+
+void ParmContainer::SetParentContainer( const string & id )
+{
+    ParmMgr.ParentContainerChanged( this, m_ParentContainer, id );
+    m_ParentContainer = id;
 }
 
 void ParmContainer::ParmChanged( Parm* parm_ptr, int type )
@@ -135,6 +149,9 @@ string ParmContainer::GenerateID()
 
 void ParmContainer::ChangeID( const string &id )
 {
+    // Whatever names this container as its parent goes on naming it.  Copied, as each one moves.
+    vector< ParmContainer* > children = ParmMgr.GetChildContainers( m_ID );
+
     ParmMgr.RemoveParmContainer( this );
 
     if( LinkMgr.CheckContainerRegistered( m_ID ) )
@@ -154,6 +171,11 @@ void ParmContainer::ChangeID( const string &id )
         {
             p->ReSetLinkContainerID();
         }
+    }
+
+    for ( int i = 0 ; i < ( int )children.size() ; i++ )
+    {
+        children[i]->SetParentContainer( m_ID );
     }
 
     ParmMgr.AddParmContainer( this );

@@ -41,6 +41,10 @@ private:
     unordered_map< string, Parm* > m_ParmMap;                       // ID->Parm Map
     unordered_map< string, ParmContainer* > m_ParmContainerMap;     // ID->Parm Container Map
 
+    // The containers that name each ID as their parent, in the order they took it: the inverse of
+    // every live container's parent container.
+    unordered_map< string, vector< ParmContainer* > > m_ChildContainerMap;
+
     unordered_map< string, string > m_IDRemap;                      // oldID->newID Map
     string m_LastReset;
 
@@ -66,6 +70,17 @@ public:
 
     bool ValidateParmMap();
     bool ValidateParmContainerMap();
+
+    // Kept by ParmContainer: a container moves from the children of one parent ID to another's.
+    // An empty ID is no parent.
+    void ParentContainerChanged( ParmContainer* parm_container_ptr, const string & old_parent_id,
+                                 const string & new_parent_id );
+
+    // The containers that name this ID as their parent, whether or not a container holds the ID.
+    const vector< ParmContainer* > & GetChildContainers( const string & id ) const;
+
+    // Whether the children kept for each ID are exactly the live containers naming it as parent.
+    bool ValidateChildContainerMap();
 
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     // Takes back the entry AddToUndoStack made last, as if that change had not been made.
