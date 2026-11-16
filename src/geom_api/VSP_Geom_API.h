@@ -13308,7 +13308,7 @@ extern void SetGeomMaterialName( const std::string &geom_id, const std::string &
     \code{.cpp}
     string pid = AddGeom( "POD" );
 
-    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 );
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 0.4, 30 );
 
     SetGeomMaterialName( pid, "RedGlass" );
 
@@ -13332,7 +13332,7 @@ extern void SetGeomMaterialName( const std::string &geom_id, const std::string &
     }
 
     // Adding it again under the same name has to be rejected.
-    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 );
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 0.4, 30 );
 
     if ( GetNumTotalErrors() == 0 )
     {
@@ -13351,7 +13351,7 @@ extern void SetGeomMaterialName( const std::string &geom_id, const std::string &
     \code{.py}
     pid = AddGeom( "POD" )
 
-    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 )
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 0.4, 30 )
 
     SetGeomMaterialName( pid, "RedGlass" )
 
@@ -13362,7 +13362,7 @@ extern void SetGeomMaterialName( const std::string &geom_id, const std::string &
     # reached through the error manager singleton in Python.
     err_mgr = ErrorMgrSingleton.getInstance()
 
-    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 )
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 0.4, 30 )
 
     assert err_mgr.GetNumTotalErrors() > 0, "AddMaterial accepted a duplicate name"
 
@@ -13376,8 +13376,8 @@ extern void SetGeomMaterialName( const std::string &geom_id, const std::string &
     \param [in] diffuse vec3d Diffuse color RGB triple on scale [0, 255]
     \param [in] specular vec3d Specular color RGB triple on scale [0, 255]
     \param [in] emissive vec3d Emissive color RGB triple on scale [0, 255]
-    \param [in] shininess double Shininess exponent on scale [0, 127]
     \param [in] alpha double Transparency factor on scale [0, 1]
+    \param [in] shininess double Shininess exponent on scale [0, 127]
 */
 
 extern void AddMaterial( const std::string &name, const vec3d & ambient, const vec3d & diffuse, const vec3d & specular, const vec3d & emissive, const double & alpha, const double & shininess );
