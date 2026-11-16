@@ -11,6 +11,10 @@
 #include "VspUtil.h"
 #include "IDMgr.h"
 #include "ResultsMgr.h"
+#include "ParmContainer.h"
+#include "StringUtil.h"
+
+#include <algorithm>
 
 using std::map;
 using std::string;
@@ -21,6 +25,7 @@ using std::unordered_map;
 ParmMgrSingleton::ParmMgrSingleton()
 {
     m_NumParmChanges = 0;
+    m_ListingStamp = 0;
     m_ChangeCnt = 0;
     m_LastUndoFlag = false;
     m_LastUndoPushed = false;
@@ -256,6 +261,69 @@ void ParmMgrSingleton::ParentContainerChanged( ParmContainer* pc, const string &
 
     // What is listed under the containers above both parents has changed.
     m_NumParmChanges++;
+}
+
+//==== The Listing Of The Parms Under A Container ====//
+const ParmListing & ParmMgrSingleton::GetListing( ParmContainer* pc )
+{
+    static const ParmListing none;
+    if ( !pc )
+    {
+        return none;
+    }
+
+    if ( m_ListingStamp != m_NumParmChanges )
+    {
+        m_ListingMap.clear();
+        m_ListingStamp = m_NumParmChanges;
+    }
+
+    unordered_map< string, ParmListing >::iterator iter = m_ListingMap.find( pc->GetID() );
+    if ( iter != m_ListingMap.end() )
+    {
+        return iter->second;
+    }
+
+    ParmListing & listing = m_ListingMap[ pc->GetID() ];
+
+    vector< string > parm_ids;
+    pc->GetParmIDsUnder( parm_ids );
+
+    //==== Each group's Parms, as ( ID, name ), in the order of the walk ====//
+    unordered_map< string, vector< std::pair< string, string > > > groups;
+    for ( int i = 0; i < ( int )parm_ids.size(); i++ )
+    {
+        Parm* p = FindParm( parm_ids[i] );
+        if ( p )
+        {
+            string group_name = p->GetDisplayGroupName();
+            if ( groups.find( group_name ) == groups.end() )
+            {
+                listing.m_GroupNames.push_back( group_name );
+            }
+            groups[ group_name ].push_back( std::pair< string, string >( parm_ids[i], p->GetName() ) );
+        }
+    }
+
+    std::sort( listing.m_GroupNames.begin(), listing.m_GroupNames.end(), []( const string & a, const string & b )
+    {
+        return StringUtil::natural_compare( a, b ) < 0;
+    } );
+
+    //==== Sorted by name; Parms that share a name keep the order of the walk ====//
+    unordered_map< string, vector< std::pair< string, string > > >::iterator giter;
+    for ( giter = groups.begin(); giter != groups.end(); ++giter )
+    {
+        std::stable_sort( giter->second.begin(), giter->second.end(), ParmNameCompare );
+
+        vector< string > & ids = listing.m_GroupParmIDs[ giter->first ];
+        for ( int i = 0; i < ( int )giter->second.size(); i++ )
+        {
+            ids.push_back( giter->second[i].first );
+        }
+    }
+
+    return listing;
 }
 
 const vector< ParmContainer* > & ParmMgrSingleton::GetChildContainers( const string & id ) const

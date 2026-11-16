@@ -53,6 +53,9 @@ public:
         TEST_ADD( ParmIndexTestSuite::EveryContainerListsExactlyTheParmsUnderIt )
         TEST_ADD( ParmIndexTestSuite::LinkingAllOfAContainerDrivesEachParmOnce )
         TEST_ADD( ParmIndexTestSuite::TheChangeCountMovesWhenAContainerTakesAParent )
+        TEST_ADD( ParmIndexTestSuite::EveryListingIsSorted )
+        TEST_ADD( ParmIndexTestSuite::TheListingFollowsEachChange )
+        TEST_ADD( ParmIndexTestSuite::ThePickerPicksBackTheParmItShows )
     }
 
 private:
@@ -91,6 +94,9 @@ private:
     void EveryContainerListsExactlyTheParmsUnderIt();
     void LinkingAllOfAContainerDrivesEachParmOnce();
     void TheChangeCountMovesWhenAContainerTakesAParent();
+    void EveryListingIsSorted();
+    void TheListingFollowsEachChange();
+    void ThePickerPicksBackTheParmItShows();
 };
 
 #endif

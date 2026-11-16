@@ -23,6 +23,14 @@ using std::string;
 using std::unordered_map;
 using std::unordered_multimap;
 
+// The Parms under a container as they are listed: their display group names, sorted, and the Parms of each
+// group, sorted by name.  Both sorts are in natural order, so Group_2 comes before Group_10.
+struct ParmListing
+{
+    vector< string > m_GroupNames;
+    unordered_map< string, vector< string > > m_GroupParmIDs;
+};
+
 //==== Parm Manager ====//
 class ParmMgrSingleton
 {
@@ -44,6 +52,10 @@ private:
     // The containers that name each ID as their parent, in the order they took it: the inverse of
     // every live container's parent container.
     unordered_map< string, vector< ParmContainer* > > m_ChildContainerMap;
+
+    // The listing of each container asked for since the change count last moved, by container ID.
+    unordered_map< string, ParmListing > m_ListingMap;
+    int m_ListingStamp;
 
     unordered_map< string, string > m_IDRemap;                      // oldID->newID Map
     string m_LastReset;
@@ -84,6 +96,9 @@ public:
 
     // Whether the children kept for each ID are exactly the live containers naming it as parent.
     bool ValidateChildContainerMap();
+
+    // The listing of the Parms under a container, built when first asked for after the change count moved.
+    const ParmListing & GetListing( ParmContainer* parm_container_ptr );
 
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     // Takes back the entry AddToUndoStack made last, as if that change had not been made.

@@ -14979,7 +14979,7 @@ std::vector< std::string > FindContainerGroupNames( const std::string & parm_con
         return ret_names;
     }
 
-    pc->GetGroupNames( ret_names );
+    ret_names = ParmMgr.GetListing( pc ).m_GroupNames;
 
     ErrorMgr.NoError();
     return ret_names;

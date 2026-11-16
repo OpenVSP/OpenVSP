@@ -205,4 +205,7 @@ protected:
 };
 
 
+// Orders ( Parm ID, Parm name ) pairs by name.
+bool ParmNameCompare( const std::pair< string, string >& a, const std::pair< string, string >& b );
+
 #endif // !defined(VSP_PARMCONTRAINER__INCLUDED_)

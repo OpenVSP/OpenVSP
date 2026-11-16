@@ -15,6 +15,31 @@
 
 bool LinkMgrSingleton::m_firsttime = true;
 
+//==== The Parms Listed In A Parm's Group Under Its Top Container ====//
+static vector< string > GroupParmIDsOf( Parm* p )
+{
+    const ParmListing & listing = ParmMgr.GetListing( p->GetTopContainer() );
+    unordered_map< string, vector< string > >::const_iterator iter = listing.m_GroupParmIDs.find( p->GetDisplayGroupName() );
+    if ( iter == listing.m_GroupParmIDs.end() )
+    {
+        return vector< string >();
+    }
+    return iter->second;
+}
+
+//==== The Index Of A Value In A Vector, Or Zero If It Is Not There ====//
+static int IndexOf( const vector< string > & vec, const string & val )
+{
+    for ( int i = 0; i < ( int )vec.size(); i++ )
+    {
+        if ( vec[i] == val )
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
 //==== Constructor ====//
 LinkMgrSingleton::LinkMgrSingleton()
 {
@@ -334,9 +359,8 @@ bool LinkMgrSingleton::LinkAllGroup()
         return false;
     }
 
-    vector< string > parmAVec, parmBVec;
-    pA->GetTopContainer()->GetParmIDs( pA->GetID(), parmAVec );
-    pB->GetTopContainer()->GetParmIDs( pB->GetID(), parmBVec );
+    vector< string > parmAVec = GroupParmIDsOf( pA );
+    vector< string > parmBVec = GroupParmIDsOf( pB );
 
     for ( int k = 0 ; k < ( int )parmAVec.size() ; k++ )
     {
@@ -599,7 +623,23 @@ string LinkMgrSingleton::PickParm( int container_ind, int group_ind, int parm_in
 
     if ( pc )
     {
-        pid = pc->FindParm( group_ind, parm_ind );
+        //==== An index out of range picks the first ====//
+        const ParmListing & listing = ParmMgr.GetListing( pc );
+        if ( listing.m_GroupNames.empty() )
+        {
+            return pid;
+        }
+        if ( group_ind < 0 || group_ind >= ( int )listing.m_GroupNames.size() )
+        {
+            group_ind = 0;
+        }
+
+        const vector< string > & ids = listing.m_GroupParmIDs.at( listing.m_GroupNames[ group_ind ] );
+        if ( parm_ind < 0 || parm_ind >= ( int )ids.size() )
+        {
+            parm_ind = 0;
+        }
+        pid = ids[ parm_ind ];
     }
 
     return pid;
@@ -675,55 +715,27 @@ int LinkMgrSingleton::GetCurrContainerVec( const string& parm_id, vector< string
 //==== Get Group Name Vec And Find Match Index For Parm_ID ====//
 int LinkMgrSingleton::GetCurrGroupNameVec( const string& parm_id, vector< string > & nameVec )
 {
-    int index = 0;
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();
-    }
-
-    if ( m_LinkableContainers.size() == 0 )
-    {
-        return index;
-    }
-
     Parm* p = ParmMgr.FindParm( parm_id );
-    if ( p )
+    if ( !p )
     {
-        ParmContainer* pc = p->GetTopContainer();
-        if ( pc )
-        {
-            return pc->GetGroupNames( parm_id, nameVec );
-        }
+        return 0;
     }
 
-    return index;
+    nameVec = ParmMgr.GetListing( p->GetTopContainer() ).m_GroupNames;
+    return IndexOf( nameVec, p->GetDisplayGroupName() );
 }
 
 //==== Get Parm ID Vec And Find Match Index For Parm_ID ====//
 int LinkMgrSingleton::GetCurrParmIDVec( const string& parm_id, vector< string > & idVec )
 {
-    int index = 0;
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();
-    }
-
-    if ( m_LinkableContainers.size() == 0 )
-    {
-        return index;
-    }
-
     Parm* p = ParmMgr.FindParm( parm_id );
-    if ( p )
+    if ( !p )
     {
-        ParmContainer* pc = p->GetTopContainer();
-        if ( pc )
-        {
-            return pc->GetParmIDs( parm_id, idVec );
-        }
+        return 0;
     }
 
-    return index;
+    idVec = GroupParmIDsOf( p );
+    return IndexOf( idVec, parm_id );
 }
 
 xmlNodePtr LinkMgrSingleton::EncodeXml( xmlNodePtr & node )

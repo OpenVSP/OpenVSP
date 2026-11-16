@@ -19,6 +19,7 @@
 #include "APIDefines.h"
 #include "ParmMgr.h"
 #include "ParmContainer.h"
+#include "StringUtil.h"
 #include "Parm.h"
 #include "SubSurface.h"
 #include "FeaStructure.h"
@@ -41,6 +42,7 @@
 
 #include <typeinfo>
 #include <set>
+#include <algorithm>
 #include <map>
 
 #include <string>
@@ -1253,4 +1255,129 @@ void ParmIndexTestSuite::TheChangeCountMovesWhenAContainerTakesAParent()
     TEST_ASSERT( ParmMgr.GetNumParmChanges() == count );
 
     below.SetParentContainer( string() );
+}
+
+// Whether a container's listing holds exactly the Parms under it, its groups sorted and each group's Parms in
+// that group and sorted by name.
+static bool ListingIsSound( ParmContainer* pc )
+{
+    const ParmListing & listing = ParmMgr.GetListing( pc );
+    for ( int i = 1; i < ( int )listing.m_GroupNames.size(); i++ )
+    {
+        if ( StringUtil::natural_compare( listing.m_GroupNames[ i - 1 ], listing.m_GroupNames[i] ) > 0 )
+        {
+            return false;
+        }
+    }
+    if ( listing.m_GroupNames.size() != listing.m_GroupParmIDs.size() )
+    {
+        return false;
+    }
+
+    std::multiset< string > listed;
+    for ( int i = 0; i < ( int )listing.m_GroupNames.size(); i++ )
+    {
+        const vector< string > & ids = listing.m_GroupParmIDs.at( listing.m_GroupNames[i] );
+        for ( int j = 0; j < ( int )ids.size(); j++ )
+        {
+            Parm* p = ParmMgr.FindParm( ids[j] );
+            if ( !p || p->GetDisplayGroupName() != listing.m_GroupNames[i] )
+            {
+                return false;
+            }
+            if ( j > 0 && StringUtil::natural_compare( ParmMgr.FindParm( ids[ j - 1 ] )->GetName(), p->GetName() ) > 0 )
+            {
+                return false;
+            }
+            listed.insert( ids[j] );
+        }
+    }
+
+    vector< string > under;
+    pc->GetParmIDsUnder( under );
+    return listed == std::multiset< string >( under.begin(), under.end() );
+}
+
+void ParmIndexTestSuite::EveryListingIsSorted()
+{
+    BuildEveryKindOfContainer();
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        TEST_ASSERT( ListingIsSound( all[i] ) );
+    }
+}
+
+void ParmIndexTestSuite::TheListingFollowsEachChange()
+{
+    ParmContainer top;
+    ParmContainer below;
+    ParmContainer other;
+    Parm a;
+    Parm b;
+    a.Init( "A", "GroupA", &top, 1.0, 0.0, 2.0 );
+    b.Init( "B", "GroupB", &below, 1.0, 0.0, 2.0 );
+
+    //==== Not below it yet ====//
+    TEST_ASSERT( ParmMgr.GetListing( &top ).m_GroupNames == vector< string >( 1, "GroupA" ) );
+
+    //==== Taken as a child ====//
+    below.SetParentContainer( top.GetID() );
+    TEST_ASSERT( ParmMgr.GetListing( &top ).m_GroupNames.size() == 2 );
+
+    //==== Renumbered ====//
+    b.SetGroupDisplaySuffix( 3 );
+    TEST_ASSERT( ListingIsSound( &top ) );
+    TEST_ASSERT( ParmMgr.GetListing( &top ).m_GroupParmIDs.count( b.GetDisplayGroupName() ) == 1 );
+
+    //==== Renamed into the other's group ====//
+    b.SetGroupDisplaySuffix( -1 );
+    b.SetGroupName( "GroupA" );
+    TEST_ASSERT( ParmMgr.GetListing( &top ).m_GroupNames == vector< string >( 1, "GroupA" ) );
+    TEST_ASSERT( ParmMgr.GetListing( &top ).m_GroupParmIDs.at( "GroupA" ).size() == 2 );
+
+    //==== Not listed ====//
+    below.SetListedFlag( false );
+    TEST_ASSERT( ParmMgr.GetListing( &top ).m_GroupParmIDs.at( "GroupA" ).size() == 1 );
+    below.SetListedFlag( true );
+
+    //==== Moved to another parent ====//
+    below.SetParentContainer( other.GetID() );
+    TEST_ASSERT( ParmMgr.GetListing( &top ).m_GroupParmIDs.at( "GroupA" ).size() == 1 );
+    TEST_ASSERT( ParmMgr.GetListing( &other ).m_GroupParmIDs.at( "GroupA" ).size() == 1 );
+
+    below.SetParentContainer( string() );
+}
+
+void ParmIndexTestSuite::ThePickerPicksBackTheParmItShows()
+{
+    BuildEveryKindOfContainer();
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+
+    int checked = 0;
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        vector< string > ids;
+        all[i]->GetParmIDsUnder( ids );
+        if ( ids.empty() || all[i]->GetTopContainer() != all[i] )
+        {
+            continue;
+        }
+
+        vector< string > containers, groups, parms;
+        int ci = LinkMgr.GetCurrContainerVec( ids.back(), containers );
+        int gi = LinkMgr.GetCurrGroupNameVec( ids.back(), groups );
+        int pi = LinkMgr.GetCurrParmIDVec( ids.back(), parms );
+        if ( LinkMgr.FindParmContainer( ci ) != all[i] )
+        {
+            continue;    // A container the pickers do not offer.
+        }
+        TEST_ASSERT( groups[ gi ] == ParmMgr.FindParm( ids.back() )->GetDisplayGroupName() );
+        TEST_ASSERT( parms[ pi ] == ids.back() );
+        TEST_ASSERT( LinkMgr.PickParm( ci, gi, pi ) == ids.back() );
+        checked++;
+    }
+    TEST_ASSERT( checked > 10 );
 }
