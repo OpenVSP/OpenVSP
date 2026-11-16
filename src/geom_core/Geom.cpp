@@ -4287,6 +4287,12 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
         {
             for( int i = 0 ; i < ( int ) m_SubSurfVec.size() ; i++ )
             {
+                // One that is not listed is made again by its component's script, so it is not saved.
+                if ( !m_SubSurfVec[i]->GetListedFlag() )
+                {
+                    continue;
+                }
+
                 xmlNodePtr sub_node = xmlNewChild( subsurfs_node, nullptr, BAD_CAST "SubSurface", nullptr );
                 if ( sub_node )
                 {

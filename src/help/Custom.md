@@ -301,9 +301,10 @@ script adds them in `Init`, or in `UpdateSurf` when their number can change, cle
 - The skinning takes the top side's tangent angles and strengths at each section and applies them all the way round.
   Different conditions on the top, bottom and sides, and a skinning spine, which Fuselage and Stack support (see
   [Stations: Sides and Spines](XSecSkinning.md#stations-sides-and-spines)), do not reach a custom component.
-- The cross sections are the script's and have no tab of their own.  Their Parms can be reached from a script or the
-  Parm editors, but those the script sets in `UpdateSurf` are set again on every update, so a change made to them
-  elsewhere does not last.
+- The cross sections are the script's and have no tab of their own.  They, and the sub-surfaces the script adds, are
+  internal to the component: the Parm editors and link pickers do not list them, and the API reaches them only from
+  the component's own script, which can also find their Parms through the component's ID.  The sub-surfaces the script
+  adds are not saved, since `Init` adds them again when the model is read.
 
 ## Scripting
 

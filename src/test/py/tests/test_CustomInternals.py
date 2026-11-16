@@ -105,3 +105,22 @@ def testASubsurfaceAUserAddsIsFound():
     vsp.Update()
     assert vsp.FindParm( gid, "Const_Line_Value", "SubSurface_2" ) == vsp.GetParm( user, "Const_Line_Value", "SubSurface" )
     assert vsp.GetSubSurfParmIDs( user ) != ()
+
+
+def testAScriptsSubsurfaceIsNotSavedTwice( tmp_path ):
+    gid = script_subsurf_part()
+    user = vsp.AddSubSurf( gid, vsp.SS_LINE )
+    vsp.Update()
+    fname = str( tmp_path / "ScriptSubSurfPart.vsp3" )
+    for i in range( 2 ):
+        vsp.WriteVSPFile( fname )
+        vsp.VSPRenew()
+        vsp.ReadVSPFile( fname )
+        vsp.Update()
+        gid = vsp.FindGeoms()[0]
+
+        #==== The script's own, made again, and the user's, read back ====#
+        assert len( vsp.GetSubSurfIDVec( gid ) ) == 2
+        assert vsp.FindParm( gid, "Const_Line_Value", "SubSurface_2" ) != ""
+        assert vsp.FindParm( gid, "Const_Line_Value", "SubSurface_1" ) == ""
+    clear_errors()

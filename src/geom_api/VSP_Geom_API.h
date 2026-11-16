@@ -77,6 +77,9 @@
     Note, these functions are specific to defining Custom Components and can't be called from standard API scripts
     (i.e. \\*.vspscript). However, a Custom Component can be created as a \\*.vsppart file and then accessed through
     secondary API scripts.
+    A Custom Component's cross sections, and the sub-surfaces its script adds, are internal to the component: the Parm
+    editors and link pickers do not list them, and the API reaches them only from the component's own script.  The
+    sub-surfaces its script adds are not saved, since its Init adds them again when the model is read.
     \ref index "Click here to return to the main page"
 
     \defgroup DesignFile Design File Functions

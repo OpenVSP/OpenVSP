@@ -685,9 +685,12 @@ Stack support (see <a
 href="XSecSkinning.html#stations-sides-and-spines">Stations: Sides and
 Spines</a>), do not reach a custom component.</li>
 <li>The cross sections are the script's and have no tab of their own.
-Their Parms can be reached from a script or the Parm editors, but those
-the script sets in <code>UpdateSurf</code> are set again on every
-update, so a change made to them elsewhere does not last.</li>
+They, and the sub-surfaces the script adds, are internal to the
+component: the Parm editors and link pickers do not list them, and the
+API reaches them only from the component's own script, which can also
+find their Parms through the component's ID. The sub-surfaces the script
+adds are not saved, since <code>Init</code> adds them again when the
+model is read.</li>
 </ul>
 <h2 id="scripting">Scripting</h2>
 <p>From any API script or from Python, a custom component is added by
