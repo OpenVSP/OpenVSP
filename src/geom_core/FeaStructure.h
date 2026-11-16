@@ -178,6 +178,7 @@ public:
     void AddFeaBC( FeaBC* fea_bc )
     {
         m_FeaBCVec.push_back( fea_bc );
+        ReSuffixGroupNames();
     }
 
     FeaBC* AddFeaBC( int type = -1 );

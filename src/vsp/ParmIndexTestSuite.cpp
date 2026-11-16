@@ -895,6 +895,28 @@ void ParmIndexTestSuite::ARoutesPointsAreNumbered()
     TEST_ASSERT( NoGroupIsShared( pts ) );
 }
 
+void ParmIndexTestSuite::AStructuresConditionsAreNumbered()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    int is = vsp::AddFeaStruct( pod );
+    string fea = vsp::GetFeaStructID( pod, is );
+    vector< string > bcs;
+    for ( int i = 0; i < 3; i++ )
+    {
+        bcs.push_back( vsp::AddFeaBC( fea, vsp::FEA_BC_STRUCTURE ) );
+    }
+    TEST_ASSERT( NoGroupIsShared( bcs ) );
+
+    //==== Removing the first renumbers the rest, the second taking the first's number ====//
+    string g0 = GroupOf( bcs[0] );
+    vsp::DelFeaBC( fea, bcs[0] );
+    bcs.erase( bcs.begin() );
+    TEST_ASSERT( GroupOf( bcs[0] ) == g0 );
+    TEST_ASSERT( NoGroupIsShared( bcs ) );
+}
+
 void ParmIndexTestSuite::UnsteadyGroupsAreNumbered()
 {
     vsp::VSPRenew();

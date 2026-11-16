@@ -258,6 +258,11 @@ void FeaStructure::ReSuffixGroupNames()
         m_FeaSubSurfVec[i]->SetGroupDisplaySuffix( i );
     }
 
+    for ( size_t i = 0; i < m_FeaBCVec.size(); i++ )
+    {
+        m_FeaBCVec[i]->SetGroupDisplaySuffix( i );
+    }
+
     // The points of every poly spar, counted across the structure, as they are all listed under it.
     int npt = 0;
     for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )
@@ -952,6 +957,7 @@ void FeaStructure::DelFeaBC( int ind )
     {
         delete m_FeaBCVec[ind];
         m_FeaBCVec.erase( m_FeaBCVec.begin() + ind );
+        ReSuffixGroupNames();
     }
 }
 
