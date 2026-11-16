@@ -217,7 +217,7 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_HeadTilt.Init( "HeadTilt", "Pose", this, 0.0, -40.0, 40.0 );
     m_HeadTilt.SetDescript( "Head side tilt angle, tilted right positive" );
 
-    m_PresetPose.Init( "PresetPose", "Pose", this, HumanGeom::STANDING, HumanGeom::STANDING, HumanGeom::SITTING );
+    m_PresetPose.Init( "PresetPose", "Pose", this, vsp::HUMAN_PRESET_STANDING, vsp::HUMAN_PRESET_STANDING, vsp::HUMAN_NUM_PRESET_POSE - 1 );
     m_PresetPose.SetDescript( "Pose to set when triggered from GUI" );
 
     // Setup static member variables to be used by all HumanGeom
@@ -529,63 +529,113 @@ void HumanGeom::ValidateParms( )
     }
 }
 
+// The preset poses: R/L Sym; Back, Waist, TorsoTwist, TorsoBend, Nod, RotateHead, HeadTilt; then for
+// the right and left side Wrist, WristDev, Forearm, Elbow, Shoulder AB/AD, FE, IE, Hip AB/AD, FE, IE, Knee,
+// Ankle.
+struct HumanPresetPose
+{
+    bool m_Sym;
+    double m_Trunk[7];
+    double m_Side[2][12];
+};
+
+static const HumanPresetPose human_preset_poses[vsp::HUMAN_NUM_PRESET_POSE] = {
+    // STANDING
+    { true, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 } } },
+    // SITTING
+    { true, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 65.0, 15.0, 0.0, 20.0, 0.5, 80.0, 0.0, 80.0, 0.0 },
+        { 0.0, 0.0, 0.0, 65.0, 15.0, 0.0, 20.0, 0.5, 80.0, 0.0, 80.0, 0.0 } } },
+    // SEATED_ERECT
+    { true, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 90.0, 15.0, 0.0, 0.0, 0.0, 90.0, 0.0, 90.0, 0.0 },
+        { 0.0, 0.0, 0.0, 90.0, 15.0, 0.0, 0.0, 0.0, 90.0, 0.0, 90.0, 0.0 } } },
+    // PASSENGER
+    { true, { 0.0, 0.0, 0.0, 0.0, 18.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 45.0, 15.0, 25.0, 20.0, 8.0, 78.0, -9.0, 58.0, 0.0 },
+        { 0.0, 0.0, 0.0, 45.0, 15.0, 25.0, 20.0, 8.0, 78.0, -9.0, 58.0, 0.0 } } },
+    // DRIVER
+    { true, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 55.0, 8.0, 44.0, 20.0, 5.0, 82.0, 0.0, 62.0, 5.0 },
+        { 0.0, 0.0, 0.0, 55.0, 8.0, 44.0, 20.0, 5.0, 82.0, 0.0, 62.0, 5.0 } } },
+    // PILOT
+    { false, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 90.0, 10.0, 25.0, 0.0, 0.5, 88.0, 0.0, 65.0, 0.0 },
+        { 0.0, 0.0, 45.0, 100.0, 10.0, 17.0, 0.0, 0.5, 88.0, 0.0, 65.0, 0.0 } } },
+    // RECUMBENT
+    { true, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 90.0, 15.0, 0.0, 0.0, 0.5, 94.0, 0.0, 105.0, 0.0 },
+        { 0.0, 0.0, 0.0, 90.0, 15.0, 0.0, 0.0, 0.5, 94.0, 0.0, 105.0, 0.0 } } },
+    // NBP_SKYLAB
+    { true, { 0.0, 0.0, 0.0, 0.0, 24.0, 0.0, 0.0 },
+      { { 0.0, 0.0, -30.0, 90.0, 47.0, 28.0, 30.0, 18.5, 50.0, 0.0, 50.0, -21.0 },
+        { 0.0, 0.0, -30.0, 90.0, 47.0, 28.0, 30.0, 18.5, 50.0, 0.0, 50.0, -21.0 } } },
+    // NBP_ISS
+    { true, { 0.0, 0.0, 0.0, 0.0, 28.0, 0.0, 0.0 },
+      { { 0.0, 0.0, -30.0, 58.0, 53.0, 28.0, 30.0, 18.5, 45.0, 0.0, 55.0, -21.0 },
+        { 0.0, 0.0, -30.0, 58.0, 53.0, 28.0, 30.0, 18.5, 45.0, 0.0, 55.0, -21.0 } } },
+    // KNEELING
+    { true, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 5.0, 0.0, 90.0, -45.0 },
+        { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 5.0, 0.0, 90.0, -45.0 } } },
+    // KNEELING_ONE_KNEE
+    { false, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 90.0, 0.0, 90.0, 15.0 },
+        { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 5.0, 0.0, 90.0, -45.0 } } },
+    // SQUATTING
+    { true, { 15.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 0.0, 20.0, 110.0, -15.0, 140.0, 25.0 },
+        { 0.0, 0.0, 0.0, 30.0, 15.0, 45.0, 0.0, 20.0, 110.0, -15.0, 140.0, 25.0 } } },
+    // CRAWLING
+    { true, { 0.0, 0.0, 0.0, 0.0, -40.0, 0.0, 0.0 },
+      { { -80.0, 0.0, 0.0, 0.0, 0.0, 90.0, 0.0, 0.5, 90.0, 0.0, 90.0, -40.0 },
+        { -80.0, 0.0, 0.0, 0.0, 0.0, 90.0, 0.0, 0.5, 90.0, 0.0, 90.0, -40.0 } } },
+    // FORWARD_REACH
+    { false, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 90.0, 0.0, 0.0, 90.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 } } },
+    // OVERHEAD_REACH
+    { false, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, 0.0, 15.0, 20.0, 0.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 } } },
+    // SPAN
+    { true, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, -90.0, 0.0, 90.0, 0.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, -90.0, 0.0, 90.0, 0.0, 0.0, 0.5, 2.5, 0.0, 0.0, 0.0 } } },
+    // WALKING
+    { false, { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { { 0.0, 0.0, 0.0, 18.0, 15.0, -18.0, 0.0, 0.5, 25.0, 0.0, 5.0, 0.0 },
+        { 0.0, 0.0, 0.0, 35.0, 15.0, 18.0, 0.0, 0.5, -15.0, 0.0, 38.0, -18.0 } } }
+};
+
 void HumanGeom::SetPreset()
 {
     int p = m_PresetPose();
-
-    switch( p )
+    if ( p < 0 || p >= vsp::HUMAN_NUM_PRESET_POSE )
     {
-        case STANDING:
-            m_RLSymFlag = true;
-            m_Back = 0;
-            m_Waist = 0;
+        return;
+    }
+    const HumanPresetPose &pp = human_preset_poses[p];
 
-            m_TorsoTwist = 0;
-            m_TorsoBend = 0;
+    m_RLSymFlag = pp.m_Sym;
+    Parm *trunk[7] = { &m_Back, &m_Waist, &m_TorsoTwist, &m_TorsoBend, &m_Nod, &m_RotateHead, &m_HeadTilt };
+    for ( int j = 0; j < 7; j++ )
+    {
+        trunk[j]->Set( pp.m_Trunk[j] );
+    }
 
-            m_Nod = 0;
-            m_RotateHead = 0;
-            m_HeadTilt = 0;
-
-            m_WristRt = 0;
-            m_ForearmRt = 0;
-            m_ElbowRt = 15;
-            m_ShoulderABADRt = 0;
-            m_ShoulderFERt = 0;
-            m_ShoulderIERt = 0;
-
-            m_HipABADRt = 0.5;
-            m_HipFERt = 2.5;
-            m_HipIERt = 0;
-            m_KneeRt = 0.0;
-            m_AnkleRt = 0.0;
-
-            break;
-        case SITTING:
-            m_RLSymFlag = true;
-            m_Back = 0;
-            m_Waist = 0;
-
-            m_TorsoTwist = 0;
-            m_TorsoBend = 0;
-
-            m_Nod = 0;
-            m_RotateHead = 0;
-            m_HeadTilt = 0;
-
-            m_WristRt = 0;
-            m_ForearmRt = 0;
-            m_ElbowRt = 80;
-            m_ShoulderABADRt = 0;
-            m_ShoulderFERt = 0;
-            m_ShoulderIERt = 45;
-
-            m_HipABADRt = 0.5;
-            m_HipFERt = 80;
-            m_HipIERt = 0;
-            m_KneeRt = 80;
-            m_AnkleRt = 0.0;
-            break;
+    Parm *sides[2][12] = { { &m_WristRt, &m_WristDevRt, &m_ForearmRt, &m_ElbowRt, &m_ShoulderABADRt, &m_ShoulderFERt, &m_ShoulderIERt,
+                             &m_HipABADRt, &m_HipFERt, &m_HipIERt, &m_KneeRt, &m_AnkleRt },
+                           { &m_WristLt, &m_WristDevLt, &m_ForearmLt, &m_ElbowLt, &m_ShoulderABADLt, &m_ShoulderFELt, &m_ShoulderIELt,
+                             &m_HipABADLt, &m_HipFELt, &m_HipIELt, &m_KneeLt, &m_AnkleLt } };
+    for ( int s = 0; s < 2; s++ )
+    {
+        for ( int j = 0; j < 12; j++ )
+        {
+            sides[s][j]->Set( pp.m_Side[s][j] );
+        }
     }
 }
 

@@ -1814,6 +1814,45 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "HUMAN_PRESET_POSE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_STANDING", HUMAN_PRESET_STANDING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_SITTING", HUMAN_PRESET_SITTING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_SEATED_ERECT", HUMAN_PRESET_SEATED_ERECT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_PASSENGER", HUMAN_PRESET_PASSENGER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_DRIVER", HUMAN_PRESET_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_PILOT", HUMAN_PRESET_PILOT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_RECUMBENT", HUMAN_PRESET_RECUMBENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_NBP_SKYLAB", HUMAN_PRESET_NBP_SKYLAB );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_NBP_ISS", HUMAN_PRESET_NBP_ISS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_KNEELING", HUMAN_PRESET_KNEELING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_KNEELING_ONE_KNEE", HUMAN_PRESET_KNEELING_ONE_KNEE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_SQUATTING", HUMAN_PRESET_SQUATTING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_CRAWLING", HUMAN_PRESET_CRAWLING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_FORWARD_REACH", HUMAN_PRESET_FORWARD_REACH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_OVERHEAD_REACH", HUMAN_PRESET_OVERHEAD_REACH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_SPAN", HUMAN_PRESET_SPAN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_PRESET_WALKING", HUMAN_PRESET_WALKING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_PRESET_POSE", "HUMAN_NUM_PRESET_POSE", HUMAN_NUM_PRESET_POSE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "HUMAN_POSE_METHOD" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "HUMAN_POSE_METHOD", "HUMAN_POSE_ARAP", HUMAN_POSE_ARAP );
@@ -4866,6 +4905,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void ReadAuxiliaryGeomCCEFile( const string & in geom_id, const string & in file_name )", asFUNCTION( vsp::ReadAuxiliaryGeomCCEFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetHumanPresetPose( const string & in geom_id, int preset )", asFUNCTION( vsp::SetHumanPresetPose ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void InitStackPreset( const string & in geom_id, int preset )", asFUNCTION( vsp::InitStackPreset ), asCALL_CDECL );

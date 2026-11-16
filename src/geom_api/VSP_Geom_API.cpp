@@ -39,6 +39,7 @@
 #include "PropGeom.h"
 #include "RoutingGeom.h"
 #include "AuxiliaryGeom.h"
+#include "HumanGeom.h"
 #include "GearGeom.h"
 #include "GeomEngine.h"
 #include "StackGeom.h"
@@ -12391,6 +12392,36 @@ void ReadAuxiliaryGeomCCEFile( const std::string &geom_id, const std::string &fi
 //===================================================================//
 //=================       Stack Geom Functions      =================//
 //===================================================================//
+
+void SetHumanPresetPose( const std::string &geom_id, int preset )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetHumanPresetPose::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    HumanGeom* human_ptr = dynamic_cast< HumanGeom* > ( geom_ptr );
+
+    if ( !human_ptr )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetHumanPresetPose::Geom " + geom_id + " is not a HumanGeom" );
+        return;
+    }
+
+    if ( preset < HUMAN_PRESET_STANDING || preset >= HUMAN_NUM_PRESET_POSE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetHumanPresetPose::Invalid Preset " + to_string( preset ) );
+        return;
+    }
+
+    human_ptr->m_PresetPose = preset;
+    human_ptr->SetPreset();
+
+    ErrorMgr.NoError();
+}
 
 void InitStackPreset( const std::string &geom_id, int preset )
 {

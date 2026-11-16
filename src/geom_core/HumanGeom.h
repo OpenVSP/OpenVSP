@@ -143,11 +143,6 @@ public:
         LWRISTBASE,     // 23
     };
 
-    enum PRESET_POSE {
-        STANDING,
-        SITTING
-    };
-
     virtual void SetPreset();
 
     virtual double CalculateVolume();

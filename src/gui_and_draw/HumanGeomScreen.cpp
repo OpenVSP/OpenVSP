@@ -92,6 +92,21 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 510, 800, 
 
     m_PresetPoseChoice.AddItem( "STANDING" );
     m_PresetPoseChoice.AddItem( "SITTING" );
+    m_PresetPoseChoice.AddItem( "SEATED ERECT" );
+    m_PresetPoseChoice.AddItem( "PASSENGER" );
+    m_PresetPoseChoice.AddItem( "DRIVER" );
+    m_PresetPoseChoice.AddItem( "PILOT" );
+    m_PresetPoseChoice.AddItem( "RECUMBENT" );
+    m_PresetPoseChoice.AddItem( "NBP SKYLAB" );
+    m_PresetPoseChoice.AddItem( "NBP ISS" );
+    m_PresetPoseChoice.AddItem( "KNEELING" );
+    m_PresetPoseChoice.AddItem( "KNEELING ONE KNEE" );
+    m_PresetPoseChoice.AddItem( "SQUATTING" );
+    m_PresetPoseChoice.AddItem( "CRAWLING" );
+    m_PresetPoseChoice.AddItem( "FORWARD REACH" );
+    m_PresetPoseChoice.AddItem( "OVERHEAD REACH" );
+    m_PresetPoseChoice.AddItem( "SPAN" );
+    m_PresetPoseChoice.AddItem( "WALKING" );
 
     m_PoseLayout.SetChoiceButtonWidth( m_PoseLayout.GetButtonWidth() );
 

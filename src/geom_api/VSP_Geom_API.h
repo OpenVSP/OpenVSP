@@ -123,6 +123,10 @@
     \brief The functions in this group allow for sets to be scaled, rotated, and translated.
     \ref index "Click here to return to the main page"
 
+    \defgroup HumanGeom HumanGeom Functions
+    \brief This group of functions is available for interacting with a HumanGeom through the API.
+    \ref index "Click here to return to the main page"
+
     \defgroup Matrix4d Matrix4d Functions
     \brief API functions that utilize the Matrix4d class are grouped here. For details of the class, including member functions, see Matrix4d.
     \ref index "Click here to return to the main page"
@@ -33248,6 +33252,52 @@ extern std::string GetAuxiliaryGeomContactPtID( const std::string &geom_id, int 
 */
 
 extern void ReadAuxiliaryGeomCCEFile( const std::string &geom_id, const std::string &file_name );
+
+//======================== HumanGeom Functions ========================//
+/*!
+    \ingroup HumanGeom
+*/
+/*!
+    Pose a HumanGeom in one of its preset postures, as the Set button of its Pose tab does.  The
+    preset sets R/L Sym and every pose angle (the joint angles of the torso, head and both sides);
+    the pose method, its settings and the body's size are kept.  Call Update afterward.
+
+    Each pose angle is a Parm of the "Pose" group (e.g. "HipFERt"), so a preset can be adjusted
+    afterward, or a posture made from scratch, with SetParmVal.
+    \forcpponly
+    \code{.cpp}
+    string human_id = AddGeom( "HUMAN", "" );
+
+    SetHumanPresetPose( human_id, HUMAN_PRESET_SITTING );
+
+    Update();
+
+    if ( GetParmVal( human_id, "HipFERt", "Pose" ) != 80.0 )
+    {
+        Print( "ERROR: SetHumanPresetPose did not seat the Human" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    human_id = AddGeom( "HUMAN", "" )
+
+    SetHumanPresetPose( human_id, HUMAN_PRESET_SITTING )
+
+    Update()
+
+    assert GetParmVal( human_id, "HipFERt", "Pose" ) == 80.0, "SetHumanPresetPose did not seat the Human"
+
+    \endcode
+    \endPythonOnly
+    \sa HUMAN_PRESET_POSE
+    \param [in] geom_id string HumanGeom Geom ID
+    \param [in] preset int Preset posture enum (i.e. HUMAN_PRESET_STANDING)
+*/
+
+extern void SetHumanPresetPose( const std::string &geom_id, int preset );
 
 
 //======================== StackGeom Functions ========================//

@@ -974,6 +974,30 @@ enum HUMAN_POSE_METHOD { HUMAN_POSE_ARAP,	/*!< Volumetric as-rigid-as-possible d
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for a Human component's preset postures (see SetHumanPresetPose). */
+enum HUMAN_PRESET_POSE { HUMAN_PRESET_STANDING,	/*!< Standing, arms relaxed at the sides */
+                         HUMAN_PRESET_SITTING,	/*!< Sitting, relaxed */
+                         HUMAN_PRESET_SEATED_ERECT,	/*!< Seated upright, thighs level and knees at 90 degrees */
+                         HUMAN_PRESET_PASSENGER,	/*!< Seated as a vehicle passenger, reclined */
+                         HUMAN_PRESET_DRIVER,	/*!< Seated as a vehicle driver, hands forward on the wheel */
+                         HUMAN_PRESET_PILOT,	/*!< Seated as a pilot, hands on the stick and throttle */
+                         HUMAN_PRESET_RECUMBENT,	/*!< Seated reclined with the legs raised */
+                         HUMAN_PRESET_NBP_SKYLAB,	/*!< The neutral body posture of microgravity, as measured on Skylab */
+                         HUMAN_PRESET_NBP_ISS,	/*!< The neutral body posture of microgravity, as measured on the ISS */
+                         HUMAN_PRESET_KNEELING,	/*!< Kneeling on both knees */
+                         HUMAN_PRESET_KNEELING_ONE_KNEE,	/*!< Kneeling on one knee */
+                         HUMAN_PRESET_SQUATTING,	/*!< Squatting */
+                         HUMAN_PRESET_CRAWLING,	/*!< Crawling on hands and knees */
+                         HUMAN_PRESET_FORWARD_REACH,	/*!< Standing, the right arm reaching forward */
+                         HUMAN_PRESET_OVERHEAD_REACH,	/*!< Standing, the right arm reaching overhead */
+                         HUMAN_PRESET_SPAN,	/*!< Standing, the arms spread to the sides */
+                         HUMAN_PRESET_WALKING,	/*!< Walking, mid stride */
+                         HUMAN_NUM_PRESET_POSE	/*!< Number of preset postures */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Geometry analysis types.. */
 enum GEOMETRY_ANALYSIS_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between mutually external bodies */
                               PACKAGING_INTERFERENCE,	/*!< Interference when one body is internal to another */
