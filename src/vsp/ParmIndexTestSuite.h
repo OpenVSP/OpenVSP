@@ -43,6 +43,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AGearsBogiesAreNumbered )
         TEST_ADD( ParmIndexTestSuite::ARoutesPointsAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AStructuresConditionsAreNumbered )
+        TEST_ADD( ParmIndexTestSuite::CpSlicesAreNumbered )
         TEST_ADD( ParmIndexTestSuite::UnsteadyGroupsAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AMaterialsLayersAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AnAssemblysConnectionsAreNumbered )
@@ -75,6 +76,7 @@ private:
     void AGearsBogiesAreNumbered();
     void ARoutesPointsAreNumbered();
     void AStructuresConditionsAreNumbered();
+    void CpSlicesAreNumbered();
     void UnsteadyGroupsAreNumbered();
     void AMaterialsLayersAreNumbered();
     void AnAssemblysConnectionsAreNumbered();

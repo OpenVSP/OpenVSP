@@ -302,7 +302,7 @@ public:
     void ComputeQuadTreeSlices( FILE * logFile = nullptr );
     void ExecuteQuadTreeSlicer( FILE * logFile = nullptr );
     void CreateCutsFile();
-    void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }
+    void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); UpdateCpSliceSuffix(); }
     CpSlice* AddCpSlice();
     bool ValidCpSliceInd( int ind );
     void DelCpSlice( int ind );
@@ -347,6 +347,9 @@ public:
 
     // Number each unsteady group's group by its place, as they are added, removed and moved.
     void UpdateUnsteadyGroupSuffix();
+
+    // Number each Cp slice's group by its place, as they are added and removed.
+    void UpdateCpSliceSuffix();
     int NumUnsteadyGroups()                                  { return m_UnsteadyGroupVec.size(); }
     int NumUnsteadyRotorGroups();
     void HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_vec );

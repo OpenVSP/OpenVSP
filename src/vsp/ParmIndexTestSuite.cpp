@@ -917,6 +917,26 @@ void ParmIndexTestSuite::AStructuresConditionsAreNumbered()
     TEST_ASSERT( NoGroupIsShared( bcs ) );
 }
 
+void ParmIndexTestSuite::CpSlicesAreNumbered()
+{
+    vsp::VSPRenew();
+    VSPAEROMgr.ClearCpSliceVec();
+    vector< string > slices;
+    for ( int i = 0; i < 3; i++ )
+    {
+        slices.push_back( vsp::AddCpSlice( vsp::Y_DIR, 0.1 * i ) );
+    }
+    TEST_ASSERT( NoGroupIsShared( slices ) );
+
+    //==== Removing the first renumbers the rest, the second taking the first's number ====//
+    string g0 = GroupOf( slices[0] );
+    vsp::DelCpSlice( 0 );
+    slices.erase( slices.begin() );
+    TEST_ASSERT( GroupOf( slices[0] ) == g0 );
+    TEST_ASSERT( NoGroupIsShared( slices ) );
+    VSPAEROMgr.ClearCpSliceVec();
+}
+
 void ParmIndexTestSuite::UnsteadyGroupsAreNumbered()
 {
     vsp::VSPRenew();

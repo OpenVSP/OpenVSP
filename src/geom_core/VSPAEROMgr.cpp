@@ -3717,6 +3717,14 @@ bool VSPAEROMgrSingleton::ValidRotorDiskIndex( int index )
     return false;
 }
 
+void VSPAEROMgrSingleton::UpdateCpSliceSuffix()
+{
+    for ( int i = 0 ; i < ( int )m_CpSliceVec.size(); ++i )
+    {
+        m_CpSliceVec[i]->SetGroupDisplaySuffix( i );
+    }
+}
+
 void VSPAEROMgrSingleton::UpdateUnsteadyGroupSuffix()
 {
     for ( int i = 0 ; i < ( int )m_UnsteadyGroupVec.size(); ++i )
@@ -4370,6 +4378,7 @@ void VSPAEROMgrSingleton::DelCpSlice( int ind )
     {
         delete m_CpSliceVec[ind];
         m_CpSliceVec.erase( m_CpSliceVec.begin() + ind );
+        UpdateCpSliceSuffix();
     }
 }
 
