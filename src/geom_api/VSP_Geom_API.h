@@ -7157,7 +7157,8 @@ extern std::string SummarizeAttributesAsTree();
     \ingroup Attributes
 */
 /*!
-    Returns a vector of string IDs for all Attributes in the vehicle
+    Returns a vector of string IDs for all Attributes in the vehicle, except those of an FEA sub-surface or of its
+    Parms.
     \forcpponly
     \code{.cpp}
     //==== Attributes: FindAllAttributes ====//
@@ -7195,7 +7196,8 @@ extern std::vector < std::string > FindAllAttributes();
     \ingroup Attributes
 */
 /*!
-    Returns all attributes that contain the string search_str within their name, case insensitive, sorted by name and then by ID
+    Returns all attributes that contain the string search_str within their name, case insensitive, sorted by name and then by ID.
+    The attributes of an FEA sub-surface and of its Parms are left out.
     \forcpponly
     \code{.cpp}
     //==== Attributes: FindAttributesByName ====//
@@ -7431,7 +7433,8 @@ extern std::vector< std::string > FindAttributesInCollectionByName( const std::s
     \ingroup Attributes
 */
 /*!
-    Get array of IDs of all OpenVSP entities that have populated attributeCollections
+    Get array of IDs of all OpenVSP entities that have populated attributeCollections, except FEA sub-surfaces and
+    their Parms.
     Includes attributeGroups
     \forcpponly
     \code{.cpp}

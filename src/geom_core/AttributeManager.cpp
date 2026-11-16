@@ -23,6 +23,7 @@
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
 #include "SubSurfaceMgr.h"
+#include "FeaStructure.h"
 #include "MeasureMgr.h"
 #include "VarPresetMgr.h"
 
@@ -361,13 +362,46 @@ string AttributeMgrSingleton::SummarizeAttributesAsTree()
     return text;
 }
 
+// Whether an object -- a container or a Parm -- is an FEA subsurface or belongs to one.  FEA's objects are not
+// offered among the attributes, so a search leaves these out.
+static bool IsOnAnFeaSubSurf( const string & obj_id )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( obj_id );
+    if ( !pc )
+    {
+        Parm* p = ParmMgr.FindParm( obj_id );
+        if ( p )
+        {
+            pc = p->GetContainer();
+        }
+    }
+
+    for ( ; pc; pc = pc->GetParentContainerPtr() )
+    {
+        if ( dynamic_cast< SubSurface* >( pc ) )
+        {
+            return dynamic_cast< FeaStructure* >( pc->GetParentContainerPtr() ) != nullptr;
+        }
+    }
+    return false;
+}
+
+bool AttributeMgrSingleton::IsSearched( NameValData* attr )
+{
+    AttributeCollection* coll = GetCollectionPtr( attr->GetAttachID(), false );
+    return !coll || !IsOnAnFeaSubSurf( coll->GetAttachID() );
+}
+
 vector < string > AttributeMgrSingleton::FindAllAttributes()
 {
     vector< string > attribute_ids;
     unordered_map < string, NameValData* > ::iterator attrIter;
     for ( attrIter = m_AttrPtrMap.begin(); attrIter != m_AttrPtrMap.end(); ++attrIter )
     {
-        attribute_ids.push_back( attrIter->first );
+        if ( IsSearched( attrIter->second ) )
+        {
+            attribute_ids.push_back( attrIter->first );
+        }
     }
     return attribute_ids;
 }
@@ -384,7 +418,7 @@ vector < string > AttributeMgrSingleton::FindAttributesByName( const string & se
     {
         lower_aname = ToLower( attrIter->second->GetName() );
 
-        if ( lower_aname.find( lower_str.c_str() ) != string::npos )
+        if ( lower_aname.find( lower_str.c_str() ) != string::npos && IsSearched( attrIter->second ) )
             {
                 attribute_ids.push_back( attrIter->first );
             }
@@ -481,7 +515,7 @@ vector< string > AttributeMgrSingleton::FindAttributedObjects()
     for ( collIter = m_AttrCollMap.begin(); collIter != m_AttrCollMap.end(); ++collIter )
     {
         coll = collIter->second;
-        if ( coll && coll->GetAttrDataFlag( ) )
+        if ( coll && coll->GetAttrDataFlag( ) && !IsOnAnFeaSubSurf( coll->GetAttachID() ) )
         {
             attach_ids.push_back( coll->GetAttachID() );
         }

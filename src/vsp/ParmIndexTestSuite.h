@@ -66,6 +66,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::NoCustomScriptIsRunningBetweenCalls )
         TEST_ADD( ParmIndexTestSuite::ASubsurfacesCurveIsTaggedAndNumberedWithIt )
         TEST_ADD( ParmIndexTestSuite::EveryListedParmHasItsOwnName )
+        TEST_ADD( ParmIndexTestSuite::AnFeaSubsurfacesAttributesAreLeftOutOfASearch )
     }
 
 private:
@@ -117,6 +118,7 @@ private:
     void NoCustomScriptIsRunningBetweenCalls();
     void ASubsurfacesCurveIsTaggedAndNumberedWithIt();
     void EveryListedParmHasItsOwnName();
+    void AnFeaSubsurfacesAttributesAreLeftOutOfASearch();
 };
 
 #endif

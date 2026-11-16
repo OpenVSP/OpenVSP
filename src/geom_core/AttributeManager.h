@@ -60,6 +60,9 @@ public:
     string SummarizeAttributes();
     string SummarizeAttributesAsTree();
 
+    // Whether a search finds an attribute: not one on an FEA subsurface.
+    bool IsSearched( NameValData* attr );
+
     vector < string > FindAllAttributes();
     vector < string > FindAttributesByName( const string & search_str );
     string FindAttributeByName( const string & search_str, int index );

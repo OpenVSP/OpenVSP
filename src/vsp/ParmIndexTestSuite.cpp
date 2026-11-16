@@ -1747,3 +1747,35 @@ void ParmIndexTestSuite::EveryListedParmHasItsOwnName()
         vsp::ErrorMgr.PopLastError();
     }
 }
+
+static bool Has( const vector< string > & vec, const string & val )
+{
+    return std::find( vec.begin(), vec.end(), val ) != vec.end();
+}
+
+void ParmIndexTestSuite::AnFeaSubsurfacesAttributesAreLeftOutOfASearch()
+{
+    vsp::VSPRenew();
+    string wing = vsp::AddGeom( "WING" );
+    vsp::Update();
+    string ss = vsp::AddSubSurf( wing, vsp::SS_RECTANGLE );
+    int is = vsp::AddFeaStruct( wing );
+    string fss = vsp::AddFeaSubSurf( wing, is, vsp::SS_RECTANGLE );
+
+    string on_ss = vsp::AddAttributeString( vsp::GetChildCollection( ss ), "ParmIndexMark", "geom" );
+    string on_fss = vsp::AddAttributeString( vsp::GetChildCollection( fss ), "ParmIndexMark", "fea" );
+    string fss_parm = vsp::GetParm( fss, "Center_U", "SS_Rectangle" );
+    string on_fss_parm = vsp::AddAttributeString( vsp::GetChildCollection( fss_parm ), "ParmIndexMark", "fea parm" );
+    TEST_ASSERT( !on_ss.empty() && !on_fss.empty() && !on_fss_parm.empty() );
+
+    //==== A Geom's subsurface is found; an FEA subsurface and its Parms are not ====//
+    vector< string > by_name = vsp::FindAttributesByName( "ParmIndexMark" );
+    TEST_ASSERT( Has( by_name, on_ss ) );
+    TEST_ASSERT( !Has( by_name, on_fss ) && !Has( by_name, on_fss_parm ) );
+
+    vector< string > all = vsp::FindAllAttributes();
+    TEST_ASSERT( Has( all, on_ss ) && !Has( all, on_fss ) && !Has( all, on_fss_parm ) );
+
+    vector< string > objects = vsp::FindAttributedObjects();
+    TEST_ASSERT( Has( objects, ss ) && !Has( objects, fss ) && !Has( objects, fss_parm ) );
+}
