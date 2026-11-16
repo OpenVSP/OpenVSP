@@ -6986,6 +6986,8 @@ void Geom::ReorderSubSurf( const string & id, int action )
     SubSurfaceMgr.SetCurrSubSurfInd( new_index );
 
     m_SubSurfDirty = true;
+
+    SubSurfaceMgr.ReSuffixGroupNames( GetID() );
 }
 
 //==== Highlight Active Subsurface ====//

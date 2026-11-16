@@ -145,21 +145,17 @@ SubSurface* SubSurfaceMgrSingleton::GetSubSurf( const string& subsurf_id )
     return ret_ptr;
 }
 
+// Numbered by group, from one: a group every kind has by the subsurface's place, the group of a kind among that
+// kind.
 void SubSurfaceMgrSingleton::ReSuffixGroupNames( const string& comp_id )
 {
     vector< SubSurface* > ss_vec = GetSubSurfs( comp_id );
 
-    unordered_map< int, int > t_map;
-
-    for ( int i = 0 ; i < vsp::SS_NUM_TYPES; i++ )
-    {
-        t_map[i] = 0;
-    }
+    unordered_map< string, int > group_count;
 
     for ( int i = 0; i < ( int )ss_vec.size() ; i++ )
     {
-        t_map[ ss_vec[i]->GetType() ]++;
-        ss_vec[i]->SetDisplaySuffix( t_map[ ss_vec[i]->GetType() ] );
+        ss_vec[i]->SetGroupDisplaySuffixes( group_count );
     }
 }
 

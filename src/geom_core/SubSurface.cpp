@@ -172,6 +172,25 @@ void SubSurface::SetDisplaySuffix( int num )
     }
 }
 
+void SubSurface::SetGroupDisplaySuffixes( unordered_map< string, int > & group_count )
+{
+    // This subsurface's number in each of its groups.
+    unordered_map< string, int > num;
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            const string & group = p->GetGroupName();
+            if ( num.find( group ) == num.end() )
+            {
+                num[ group ] = ++group_count[ group ];
+            }
+            p->SetGroupDisplaySuffix( num[ group ] );
+        }
+    }
+}
+
 void SubSurface::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
     m_SubSurfDO.m_LineColor = m_LineColor;

@@ -35,6 +35,8 @@
 #include "Texture.h"
 #include "MeshCommonSettings.h"
 #include "VSPAEROMgr.h"
+#include "Vehicle.h"
+#include "VehicleMgr.h"
 
 #include <typeinfo>
 
@@ -734,4 +736,73 @@ void ParmIndexTestSuite::AStructuresPartsAreNumberedAsTheyChange()
     fs->ReorderFeaPart( fs->GetFeaPartIndex( r3 ), vsp::REORDER_MOVE_TOP );
     TEST_ASSERT( p3->GetDisplayGroupName() != g3 );
     TEST_ASSERT( vsp::FindParm( fea, p3->GetName(), p3->GetDisplayGroupName() ) == p3->GetID() );
+}
+
+// The display group of a container's own Parms.
+static string GroupOf( const string & container_id )
+{
+    return FirstParmOf( container_id )->GetDisplayGroupName();
+}
+
+// The display group names of a container's own Parms.
+static std::set< string > DisplayGroupsOf( const string & container_id )
+{
+    std::set< string > groups;
+    vector< string > ids = vsp::FindContainerParmIDs( container_id );
+    for ( int i = 0; i < ( int )ids.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( ids[i] );
+        if ( p && p->GetContainer()->GetID() == container_id )
+        {
+            groups.insert( p->GetDisplayGroupName() );
+        }
+    }
+    return groups;
+}
+
+// Whether no two of these containers have a display group name in common among their own Parms.
+static bool NoGroupIsShared( const vector< string > & container_ids )
+{
+    std::set< string > all;
+    size_t total = 0;
+    for ( int i = 0; i < ( int )container_ids.size(); i++ )
+    {
+        std::set< string > groups = DisplayGroupsOf( container_ids[i] );
+        all.insert( groups.begin(), groups.end() );
+        total += groups.size();
+    }
+    return all.size() == total;
+}
+
+void ParmIndexTestSuite::AGeomsSubsurfacesOfEveryKindAreNumbered()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    vector< string > ss;
+    ss.push_back( vsp::AddSubSurf( pod, vsp::SS_LINE ) );
+    ss.push_back( vsp::AddSubSurf( pod, vsp::SS_ELLIPSE ) );
+    ss.push_back( vsp::AddSubSurf( pod, vsp::SS_LINE ) );
+    ss.push_back( vsp::AddSubSurf( pod, vsp::SS_RECTANGLE ) );
+    ss.push_back( vsp::AddSubSurf( pod, vsp::SS_XSEC_CURVE ) );
+    ss.push_back( vsp::AddSubSurf( pod, vsp::SS_INTERSECT ) );
+
+    //==== Kinds share the SubSurface group, an intersection a cross section curve's: still told apart ====//
+    TEST_ASSERT( NoGroupIsShared( ss ) );
+
+    //==== A kind's own group is still numbered among that kind ====//
+    TEST_ASSERT( vsp::FindParm( pod, "Center_W", "SS_Rectangle_1" ) == vsp::GetParm( ss[3], "Center_W", "SS_Rectangle" ) );
+    TEST_ASSERT( vsp::FindParm( pod, "Center_U", "SS_Ellipse_1" ) == vsp::GetParm( ss[1], "Center_U", "SS_Ellipse" ) );
+
+    //==== Moved to the top, the last takes the first's number ====//
+    string g0 = GroupOf( ss[0] );
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( pod );
+    geom->ReorderSubSurf( ss[3], vsp::REORDER_MOVE_TOP );
+    TEST_ASSERT( GroupOf( ss[3] ) == g0 );
+    TEST_ASSERT( NoGroupIsShared( ss ) );
+
+    //==== And after one is deleted ====//
+    vsp::DeleteSubSurf( pod, ss[1] );
+    ss.erase( ss.begin() + 1 );
+    TEST_ASSERT( NoGroupIsShared( ss ) );
 }

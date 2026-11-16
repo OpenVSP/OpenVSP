@@ -127,6 +127,10 @@ public:
     {
         return m_PolyPntsVec;
     }
+    // Number each group of this subsurface's own Parms by how many of its Geom's subsurfaces, up to this one, have
+    // Parms in that group, as counted in group_count.
+    virtual void SetGroupDisplaySuffixes( unordered_map< string, int > & group_count );
+
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
     virtual void LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj * > & draw_obj_vec, const vec3d &color );
     virtual void SetUpdateDraw( bool flag )
