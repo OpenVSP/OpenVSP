@@ -1238,3 +1238,19 @@ void ParmIndexTestSuite::LinkingAllOfAContainerDrivesEachParmOnce()
         vsp::ErrorMgr.PopLastError();
     }
 }
+
+void ParmIndexTestSuite::TheChangeCountMovesWhenAContainerTakesAParent()
+{
+    ParmContainer top;
+    ParmContainer below;
+    int count = ParmMgr.GetNumParmChanges();
+    below.SetParentContainer( top.GetID() );
+    TEST_ASSERT( ParmMgr.GetNumParmChanges() != count );
+
+    //==== But not when the parent is the one it had ====//
+    count = ParmMgr.GetNumParmChanges();
+    below.SetParentContainer( top.GetID() );
+    TEST_ASSERT( ParmMgr.GetNumParmChanges() == count );
+
+    below.SetParentContainer( string() );
+}

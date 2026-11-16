@@ -52,6 +52,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AContainerNotListedIsLeftOutOfTheWalkAboveIt )
         TEST_ADD( ParmIndexTestSuite::EveryContainerListsExactlyTheParmsUnderIt )
         TEST_ADD( ParmIndexTestSuite::LinkingAllOfAContainerDrivesEachParmOnce )
+        TEST_ADD( ParmIndexTestSuite::TheChangeCountMovesWhenAContainerTakesAParent )
     }
 
 private:
@@ -89,6 +90,7 @@ private:
     void AContainerNotListedIsLeftOutOfTheWalkAboveIt();
     void EveryContainerListsExactlyTheParmsUnderIt();
     void LinkingAllOfAContainerDrivesEachParmOnce();
+    void TheChangeCountMovesWhenAContainerTakesAParent();
 };
 
 #endif

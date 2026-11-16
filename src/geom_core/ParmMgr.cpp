@@ -253,6 +253,9 @@ void ParmMgrSingleton::ParentContainerChanged( ParmContainer* pc, const string &
     {
         m_ChildContainerMap[ new_parent_id ].push_back( pc );
     }
+
+    // What is listed under the containers above both parents has changed.
+    m_NumParmChanges++;
 }
 
 const vector< ParmContainer* > & ParmMgrSingleton::GetChildContainers( const string & id ) const

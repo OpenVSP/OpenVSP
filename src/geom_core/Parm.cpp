@@ -390,9 +390,9 @@ void Parm::DecodeXmlNode( xmlNodePtr n, bool detailed )
 
         if ( detailed )
         {
-            m_Name = XmlUtil::FindStringProp( n, "Name", m_Name );
-            m_GroupName = XmlUtil::FindStringProp( n, "GroupName", m_GroupName );
-            m_GroupDisplaySuffix = XmlUtil::FindIntProp( n, "GroupDisplaySuffix", m_GroupDisplaySuffix );
+            SetName( XmlUtil::FindStringProp( n, "Name", m_Name ) );
+            SetGroupName( XmlUtil::FindStringProp( n, "GroupName", m_GroupName ) );
+            SetGroupDisplaySuffix( XmlUtil::FindIntProp( n, "GroupDisplaySuffix", m_GroupDisplaySuffix ) );
             m_Descript = XmlUtil::FindStringProp( n, "Descript", m_Descript );
             m_Type = XmlUtil::FindIntProp( n, "Type", m_Type );
             m_UpperLimit = XmlUtil::FindDoubleProp( n, "UpperLimit", m_UpperLimit );
