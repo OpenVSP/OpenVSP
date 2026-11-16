@@ -62,6 +62,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AParmIsFoundAsSoonAsItIsMade )
         TEST_ADD( ParmIndexTestSuite::TheContainerListFollowsTheModel )
         TEST_ADD( ParmIndexTestSuite::EveryTopWithParmsIsListed )
+        TEST_ADD( ParmIndexTestSuite::NoCustomScriptIsRunningBetweenCalls )
     }
 
 private:
@@ -109,6 +110,7 @@ private:
     void AParmIsFoundAsSoonAsItIsMade();
     void TheContainerListFollowsTheModel();
     void EveryTopWithParmsIsListed();
+    void NoCustomScriptIsRunningBetweenCalls();
 };
 
 #endif

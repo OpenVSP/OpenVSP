@@ -786,8 +786,8 @@ void CustomGeom::InitGeom( )
 {
     Clear();
     m_InitGeomFlag = true;
-    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Init()" );
-    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void InitGui()" );
+    RunScript( "void Init()" );
+    RunScript( "void InitGui()" );
     SetName( GetScriptModuleName() );
     Update();
 
@@ -833,7 +833,7 @@ vector< GuiUpdate > CustomGeom::GetGuiUpdateVec()
     }
 
     //==== Call Script ====//
-    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void UpdateGui()" );
+    RunScript( "void UpdateGui()" );
 
     return m_UpdateGuiVec;
 }
@@ -880,7 +880,7 @@ void CustomGeom::UpdateSurf()
     CustomGeomMgr.SetCurrCustomGeom( GetID() );
 
     //==== Call Script ====//
-    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void UpdateSurf()" );
+    RunScript( "void UpdateSurf()" );
 }
 
 void CustomGeom::UpdateEndCaps()
@@ -968,6 +968,17 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
     return custom_node;
 }
 
+//==== Run A Function Of This Component's Script ====//
+int CustomGeom::RunScript( const char* function_name, bool arg_flag, double arg )
+{
+    // A script may update another custom component, whose script then runs within this one's.
+    string outer = CustomGeomMgr.GetRunningCustomGeom();
+    CustomGeomMgr.SetRunningCustomGeom( GetID() );
+    int result = ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), function_name, arg_flag, arg );
+    CustomGeomMgr.SetRunningCustomGeom( outer );
+    return result;
+}
+
 //==== Compute Center of Rotation =====//
 void CustomGeom::ComputeCenter()
 {
@@ -980,7 +991,7 @@ void CustomGeom::ComputeCenter()
     CustomGeomMgr.SetCurrCustomGeom( GetID() );
 
     //==== Call Script ====//
-    int success = ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void ComputeCenter()" );
+    int success = RunScript( "void ComputeCenter()" );
 
     if ( success == 0 )
         return;
@@ -1014,5 +1025,5 @@ void CustomGeom::ApplyScale( double currentScale )
     CustomGeomMgr.SetCurrCustomGeom( GetID() );
 
     //==== Call Script ====//
-    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale(double s)", true, currentScale );
+    RunScript( "void Scale(double s)", true, currentScale );
 }

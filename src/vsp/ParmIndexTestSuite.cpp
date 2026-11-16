@@ -36,6 +36,7 @@
 #include "Texture.h"
 #include "MeshCommonSettings.h"
 #include "VSPAEROMgr.h"
+#include "CustomGeom.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
 #include "LinkMgr.h"
@@ -1544,4 +1545,12 @@ void ParmIndexTestSuite::EveryTopWithParmsIsListed()
 
     vsp::VSPRenew();
     TEST_ASSERT( CountTopsNotListed() == 0 );
+}
+
+void ParmIndexTestSuite::NoCustomScriptIsRunningBetweenCalls()
+{
+    vsp::VSPRenew();
+    vsp::AddGeom( "Cone" );
+    vsp::Update();
+    TEST_ASSERT( CustomGeomMgr.GetRunningCustomGeom().empty() );
 }

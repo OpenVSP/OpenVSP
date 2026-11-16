@@ -84,6 +84,10 @@ public:
 
     string GetCurrCustomGeom()                            { return m_CurrGeom; }
 
+    // The custom component whose script is running now, or empty when none is.
+    void SetRunningCustomGeom( const string& id )         { m_RunningGeom = id; }
+    string GetRunningCustomGeom()                         { return m_RunningGeom; }
+
     void ReadCustomScripts( Vehicle* veh );
     vector< GeomType > GetCustomTypes()                    { return m_CustomTypeVec; }
 
@@ -626,6 +630,7 @@ private:
     CustomGeomMgrSingleton& operator=( CustomGeomMgrSingleton const& copy ) = delete; // Not Implemented
 
     string m_CurrGeom;
+    string m_RunningGeom;
     vector< GeomType > m_CustomTypeVec;
     unordered_map< string, string > m_ModuleGeomIDMap;
 
@@ -690,6 +695,9 @@ public:
     void InitGeom( );
     void SetScriptModuleName( const string& name )      { m_ScriptModuleName = name; }
     string GetScriptModuleName()                        { return m_ScriptModuleName; }
+
+    // Run a function of this component's script, as the running custom component.
+    int RunScript( const char* function_name, bool arg_flag = false, double arg = 0.0 );
     void SetDisplayName( const string& name )      { m_DisplayName = name; }
     string GetDisplayName()                        { return m_DisplayName; }
 
