@@ -54,7 +54,7 @@ public:
 /*!
 * Repository for materials.
 */
-class MaterialMgrSingleton : ParmContainer
+class MaterialMgrSingleton : public ParmContainer
 {
 public:
     /*!

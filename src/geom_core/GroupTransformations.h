@@ -17,7 +17,7 @@
 
 class Vehicle;
 
-class GroupTransformations : ParmContainer
+class GroupTransformations : public ParmContainer
 {
 public:
     // Default Constructor
