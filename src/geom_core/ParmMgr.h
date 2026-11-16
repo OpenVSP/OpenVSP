@@ -68,6 +68,9 @@ public:
     Parm* FindParm( const string & id );
     ParmContainer* FindParmContainer( const string & id );
 
+    // Every live container, in no particular order.
+    void GetAllParmContainers( vector< ParmContainer* > & container_vec ) const;
+
     bool ValidateParmMap();
     bool ValidateParmContainerMap();
 

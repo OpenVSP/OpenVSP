@@ -341,3 +341,27 @@ void ParmIndexTestSuite::AContainerWithNoParentIsItsOwnTop()
     TEST_ASSERT( child->GetTopContainer() == child );
     delete child;
 }
+
+void ParmIndexTestSuite::EveryLiveContainerIsListed()
+{
+    BuildEveryKindOfContainer();
+
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+    TEST_ASSERT( !all.empty() );
+
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        TEST_ASSERT( ParmMgr.FindParmContainer( all[i]->GetID() ) == all[i] );
+    }
+
+    //==== One more, and then one fewer ====//
+    ParmContainer* extra = new ParmContainer();
+    vector< ParmContainer* > more;
+    ParmMgr.GetAllParmContainers( more );
+    TEST_ASSERT( more.size() == all.size() + 1 );
+    delete extra;
+    vector< ParmContainer* > fewer;
+    ParmMgr.GetAllParmContainers( fewer );
+    TEST_ASSERT( fewer.size() == all.size() );
+}

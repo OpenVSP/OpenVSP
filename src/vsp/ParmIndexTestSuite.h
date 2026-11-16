@@ -28,6 +28,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::ACustomGeomsCrossSectionsAreNotListed )
         TEST_ADD( ParmIndexTestSuite::TheTopOfANestedCurveIsItsGeom )
         TEST_ADD( ParmIndexTestSuite::AContainerWithNoParentIsItsOwnTop )
+        TEST_ADD( ParmIndexTestSuite::EveryLiveContainerIsListed )
     }
 
 private:
@@ -41,6 +42,7 @@ private:
     void ACustomGeomsCrossSectionsAreNotListed();
     void TheTopOfANestedCurveIsItsGeom();
     void AContainerWithNoParentIsItsOwnTop();
+    void EveryLiveContainerIsListed();
 };
 
 #endif

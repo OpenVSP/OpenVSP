@@ -206,6 +206,18 @@ bool ParmMgrSingleton::ValidateParmContainerMap()
     return pass;
 }
 
+//==== Every Live Container ====//
+void ParmMgrSingleton::GetAllParmContainers( vector< ParmContainer* > & container_vec ) const
+{
+    container_vec.reserve( container_vec.size() + m_ParmContainerMap.size() );
+
+    unordered_map< string, ParmContainer* >::const_iterator iter;
+    for ( iter = m_ParmContainerMap.begin(); iter != m_ParmContainerMap.end(); ++iter )
+    {
+        container_vec.push_back( iter->second );
+    }
+}
+
 //==== Move A Container From One Parent's Children To Another's ====//
 void ParmMgrSingleton::ParentContainerChanged( ParmContainer* pc, const string & old_parent_id,
                                                const string & new_parent_id )
