@@ -1345,7 +1345,7 @@ SSXSecCurve::SSXSecCurve( const string& comp_id, int type, int curve_type ) : Su
 //===== Destructor =====//
 SSXSecCurve::~SSXSecCurve()
 {
-
+    delete m_XSCurve;
 }
 
 void SSXSecCurve::Scale( double currentScale )

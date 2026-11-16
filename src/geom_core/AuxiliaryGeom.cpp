@@ -165,7 +165,7 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 //==== Destructor ====//
 AuxiliaryGeom::~AuxiliaryGeom()
 {
-
+    delete m_XSCurve;
 }
 
 void AuxiliaryGeom::ComputeCenter()

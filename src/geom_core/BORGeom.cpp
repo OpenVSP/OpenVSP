@@ -65,7 +65,7 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 //==== Destructor ====//
 BORGeom::~BORGeom()
 {
-
+    delete m_XSCurve;
 }
 
 // One section is revolved, so the chord is constant: the section's width

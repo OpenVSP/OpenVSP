@@ -6302,7 +6302,11 @@ FeaMaterial::FeaMaterial() : ParmContainer()
 
 FeaMaterial::~FeaMaterial()
 {
-
+    for ( int i = 0; i < ( int )m_LayerVec.size(); i++ )
+    {
+        delete m_LayerVec[i];
+    }
+    m_LayerVec.clear();
 }
 
 void FeaMaterial::Update()
