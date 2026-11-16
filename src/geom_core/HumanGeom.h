@@ -224,6 +224,7 @@ public:
     BoolParm m_RLSymFlag;
 
     Parm m_WristRt;
+    Parm m_WristDevRt;
     Parm m_ForearmRt;
     Parm m_ElbowRt;
     Parm m_ShoulderABADRt;
@@ -237,6 +238,7 @@ public:
     Parm m_AnkleRt;
 
     Parm m_WristLt;
+    Parm m_WristDevLt;
     Parm m_ForearmLt;
     Parm m_ElbowLt;
     Parm m_ShoulderABADLt;
@@ -342,7 +344,7 @@ protected:
     void ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &abad, const double &fe, const double &ie, Matrix4d &T );
     void ComputeShoulderGirdleTrans( const int &ishoulder, const int &ielbow, const Matrix4d &Tbicep, bool mirror, Matrix4d &Tclav, Matrix4d &Tgh );
     void ComputeElbowTrans( const int &ishoulder, const int &ielbow, const int &ihand, const double &ang, Matrix4d &T );
-    void ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, Matrix4d &T );
+    void ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, const double &ang3, Matrix4d &T );
 
     void ComputeHipRefTrans( const int &iwaist, const int &ihip, const int &iknee, Matrix4d &T );
     void ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &abad, const double &fe, const double &ie, Matrix4d &T );

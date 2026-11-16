@@ -161,7 +161,7 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 510, 800, 
     int limbbw = 112;
     int colrw = ( m_PoseLayout.GetW() - 4 + limbbw ) / 2;
     int collw = m_PoseLayout.GetW() - 4 - colrw;
-    int armh = m_PoseLayout.GetStdHeight() * 6 + m_PoseLayout.GetDividerHeight();
+    int armh = m_PoseLayout.GetStdHeight() * 7 + m_PoseLayout.GetDividerHeight();
     int legh = m_PoseLayout.GetStdHeight() * 5 + m_PoseLayout.GetDividerHeight();
 
     m_PoseLayout.AddSubGroupLayout( m_ArmRtLayout, colrw, armh );
@@ -178,9 +178,9 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 510, 800, 
     m_PoseLayout.AddY( legh );
 
     AddArmSliders( m_ArmRtLayout, "Right Arm", limbbw, m_ShoulderABADRtSlider, m_ShoulderFERtSlider, m_ShoulderIERtSlider,
-                   m_ElbowRtSlider, m_ForearmRtSlider, m_WristRtSlider );
+                   m_ElbowRtSlider, m_ForearmRtSlider, m_WristRtSlider, m_WristDevRtSlider );
     AddArmSliders( m_ArmLtLayout, "Left Arm", 0, m_ShoulderABADLtSlider, m_ShoulderFELtSlider, m_ShoulderIELtSlider,
-                   m_ElbowLtSlider, m_ForearmLtSlider, m_WristLtSlider );
+                   m_ElbowLtSlider, m_ForearmLtSlider, m_WristLtSlider, m_WristDevLtSlider );
     AddLegSliders( m_LegRtLayout, "Right Leg", limbbw, m_HipABADRtSlider, m_HipFERtSlider, m_HipIERtSlider, m_KneeRtSlider,
                    m_AnkleRtSlider );
     AddLegSliders( m_LegLtLayout, "Left Leg", 0, m_HipABADLtSlider, m_HipFELtSlider, m_HipIELtSlider, m_KneeLtSlider,
@@ -200,7 +200,7 @@ static const char* LimbLabel( int bw, const char* text )
 // One arm's column of joint sliders, labeled if bw is not 0.
 void HumanGeomScreen::AddArmSliders( GroupLayout &layout, const string &title, int bw, SliderAdjRangeInput &shabad,
                                      SliderAdjRangeInput &shfe, SliderAdjRangeInput &shie, SliderAdjRangeInput &elbow,
-                                     SliderAdjRangeInput &forearm, SliderAdjRangeInput &wrist )
+                                     SliderAdjRangeInput &forearm, SliderAdjRangeInput &wrist, SliderAdjRangeInput &wristdev )
 {
     layout.SetButtonWidth( bw );
     layout.AddDividerBox( title );
@@ -210,6 +210,7 @@ void HumanGeomScreen::AddArmSliders( GroupLayout &layout, const string &title, i
     layout.AddSlider( elbow, LimbLabel( bw, "Elbow" ), 100, "%7.3f" );
     layout.AddSlider( forearm, LimbLabel( bw, "Forearm" ), 100, "%7.3f" );
     layout.AddSlider( wrist, LimbLabel( bw, "Wrist FE" ), 100, "%7.3f" );
+    layout.AddSlider( wristdev, LimbLabel( bw, "Wrist Deviation" ), 100, "%7.3f" );
 }
 
 // One leg's column of joint sliders, labeled if bw is not 0.
@@ -310,6 +311,7 @@ bool HumanGeomScreen::Update()
     m_HeadTiltSlider.Update( human_ptr->m_HeadTilt.GetID() );
 
     m_WristRtSlider.Update( human_ptr->m_WristRt.GetID() );
+    m_WristDevRtSlider.Update( human_ptr->m_WristDevRt.GetID() );
     m_ForearmRtSlider.Update( human_ptr->m_ForearmRt.GetID() );
     m_ElbowRtSlider.Update( human_ptr->m_ElbowRt.GetID() );
     m_ShoulderABADRtSlider.Update( human_ptr->m_ShoulderABADRt.GetID() );
@@ -323,6 +325,7 @@ bool HumanGeomScreen::Update()
     m_AnkleRtSlider.Update( human_ptr->m_AnkleRt.GetID() );
 
     m_WristLtSlider.Update( human_ptr->m_WristLt.GetID() );
+    m_WristDevLtSlider.Update( human_ptr->m_WristDevLt.GetID() );
     m_ForearmLtSlider.Update( human_ptr->m_ForearmLt.GetID() );
     m_ElbowLtSlider.Update( human_ptr->m_ElbowLt.GetID() );
     m_ShoulderABADLtSlider.Update( human_ptr->m_ShoulderABADLt.GetID() );
@@ -341,6 +344,7 @@ bool HumanGeomScreen::Update()
     if( human_ptr->m_RLSymFlag() )
     {
         m_WristLtSlider.Deactivate();
+        m_WristDevLtSlider.Deactivate();
         m_ForearmLtSlider.Deactivate();
         m_ElbowLtSlider.Deactivate();
         m_ShoulderABADLtSlider.Deactivate();

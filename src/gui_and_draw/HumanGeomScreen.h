@@ -33,7 +33,7 @@ public:
 protected:
     void AddArmSliders( GroupLayout &layout, const string &title, int bw, SliderAdjRangeInput &shabad, SliderAdjRangeInput &shfe,
                         SliderAdjRangeInput &shie, SliderAdjRangeInput &elbow, SliderAdjRangeInput &forearm,
-                        SliderAdjRangeInput &wrist );
+                        SliderAdjRangeInput &wrist, SliderAdjRangeInput &wristdev );
     void AddLegSliders( GroupLayout &layout, const string &title, int bw, SliderAdjRangeInput &hipabad, SliderAdjRangeInput &hipfe,
                         SliderAdjRangeInput &hipie, SliderAdjRangeInput &knee, SliderAdjRangeInput &ankle );
 
@@ -89,6 +89,7 @@ protected:
     ToggleButton m_RLSymButton;
 
     SliderAdjRangeInput m_WristRtSlider;
+    SliderAdjRangeInput m_WristDevRtSlider;
     SliderAdjRangeInput m_ForearmRtSlider;
     SliderAdjRangeInput m_ElbowRtSlider;
     SliderAdjRangeInput m_ShoulderABADRtSlider;
@@ -102,6 +103,7 @@ protected:
     SliderAdjRangeInput m_AnkleRtSlider;
 
     SliderAdjRangeInput m_WristLtSlider;
+    SliderAdjRangeInput m_WristDevLtSlider;
     SliderAdjRangeInput m_ForearmLtSlider;
     SliderAdjRangeInput m_ElbowLtSlider;
     SliderAdjRangeInput m_ShoulderABADLtSlider;

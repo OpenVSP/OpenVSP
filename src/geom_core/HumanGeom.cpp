@@ -128,6 +128,8 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_WristRt.Init( "WristRt", "Pose", this, 0.0, -90.0, 80.0 );
     m_WristRt.SetDescript( "Right wrist angle" );
+    m_WristDevRt.Init( "WristDevRt", "Pose", this, 0.0, -20.0, 35.0 );
+    m_WristDevRt.SetDescript( "Right wrist ulnar (+) or radial (-) deviation" );
 
     m_ForearmRt.Init( "ForearmRt", "Pose", this, 0.0, -90.0, 90.0 );
     m_ForearmRt.SetDescript( "Right forearm angle" );
@@ -161,6 +163,8 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_WristLt.Init( "WristLt", "Pose", this, 0.0, -90.0, 80.0 );
     m_WristLt.SetDescript( "Left wrist angle" );
+    m_WristDevLt.Init( "WristDevLt", "Pose", this, 0.0, -20.0, 35.0 );
+    m_WristDevLt.SetDescript( "Left wrist ulnar (+) or radial (-) deviation" );
 
     m_ForearmLt.Init( "ForearmLt", "Pose", this, 0.0, -90.0, 90.0 );
     m_ForearmLt.SetDescript( "Left forearm angle" );
@@ -415,6 +419,7 @@ void HumanGeom::ValidateParms( )
     if ( m_RLSymFlag() )
     {
         m_WristLt = m_WristRt();
+        m_WristDevLt = m_WristDevRt();
         m_ForearmLt = m_ForearmRt();
         m_ElbowLt = m_ElbowRt();
         m_ShoulderABADLt = m_ShoulderABADRt();
@@ -653,7 +658,7 @@ void HumanGeom::UpdateSurf()
     ComputeElbowTrans( RSHOULDER, RELBOW, RWRIST, m_ElbowRt() * M_PI / 180.0, t_rtforearm );
     t_rtforearm.postMult( t_rtbicep );
 
-    ComputeForearmTrans( RELBOW, RWRIST, RWRISTAX, RFINGER, m_ForearmRt() * M_PI / 180.0, -m_WristRt() * M_PI / 180.0, t_rtwrist);
+    ComputeForearmTrans( RELBOW, RWRIST, RWRISTAX, RFINGER, m_ForearmRt() * M_PI / 180.0, -m_WristRt() * M_PI / 180.0, -m_WristDevRt() * M_PI / 180.0, t_rtwrist);
     t_rtwrist.postMult( t_rtforearm );
 
     ComputeShoulderTrans( LSHOULDER, LELBOW, -m_ShoulderABADLt() * M_PI / 180.0, m_ShoulderFELt() * M_PI / 180.0,
@@ -664,7 +669,7 @@ void HumanGeom::UpdateSurf()
     ComputeElbowTrans( LSHOULDER, LELBOW, LWRIST, m_ElbowLt() * M_PI / 180.0, t_ltforearm );
     t_ltforearm.postMult( t_ltbicep );
 
-    ComputeForearmTrans( LELBOW, LWRIST, LWRISTAX, LFINGER, -m_ForearmLt() * M_PI / 180.0, m_WristLt() * M_PI / 180.0, t_ltwrist);
+    ComputeForearmTrans( LELBOW, LWRIST, LWRISTAX, LFINGER, -m_ForearmLt() * M_PI / 180.0, m_WristLt() * M_PI / 180.0, -m_WristDevLt() * M_PI / 180.0, t_ltwrist);
     t_ltwrist.postMult( t_ltforearm );
 
     ComputeHeadTrans( ORIGIN, HEAD, m_Nod() * M_PI / 180.0, m_RotateHead() * M_PI / 180.0, m_HeadTilt() * M_PI / 180.0, t_head );
@@ -1862,7 +1867,7 @@ void HumanGeom::ComputeElbowTrans( const int &ishoulder, const int &ielbow, cons
     T.translatev( -pelbow );
 }
 
-void HumanGeom::ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, Matrix4d &T )
+void HumanGeom::ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, const double &ang3, Matrix4d &T )
 {
     const vec3d &pelbow = m_SkelVerts[ ielbow ];
     const vec3d &pwrist = m_SkelVerts[ iwrist ];
@@ -1874,11 +1879,15 @@ void HumanGeom::ComputeForearmTrans( const int &ielbow, const int &iwrist, const
     vforearm.normalize();
     vwrist.normalize();
 
-    vec3d vhand = pfinger - pwrist;
+    // Deviation turns the hand in the plane of the palm, about the axis normal to it, after
+    // flexion about the wrist's axis.
+    vec3d vdev = cross( vwrist, pfinger - pwrist );
+    vdev.normalize();
 
     T.translatev( pwrist );
     T.rotate( ang, vforearm );
     T.rotate( ang2, vwrist );
+    T.rotate( ang3, vdev );
     T.translatev( -pwrist );
 }
 
