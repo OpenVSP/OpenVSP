@@ -257,6 +257,21 @@ void FeaStructure::ReSuffixGroupNames()
     {
         m_FeaSubSurfVec[i]->SetGroupDisplaySuffix( i );
     }
+
+    // The points of every poly spar, counted across the structure, as they are all listed under it.
+    int npt = 0;
+    for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        FeaPolySpar* spar = dynamic_cast< FeaPolySpar* >( m_FeaPartVec[i] );
+        if ( spar )
+        {
+            vector < PolySparPoint* > pts = spar->GetAllPt();
+            for ( size_t j = 0; j < pts.size(); j++ )
+            {
+                pts[j]->SetGroupDisplaySuffix( npt++ );
+            }
+        }
+    }
 }
 
 FeaPart* FeaStructure::AddFeaPart( int type )
@@ -2985,12 +3000,23 @@ void FeaPolySpar::ComputePlanarSurf()
     }
 }
 
+// The structure numbers every spar's points together.
+void FeaPolySpar::ReSuffixPoints()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_StructID );
+    if ( fea_struct )
+    {
+        fea_struct->ReSuffixGroupNames();
+    }
+}
+
 PolySparPoint* FeaPolySpar::AddPt()
 {
     PolySparPoint *spt = new PolySparPoint();
     spt->SetParentContainer( m_ID );
 
     m_SparPointVec.push_back( spt );
+    ReSuffixPoints();
     return spt;
 }
 
@@ -3002,6 +3028,7 @@ PolySparPoint* FeaPolySpar::InsertPt( int index )
         rpt->SetParentContainer( m_ID );
 
         m_SparPointVec.insert( m_SparPointVec.begin() + index, rpt );
+        ReSuffixPoints();
         return rpt;
     }
     return nullptr;
@@ -3015,6 +3042,7 @@ void FeaPolySpar::DelPt( int index )
         m_SparPointVec.erase( m_SparPointVec.begin() + index );
 
         delete spt;
+        ReSuffixPoints();
     }
 }
 
@@ -3032,6 +3060,7 @@ int FeaPolySpar::MovePt( int index, int reorder_type )
     if ( ValidPtIndex( index ) )
     {
         int newindx = ReorderVectorIndex( m_SparPointVec, index, reorder_type );
+        ReSuffixPoints();
 
         return newindx;
     }

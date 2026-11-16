@@ -430,6 +430,9 @@ public:
 
     virtual PolySparPoint * GetPt( int index );
     virtual vector < PolySparPoint* > GetAllPt()      { return m_SparPointVec; };
+
+    // Number the points' groups, with those of the structure's other spars.
+    void ReSuffixPoints();
     virtual vector < string > GetAllPtIDVec();
 
     virtual bool ValidPtIndex( int index );

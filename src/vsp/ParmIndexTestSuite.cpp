@@ -900,3 +900,35 @@ void ParmIndexTestSuite::AnAssemblysConnectionsAreNumbered()
     vsp::DeleteFeaAssemblyConnection( assy, 0 );
     TEST_ASSERT( GroupOf( c1 ) == gc0 );
 }
+
+void ParmIndexTestSuite::PolySparPointsAreNumberedAcrossTheirStructure()
+{
+    vsp::VSPRenew();
+
+    //==== Two poly spars' points: numbered across the structure they are both listed under ====//
+    string wing = vsp::AddGeom( "WING" );
+    vsp::Update();
+    int ws = vsp::AddFeaStruct( wing );
+    string spar1 = vsp::AddFeaPart( wing, ws, vsp::FEA_POLY_SPAR );
+    string spar2 = vsp::AddFeaPart( wing, ws, vsp::FEA_POLY_SPAR );
+    vector< string > pts = vsp::GetAllFeaPolySparPtIDVec( spar1 );
+    vector< string > pts2 = vsp::GetAllFeaPolySparPtIDVec( spar2 );
+    pts.insert( pts.end(), pts2.begin(), pts2.end() );
+    TEST_ASSERT( pts.size() >= 4 );
+    std::set< string > groups;
+    for ( int i = 0; i < ( int )pts.size(); i++ )
+    {
+        TEST_ASSERT( groups.insert( GroupOf( pts[i] ) ).second );
+    }
+
+    //==== And after a point is taken from the first ====//
+    vsp::DelFeaPolySparPt( spar1, 0 );
+    pts = vsp::GetAllFeaPolySparPtIDVec( spar1 );
+    pts2 = vsp::GetAllFeaPolySparPtIDVec( spar2 );
+    pts.insert( pts.end(), pts2.begin(), pts2.end() );
+    groups.clear();
+    for ( int i = 0; i < ( int )pts.size(); i++ )
+    {
+        TEST_ASSERT( groups.insert( GroupOf( pts[i] ) ).second );
+    }
+}

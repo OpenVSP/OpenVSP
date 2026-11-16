@@ -43,6 +43,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::UnsteadyGroupsAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AMaterialsLayersAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AnAssemblysConnectionsAreNumbered )
+        TEST_ADD( ParmIndexTestSuite::PolySparPointsAreNumberedAcrossTheirStructure )
     }
 
 private:
@@ -71,6 +72,7 @@ private:
     void UnsteadyGroupsAreNumbered();
     void AMaterialsLayersAreNumbered();
     void AnAssemblysConnectionsAreNumbered();
+    void PolySparPointsAreNumberedAcrossTheirStructure();
 };
 
 #endif
