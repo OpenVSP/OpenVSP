@@ -595,10 +595,12 @@ void HumanGeom::UpdateSurf()
 
 
     // Compute pose transformations.
-    Matrix4d t_rtwrist, t_rtforearm, t_rtbicep, t_rtfoot, t_rtshin, t_rtthigh, t_back, t_waist, t_head;
-    Matrix4d t_ltwrist, t_ltforearm, t_ltbicep, t_ltfoot, t_ltshin, t_ltthigh;
+    Matrix4d t_rtwrist, t_rtforearm, t_rtbicep, t_rtclav, t_rtgh, t_rtfoot, t_rtshin, t_rtthigh, t_back, t_waist, t_head;
+    Matrix4d t_ltwrist, t_ltforearm, t_ltbicep, t_ltclav, t_ltgh, t_ltfoot, t_ltshin, t_ltthigh;
 
     ComputeShoulderTrans( RSHOULDER, RELBOW, m_ShoulderABADRt(), m_ShoulderFERt(), t_rtbicep );
+    ComputeShoulderGirdleTrans( RSHOULDER, RELBOW, t_rtbicep, false, t_rtclav, t_rtgh );
+    t_rtbicep.postMult( t_rtgh );
 
     ComputeElbowTrans( RSHOULDER, RELBOW, RWRIST, m_ElbowRt() * M_PI / 180.0, m_ShoulderIERt() * M_PI / 180.0, t_rtforearm );
     t_rtforearm.postMult( t_rtbicep );
@@ -607,6 +609,8 @@ void HumanGeom::UpdateSurf()
     t_rtwrist.postMult( t_rtforearm );
 
     ComputeShoulderTrans( LSHOULDER, LELBOW, -m_ShoulderABADLt(), m_ShoulderFELt(), t_ltbicep );
+    ComputeShoulderGirdleTrans( LSHOULDER, LELBOW, t_ltbicep, true, t_ltclav, t_ltgh );
+    t_ltbicep.postMult( t_ltgh );
 
     ComputeElbowTrans( LSHOULDER, LELBOW, LWRIST, m_ElbowLt() * M_PI / 180.0, -m_ShoulderIELt() * M_PI / 180.0, t_ltforearm );
     t_ltforearm.postMult( t_ltbicep );
@@ -655,11 +659,13 @@ void HumanGeom::UpdateSurf()
     m_PoseSkelVerts[LEYE] = t_head.xform( m_PoseSkelVerts[LEYE] );
     m_PoseSkelVerts[DES_EYE] = t_head.xform( m_PoseSkelVerts[DES_EYE] );
 
+    m_PoseSkelVerts[RSHOULDER] = t_rtclav.xform( m_PoseSkelVerts[RSHOULDER] );
     m_PoseSkelVerts[RELBOW] = t_rtbicep.xform( m_PoseSkelVerts[RELBOW] );
     m_PoseSkelVerts[RWRIST] = t_rtforearm.xform( m_PoseSkelVerts[RWRIST] );
     m_PoseSkelVerts[RWRISTAX] = t_rtforearm.xform( m_PoseSkelVerts[RWRISTAX] );
     m_PoseSkelVerts[RFINGER] = t_rtwrist.xform( m_PoseSkelVerts[RFINGER] );
 
+    m_PoseSkelVerts[LSHOULDER] = t_ltclav.xform( m_PoseSkelVerts[LSHOULDER] );
     m_PoseSkelVerts[LELBOW] = t_ltbicep.xform( m_PoseSkelVerts[LELBOW] );
     m_PoseSkelVerts[LWRIST] = t_ltforearm.xform( m_PoseSkelVerts[LWRIST] );
     m_PoseSkelVerts[LWRISTAX] = t_ltforearm.xform( m_PoseSkelVerts[LWRISTAX] );
@@ -692,11 +698,13 @@ void HumanGeom::UpdateSurf()
     bone_mats[RWRISTBASE] = t_rtforearm;
     bone_mats[RFOREARM] = t_rtforearm;
     bone_mats[RBICEP] = t_rtbicep;
+    bone_mats[RCLAV] = t_rtclav;
 
     bone_mats[LHAND] = t_ltwrist;
     bone_mats[LWRISTBASE] = t_ltforearm;
     bone_mats[LFOREARM] = t_ltforearm;
     bone_mats[LBICEP] = t_ltbicep;
+    bone_mats[LCLAV] = t_ltclav;
 
     bone_mats[RFOOT] = t_rtfoot;
     bone_mats[RSHIN] = t_rtshin;
@@ -1718,6 +1726,99 @@ void HumanGeom::ComputeHeadTrans( const int &iorigin, const int &ihead, const do
     T.rotate( ang, axis );
     T.rotate( ang2, vneck );
     T.translatev( -porigin );
+}
+
+// The shoulder rhythm of the upper extremity model of Holzbaur, Murray and Delp (2005), after
+// de Groot and Brand (2001): the clavicle and scapula turn in proportion to the humerus's
+// elevation from hanging.  In the model's thorax frame (forward, up, right; m): the
+// sternoclavicular joint, the clavicle's axes and rates, the acromioclavicular joint from the
+// sternoclavicular one, the scapula's axes and rates, and the shoulder joint from the
+// acromioclavicular one.
+static const double girdle_150 = 150.0 * M_PI / 180.0;
+static const double girdle_sc[3] = { 0.006325, 0.00693, 0.025465 };
+static const double girdle_sc_axes[2][3] = { { 0.015299995323, 0.989298697571, -0.145099955643 },
+                                             { -0.994472543667, 0.0, -0.10499695182 } };
+static const double girdle_sc_rates[2] = { -0.633555 / girdle_150, 0.322013 / M_PI };
+static const double girdle_ac[3] = { -0.01433, 0.02007, 0.135535 };
+static const double girdle_ac_axes[3][3] = { { 0.157094932444, 0.947268592643, -0.279290879896 },
+                                             { -0.754084039566, 0.297594015615, 0.58548703072 },
+                                             { 0.637699853329, 0.118599972722, 0.761099824947 } };
+static const double girdle_ac_rates[3] = { -0.128282 / girdle_150, 1.03673 / girdle_150, 0.466003 / girdle_150 };
+static const double girdle_gh[3] = { -0.00955, -0.034, 0.009 };
+
+// The shoulder joint, in the model's frame, at elevation elv (radians).
+static vec3d ShoulderGirdle( double elv )
+{
+    Matrix4d Rc;
+    for ( int i = 0; i < 2; i++ )
+    {
+        Rc.rotate( -girdle_sc_rates[i] * elv, vec3d( girdle_sc_axes[i][0], girdle_sc_axes[i][1], girdle_sc_axes[i][2] ) );
+    }
+
+    Matrix4d Rs;
+    for ( int i = 0; i < 3; i++ )
+    {
+        Rs.rotate( -girdle_ac_rates[i] * elv, vec3d( girdle_ac_axes[i][0], girdle_ac_axes[i][1], girdle_ac_axes[i][2] ) );
+    }
+
+    return vec3d( girdle_sc[0], girdle_sc[1], girdle_sc[2] ) +
+           Rc.xformnorm( vec3d( girdle_ac[0], girdle_ac[1], girdle_ac[2] ) ) +
+           Rs.xformnorm( vec3d( girdle_gh[0], girdle_gh[1], girdle_gh[2] ) );
+}
+
+// The shoulder girdle's transform Tclav, and the move Tgh of the shoulder joint, for the arm
+// posed by Tbicep.  The model is scaled by the shoulder joint's distance from the centre plane,
+// and the girdle moves from the default arm's elevation (both angles zero) to the posed one's.
+// The girdle swings about the sternoclavicular joint to point at the moved shoulder joint, and
+// stretches along that line by the change in their distance.
+void HumanGeom::ComputeShoulderGirdleTrans( const int &ishoulder, const int &ielbow, const Matrix4d &Tbicep, bool mirror, Matrix4d &Tclav, Matrix4d &Tgh )
+{
+    const vec3d &pshoulder = m_SkelVerts[ ishoulder ];
+
+    vec3d u = m_SkelVerts[ ielbow ] - pshoulder;
+    u.normalize();
+
+    Matrix4d Tdefault;
+    ComputeShoulderTrans( ishoulder, ielbow, 0.0, 0.0, Tdefault );
+    vec3d u0 = Tdefault.xformnorm( u );
+    vec3d u1 = Tbicep.xformnorm( u );
+
+    double e0 = acos( clamp( -u0.z(), -1.0, 1.0 ) );
+    double e1 = acos( clamp( -u1.z(), -1.0, 1.0 ) );
+
+    vec3d g0 = ShoulderGirdle( e0 );
+    vec3d g1 = ShoulderGirdle( e1 );
+    double scale = std::abs( pshoulder.y() ) / std::abs( ShoulderGirdle( 0.0 ).z() );
+
+    // The model's forward, up and right axes in the Human's frame.
+    double side = 1.0;
+    if ( mirror )
+    {
+        side = -1.0;
+    }
+    Matrix4d G;
+    G.setBasis( vec3d( -1, 0, 0 ), vec3d( 0, 0, 1 ), vec3d( 0, side, 0 ) );
+
+    vec3d sc = pshoulder + G.xformnorm( ( vec3d( girdle_sc[0], girdle_sc[1], girdle_sc[2] ) - g0 ) * scale );
+    vec3d d = G.xformnorm( ( g1 - g0 ) * scale );
+
+    // The smallest rotation from the rest girdle line to the moved one.
+    vec3d a = pshoulder - sc;
+    vec3d b = pshoulder + d - sc;
+    a.normalize();
+    b.normalize();
+    vec3d axis = cross( a, b );
+
+    Tclav.loadIdentity();
+    Tclav.translatev( pshoulder + d );
+    if ( axis.mag() > 1e-15 )
+    {
+        Tclav.rotate( -atan2( axis.mag(), dot( a, b ) ), axis );
+    }
+    Tclav.translatev( -pshoulder );
+
+    Tgh.loadIdentity();
+    Tgh.translatev( d );
 }
 
 void HumanGeom::ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &ang1, const double &ang2, Matrix4d &T )

@@ -339,6 +339,7 @@ protected:
 
     void ComputeHeadTrans( const int &iorigin, const int &ihead, const double &ang, const double &ang2, Matrix4d &T );
     void ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &ang1, const double &ang2, Matrix4d &T );
+    void ComputeShoulderGirdleTrans( const int &ishoulder, const int &ielbow, const Matrix4d &Tbicep, bool mirror, Matrix4d &Tclav, Matrix4d &Tgh );
     void ComputeElbowTrans( const int &ishoulder, const int &ielbow, const int &ihand, const double &ang, const double &ang2, Matrix4d &T );
     void ComputeForearmTrans( const int &ielbow, const int &iwrist, const int &iwristax, const int &ifinger, const double &ang, const double &ang2, Matrix4d &T );
 
