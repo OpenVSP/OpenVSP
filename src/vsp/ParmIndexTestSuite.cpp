@@ -1658,3 +1658,92 @@ void ParmIndexTestSuite::ASubsurfacesCurveIsTaggedAndNumberedWithIt()
     TEST_ASSERT( CurveGroupOf( a ) != CurveGroupOf( b ) );
     TEST_ASSERT( NoTwoShareAName( fuse ) );
 }
+
+// The Parms under every listed container that share a name and display group name with another under it, so that
+// only the first is found by name.  Returns how many, printing each.
+static int CountSharedKeys()
+{
+    int shared = 0;
+    vector< string > containers = vsp::FindContainers();
+    for ( int i = 0; i < ( int )containers.size(); i++ )
+    {
+        std::map< string, int > count;
+        vector< string > ids = vsp::FindContainerParmIDs( containers[i] );
+        for ( int j = 0; j < ( int )ids.size(); j++ )
+        {
+            Parm* p = ParmMgr.FindParm( ids[j] );
+            string key = p->GetDisplayGroupName() + ":" + p->GetName();
+            if ( ++count[ key ] == 2 )
+            {
+                printf( "Shared under %s: %s\n", vsp::GetContainerName( containers[i] ).c_str(), key.c_str() );
+                shared++;
+            }
+        }
+    }
+    return shared;
+}
+
+void ParmIndexTestSuite::EveryListedParmHasItsOwnName()
+{
+    BuildEveryKindOfContainer();
+    TEST_ASSERT( CountSharedKeys() == 0 );
+
+    //==== A second of each kind that is numbered among its kind ====//
+    string fuse = vsp::FindGeomsWithName( "FuselageGeom" )[0];
+    vsp::AddSubSurf( fuse, vsp::SS_XSEC_CURVE );
+    string wing = vsp::FindGeomsWithName( "WingGeom" )[0];
+    string gear = vsp::FindGeomsWithName( "GearGeom" )[0];
+    string route = vsp::FindGeomsWithName( "RoutingGeom" )[0];
+    vsp::AddSubSurf( fuse, vsp::SS_LINE );
+    vsp::AddSubSurf( fuse, vsp::SS_RECTANGLE );
+    vsp::AddSubSurf( fuse, vsp::SS_ELLIPSE );
+    vsp::AddSubSurf( fuse, vsp::SS_FINITE_LINE );
+    vsp::AddSubSurf( wing, vsp::SS_CONTROL );
+    vsp::CreateAndAddBogie( gear );
+    vsp::AddCFDSource( vsp::POINT_SOURCE, fuse, 0, 0.3, 0.2, 0.5, 0.5 );
+    vsp::AttachGeomTexture( fuse, "ParmIndexTexture.png" );
+    vsp::AttachGeomTexture( fuse, "ParmIndexTexture.png" );
+    vsp::AddCpSlice( vsp::Y_DIR, 0.5 );
+    vsp::CreateVSPAEROControlSurfaceGroup();
+
+    int istruct = vsp::AddFeaStruct( wing );
+    string fea = vsp::GetFeaStructID( wing, istruct );
+    string spar1 = vsp::AddFeaPart( wing, istruct, vsp::FEA_POLY_SPAR );
+    string spar2 = vsp::AddFeaPart( wing, istruct, vsp::FEA_POLY_SPAR );
+    vsp::AddFeaPolySparPt( spar1 );
+    vsp::AddFeaPolySparPt( spar2 );
+    vsp::AddFeaPart( wing, istruct, vsp::FEA_RIB );
+    vsp::AddFeaPart( wing, istruct, vsp::FEA_RIB );
+    vsp::AddFeaSubSurf( wing, istruct, vsp::SS_LINE );
+    vsp::AddFeaSubSurf( wing, istruct, vsp::SS_RECTANGLE );
+    vsp::AddFeaSubSurf( wing, istruct, vsp::SS_LINE_ARRAY );
+    vsp::AddFeaSubSurf( wing, istruct, vsp::SS_LINE_ARRAY );
+    vsp::AddFeaBC( fea, vsp::FEA_BC_STRUCTURE );
+    vsp::AddFeaBC( fea, vsp::FEA_BC_STRUCTURE );
+
+    string mat = vsp::AddFeaMaterial();
+    vsp::SetParmVal( mat, "FeaMaterialType", "FeaMaterial", vsp::FEA_LAMINATE );
+    vsp::AddFeaLayer( mat );
+    vsp::AddFeaLayer( mat );
+
+    string a1 = vsp::AddFeaPart( wing, istruct, vsp::FEA_FIX_POINT );
+    string a2 = vsp::AddFeaPart( wing, istruct, vsp::FEA_FIX_POINT );
+    int is2 = vsp::AddFeaStruct( wing );
+    string fea2 = vsp::GetFeaStructID( wing, is2 );
+    string b1 = vsp::AddFeaPart( wing, is2, vsp::FEA_FIX_POINT );
+    string assy = vsp::AddFeaAssembly();
+    vsp::AddFeaAssemblyStructure( assy, fea );
+    vsp::AddFeaAssemblyStructure( assy, fea2 );
+    vsp::AddFeaAssemblyConnection( assy, a1, fea, 0, b1, fea2, 0 );
+    vsp::AddFeaAssemblyConnection( assy, a2, fea, 0, b1, fea2, 0 );
+
+    vsp::AddRoutingPt( route, fuse, 0 );
+    vsp::Update();
+
+    TEST_ASSERT( CountSharedKeys() == 0 );
+
+    while ( vsp::ErrorMgr.GetNumTotalErrors() > 0 )
+    {
+        vsp::ErrorMgr.PopLastError();
+    }
+}
