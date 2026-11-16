@@ -400,13 +400,10 @@ string ParmContainer::FindParm( int group_ind, int parm_ind  )
 }
 
 //==== Find Parm ID Given GroupName and Parm Name ====//
+// The group map may be out of date, so a Parm found there is taken only while it still exists; the API brings the
+// maps up to date first, for the display group names only they hold.
 string ParmContainer::FindParm( const string& parm_name, const string& group_name  )
 {
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();
-    }
-
     string id;
     unordered_map< string, vector< std::pair< string, string > > >::iterator iter;
     iter = m_GroupParmMap.find( group_name );
@@ -417,7 +414,7 @@ string ParmContainer::FindParm( const string& parm_name, const string& group_nam
         const vector< std::pair< string, string > > & pid_vec = iter->second;
         for ( int i = 0 ; i < (int)pid_vec.size() ; i++ )
         {
-            if ( pid_vec[i].second == parm_name )
+            if ( pid_vec[i].second == parm_name && ParmMgr.FindParm( pid_vec[i].first ) )
             {
                 return pid_vec[i].first;
             }
