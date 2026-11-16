@@ -12744,6 +12744,50 @@ extern void HideScreen( int s );
 
 extern void ShowScreen( int s );
 
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Show the GUI's screens as windows of their own or as windows inside the main window, for this session.  The
+    choice saved in Preferences is not changed.  Without the GUI this does nothing.
+    \forcpponly
+    \code{.cpp}
+    SetWindowMode( WINDOW_MODE_CAPTIVE );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetWindowMode( WINDOW_MODE_CAPTIVE )
+    \endcode
+    \endPythonOnly
+    \sa WINDOW_MODE, GetWindowMode
+    \param [in] mode int WINDOW_MODE enum for how the screens are shown
+*/
+
+extern void SetWindowMode( int mode );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get how the GUI's screens are shown: as windows of their own or as windows inside the main window.  Without the
+    GUI, WINDOW_MODE_FREE.
+    \forcpponly
+    \code{.cpp}
+    int mode = GetWindowMode();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    mode = GetWindowMode()
+    \endcode
+    \endPythonOnly
+    \sa WINDOW_MODE, SetWindowMode
+    \return int WINDOW_MODE enum for how the screens are shown
+*/
+
+extern int GetWindowMode();
+
 
 //======================== Geom Functions ================================//
 /*!

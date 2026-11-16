@@ -74,6 +74,9 @@ public:
 
     void HideScreen( int s );
     void ShowScreen( int s );
+
+    void SetWindowMode( int mode );
+    int GetWindowMode();
 };
 
 #endif // !defined(GUIINTERFACE__INCLUDED_)

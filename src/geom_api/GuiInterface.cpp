@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GuiInterface.h"
+#include "APIDefines.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -389,4 +390,25 @@ void GuiInterface::ShowScreen( int s )
         m_ScreenMgr->APIShowScreen( s );
     }
 #endif
+}
+
+void GuiInterface::SetWindowMode( int mode )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->APISetWindowMode( mode );
+    }
+#endif
+}
+
+int GuiInterface::GetWindowMode()
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        return m_ScreenMgr->GetWindowMode();
+    }
+#endif
+    return vsp::WINDOW_MODE_FREE;
 }

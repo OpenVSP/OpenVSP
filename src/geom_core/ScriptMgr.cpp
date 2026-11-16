@@ -4351,6 +4351,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ShowScreen( int s )", asFUNCTION( vsp::ShowScreen ), asCALL_CDECL );
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "void SetWindowMode( int mode )", asFUNCTION( vsp::SetWindowMode ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "int GetWindowMode()", asFUNCTION( vsp::GetWindowMode ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //==== Vehicle Functions ====//
 
     r = se->RegisterGlobalFunction( "int GetAndResetUpdateCount()", asFUNCTION( vsp::GetAndResetUpdateCount ), asCALL_CDECL );

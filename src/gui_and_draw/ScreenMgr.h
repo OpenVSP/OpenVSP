@@ -84,6 +84,10 @@ public:
     void APIHideScreen( int s );
     void APIShowScreen( int s );
 
+    // Change the window mode for this session, from any thread; the preference is left as it is.
+    void APISetWindowModeImplementation( int mode );
+    void APISetWindowMode( int mode );
+
     void APIUpdateGUIImplementation();
     void APIUpdateGUI();
 

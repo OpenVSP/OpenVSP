@@ -4156,6 +4156,30 @@ void ShowScreen( int s )
 #endif
 }
 
+void SetWindowMode( int mode )
+{
+    if ( mode != vsp::WINDOW_MODE_FREE && mode != vsp::WINDOW_MODE_CAPTIVE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetWindowMode::Invalid WINDOW_MODE " + to_string( mode ) );
+        return;
+    }
+
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetWindowMode( mode );
+#endif
+    ErrorMgr.NoError();
+}
+
+int GetWindowMode()
+{
+    ErrorMgr.NoError();
+#ifdef VSP_USE_FLTK
+    return GuiInterface::getInstance().GetWindowMode();
+#else
+    return vsp::WINDOW_MODE_FREE;
+#endif
+}
+
 //===================================================================//
 //===============       Geom Functions            ===================//
 //===================================================================//

@@ -600,6 +600,77 @@ void ScreenMgr::APIShowScreen( int s )
     }
 }
 
+struct WindowModeStruct {
+    int m_Mode;
+    ScreenMgr * m_ScrMgr;
+};
+
+void ScreenMgr::APISetWindowModeImplementation( int mode )
+{
+    SetWindowMode( mode );
+    SetUpdateFlag( true );
+
+    // Set flag that task has been completed.
+    m_TaskComplete = true;
+}
+
+void APISetWindowModeHandler( void * data )
+{
+    WindowModeStruct * wms = ( WindowModeStruct * ) data;
+
+    if ( wms )
+    {
+        ScreenMgr * m_ScreenMgr = wms->m_ScrMgr;
+        if ( m_ScreenMgr )
+        {
+            std::unique_lock lk( m_ScreenMgr->m_TaskMutex );
+
+            m_ScreenMgr->APISetWindowModeImplementation( wms->m_Mode );
+
+            lk.unlock();
+
+            m_ScreenMgr->m_TaskCV.notify_one();
+        }
+
+        delete wms;
+    }
+}
+
+void ScreenMgr::APISetWindowMode( int mode )
+{
+    // Mark that task has not been completed.
+    m_TaskComplete = false;
+
+    if ( MainThreadIDMgr.IsCurrentThreadMain() )
+    {
+        APISetWindowModeImplementation( mode );
+    }
+    else
+    {
+        WindowModeStruct *wms = new WindowModeStruct;
+        wms->m_Mode = mode;
+        wms->m_ScrMgr = this;
+
+        // Queue task to main thread.
+        Fl::awake( APISetWindowModeHandler, ( void* )wms );
+
+        // Release lock to allow main thread to process queue.
+        Fl::unlock();
+
+        // Set up lock and mutex.
+        std::unique_lock lk( m_TaskMutex );
+
+        // Wait for change in task flag.
+        m_TaskCV.wait(lk, [this]
+            {
+                return m_TaskComplete;
+            });
+
+        // Re-acquire lock from main thread.
+        Fl::lock();
+    }
+}
+
 void ScreenMgr::APIUpdateGUIImplementation()
 {
     ForceUpdate();
