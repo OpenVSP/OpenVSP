@@ -8,6 +8,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
+#endif
+
 #include "ParmIndexTestSuite.h"
 #include "VSP_Geom_API.h"
 #include "APIErrorMgr.h"
@@ -21,6 +26,17 @@
 #include "Geom.h"
 #include "GridDensity.h"
 #include "Color.h"
+#include "GearGeom.h"
+#include "XSecSurf.h"
+#include "XSec.h"
+#include "XSecCurve.h"
+#include "PCurve.h"
+#include "RoutingGeom.h"
+#include "Texture.h"
+#include "MeshCommonSettings.h"
+#include "VSPAEROMgr.h"
+
+#include <typeinfo>
 
 #include <string>
 #include <vector>
@@ -80,6 +96,7 @@ static void BuildEveryKindOfContainer()
     vsp::AddFeaAssembly();
 
     //==== Analysis, mesh and measurement containers ====//
+    vsp::GetNumActuatorDisks();
     vsp::CreateVSPAEROControlSurfaceGroup();
     vsp::AutoGroupVSPAEROControlSurfaces();
     vsp::AddCpSlice( vsp::X_DIR, 0.5 );
@@ -503,4 +520,120 @@ void ParmIndexTestSuite::AGeomIsTheParentOfItsSourcesTexturesAndColor()
     {
         vsp::ErrorMgr.PopLastError();
     }
+}
+
+//==== What a container of each nested kind has to sit under ====//
+// The kind of the container at the top of its parents, or empty for a kind that is not nested.
+static string OwnerKind( ParmContainer* pc )
+{
+    if ( dynamic_cast< FeaPart* >( pc ) || dynamic_cast< FeaBC* >( pc ) || dynamic_cast< PolySparPoint* >( pc ) ||
+         dynamic_cast< StructSettings* >( pc ) || dynamic_cast< FeaGridDensity* >( pc ) )
+    {
+        return "FeaStructure";
+    }
+    if ( dynamic_cast< FeaLayer* >( pc ) )
+    {
+        return "FeaMaterial";
+    }
+    if ( dynamic_cast< FeaConnection* >( pc ) || dynamic_cast< AssemblySettings* >( pc ) )
+    {
+        return "FeaAssembly";
+    }
+    if ( dynamic_cast< RotorDisk* >( pc ) || dynamic_cast< ControlSurfaceGroup* >( pc ) ||
+         dynamic_cast< CpSlice* >( pc ) || dynamic_cast< UnsteadyGroup* >( pc ) )
+    {
+        return "VSPAERO";
+    }
+    if ( dynamic_cast< SubSurface* >( pc ) )
+    {
+        return "Geom or FeaStructure";
+    }
+    if ( dynamic_cast< XSecSurf* >( pc ) || dynamic_cast< XSec* >( pc ) || dynamic_cast< XSecCurve* >( pc ) ||
+         dynamic_cast< SkinSpine* >( pc ) || dynamic_cast< PCurve* >( pc ) || dynamic_cast< Bogie* >( pc ) ||
+         dynamic_cast< RoutingPoint* >( pc ) || dynamic_cast< BaseSource* >( pc ) || dynamic_cast< Texture* >( pc ) ||
+         dynamic_cast< Color* >( pc ) )
+    {
+        return "Geom";
+    }
+    return string();
+}
+
+static bool IsKind( ParmContainer* pc, const string & kind )
+{
+    if ( kind == "FeaStructure" )
+    {
+        return dynamic_cast< FeaStructure* >( pc ) != nullptr;
+    }
+    if ( kind == "FeaMaterial" )
+    {
+        return dynamic_cast< FeaMaterial* >( pc ) != nullptr;
+    }
+    if ( kind == "FeaAssembly" )
+    {
+        return dynamic_cast< FeaAssembly* >( pc ) != nullptr;
+    }
+    if ( kind == "VSPAERO" )
+    {
+        return pc == &VSPAEROMgr;
+    }
+    if ( kind == "Geom or FeaStructure" )
+    {
+        return dynamic_cast< Geom* >( pc ) != nullptr || dynamic_cast< FeaStructure* >( pc ) != nullptr;
+    }
+    if ( kind == "Geom" )
+    {
+        return dynamic_cast< Geom* >( pc ) != nullptr;
+    }
+    return false;
+}
+
+// Every live container of a nested kind, other than one copied to a clipboard (at the top of a chain whose
+// parent is "NONE"), climbs to a container of the kind that owns it.  Returns how many failed, printing each.
+static int CountMisplacedContainers()
+{
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+
+    int bad = 0;
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        ParmContainer* pc = all[i];
+        string kind = OwnerKind( pc );
+        ParmContainer* top = pc->GetTopContainer();
+        if ( kind.empty() || top->GetParentContainer() == "NONE" )
+        {
+            continue;
+        }
+
+        if ( top == pc || !IsKind( top, kind ) )
+        {
+            printf( "\n  %s %s \"%s\" (parent \"%s\") sits under %s, not a %s", typeid( *pc ).name(),
+                    pc->GetID().c_str(), pc->GetName().c_str(), pc->GetParentContainer().c_str(),
+                    typeid( *top ).name(), kind.c_str() );
+            bad++;
+        }
+    }
+    return bad;
+}
+
+void ParmIndexTestSuite::EveryNestedContainerSitsUnderItsOwner()
+{
+    BuildEveryKindOfContainer();
+    TEST_ASSERT( vsp::GetNumActuatorDisks() > 0 );
+    TEST_ASSERT( CountMisplacedContainers() == 0 );
+}
+
+void ParmIndexTestSuite::NestedContainersSitUnderTheirOwnerAfterAFileRead()
+{
+    BuildEveryKindOfContainer();
+    vsp::WriteVSPFile( "ParmIndexOwners.vsp3" );
+    vsp::VSPRenew();
+    vsp::ReadVSPFile( "ParmIndexOwners.vsp3" );
+    vsp::Update();
+    TEST_ASSERT( CountMisplacedContainers() == 0 );
+
+    vsp::InsertVSPFile( "ParmIndexOwners.vsp3", string() );
+    vsp::Update();
+    TEST_ASSERT( CountMisplacedContainers() == 0 );
+    TEST_ASSERT( ParmMgr.ValidateChildContainerMap() );
 }

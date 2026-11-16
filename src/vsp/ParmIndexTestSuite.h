@@ -33,6 +33,8 @@ public:
         TEST_ADD( ParmIndexTestSuite::AStructureIsTheParentOfWhatItHolds )
         TEST_ADD( ParmIndexTestSuite::AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold )
         TEST_ADD( ParmIndexTestSuite::AGeomIsTheParentOfItsSourcesTexturesAndColor )
+        TEST_ADD( ParmIndexTestSuite::EveryNestedContainerSitsUnderItsOwner )
+        TEST_ADD( ParmIndexTestSuite::NestedContainersSitUnderTheirOwnerAfterAFileRead )
     }
 
 private:
@@ -51,6 +53,8 @@ private:
     void AStructureIsTheParentOfWhatItHolds();
     void AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold();
     void AGeomIsTheParentOfItsSourcesTexturesAndColor();
+    void EveryNestedContainerSitsUnderItsOwner();
+    void NestedContainersSitUnderTheirOwnerAfterAFileRead();
 };
 
 #endif
