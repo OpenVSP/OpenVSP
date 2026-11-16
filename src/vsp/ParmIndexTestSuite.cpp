@@ -823,3 +823,25 @@ void ParmIndexTestSuite::AGeomsSourcesAreNumbered()
     vsp::DeleteCFDSource( pod, 0 );
     TEST_ASSERT( GroupOf( s1 ) == g0 );
 }
+
+void ParmIndexTestSuite::AGeomsTexturesAreNumbered()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    string t0 = vsp::AttachGeomTexture( pod, "ParmIndexTexture.png" );
+    string t1 = vsp::AttachGeomTexture( pod, "ParmIndexTexture.png" );
+
+    //==== Two on one Geom are in groups of their own ====//
+    TEST_ASSERT( GroupOf( t0 ) != GroupOf( t1 ) );
+
+    //==== Removing the first renumbers the second, taking the first's number ====//
+    string h0 = GroupOf( t0 );
+    vsp::RemoveGeomTexture( pod, t0 );
+    TEST_ASSERT( GroupOf( t1 ) == h0 );
+
+    while ( vsp::ErrorMgr.GetNumTotalErrors() > 0 )
+    {
+        vsp::ErrorMgr.PopLastError();
+    }
+}

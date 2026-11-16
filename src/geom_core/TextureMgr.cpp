@@ -18,7 +18,16 @@ std::string TextureMgr::AttachTexture( const std::string &fileName )
     texture->SetParentContainer( m_OwnerID );
 
     m_TextureList.push_back( texture );
+    ReSuffixGroupNames();
     return texture->GetID(); 
+}
+
+void TextureMgr::ReSuffixGroupNames()
+{
+    for ( int i = 0; i < ( int )m_TextureList.size(); i++ )
+    {
+        m_TextureList[i]->SetGroupDisplaySuffix( i );
+    }
 }
 
 void TextureMgr::SetOwnerID( const std::string &id )
@@ -52,6 +61,7 @@ void TextureMgr::HandTexturesTo( TextureMgr* to )
     // Emptied rather than deleted: the destination owns them now, and this manager's
     // destructor would otherwise free textures that are still in use.
     m_TextureList.clear();
+    to->ReSuffixGroupNames();
 }
 
 void TextureMgr::AppendTexturesTo( TextureMgr* to )
@@ -68,6 +78,7 @@ void TextureMgr::AppendTexturesTo( TextureMgr* to )
     }
 
     m_TextureList.clear();
+    to->ReSuffixGroupNames();
 }
 
 void TextureMgr::RemoveTexture( const std::string &texture_id )
@@ -81,6 +92,7 @@ void TextureMgr::RemoveTexture( const std::string &texture_id )
             break;
         }
     }
+    ReSuffixGroupNames();
 }
 
 Texture * TextureMgr::FindTexture( const std::string &texture_id )

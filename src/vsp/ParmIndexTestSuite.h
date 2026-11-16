@@ -39,6 +39,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AStructuresPartsAreNumberedAsTheyChange )
         TEST_ADD( ParmIndexTestSuite::AGeomsSubsurfacesOfEveryKindAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AGeomsSourcesAreNumbered )
+        TEST_ADD( ParmIndexTestSuite::AGeomsTexturesAreNumbered )
     }
 
 private:
@@ -63,6 +64,7 @@ private:
     void AStructuresPartsAreNumberedAsTheyChange();
     void AGeomsSubsurfacesOfEveryKindAreNumbered();
     void AGeomsSourcesAreNumbered();
+    void AGeomsTexturesAreNumbered();
 };
 
 #endif

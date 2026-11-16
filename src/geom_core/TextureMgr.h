@@ -34,6 +34,11 @@ public:
     virtual void SetOwnerID( const std::string &id );
 
     /*!
+    * Number each texture's group by its place, as they are attached and removed.
+    */
+    void ReSuffixGroupNames();
+
+    /*!
     * Remove one attached texture.  texture_id is the id generated from AttachTexture().
     */
     virtual void RemoveTexture( const std::string &texture_id );
