@@ -52,6 +52,7 @@
 #include "VKTAirfoil.h"
 #include "VSP_Geom_API.h"
 #include "CloneGeom.h"
+#include "CustomGeom.h"
 #include "VSPAEROMgr.h"
 #include "LightMgr.h"
 #include "VspUtil.h"
@@ -101,7 +102,9 @@ Vehicle* GetVehicle()
     return veh;
 }
 
-// Find the pointer to a XSecSurf given its id
+static bool IsHidden( ParmContainer* pc );
+
+// Find the pointer to a XSecSurf given its id; a component's internal one only from its own script
 XSecSurf* FindXSecSurf( const std::string & id )
 {
     Vehicle* veh = GetVehicle();
@@ -116,6 +119,10 @@ XSecSurf* FindXSecSurf( const std::string & id )
             XSecSurf* xsec_surf = gptr->GetXSecSurf( j );
             if ( xsec_surf && ( id == xsec_surf->GetID() ) )
             {
+                if ( IsHidden( xsec_surf ) )
+                {
+                    return nullptr;
+                }
                 return xsec_surf;
             }
         }
@@ -5353,6 +5360,48 @@ int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind )
 }
 
 /// Get of the linkable parms ids for this geometry
+// Whether a container's Parms are hidden from whoever asks.  A container that is not listed, and what is below
+// it, is internal to the component at the top of its parents -- a custom component's cross sections and the
+// subsurfaces its script makes -- and only that component's own script finds its Parms.
+static bool IsHidden( ParmContainer* pc )
+{
+    ParmContainer* c = pc;
+    while ( c && c->GetListedFlag() )
+    {
+        c = c->GetParentContainerPtr();
+    }
+    if ( !c )
+    {
+        return false;
+    }
+
+    ParmContainer* owner = c;
+    for ( ParmContainer* p = c->GetParentContainerPtr(); p; p = p->GetParentContainerPtr() )
+    {
+        owner = p;
+    }
+    return owner->GetID() != CustomGeomMgr.GetRunningCustomGeom();
+}
+
+// A Parm by name among the containers internal to a component -- those below it that are not listed -- as a
+// custom component's script finds its own cross sections' and subsurfaces' Parms through the component.
+static std::string FindInternalParm( ParmContainer* pc, const std::string& parm_name, const std::string& group_name )
+{
+    const vector< ParmContainer* > & children = ParmMgr.GetChildContainers( pc->GetID() );
+    for ( int i = 0; i < ( int )children.size(); i++ )
+    {
+        if ( !children[i]->GetListedFlag() )
+        {
+            std::string parm_id = ParmMgr.FindParmUnder( children[i], parm_name, group_name );
+            if ( !parm_id.empty() )
+            {
+                return parm_id;
+            }
+        }
+    }
+    return std::string();
+}
+
 std::vector< std::string > GetGeomParmIDs( const std::string & geom_id )
 {
     std::vector< std::string > parm_vec;
@@ -6175,7 +6224,7 @@ std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id )
 
     Vehicle* veh = GetVehicle();
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
-    if ( !ss_ptr )
+    if ( !ss_ptr || IsHidden( ss_ptr ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "GetSubSurfParmIDs::Can't Find SubSurface " + sub_id );
         return parm_vec;
@@ -9374,6 +9423,12 @@ std::string GetXSecSurf( const std::string & geom_id, int index )
         return std::string();
     }
 
+    if ( IsHidden( xsec_surf ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetXSecSurf::XSecSurf Index " + to_string( ( long long )index ) + " of Geom " + geom_id + " is internal to it" );
+        return std::string();
+    }
+
     ErrorMgr.NoError();
     return xsec_surf->GetID();
 }
@@ -9391,7 +9446,11 @@ std::vector < std::string > GetXSecSurfIDVec( const std::string & geom_id )
 
     for ( int i = 0; i < geom_ptr->GetNumXSecSurfs(); i++ )
     {
-        ret_vec.push_back( geom_ptr->GetXSecSurf( i )->GetID() );
+        XSecSurf* xsec_surf = geom_ptr->GetXSecSurf( i );
+        if ( !IsHidden( xsec_surf ) )
+        {
+            ret_vec.push_back( xsec_surf->GetID() );
+        }
     }
 
     ErrorMgr.NoError();
@@ -9925,7 +9984,7 @@ std::vector< std::string > GetXSecParmIDs( const std::string & xsec_id )
     std::vector< std::string > parm_vec;
 
     XSec* xs = FindXSec( xsec_id );
-    if ( !xs )
+    if ( !xs || IsHidden( xs ) )
     {
         ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecParmIDs::Can't Find XSec " + xsec_id );
         return parm_vec;
@@ -9942,7 +10001,7 @@ std::vector< std::string > GetXSecParmIDs( const std::string & xsec_id )
 std::string GetXSecParm( const std::string& xsec_id, const std::string& name )
 {
     XSec* xs = FindXSec( xsec_id );
-    if ( !xs )
+    if ( !xs || IsHidden( xs ) )
     {
         ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecParm::Can't Find XSec " + xsec_id );
         return std::string();
@@ -14826,13 +14885,17 @@ static std::string FindParmImpl( const std::string & parm_container_id, const st
 {
     ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
 
-    if ( !pc )
+    if ( !pc || IsHidden( pc ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Parm Container " + parm_container_id );
         return std::string();
     }
 
    std::string parm_id = ParmMgr.FindParmUnder( pc, parm_name, group_name );
+   if ( parm_id.empty() && pc->GetID() == CustomGeomMgr.GetRunningCustomGeom() )
+   {
+       parm_id = FindInternalParm( pc, parm_name, group_name );
+   }
    Parm* p = ParmMgr.FindParm( parm_id );
    if ( !p )
    {
@@ -14956,7 +15019,7 @@ std::vector< std::string > FindContainerGroupNames( const std::string & parm_con
 
     ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
 
-    if ( !pc )
+    if ( !pc || IsHidden( pc ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerGroupNames::Can't Find Parm Container " + parm_container_id );
         return ret_names;
@@ -14974,7 +15037,7 @@ std::vector< std::string > FindContainerParmIDs( const std::string & parm_contai
 
     ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
 
-    if ( !pc )
+    if ( !pc || IsHidden( pc ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerParmIDs::Can't Find Parm Container " + parm_container_id );
         return parm_vec;

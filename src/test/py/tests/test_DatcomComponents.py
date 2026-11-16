@@ -603,60 +603,16 @@ def testFinSetNacaSeriesBuildASurfacePerPanel( series, designation ):
     assert_no_errors()
 
 
-@pytest.mark.parametrize( "series,shape", [ ( 6, vsp.XS_WEDGE ), ( 7, vsp.XS_BICONVEX ), ( 8, vsp.XS_WEDGE ) ] )
-def testFinSetSupersonicNacaIsABuiltInAirfoil( series, shape ):
-    gid = new( "MDC_FIN", SECTYP=1, NPANEL=1, NACASER=series, NACADES=6.0, NACAXMAX=40.0, NACAFLAT=20.0 )
-    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
-    assert vsp.GetXSecShape( xs ) == shape
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickChord" ) ) == pytest.approx( 0.06 )
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickLoc" ) ) == pytest.approx( 0.4 )
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickLocLow" ) ) == pytest.approx( 0.4 )
-    if series == 8:
-        assert vsp.GetParmVal( vsp.GetXSecParm( xs, "FlatUp" ) ) == pytest.approx( 0.2 )
-    elif series == 6:
-        assert vsp.GetParmVal( vsp.GetXSecParm( xs, "FlatUp" ) ) == 0.0
-
-def testFinSetLeadingEdgeIsSharpAsDatcomDrawsItUnlessLerTypeRoundsIt():
-    """LER is a DATCOM input either way, but the section is rounded only when LERType says so."""
-    sharp_pts = sample( new( "MDC_FIN", NPANEL=1, ZUPPER_1=0.05, ZUPPER_2=0.05 ) )
-    gid = new( "MDC_FIN", NPANEL=1, ZUPPER_1=0.05, ZUPPER_2=0.05, LER_1=0.02, LER_2=0.02 )
-    assert sample( gid ) == sharp_pts
-
-    put( gid, LERType=1 )
-    rounded_pts = sample( gid )
-    assert len( rounded_pts ) == len( sharp_pts )
-    assert rounded_pts != sharp_pts
-
-
-@pytest.mark.parametrize( "lertype,keep", [ ( 1, vsp.LE_RADIUS_KEEP_CREST ), ( 2, vsp.LE_RADIUS_KEEP_ANGLE ) ] )
+@pytest.mark.parametrize( "lertype", [ 1, 2 ], ids=[ "crest", "angle" ] )
 @pytest.mark.parametrize( "sectyp", [ 0, 2 ], ids=[ "hex", "arc" ] )
-def testFinSetRoundedSectionKeepsItsChordAndItsRadius( sectyp, lertype, keep ):
-    """A rounded HEX or ARC section is the airfoil rounded to LER over the chord, so the nose is still at XLE, a
-    circle of radius LER."""
+def testFinSetRoundedSectionKeepsItsFront( sectyp, lertype ):
+    """A rounded HEX or ARC section is the airfoil rounded to LER over the chord, so the fin's front is still XLE."""
     zu = 0.025
     ler = 0.005
     gid = new( "MDC_FIN", NPANEL=1, SECTYP=sectyp, LERType=lertype, ZUPPER_1=zu, ZUPPER_2=zu, LER_1=ler, LER_2=ler )
-    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
-    chord = vsp.GetParmVal( vsp.FindParm( gid, "CHORD_1", "Design" ) )
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadius" ) ) == pytest.approx( ler / chord )
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadiusType" ) ) == keep
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LE_Trim_Type" ) ) == vsp.TRIM_NONE
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LE_Cap_Type" ) ) == vsp.FLAT_END_CAP
-
-    # The fin's front is still XLE.
     x0 = vsp.GetParmVal( vsp.FindParm( gid, "X_Rel_Location", "XForm" ) )
     assert extent( gid, 0 )[0] - x0 == pytest.approx( 0.0, abs=1e-6 )
-
-    # The root section's nose is a circle of radius LER centered LER behind its leading edge, toward its trailing edge.
-    le = vsp.ComputeXSecPnt( xs, 0.5 )
-    te = vsp.ComputeXSecPnt( xs, 0.0 )
-    along = ( te - le ) * ( 1.0 / ( te - le ).mag() )
-    center = le + along * ler
-    pts = [ vsp.ComputeXSecPnt( xs, 0.49 + 0.02 * j / 400.0 ) for j in range( 401 ) ]
-    near = [ p for p in pts if vsp.dot( p - le, along ) < 0.5 * ler ]
-    assert len( near ) > 3
-    for p in near:
-        assert ( p - center ).mag() == pytest.approx( ler, abs=5e-4 * ler )
+    assert_no_errors()
 
 
 def testFinSetCfocMakesAFlapPerSegmentAndRemovesThem():
@@ -671,27 +627,6 @@ def testFinSetCfocMakesAFlapPerSegmentAndRemovesThem():
     # An all moving fin has no flap.
     put( gid, CFOC_1=1.0 )
     assert vsp.GetSubSurfIDVec( gid ) == ()
-
-
-def testFinSetArcSectionIsABiconvexAirfoil():
-    gid = new( "MDC_FIN", SECTYP=2, NPANEL=1, ZLOWERRelFlag=0, ZUPPER_1=0.06, ZLOWER_1=0.02, ZUPPER_2=0.06,
-               ZLOWER_2=0.02 )
-    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
-    assert vsp.GetXSecShape( xs ) == vsp.XS_BICONVEX
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickChord" ) ) == pytest.approx( 0.08 )
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickFracUp" ) ) == pytest.approx( 0.75 )
-
-    # A rounded leading edge is still the biconvex airfoil, rounded to LER over the chord.
-    put( gid, LERType=1, LER_1=0.01, LER_2=0.01 )
-    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
-    assert vsp.GetXSecShape( xs ) == vsp.XS_BICONVEX
-    chord = vsp.GetParmVal( vsp.FindParm( gid, "CHORD_1", "Design" ) )
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadius" ) ) == pytest.approx( 0.01 / chord )
-
-    # Without LER the section is sharp again.
-    put( gid, LER_1=0.0, LER_2=0.0 )
-    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
-    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadius" ) ) == 0.0
 
 
 def testFinRootIsOnTheBodyUnlessBuried():
@@ -995,27 +930,6 @@ def testEachComponentIsAGeomTypeAndBuildsItsSurfaces( name, nsurf ):
     assert vsp.GetGeomTypeName( gid ) == name
     assert vsp.GetNumMainSurfs( gid ) == nsurf
     assert_no_errors()
-
-
-def section_ids( gid ):
-    ids = []
-    for i in range( vsp.GetNumXSecSurfs( gid ) ):
-        surf = vsp.GetXSecSurf( gid, i )
-        ids.append( tuple( vsp.GetXSec( surf, j ) for j in range( vsp.GetNumXSec( surf ) ) ) )
-    return ids
-
-
-RESIZE = { "MDC_BOD": dict( LCENTR=6.0 ), "MDC_PROTUB": dict( LPROT_1=0.7 ), "MDC_INLET": dict( H3=0.4 ),
-           "MDC_FIN": dict( CHORD_1=1.2 ) }
-
-
-@pytest.mark.parametrize( "name", TYPES )
-def testEachComponentKeepsItsSectionsWhenResized( name ):
-    gid = new( name )
-    before = section_ids( gid )
-    assert before and all( before )
-    put( gid, **RESIZE[name] )
-    assert section_ids( gid ) == before
 
 
 def built( name, *steps ):

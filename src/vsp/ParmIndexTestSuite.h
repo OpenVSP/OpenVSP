@@ -26,6 +26,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AContainersChildrenHaveNoParentOnceItIsGone )
         TEST_ADD( ParmIndexTestSuite::AParentThatWouldMakeALoopIsRefused )
         TEST_ADD( ParmIndexTestSuite::ACustomGeomsCrossSectionsAreNotListed )
+        TEST_ADD( ParmIndexTestSuite::ADatcomComponentKeepsItsSectionsWhenResized )
         TEST_ADD( ParmIndexTestSuite::TheTopOfANestedCurveIsItsGeom )
         TEST_ADD( ParmIndexTestSuite::AContainerWithNoParentIsItsOwnTop )
         TEST_ADD( ParmIndexTestSuite::EveryLiveContainerIsListed )
@@ -74,6 +75,7 @@ private:
     void AContainersChildrenHaveNoParentOnceItIsGone();
     void AParentThatWouldMakeALoopIsRefused();
     void ACustomGeomsCrossSectionsAreNotListed();
+    void ADatcomComponentKeepsItsSectionsWhenResized();
     void TheTopOfANestedCurveIsItsGeom();
     void AContainerWithNoParentIsItsOwnTop();
     void EveryLiveContainerIsListed();

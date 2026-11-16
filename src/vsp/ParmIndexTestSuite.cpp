@@ -316,19 +316,68 @@ void ParmIndexTestSuite::AParentThatWouldMakeALoopIsRefused()
     TEST_ASSERT( ParmMgr.ValidateChildContainerMap() );
 }
 
+// A Geom's cross section surface, read in C++: the API keeps a component's internal ones from outside callers.
+static XSecSurf* GeomXSecSurf( const string & geom_id, int index )
+{
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( geom_id );
+    if ( !geom )
+    {
+        return nullptr;
+    }
+    return geom->GetXSecSurf( index );
+}
+
 void ParmIndexTestSuite::ACustomGeomsCrossSectionsAreNotListed()
 {
     vsp::VSPRenew();
     string cone = vsp::AddGeom( "Cone" );
     string fuse = vsp::AddGeom( "FUSELAGE" );
     vsp::Update();
-    TEST_ASSERT( !ParmMgr.FindParmContainer( vsp::GetXSecSurf( cone, 0 ) )->GetListedFlag() );
-    TEST_ASSERT( ParmMgr.FindParmContainer( vsp::GetXSecSurf( fuse, 0 ) )->GetListedFlag() );
+    TEST_ASSERT( !GeomXSecSurf( cone, 0 )->GetListedFlag() );
+    TEST_ASSERT( GeomXSecSurf( fuse, 0 )->GetListedFlag() );
 
     //==== Still not listed after the script makes them again ====//
     vsp::SetParmVal( cone, "Height", "Design", 3.0 );
     vsp::Update();
-    TEST_ASSERT( !ParmMgr.FindParmContainer( vsp::GetXSecSurf( cone, 0 ) )->GetListedFlag() );
+    TEST_ASSERT( !GeomXSecSurf( cone, 0 )->GetListedFlag() );
+}
+
+// The IDs of each of a Geom's cross sections, surface by surface.
+static vector < string > GeomXSecIDs( const string & geom_id )
+{
+    vector < string > ids;
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( geom_id );
+    for ( int i = 0; geom && i < geom->GetNumXSecSurfs(); i++ )
+    {
+        XSecSurf* xss = geom->GetXSecSurf( i );
+        ids.push_back( xss->GetID() );
+        for ( int j = 0; j < xss->NumXSec(); j++ )
+        {
+            ids.push_back( xss->FindXSec( j )->GetID() );
+        }
+    }
+    return ids;
+}
+
+void ParmIndexTestSuite::ADatcomComponentKeepsItsSectionsWhenResized()
+{
+    const char* types[] = { "MDC_BOD", "MDC_PROTUB", "MDC_INLET", "MDC_FIN" };
+    const char* lengths[] = { "LCENTR", "LPROT_1", "H3", "CHORD_1" };
+    const double vals[] = { 6.0, 0.7, 0.4, 1.2 };
+    for ( int i = 0; i < 4; i++ )
+    {
+        vsp::VSPRenew();
+        string gid = vsp::AddGeom( types[i] );
+        vsp::Update();
+        vector < string > before = GeomXSecIDs( gid );
+        TEST_ASSERT( !before.empty() );
+
+        string pid = vsp::FindParm( gid, lengths[i], "Design" );
+        TEST_ASSERT( !pid.empty() );
+        vsp::SetParmVal( pid, vals[i] );
+        vsp::Update();
+        TEST_ASSERT( GeomXSecIDs( gid ) == before );
+    }
 }
 
 void ParmIndexTestSuite::TheTopOfANestedCurveIsItsGeom()
@@ -349,10 +398,10 @@ void ParmIndexTestSuite::TheTopOfANestedCurveIsItsGeom()
     //==== A Custom Geom's: the cross section surface, which is not listed ====//
     string cone = vsp::AddGeom( "Cone" );
     vsp::Update();
-    string cxss = vsp::GetXSecSurf( cone, 0 );
-    XSec* cxs = dynamic_cast< XSec* >( ParmMgr.FindParmContainer( vsp::GetXSec( cxss, 1 ) ) );
+    XSecSurf* cxss = GeomXSecSurf( cone, 0 );
+    XSec* cxs = cxss->FindXSec( 1 );
     Parm* cparm = ParmMgr.FindParm( cxs->GetXSecCurve()->GetWidthParmID() );
-    TEST_ASSERT( cparm->GetContainer()->GetTopContainer() == ParmMgr.FindParmContainer( cxss ) );
+    TEST_ASSERT( cparm->GetContainer()->GetTopContainer() == cxss );
 
     //==== And a subsurface ====//
     string ss = vsp::AddSubSurf( fuse, vsp::SS_ELLIPSE );
