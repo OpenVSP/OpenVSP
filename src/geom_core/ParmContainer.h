@@ -52,6 +52,10 @@ public:
     virtual string GetParentContainer() const       { return m_ParentContainer; }
     virtual ParmContainer* GetParentContainerPtr() const;
 
+    // The container at the top of this one's chain of parents, or the first that is not listed: itself when it
+    // has none, or is not listed itself.
+    ParmContainer* GetTopContainer();
+
     // Whether this container is listed under the containers above it.  One that is not -- a Custom Geom's cross
     // section surface, which its script builds again on each update and which is never saved, so its Parms do
     // not last to be linked to -- is the top of its own Parms.

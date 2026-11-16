@@ -13,6 +13,7 @@
 #include "APIDefines.h"
 #include "ParmMgr.h"
 #include "ParmContainer.h"
+#include "Parm.h"
 
 #include <string>
 #include <vector>
@@ -294,4 +295,49 @@ void ParmIndexTestSuite::ACustomGeomsCrossSectionsAreNotListed()
     vsp::SetParmVal( cone, "Height", "Design", 3.0 );
     vsp::Update();
     TEST_ASSERT( !ParmMgr.FindParmContainer( vsp::GetXSecSurf( cone, 0 ) )->GetListedFlag() );
+}
+
+void ParmIndexTestSuite::TheTopOfANestedCurveIsItsGeom()
+{
+    vsp::VSPRenew();
+    string fuse = vsp::AddGeom( "FUSELAGE" );
+    vsp::Update();
+
+    //==== A cross section's curve, two levels below the Geom's cross section surface ====//
+    string xs = vsp::GetXSec( vsp::GetXSecSurf( fuse, 0 ), 1 );
+    Parm* width = ParmMgr.FindParm( vsp::GetXSecParm( xs, "Ellipse_Width" ) );
+    TEST_ASSERT( width != nullptr );
+    ParmContainer* curve = width->GetContainer();
+    TEST_ASSERT( curve != nullptr );
+    TEST_ASSERT( curve->GetID() != fuse );
+    TEST_ASSERT( curve->GetTopContainer() == ParmMgr.FindParmContainer( fuse ) );
+
+    //==== A Custom Geom's: the cross section surface, which is not listed ====//
+    string cone = vsp::AddGeom( "Cone" );
+    vsp::Update();
+    string cxss = vsp::GetXSecSurf( cone, 0 );
+    XSec* cxs = dynamic_cast< XSec* >( ParmMgr.FindParmContainer( vsp::GetXSec( cxss, 1 ) ) );
+    Parm* cparm = ParmMgr.FindParm( cxs->GetXSecCurve()->GetWidthParmID() );
+    TEST_ASSERT( cparm->GetContainer()->GetTopContainer() == ParmMgr.FindParmContainer( cxss ) );
+
+    //==== And a subsurface ====//
+    string ss = vsp::AddSubSurf( fuse, vsp::SS_ELLIPSE );
+    TEST_ASSERT( ParmMgr.FindParmContainer( ss )->GetTopContainer() == ParmMgr.FindParmContainer( fuse ) );
+}
+
+void ParmIndexTestSuite::AContainerWithNoParentIsItsOwnTop()
+{
+    vsp::VSPRenew();
+    string fuse = vsp::AddGeom( "FUSELAGE" );
+    ParmContainer* geom = ParmMgr.FindParmContainer( fuse );
+    TEST_ASSERT( geom->GetTopContainer() == geom );
+
+    //==== A parent that is gone is no parent ====//
+    ParmContainer* parent = new ParmContainer();
+    ParmContainer* child = new ParmContainer();
+    child->SetParentContainer( parent->GetID() );
+    TEST_ASSERT( child->GetTopContainer() == parent );
+    delete parent;
+    TEST_ASSERT( child->GetTopContainer() == child );
+    delete child;
 }

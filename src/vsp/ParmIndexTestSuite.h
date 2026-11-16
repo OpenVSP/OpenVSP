@@ -26,6 +26,8 @@ public:
         TEST_ADD( ParmIndexTestSuite::AContainersChildrenHaveNoParentOnceItIsGone )
         TEST_ADD( ParmIndexTestSuite::AParentThatWouldMakeALoopIsRefused )
         TEST_ADD( ParmIndexTestSuite::ACustomGeomsCrossSectionsAreNotListed )
+        TEST_ADD( ParmIndexTestSuite::TheTopOfANestedCurveIsItsGeom )
+        TEST_ADD( ParmIndexTestSuite::AContainerWithNoParentIsItsOwnTop )
     }
 
 private:
@@ -37,6 +39,8 @@ private:
     void AContainersChildrenHaveNoParentOnceItIsGone();
     void AParentThatWouldMakeALoopIsRefused();
     void ACustomGeomsCrossSectionsAreNotListed();
+    void TheTopOfANestedCurveIsItsGeom();
+    void AContainerWithNoParentIsItsOwnTop();
 };
 
 #endif

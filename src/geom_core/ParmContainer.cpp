@@ -151,6 +151,17 @@ ParmContainer* ParmContainer::GetParentContainerPtr() const
     return ParmMgr.FindParmContainer( m_ParentContainer );
 }
 
+//==== Climb The Parents To The Top ====//
+ParmContainer* ParmContainer::GetTopContainer()
+{
+    ParmContainer* top = this;
+    for ( ParmContainer* p = GetParentContainerPtr(); p && top->GetListedFlag(); p = p->GetParentContainerPtr() )
+    {
+        top = p;
+    }
+    return top;
+}
+
 void ParmContainer::SetListedFlag( bool flag )
 {
     if ( flag != m_ListedFlag )
