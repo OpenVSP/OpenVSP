@@ -7140,6 +7140,15 @@ void Geom::DelCurrSource()
         }
     }
     m_MainSourceVec = tmpVec;
+    ReSuffixSourceGroupNames();
+}
+
+void Geom::ReSuffixSourceGroupNames()
+{
+    for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
+    {
+        m_MainSourceVec[i]->SetGroupDisplaySuffix( i );
+    }
 }
 
 void Geom::UpdateSources()

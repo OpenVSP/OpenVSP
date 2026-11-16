@@ -806,3 +806,20 @@ void ParmIndexTestSuite::AGeomsSubsurfacesOfEveryKindAreNumbered()
     ss.erase( ss.begin() + 1 );
     TEST_ASSERT( NoGroupIsShared( ss ) );
 }
+
+void ParmIndexTestSuite::AGeomsSourcesAreNumbered()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    string s0 = vsp::AddCFDSource( vsp::POINT_SOURCE, pod, 0, 0.1, 0.2, 0.3, 0.5 );
+    string s1 = vsp::AddCFDSource( vsp::POINT_SOURCE, pod, 0, 0.2, 0.2, 0.3, 0.5 );
+
+    //==== Two on one Geom are in groups of their own ====//
+    TEST_ASSERT( GroupOf( s0 ) != GroupOf( s1 ) );
+
+    //==== Removing the first renumbers the second, taking the first's number ====//
+    string g0 = GroupOf( s0 );
+    vsp::DeleteCFDSource( pod, 0 );
+    TEST_ASSERT( GroupOf( s1 ) == g0 );
+}

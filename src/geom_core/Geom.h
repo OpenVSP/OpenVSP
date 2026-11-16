@@ -1011,7 +1011,11 @@ public:
     {
         source->SetParentContainer( m_ID );
         m_MainSourceVec.push_back( source );
+        ReSuffixSourceGroupNames();
     }
+
+    // Number each source's group by its place, as they are added and removed.
+    void ReSuffixSourceGroupNames();
     virtual vector< BaseSource* > GetCfdMeshMainSourceVec()
     {
         return m_MainSourceVec;

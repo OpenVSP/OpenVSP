@@ -38,6 +38,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AParmIsUnderItsOwnerAtOnce )
         TEST_ADD( ParmIndexTestSuite::AStructuresPartsAreNumberedAsTheyChange )
         TEST_ADD( ParmIndexTestSuite::AGeomsSubsurfacesOfEveryKindAreNumbered )
+        TEST_ADD( ParmIndexTestSuite::AGeomsSourcesAreNumbered )
     }
 
 private:
@@ -61,6 +62,7 @@ private:
     void AParmIsUnderItsOwnerAtOnce();
     void AStructuresPartsAreNumberedAsTheyChange();
     void AGeomsSubsurfacesOfEveryKindAreNumbered();
+    void AGeomsSourcesAreNumbered();
 };
 
 #endif
