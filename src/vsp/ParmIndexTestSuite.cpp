@@ -868,6 +868,33 @@ void ParmIndexTestSuite::AGearsBogiesAreNumbered()
     TEST_ASSERT( !vsp::FindParm( bogies[0], "NumAcross", "Bogie" ).empty() );
 }
 
+void ParmIndexTestSuite::ARoutesPointsAreNumbered()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    string route = vsp::AddGeom( "ROUTING" );
+    vsp::Update();
+    vector< string > pts;
+    for ( int i = 0; i < 3; i++ )
+    {
+        pts.push_back( vsp::AddRoutingPt( route, pod, 0 ) );
+    }
+    TEST_ASSERT( NoGroupIsShared( pts ) );
+
+    //==== Moving the last to the top gives it the first's number ====//
+    string g0 = GroupOf( pts[0] );
+    vsp::MoveRoutingPt( route, 2, vsp::REORDER_MOVE_TOP );
+    TEST_ASSERT( GroupOf( pts[2] ) == g0 );
+    TEST_ASSERT( NoGroupIsShared( pts ) );
+
+    //==== Inserted at the top, and one removed ====//
+    pts.push_back( vsp::InsertRoutingPt( route, 0, pod, 0 ) );
+    TEST_ASSERT( GroupOf( pts.back() ) == g0 );
+    vsp::DelRoutingPt( route, 1 );
+    pts.erase( pts.begin() + 2 );
+    TEST_ASSERT( NoGroupIsShared( pts ) );
+}
+
 void ParmIndexTestSuite::UnsteadyGroupsAreNumbered()
 {
     vsp::VSPRenew();

@@ -147,6 +147,9 @@ public:
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void UpdateParents();
+
+    // Number each point's group by its place, as they are added, removed and moved.
+    void ReSuffixPoints();
     virtual void GetDependencyIDs( vector< string > &ids );
 
     virtual void ComputeCenter();

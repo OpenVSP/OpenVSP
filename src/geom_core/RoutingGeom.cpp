@@ -839,6 +839,7 @@ RoutingPoint* RoutingGeom::AddPt()
     rpt->SetParentContainer( m_ID );
 
     m_RoutingPointVec.push_back( rpt );
+    ReSuffixPoints();
     UpdateParents();
     return rpt;
 }
@@ -852,10 +853,19 @@ RoutingPoint* RoutingGeom::InsertPt( int index )
         rpt->SetParentContainer( m_ID );
 
         m_RoutingPointVec.insert( m_RoutingPointVec.begin() + index, rpt );
+        ReSuffixPoints();
         UpdateParents();
         return rpt;
     }
     return nullptr;
+}
+
+void RoutingGeom::ReSuffixPoints()
+{
+    for ( int i = 0; i < ( int )m_RoutingPointVec.size(); i++ )
+    {
+        m_RoutingPointVec[i]->SetGroupDisplaySuffix( i );
+    }
 }
 
 void RoutingGeom::DelPt( int index )
@@ -864,6 +874,7 @@ void RoutingGeom::DelPt( int index )
     {
         RoutingPoint *rpt = m_RoutingPointVec[ index ];
         m_RoutingPointVec.erase( m_RoutingPointVec.begin() + index );
+        ReSuffixPoints();
         UpdateParents();
         delete rpt;
     }
@@ -884,6 +895,7 @@ int RoutingGeom::MovePt( int index, int reorder_type )
     if ( index >= 0 && index < m_RoutingPointVec.size() )
     {
         int newindx = ReorderVectorIndex( m_RoutingPointVec, index, reorder_type );
+        ReSuffixPoints();
         UpdateParents();
         return newindx;
     }
