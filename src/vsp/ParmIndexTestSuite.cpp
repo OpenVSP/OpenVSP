@@ -1465,3 +1465,43 @@ void ParmIndexTestSuite::AParmIsFoundAsSoonAsItIsMade()
         TEST_ASSERT( !vsp::FindParm( ss, "Const_Line_Value", "SubSurface" ).empty() );
     }
 }
+
+static bool Contains( const vector< string > & vec, const string & val )
+{
+    return std::find( vec.begin(), vec.end(), val ) != vec.end();
+}
+
+void ParmIndexTestSuite::TheContainerListFollowsTheModel()
+{
+    vsp::VSPRenew();
+    string a = vsp::AddGeom( "POD" );
+    TEST_ASSERT( Contains( vsp::FindContainers(), a ) );
+
+    string b = vsp::AddGeom( "POD" );
+    vector< string > containers = vsp::FindContainers();
+    TEST_ASSERT( Contains( containers, b ) );
+    TEST_ASSERT( std::set< string >( containers.begin(), containers.end() ).size() == containers.size() );
+
+    vsp::DeleteGeom( a );
+    TEST_ASSERT( !Contains( vsp::FindContainers(), a ) );
+
+    //==== A Geom held on the clipboard is not in the model ====//
+    vsp::CopyGeomToClipboard( b );
+    containers = vsp::FindContainers();
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+    int geoms = 0;
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        if ( dynamic_cast< Geom* >( all[i] ) && all[i]->GetID() != b )
+        {
+            TEST_ASSERT( !Contains( containers, all[i]->GetID() ) );
+            geoms++;
+        }
+    }
+    TEST_ASSERT( geoms >= 1 );
+
+    //==== Pasted, it is ====//
+    vector< string > pasted = vsp::PasteGeomClipboard();
+    TEST_ASSERT( pasted.size() == 1 && Contains( vsp::FindContainers(), pasted[0] ) );
+}

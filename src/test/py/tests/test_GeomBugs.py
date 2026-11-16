@@ -761,8 +761,8 @@ def testAParmCanBeFoundByNameAndGroupAfterAFileLoad():
 
     ParmContainer::DecodeXml builds the group-to-Parm map before decoding the Parms, and
     decoding a Parm remaps its ID, so every entry in that map named an ID that no longer
-    existed.  A container walked as part of the linkable set has its map rebuilt by
-    LinkMgr::BuildLinkableParmData and never noticed; a subsurface, a cross section, a texture,
+    existed.  A container walked as part of the linkable set had its map rebuilt by the global
+    rebuild of linkable Parms and never noticed; a subsurface, a cross section, a texture,
     a mesh source, a bogie or a routing point kept the stale map for the life of the model.
 
     The symptom was that a Parm readable from a model just built was unreadable from the same

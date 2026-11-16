@@ -159,10 +159,6 @@ bool ParmLinkScreen::Update()
     BasicScreen::Update();
 
     LinkMgr.CheckLinks();
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();
-    }
     Link* currLink = LinkMgr.GetCurrLink();
 
     m_ParmAPicker.SetParmChoice( currLink->GetParmA() );

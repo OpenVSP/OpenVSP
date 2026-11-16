@@ -118,7 +118,6 @@ void Parm::SetName( const string & name )
     {
         m_Name = name;
         ParmMgr.IncNumParmChanges();
-        ParmMgr.SetDirtyFlag( true );
     }
 }
 
@@ -128,7 +127,6 @@ void Parm::SetGroupName( const string & name )
     {
         m_GroupName = name;
         ParmMgr.IncNumParmChanges();
-        ParmMgr.SetDirtyFlag( true );
     }
 }
 
@@ -138,7 +136,6 @@ void Parm::SetGroupAlias( const string & alias )
     {
         m_GroupAlias = alias;
         ParmMgr.IncNumParmChanges();
-        ParmMgr.SetDirtyFlag( true );
     }
 }
 
@@ -148,7 +145,6 @@ void Parm::SetGroupDisplaySuffix( int num )
     {
         m_GroupDisplaySuffix = num;
         ParmMgr.IncNumParmChanges();
-        ParmMgr.SetDirtyFlag( true );
     }
 }
 

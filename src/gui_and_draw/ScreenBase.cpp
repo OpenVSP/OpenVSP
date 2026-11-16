@@ -5866,7 +5866,6 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             xs->SetGroupAlias( m_XSecNameInput.GetString() );
         }
-        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_XSecCurveNameInput )
     {
@@ -5885,7 +5884,6 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 xsc->SetGroupAlias( m_XSecCurveNameInput.GetString() );
             }
         }
-        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_CopyXSecCurve )
     {
@@ -5894,7 +5892,6 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_PasteXSecCurve )
     {
         xsec_geom_ptr->PasteXSecCurve( xsec_geom_ptr->m_ActiveXSec() );
-        ParmMgr.SetDirtyFlag( true );
     }
     else if (gui_device == &m_XSecTypeChoice)
     {
@@ -6881,7 +6878,6 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 xsc->SetGroupAlias( m_SkinXSecCurveNameInput.GetString() );
             }
         }
-        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_ClearSkinningButton )
     {
@@ -7549,7 +7545,6 @@ void ChevronScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 xsc->SetGroupAlias( m_ChevronXSecCurveNameInput.GetString() );
             }
         }
-        ParmMgr.SetDirtyFlag( true );
     }
 
 }
@@ -8013,8 +8008,6 @@ void BlendScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 xsc->SetGroupAlias( m_BlendXSecCurveNameInput.GetString() );
             }
         }
-
-        ParmMgr.SetDirtyFlag( true );
     }
     XSecScreen::GuiDeviceCallBack( gui_device );
 }

@@ -60,6 +60,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AContainersOwnParmIsFoundFirst )
         TEST_ADD( ParmIndexTestSuite::AContainersOwnParmIsFoundByItsGroupName )
         TEST_ADD( ParmIndexTestSuite::AParmIsFoundAsSoonAsItIsMade )
+        TEST_ADD( ParmIndexTestSuite::TheContainerListFollowsTheModel )
     }
 
 private:
@@ -105,6 +106,7 @@ private:
     void AContainersOwnParmIsFoundFirst();
     void AContainersOwnParmIsFoundByItsGroupName();
     void AParmIsFoundAsSoonAsItIsMade();
+    void TheContainerListFollowsTheModel();
 };
 
 #endif

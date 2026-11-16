@@ -66,8 +66,6 @@ private:
     int m_NumParmChanges;
     int m_ChangeCnt;
 
-    bool m_DirtyFlag;
-
 public:
     static ParmMgrSingleton& getInstance()
     {
@@ -127,9 +125,6 @@ public:
     //=== Get Container, Group and Parm Name Given Parm ID ====//
     void GetNames( const string& parm_id, string& container_name, string& group_name, string& parm_name );
     void GetNames( const string& parm_id, string& container_name, string& group_name, string& group_alias, string& parm_name );
-
-    bool GetDirtyFlag()                     { return m_DirtyFlag; }
-    void SetDirtyFlag( bool flag )          { m_DirtyFlag = flag; }
 
 };
 

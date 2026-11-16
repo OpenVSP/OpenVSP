@@ -14857,10 +14857,6 @@ std::string FindParm( const std::string & parm_container_id, const std::string& 
 std::vector< std::string > FindContainers()
 {
     std::vector< std::string > containerVec;
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();
-    }
     LinkMgr.GetAllContainerVec( containerVec );
 
     ErrorMgr.NoError();
@@ -14871,10 +14867,6 @@ std::vector< std::string > FindContainersWithName( const std::string & name )
 {
     std::vector< std::string > containerVec;
     std::vector< std::string > ret_vec;
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();
-    }
     LinkMgr.GetAllContainerVec( containerVec );
 
     for ( int i = 0 ; i < ( int )containerVec.size() ; i++ )
@@ -14894,10 +14886,6 @@ std::string FindContainer( const std::string & name, int index )
 {
     std::vector< std::string > containerVec;
     std::vector< std::string > id_vec;
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        LinkMgr.BuildLinkableParmData();
-    }
     LinkMgr.GetAllContainerVec( containerVec );
 
     for ( int i = 0 ; i < ( int )containerVec.size() ; i++ )

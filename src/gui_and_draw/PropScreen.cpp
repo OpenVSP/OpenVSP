@@ -1350,7 +1350,6 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 xsc->SetGroupAlias( m_ModXSecCurveNameInput.GetString() );
             }
         }
-        ParmMgr.SetDirtyFlag( true );
     }
 
     XSecScreen::GuiDeviceCallBack( gui_device );

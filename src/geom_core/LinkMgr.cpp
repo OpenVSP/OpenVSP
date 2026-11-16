@@ -79,7 +79,6 @@ void LinkMgrSingleton::Wype()
     m_UpdatedParmVec = vector< string >();
 
     m_BaseLinkableContainers = vector< string >();
-    m_LinkableContainers = vector< string >();
 }
 
 void LinkMgrSingleton::Renew()
@@ -592,10 +591,11 @@ void LinkMgrSingleton::SetParm( bool flagA, string parm_id )
 
 ParmContainer* LinkMgrSingleton::FindParmContainer( int index )
 {
-    if ( index >= 0 && index < ( int )m_LinkableContainers.size() )
+    vector< string > container_ids;
+    GetAllContainerVec( container_ids );
+    if ( index >= 0 && index < ( int )container_ids.size() )
     {
-        string id = m_LinkableContainers[index];
-        return ParmMgr.FindParmContainer( id );
+        return ParmMgr.FindParmContainer( container_ids[index] );
     }
 
     return nullptr;
@@ -645,31 +645,18 @@ string LinkMgrSingleton::PickParm( int container_ind, int group_ind, int parm_in
     return pid;
 }
 
-//==== Find All Linkable Containers and Parms ====//
-void LinkMgrSingleton::BuildLinkableParmData()
+//==== The Containers Listed At The Top ====//
+void LinkMgrSingleton::GetAllContainerVec( vector< string > & idVec )
 {
-    //==== Check If Any Parms Have Added/Removed From Last Build ====//
-    static int build_linkable_stamp = 0;
-    if ( ParmMgr.GetNumParmChanges() == build_linkable_stamp )
-    {
-        return;
-    }
-
-    build_linkable_stamp = ParmMgr.GetNumParmChanges();
-
-    m_LinkableContainers.clear();
-
+    idVec.clear();
     for ( int i = 0 ; i < ( int )m_BaseLinkableContainers.size() ; i++ )
     {
         ParmContainer* pc = ParmMgr.FindParmContainer( m_BaseLinkableContainers[i] );
         if ( pc )
         {
-            //==== Find All Linkable Containers (Children of Base Container) And Parms ===//
-            pc->AddTopContainerIDs( m_LinkableContainers );
+            pc->AddTopContainerIDs( idVec );
         }
     }
-
-    ParmMgr.SetDirtyFlag( false );
 }
 
 //==== Get Container Name Vec And Find Match Index For Parm_ID ====//
@@ -677,10 +664,8 @@ int LinkMgrSingleton::GetCurrContainerVec( const string& parm_id, vector< string
 {
     int index = 0;
 
-    if ( ParmMgr.GetDirtyFlag() )
-    {
-        BuildLinkableParmData();
-    }
+    vector< string > container_ids;
+    GetAllContainerVec( container_ids );
 
     //==== Find Container ID ====//
     string curr_container_id;
@@ -691,14 +676,14 @@ int LinkMgrSingleton::GetCurrContainerVec( const string& parm_id, vector< string
     }
 
     //==== Find Index And Load Container Names ===//
-    for ( int i = 0 ; i < ( int )m_LinkableContainers.size() ; i++ )
+    for ( int i = 0 ; i < ( int )container_ids.size() ; i++ )
     {
-        if ( m_LinkableContainers[i] == curr_container_id )
+        if ( container_ids[i] == curr_container_id )
         {
             index = i;
         }
 
-        ParmContainer* pc = ParmMgr.FindParmContainer( m_LinkableContainers[i] );
+        ParmContainer* pc = ParmMgr.FindParmContainer( container_ids[i] );
 
         string name;
         if ( pc )

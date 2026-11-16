@@ -916,7 +916,6 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             wing_sect->SetGroupAlias( m_SectNameInput.GetString() );
         }
-        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_AfModXSecCurveNameInput )
     {
@@ -930,7 +929,6 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 xsc->SetGroupAlias( m_AfModXSecCurveNameInput.GetString() );
             }
         }
-        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_SplitSectButton )
     {
@@ -949,7 +947,6 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_PasteSectButton )
     {
         wing_ptr->PasteActiveXSec();
-        ParmMgr.SetDirtyFlag( true );
     }
     else if ( gui_device == &m_InsertSectButton )
     {

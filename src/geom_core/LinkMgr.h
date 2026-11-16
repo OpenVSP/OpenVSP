@@ -65,7 +65,6 @@ public:
     virtual void RegisterContainer( const string & id );        // Register Base Containers
     virtual void UnRegisterContainer( const string & id );
     virtual bool CheckContainerRegistered( const string & id );
-    virtual void BuildLinkableParmData();                       // Build A List of Linkable Containers And Parms
 
     ParmContainer* FindParmContainer( int index );              // Given Index Return Linkable Parm Container
 
@@ -86,10 +85,8 @@ public:
     int GetCurrGroupNameVec( const string& parm_id, vector< string > & nameVec );
     int GetCurrParmIDVec( const string& parm_id, vector< string > & idVec );
 
-    void GetAllContainerVec( vector< string > & idVec )
-    {
-        idVec = m_LinkableContainers;
-    }
+    // The containers listed at the top, from those registered and the containers each keeps beside it.
+    void GetAllContainerVec( vector< string > & idVec );
 
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -127,7 +124,6 @@ private:
     vector< string > m_UpdatedParmVec;      // Keep Track Of Linked Parm To Prevent Circular Links
 
     vector< string > m_BaseLinkableContainers;              // Base Registered Parm Containers
-    vector< string > m_LinkableContainers;                  // All valid Linkable Container
 
     int m_NumPredefinedUserParms;
     UserParmContainer m_UserParms;                              // User Defined Parms

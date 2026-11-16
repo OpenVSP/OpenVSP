@@ -275,8 +275,7 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
 
     xmlNodePtr gnode;
 
-    LoadGroupParmVec( m_ParmVec, false );
-    ParmMgr.IncNumParmChanges();
+    LoadGroupParmVec( m_ParmVec );
 
     // Write groups in name order.  m_GroupParmMap's iteration order depends on
     // its history, so it differs between a new and a reloaded model.
@@ -323,8 +322,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
         SetName( XmlUtil::FindString(  child_node, "Name", m_Name ) );
     }
 
-    LoadGroupParmVec( m_ParmVec, false );
-    ParmMgr.IncNumParmChanges();
+    LoadGroupParmVec( m_ParmVec );
 
     unordered_map< string, xmlNodePtr > group_nodes = XmlUtil::GetNodeMap( child_node );
 
@@ -351,22 +349,9 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
     }
     m_AttrCollection.DecodeXml( child_node );
 
-    // Built again, because the map built above is now stale.  Decoding a Parm remaps its ID,
-    // so every entry put in before the loop names a Parm ID that no longer exists.  A container
-    // that is walked as part of the linkable set has its map rebuilt by
-    // LinkMgr::BuildLinkableParmData and never notices; every other container -- a subsurface,
-    // a cross section, a texture, a mesh source, a bogie, a routing point, an FEA part -- keeps
-    // the stale map for the life of the model, and FindParm( id, name, group ) answers nothing
-    // on it.  That is why those Parms can be read from a model just built and not from the same
-    // model reopened.  The call above the loop is not redundant: that one builds the map the
-    // loop walks to find each group's node, so it has to come first and this has to come after.
-    LoadGroupParmVec( m_ParmVec, false );
-
-    // Paired with the rebuild, the same way the call above the loop is.  LoadGroupParmVec sets
-    // the dirty flag, but BuildLinkableParmData gates on the change COUNT and only lowers the
-    // flag once it has done some work -- so a flag raised without a count to go with it is
-    // never lowered, and every FindParm after this calls in only to be turned away.
-    ParmMgr.IncNumParmChanges();
+    // Built again: decoding a Parm can give it a new ID, so the map built above, which the loop walks to
+    // find each group's node, may name IDs that no longer exist.
+    LoadGroupParmVec( m_ParmVec );
 
     return child_node;
 
@@ -379,7 +364,7 @@ bool ParmNameCompare( const std::pair< string, string >& a, const std::pair< str
 }
 
 //==== Load Parm Vec, Find Groups And Sort ====//
-void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec, bool displaynames )
+void ParmContainer::LoadGroupParmVec( const vector< string > & parm_vec )
 {
     m_GroupNames.clear();
     m_GroupParmMap.clear();
@@ -391,15 +376,7 @@ void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec, bool displayn
         Parm* p = ParmMgr.FindParm( pid );
         if ( p )
         {
-            string group_name;
-            if( displaynames )
-            {
-                group_name = p->GetDisplayGroupName();
-            }
-            else
-            {
-                group_name = p->GetGroupName();
-            }
+            const string & group_name = p->GetGroupName();
 
             m_GroupParmMap[group_name].push_back( std::pair< string, string > ( pid, p->GetName() ) );
         }
@@ -416,25 +393,15 @@ void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec, bool displayn
     {
         return StringUtil::natural_compare( a, b ) < 0;
     } );
-
-    // Rebuild Parm Links. Could also call LinkMgr.BuildLinkableParmData(), but this allows the links 
-    // to just be rebuild once after this function is iteratively called when saving or loading a model.
-    ParmMgr.SetDirtyFlag( true );
-}
-
-void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec )
-{
-    LoadGroupParmVec( parm_vec, true );
 }
 
 void ParmContainer::UpdateGroupParmMap()
 {
-    LoadGroupParmVec( m_ParmVec, false );
+    LoadGroupParmVec( m_ParmVec );
 }
 
 //==== Find Parm ID Given GroupName and Parm Name ====//
-// The group map may be out of date, so a Parm found there is taken only while it still exists; the API brings the
-// maps up to date first, for the display group names only they hold.
+// The group map may be out of date, so a Parm found there is taken only while it still exists.
 string ParmContainer::FindParm( const string& parm_name, const string& group_name  )
 {
     string id;
@@ -490,14 +457,6 @@ string ParmContainer::FindParm( const string& parm_name  )
 
 void ParmContainer::AddTopContainerIDs( vector< string > & container_ids )
 {
-    //==== Find Linkable Parms For This Container ====//
-    vector< string > linkable_parm_vec;
-    AddLinkableParms( linkable_parm_vec );
-
-    //==== Sort Parms By Name And Find Groups ====//
-    LoadGroupParmVec( linkable_parm_vec );
-
-    //==== Add This Container To Vector Of Linkable Containers ====//
     container_ids.push_back( m_ID );
 }
 
