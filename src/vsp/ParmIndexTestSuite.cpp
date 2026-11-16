@@ -875,3 +875,28 @@ void ParmIndexTestSuite::AMaterialsLayersAreNumbered()
     vsp::DeleteFeaLayer( mat, l0 );
     TEST_ASSERT( GroupOf( l1 ) == gl0 );
 }
+
+void ParmIndexTestSuite::AnAssemblysConnectionsAreNumbered()
+{
+    vsp::VSPRenew();
+
+    //==== An assembly's connections ====//
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    int s1 = vsp::AddFeaStruct( pod );
+    int s2 = vsp::AddFeaStruct( pod );
+    string id1 = vsp::GetFeaStructID( pod, s1 );
+    string id2 = vsp::GetFeaStructID( pod, s2 );
+    string a1 = vsp::AddFeaPart( pod, s1, vsp::FEA_FIX_POINT );
+    string a2 = vsp::AddFeaPart( pod, s1, vsp::FEA_FIX_POINT );
+    string b1 = vsp::AddFeaPart( pod, s2, vsp::FEA_FIX_POINT );
+    string assy = vsp::AddFeaAssembly();
+    vsp::AddFeaAssemblyStructure( assy, id1 );
+    vsp::AddFeaAssemblyStructure( assy, id2 );
+    string c0 = vsp::AddFeaAssemblyConnection( assy, a1, id1, 0, b1, id2, 0 );
+    string c1 = vsp::AddFeaAssemblyConnection( assy, a2, id1, 0, b1, id2, 0 );
+    string gc0 = GroupOf( c0 );
+    TEST_ASSERT( gc0 != GroupOf( c1 ) );
+    vsp::DeleteFeaAssemblyConnection( assy, 0 );
+    TEST_ASSERT( GroupOf( c1 ) == gc0 );
+}

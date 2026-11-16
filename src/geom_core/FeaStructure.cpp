@@ -7983,6 +7983,7 @@ xmlNodePtr FeaAssembly::DecodeXml( xmlNodePtr & assy_node )
                     conn->DecodeXml( n );
                     conn->SetParentContainer( GetID() );
                     m_ConnectionVec.push_back( conn );
+                    ReSuffixConnections();
                 }
             }
         }
@@ -8048,6 +8049,7 @@ void FeaAssembly::AddConnection( const string &startid, const string &startstruc
 
         conn->SetParentContainer( GetID() );
         m_ConnectionVec.push_back( conn );
+        ReSuffixConnections();
     }
 }
 
@@ -8061,6 +8063,15 @@ void FeaAssembly::DelConnection( int index )
             delete con;
         }
         m_ConnectionVec.erase( m_ConnectionVec.begin() + index );
+        ReSuffixConnections();
+    }
+}
+
+void FeaAssembly::ReSuffixConnections()
+{
+    for ( int i = 0; i < ( int )m_ConnectionVec.size(); i++ )
+    {
+        m_ConnectionVec[i]->SetGroupDisplaySuffix( i );
     }
 }
 

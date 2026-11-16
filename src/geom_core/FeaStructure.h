@@ -980,6 +980,9 @@ public:
                                 const string &endid, const string &endstructid, int endindx );
     virtual void DelConnection( int index );
 
+    // Number each connection's group by its place, as they are added and removed.
+    void ReSuffixConnections();
+
     virtual void ResetExportFileNames();
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
