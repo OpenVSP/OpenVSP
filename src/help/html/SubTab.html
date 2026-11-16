@@ -441,5 +441,19 @@ SS_XsecCurve</td>
 </tr>
 </tbody>
 </table>
+<p>These are the groups found through the sub-surface's own ID, from
+<code>AddSubSurf</code> or <code>GetSubSurfIDVec</code>. Through the
+Geom's ID the groups are numbered from 1, so that each sub-surface's
+Parms have names of their own. The groups every type has -- SubSurface,
+ParasiteDragProps and FeaSubSurface -- take the sub-surface's place
+among the Geom's sub-surfaces: <code>SubSurface_2</code> is the second
+sub-surface's. A type's own group takes its count among that type:
+<code>SS_Rectangle_1</code> is the first Rectangle's. An Intersect's
+SS_XsecCurve group is counted with the XSec_Curve sub-surfaces', and the
+groups of either one's curve take that number with an <code>SS_</code>
+prefix: <code>SS_XSecCurve_1</code>, <code>SS_Close_1</code> and the
+rest. Moving, adding or deleting a sub-surface renumbers them. Through
+the sub-surface's own ID its curve's Parms keep the curve's own groups,
+such as XSecCurve and Close.</p>
 </body>
 </html>

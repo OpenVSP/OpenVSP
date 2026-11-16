@@ -16736,7 +16736,8 @@ extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, 
     // Note: through the Geom's ID, SubSurface Parm groups are numbered from 1.  The groups every type has --
     // "SubSurface", "ParasiteDragProps" and "FeaSubSurface" -- take the subsurface's place among the Geom's
     // subsurfaces; an SS_LINE's own Parms are in "SubSurface".  A type's own group, "SS_" + type, takes its count
-    // among that type, and SS_INTERSECT's "SS_XsecCurve" is counted with SS_XSEC_CURVE's.
+    // among that type, and SS_INTERSECT's "SS_XsecCurve" is counted with SS_XSEC_CURVE's.  The groups of their
+    // curves take that SS_XsecCurve number with an "SS_" prefix: "SS_XSecCurve_1", "SS_Close_1" and the rest.
     string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
 
     SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 );     // Change Location
@@ -16755,7 +16756,8 @@ extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, 
     # Note: through the Geom's ID, SubSurface Parm groups are numbered from 1.  The groups every type has --
     # "SubSurface", "ParasiteDragProps" and "FeaSubSurface" -- take the subsurface's place among the Geom's
     # subsurfaces; an SS_LINE's own Parms are in "SubSurface".  A type's own group, "SS_" + type, takes its count
-    # among that type, and SS_INTERSECT's "SS_XsecCurve" is counted with SS_XSEC_CURVE's.
+    # among that type, and SS_INTERSECT's "SS_XsecCurve" is counted with SS_XSEC_CURVE's.  The groups of their
+    # curves take that SS_XsecCurve number with an "SS_" prefix: "SS_XSecCurve_1", "SS_Close_1" and the rest.
     ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
 
     SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 )     # Change Location

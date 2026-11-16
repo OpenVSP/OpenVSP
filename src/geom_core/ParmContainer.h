@@ -69,6 +69,9 @@ public:
     // Number the groups of this container's Parms, so that two of a kind held together are told apart.
     virtual void SetGroupDisplaySuffix( int num );
 
+    // Put a prefix in front of the display group names of this container's Parms.
+    void SetGroupDisplayPrefix( const string & prefix );
+
     virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }
     virtual int GetLatestChangeCnt();
 

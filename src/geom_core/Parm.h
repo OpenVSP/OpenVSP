@@ -46,6 +46,11 @@ public:
     virtual string GetGroupAlias()                   { return m_GroupAlias; }
     virtual void SetGroupAlias( const string & alias );
     virtual void SetGroupDisplaySuffix( int num );
+    int GetGroupDisplaySuffix() const                 { return m_GroupDisplaySuffix; }
+
+    // Put in front of the group name in the display group name, to tell apart groups of the same name held by
+    // different kinds of container.
+    void SetGroupDisplayPrefix( const string & prefix );
 
     static string GetDisplayGroupName( const string & group_name, const string & group_tag = string(), const int & group_suffix = -1 );
     virtual string GetDisplayGroupName( bool include_alias = true );
@@ -187,6 +192,7 @@ protected:
     string m_GroupName;
     string m_GroupAlias;
     int m_GroupDisplaySuffix;
+    string m_GroupDisplayPrefix;
     ParmContainer* m_Container;
     int m_ChangeCnt;
 

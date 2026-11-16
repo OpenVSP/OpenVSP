@@ -205,6 +205,18 @@ void ParmContainer::SetGroupDisplaySuffix( int num )
     }
 }
 
+void ParmContainer::SetGroupDisplayPrefix( const string & prefix )
+{
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplayPrefix( prefix );
+        }
+    }
+}
+
 //==== Create A Unique ID  =====//
 string ParmContainer::GenerateID()
 {

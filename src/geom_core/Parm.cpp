@@ -148,6 +148,15 @@ void Parm::SetGroupDisplaySuffix( int num )
     }
 }
 
+void Parm::SetGroupDisplayPrefix( const string & prefix )
+{
+    if ( prefix != m_GroupDisplayPrefix )
+    {
+        m_GroupDisplayPrefix = prefix;
+        ParmMgr.IncNumParmChanges();
+    }
+}
+
 //==== Get Display Group Name ====//
 string Parm::GetDisplayGroupName( const string & group_name, const string & group_tag, const int & group_suffix )
 {
@@ -178,7 +187,7 @@ string Parm::GetDisplayGroupName( bool include_alias )
     {
         group_alias = m_GroupAlias;
     }
-    return GetDisplayGroupName( m_GroupName, group_alias, m_GroupDisplaySuffix );
+    return m_GroupDisplayPrefix + GetDisplayGroupName( m_GroupName, group_alias, m_GroupDisplaySuffix );
 }
 
 //==== Set Val And Check Limits ====//

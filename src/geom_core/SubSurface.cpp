@@ -1450,6 +1450,8 @@ void SSXSecCurve::SetXSecCurveType( int type )
         m_XSCurve = oldXSCurve;
     }
 
+    NumberCurve();
+
     if ( m_XSCurve )
     {
         Parm* width_parm = ParmMgr.FindParm( m_XSCurve->GetWidthParmID() );
@@ -1538,6 +1540,7 @@ xmlNodePtr SSXSecCurve::DecodeXml(  xmlNodePtr & node  )
 
                     m_XSCurve = XSecSurf::CreateXSecCurve( xsc_type );
                     m_XSCurve->SetParentContainer( m_ID );
+                    NumberCurve();
                 }
             }
         }
@@ -1548,6 +1551,27 @@ xmlNodePtr SSXSecCurve::DecodeXml(  xmlNodePtr & node  )
         }
     }
     return xscrv_node;
+}
+
+void SSXSecCurve::SetGroupDisplaySuffix( int num )
+{
+    SubSurface::SetGroupDisplaySuffix( num );
+    NumberCurve();
+}
+
+void SSXSecCurve::SetGroupDisplaySuffixes( unordered_map< string, int > & group_count )
+{
+    SubSurface::SetGroupDisplaySuffixes( group_count );
+    NumberCurve();
+}
+
+void SSXSecCurve::NumberCurve()
+{
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetGroupDisplayPrefix( "SS_" );
+        m_XSCurve->SetGroupDisplaySuffix( m_CenterU.GetGroupDisplaySuffix() );
+    }
 }
 
 EditCurveXSec* SSXSecCurve::ConvertToEdit()
@@ -1562,6 +1586,7 @@ EditCurveXSec* SSXSecCurve::ConvertToEdit()
 
         m_XSCurve = xscrv_ptr;
         m_XSCurve->SetParentContainer( m_ID );
+        NumberCurve();
     }
 
     return xscrv_ptr;

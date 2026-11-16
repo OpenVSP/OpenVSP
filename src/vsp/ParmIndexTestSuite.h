@@ -64,6 +64,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::TheContainerListFollowsTheModel )
         TEST_ADD( ParmIndexTestSuite::EveryTopWithParmsIsListed )
         TEST_ADD( ParmIndexTestSuite::NoCustomScriptIsRunningBetweenCalls )
+        TEST_ADD( ParmIndexTestSuite::ASubsurfacesCurveIsTaggedAndNumberedWithIt )
     }
 
 private:
@@ -113,6 +114,7 @@ private:
     void TheContainerListFollowsTheModel();
     void EveryTopWithParmsIsListed();
     void NoCustomScriptIsRunningBetweenCalls();
+    void ASubsurfacesCurveIsTaggedAndNumberedWithIt();
 };
 
 #endif

@@ -294,6 +294,10 @@ public:
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 
+    // Numbered as a subsurface is, and its curve with it.
+    virtual void SetGroupDisplaySuffix( int num );
+    virtual void SetGroupDisplaySuffixes( unordered_map< string, int > & group_count );
+
     virtual void Scale( double currentScale );
 
     Parm m_CenterU;
@@ -303,6 +307,10 @@ public:
 
 protected:
     virtual void ChangeID( const string &id );
+
+    // The curve's groups carry the prefix SS_, so they are told apart from those of the Geom's cross sections,
+    // and the number of this subsurface's SS_XsecCurve group.
+    void NumberCurve();
 
     XSecCurve *m_XSCurve;
 

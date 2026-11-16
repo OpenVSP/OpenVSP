@@ -22,6 +22,7 @@
 #include "StringUtil.h"
 #include "Parm.h"
 #include "SubSurface.h"
+#include "SubSurfaceMgr.h"
 #include "FeaStructure.h"
 #include "StructureMgr.h"
 #include "Geom.h"
@@ -1602,4 +1603,58 @@ void ParmIndexTestSuite::NoCustomScriptIsRunningBetweenCalls()
     vsp::AddGeom( "Cone" );
     vsp::Update();
     TEST_ASSERT( CustomGeomMgr.GetRunningCustomGeom().empty() );
+}
+
+// Whether no two Parms listed under a container share a name and display group name.
+static bool NoTwoShareAName( const string & container_id )
+{
+    std::set< string > keys;
+    vector< string > ids = vsp::FindContainerParmIDs( container_id );
+    for ( int i = 0; i < ( int )ids.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( ids[i] );
+        if ( !keys.insert( p->GetDisplayGroupName() + ":" + p->GetName() ).second )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+// The display group name of the first Parm of a cross section curve subsurface's curve.
+static string CurveGroupOf( const string & ss_id )
+{
+    SSXSecCurve* ss = dynamic_cast< SSXSecCurve* >( SubSurfaceMgr.GetSubSurf( ss_id ) );
+    vector< string > ids;
+    ss->GetXSecCurve()->GetParmIDsUnder( ids );
+    return ParmMgr.FindParm( ids[0] )->GetDisplayGroupName();
+}
+
+void ParmIndexTestSuite::ASubsurfacesCurveIsTaggedAndNumberedWithIt()
+{
+    vsp::VSPRenew();
+    string fuse = vsp::AddGeom( "FUSELAGE" );
+    vsp::Update();
+    string a = vsp::AddSubSurf( fuse, vsp::SS_XSEC_CURVE );
+    string b = vsp::AddSubSurf( fuse, vsp::SS_XSEC_CURVE );
+
+    //==== Prefixed, so not the Geom's cross sections' groups; numbered as the subsurface is ====//
+    TEST_ASSERT( CurveGroupOf( a ).compare( 0, 3, "SS_" ) == 0 );
+    TEST_ASSERT( CurveGroupOf( a ) != CurveGroupOf( b ) );
+    TEST_ASSERT( NoTwoShareAName( fuse ) );
+
+    //==== A new curve, of another type, is tagged and numbered too ====//
+    string before = CurveGroupOf( b );
+    dynamic_cast< SSXSecCurve* >( SubSurfaceMgr.GetSubSurf( b ) )->SetXSecCurveType( vsp::XS_ELLIPSE );
+    TEST_ASSERT( CurveGroupOf( b ).compare( 0, 3, "SS_" ) == 0 );
+    TEST_ASSERT( CurveGroupOf( b ) != before );
+    TEST_ASSERT( NoTwoShareAName( fuse ) );
+
+    //==== And through a file read ====//
+    vsp::WriteVSPFile( "ParmIndexSSCurve.vsp3" );
+    vsp::VSPRenew();
+    vsp::ReadVSPFile( "ParmIndexSSCurve.vsp3" );
+    TEST_ASSERT( CurveGroupOf( a ).compare( 0, 3, "SS_" ) == 0 );
+    TEST_ASSERT( CurveGroupOf( a ) != CurveGroupOf( b ) );
+    TEST_ASSERT( NoTwoShareAName( fuse ) );
 }

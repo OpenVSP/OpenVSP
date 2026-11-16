@@ -174,3 +174,12 @@ Geom set by `SetIntersectSubSurfGeomID`.
 | Constant                      | `SE_Const_Flag`                                            | SS_Control   |
 | Surface End Angle             | `StartAngleFlag`, `EndAngleFlag`, `SameAngleFlag`, `StartAngle`, `EndAngle` | SS_Control |
 | Control surface Num Points    | `Tess_Num`                                                 | SS_Control   |
+
+These are the groups found through the sub-surface's own ID, from `AddSubSurf` or `GetSubSurfIDVec`.  Through the
+Geom's ID the groups are numbered from 1, so that each sub-surface's Parms have names of their own.  The groups every
+type has -- SubSurface, ParasiteDragProps and FeaSubSurface -- take the sub-surface's place among the Geom's
+sub-surfaces: `SubSurface_2` is the second sub-surface's.  A type's own group takes its count among that type:
+`SS_Rectangle_1` is the first Rectangle's.  An Intersect's SS_XsecCurve group is counted with the XSec_Curve
+sub-surfaces', and the groups of either one's curve take that number with an `SS_` prefix: `SS_XSecCurve_1`,
+`SS_Close_1` and the rest.  Moving, adding or deleting a sub-surface renumbers them.  Through the sub-surface's own ID
+its curve's Parms keep the curve's own groups, such as XSecCurve and Close.
