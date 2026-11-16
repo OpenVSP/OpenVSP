@@ -255,8 +255,6 @@ public:
             BoolParm &m_TopLRStrengthEq,
             BoolParm &m_TopLRCurveEq );
 
-    virtual void ChangeID( const string &newid );
-
     virtual void ValidateParms( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
             BoolParm &m_TopLSlewSet,

@@ -69,11 +69,6 @@ void XSec::ChangeID( const string &newid )
     {
         xssurf->ChangeXSecID( oldid, newid );
     }
-
-    if ( m_XSCurve  )
-    {
-        m_XSCurve->SetParentContainer( newid );
-    }
 }
 
 void XSec::SetGroupDisplaySuffix( int num )
@@ -1962,23 +1957,6 @@ double SkinXSec::SuggestSpineW01()
     }
 
     return ( best - t0 ) / period;
-}
-
-// A ParmContainer's children hold their parent's ID, so changing it has to reach them.
-// XSec::ChangeID reparents the XSecCurve; the spines are children too, and leaving them
-// pointing at an ID that no longer exists would stop SkinSpine::ParmChanged finding the Geom
-// to dirty, after which a spine edit would no longer rebuild the surface.
-void SkinXSec::ChangeID( const string &newid )
-{
-    XSec::ChangeID( newid );
-
-    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
-    {
-        if ( m_SpineVec[i] )
-        {
-            m_SpineVec[i]->SetParentContainer( newid );
-        }
-    }
 }
 
 // The position comes in on a [0, 1] basis, the way the rest of OpenVSP states U and W.  The

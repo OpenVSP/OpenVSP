@@ -2882,16 +2882,6 @@ xmlNodePtr FeaPolySpar::DecodeXml( xmlNodePtr & node )
     return ps_node;
 }
 
-void FeaPolySpar::ChangeID( const string &id )
-{
-    FeaSlice::ChangeID( id );
-
-    for ( int i = 0; i < m_SparPointVec.size(); i++ )
-    {
-        m_SparPointVec[i]->SetParentContainer( id );
-    }
-}
-
 void FeaPolySpar::UpdateSurface()
 {
     UpdateParms();

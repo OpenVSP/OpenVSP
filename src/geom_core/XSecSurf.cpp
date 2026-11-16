@@ -45,16 +45,6 @@ XSecSurf::~XSecSurf()
     DeleteAllXSecs();
 }
 
-void XSecSurf::ChangeID( const string &id )
-{
-    ParmContainer::ChangeID( id );
-
-    for ( int i = 0 ; i < ( int )m_XSecPtrVec.size() ; i++ )
-    {
-        m_XSecPtrVec[i]->SetParentContainer( id );
-    }
-}
-
 //==== Find XSec Given ID ====//
 XSec* XSecSurf::FindXSec( const string &id ) const
 {

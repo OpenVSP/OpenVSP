@@ -102,8 +102,6 @@ public:
 
 protected:
 
-    virtual void ChangeID( const string &id );
-
     XSec* CreateXSec( int type );
 
     vector< XSec* > m_XSecPtrVec;

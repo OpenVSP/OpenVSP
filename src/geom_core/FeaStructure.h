@@ -412,7 +412,6 @@ public:
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-    virtual void ChangeID( const string &id );
 
     virtual void UpdateSurface();
     virtual void UpdateParms();

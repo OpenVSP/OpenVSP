@@ -662,16 +662,6 @@ void RoutingGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const 
     }
 }
 
-void RoutingGeom::ChangeID( const string &id )
-{
-    Geom::ChangeID( id );
-
-    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
-    {
-        m_RoutingPointVec[i]->SetParentContainer( id );
-    }
-}
-
 // A route is built from the surfaces its points lie on.
 void RoutingGeom::GetDependencyIDs( vector< string > &ids )
 {

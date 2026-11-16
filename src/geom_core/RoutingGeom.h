@@ -146,7 +146,6 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
-    virtual void ChangeID( const string &id );
     virtual void UpdateParents();
     virtual void GetDependencyIDs( vector< string > &ids );
 
