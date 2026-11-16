@@ -22,6 +22,8 @@ StructureMgrSingleton::StructureMgrSingleton()
     m_FeaPropertyCount = 0;
     m_FeaMatCount = 0;
 
+    m_Name = "StructureMgr";
+
     m_CurrStructIndex.Init( "CurrStructIndex", "Struct", this, -1, -1, 1e12 ); // -1 for none selected.
 
     m_CurrPartIndex = -1;
@@ -311,6 +313,8 @@ void StructureMgrSingleton::AddTopContainerIDs( vector< string > & container_ids
     {
         m_FeaAssemblyVec[i]->AddTopContainerIDs( container_ids );
     }
+
+    ParmContainer::AddTopContainerIDs( container_ids );
 }
 
 //==== Get All FeaStructures ====//

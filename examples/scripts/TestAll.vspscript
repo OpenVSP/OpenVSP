@@ -532,7 +532,7 @@ int TestAPIScript()
     ClearVSPModel();
 
     array<string> @ctr_arr = FindContainers();
-    if ( ctr_arr.size() != 28 )            { Print( "---> Error: API FindContainers " ); failure++; }
+    if ( ctr_arr.size() != 41 )            { Print( "---> Error: API FindContainers " ); failure++; }
 
     ctr_arr = FindContainersWithName( "UserParms" );
     if ( ctr_arr.size() != 1 )            { Print( "---> Error: API FindContainersWithName " ); failure++; }

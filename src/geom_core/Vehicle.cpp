@@ -514,6 +514,16 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
     LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
     LinkMgr.RegisterContainer( ParasiteDragMgr.GetID() );
+    LinkMgr.RegisterContainer( AeroStructMgr.GetID() );
+    LinkMgr.RegisterContainer( MaterialMgr.GetID() );
+    LinkMgr.RegisterContainer( m_SnapTo.GetID() );
+    LinkMgr.RegisterContainer( m_GroupTransformations.GetID() );
+
+    vector< Light* > lights = LightMgr.GetVec();
+    for ( int i = 0 ; i < ( int )lights.size() ; i++ )
+    {
+        LinkMgr.RegisterContainer( lights[i]->GetID() );
+    }
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );

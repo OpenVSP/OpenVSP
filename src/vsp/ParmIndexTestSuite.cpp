@@ -39,6 +39,8 @@
 #include "Vehicle.h"
 #include "VehicleMgr.h"
 #include "LinkMgr.h"
+#include "Link.h"
+#include "ModeMgr.h"
 
 #include <typeinfo>
 #include <set>
@@ -1504,4 +1506,42 @@ void ParmIndexTestSuite::TheContainerListFollowsTheModel()
     //==== Pasted, it is ====//
     vector< string > pasted = vsp::PasteGeomClipboard();
     TEST_ASSERT( pasted.size() == 1 && Contains( vsp::FindContainers(), pasted[0] ) );
+}
+
+// Every container at the top of its parents that holds Parms, itself or below it, is offered by FindContainers --
+// but for a link or a mode, whose Parms are its own settings, a container that is not listed, and a container
+// held on a clipboard, whose top's parent is "NONE".  Returns how many are not, printing each.
+static int CountTopsNotListed()
+{
+    vector< string > listed = vsp::FindContainers();
+    std::set< string > listed_set( listed.begin(), listed.end() );
+
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+    int missing = 0;
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        ParmContainer* pc = all[i];
+        vector< string > ids;
+        pc->GetParmIDsUnder( ids );
+        if ( pc->GetTopContainer() != pc || ids.empty() || pc->GetParentContainer() == "NONE" || !pc->GetListedFlag() ||
+             dynamic_cast< Link* >( pc ) || dynamic_cast< Mode* >( pc ) || listed_set.count( pc->GetID() ) )
+        {
+            continue;
+        }
+        printf( "Not listed: %s %s, %d Parms\n", typeid( *pc ).name(), pc->GetName().c_str(), ( int )ids.size() );
+        missing++;
+    }
+    return missing;
+}
+
+void ParmIndexTestSuite::EveryTopWithParmsIsListed()
+{
+    BuildEveryKindOfContainer();
+    vsp::AddGeom( "Cone" );
+    vsp::Update();
+    TEST_ASSERT( CountTopsNotListed() == 0 );
+
+    vsp::VSPRenew();
+    TEST_ASSERT( CountTopsNotListed() == 0 );
 }
