@@ -652,16 +652,6 @@ xmlNodePtr RoutingGeom::DecodeXml( xmlNodePtr & node )
     return routingpoints_node;
 }
 
-void RoutingGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( linkable_parm_vec );
-
-    for ( int i = 0 ; i < ( int )m_RoutingPointVec.size() ; i++ )
-    {
-        m_RoutingPointVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-}
-
 // A route is built from the surfaces its points lie on.
 void RoutingGeom::GetDependencyIDs( vector< string > &ids )
 {

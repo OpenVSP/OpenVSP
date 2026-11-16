@@ -3462,16 +3462,6 @@ xmlNodePtr GearGeom::DecodeXml( xmlNodePtr & node )
     return label_root_node;
 }
 
-void GearGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( linkable_parm_vec );
-
-    for ( int i = 0 ; i < ( int )m_Bogies.size() ; i++ )
-    {
-        m_Bogies[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-}
-
 // A bogie's retracted position is built from the surface it attaches to, stow or mechanism.
 void GearGeom::GetDependencyIDs( vector< string > &ids )
 {

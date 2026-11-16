@@ -460,20 +460,6 @@ void ParmContainer::AddTopContainerIDs( vector< string > & container_ids )
     container_ids.push_back( m_ID );
 }
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void ParmContainer::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
-    {
-        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
-
-        if ( p )
-        {
-            linkable_parm_vec.push_back( p->GetID() );
-        }
-    }
-}
-
 // This copies Parm values from one ParmContainer to another.  It does not recurse into 'child' containers.  It does
 // not create missing parms or groups.  All parm names must be unique -- and exact matches.
 void ParmContainer::CopyVals( ParmContainer *from )

@@ -412,17 +412,6 @@ xmlNodePtr BORGeom::DecodeXml(  xmlNodePtr & node  )
     return xscrv_node;
 }
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void BORGeom::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( parm_vec );
-
-    if ( m_XSCurve  )
-    {
-        m_XSCurve->AddLinkableParms( parm_vec, m_ID );
-    }
-}
-
 EditCurveXSec* BORGeom::ConvertToEdit()
 {
     EditCurveXSec* xscrv_ptr = m_XSCurve->ConvertToEdit();

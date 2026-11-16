@@ -1092,14 +1092,6 @@ void StackGeom::InitInsertedXSec( int index )
 }
 
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void StackGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( linkable_parm_vec );
-
-    m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
-}
-
 //==== Scale ====//
 void StackGeom::ApplyScale( double currentScale )
 {

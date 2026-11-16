@@ -464,14 +464,6 @@ void FuselageGeom::InitInsertedXSec( int index )
 }
 
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void FuselageGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( linkable_parm_vec );
-
-    m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
-}
-
 //==== Scale ====//
 void FuselageGeom::ApplyScale( double currentScale )
 {

@@ -174,17 +174,6 @@ void XSec::SetXSecCurve( XSecCurve* xs_crv )
     m_LateUpdateFlag = true;
 }
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void XSec::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
-{
-    ParmContainer::AddLinkableParms( parm_vec, link_container_id );
-
-    if ( m_XSCurve  )
-    {
-        m_XSCurve->AddLinkableParms( parm_vec, link_container_id );
-    }
-}
-
 
 Matrix4d* XSec::GetTransform()
 {
@@ -910,19 +899,6 @@ xmlNodePtr SkinXSec::DecodeXml( xmlNodePtr & node )
     }
 
     return xsec_node;
-}
-
-void SkinXSec::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
-{
-    XSec::AddLinkableParms( parm_vec, link_container_id );
-
-    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
-    {
-        if ( m_SpineVec[i] )
-        {
-            m_SpineVec[i]->AddLinkableParms( parm_vec, link_container_id );
-        }
-    }
 }
 
 

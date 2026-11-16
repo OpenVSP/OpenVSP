@@ -356,8 +356,6 @@ public:
     static map < pair < string, int >, vector < int > > GetVSPAEROGeomIndexMap( int set_index, int thin_set );
     string ExecuteNoiseAnalysis( FILE* logFile, int noise_type, int noise_unit );
 
-    virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
-
     // Highlighter Methods and Variables
     static void HighlightSelected( int type );
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );

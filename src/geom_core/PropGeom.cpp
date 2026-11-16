@@ -2728,24 +2728,6 @@ void PropGeom::InitInsertedXSec( int index )
 }
 
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void PropGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( linkable_parm_vec );
-
-    m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
-
-    m_ChordCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_TwistCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_RakeCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_SkewCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_SweepCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_ThickCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_CLICurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_AxialCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
-    m_TangentialCurve.AddLinkableParms(linkable_parm_vec, m_ID  );
-}
-
 //==== Scale ====//
 void PropGeom::ApplyScale( double currentScale )
 {

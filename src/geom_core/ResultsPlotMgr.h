@@ -138,9 +138,6 @@ public:
     // Show automatic limits in the limit Parms not set by hand, with no notice: they only display.
     void ShowAutoLimits( double xmin, double xmax, double ymin, double ymax );
 
-    // The plot's Parms, then each curve's under the plot.
-    virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id = string() );
-
     // The curve being edited, null when the plot has none.
     ResultsCurve* GetEditCurve() const;
     int GetEditIndex() const                    { return m_EditIndex; }

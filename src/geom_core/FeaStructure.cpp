@@ -207,29 +207,6 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
-void FeaStructure::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    ReSuffixGroupNames();
-
-    for ( size_t i = 0; i < (int)m_FeaPartVec.size(); i++ )
-    {
-        m_FeaPartVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-
-    for ( size_t i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
-    {
-        m_FeaSubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-
-    for ( size_t i = 0; i < (int)m_FeaBCVec.size(); i++ )
-    {
-        m_FeaBCVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-
-    m_StructSettings.AddLinkableParms( linkable_parm_vec, m_ID );
-    m_FeaGridDensity.AddLinkableParms( linkable_parm_vec, m_ID );
-}
-
 void FeaStructure::SetDrawFlag( bool flag )
 {
     for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )
@@ -8113,11 +8090,6 @@ void FeaAssembly::ReSuffixConnections()
 void FeaAssembly::ResetExportFileNames()
 {
     m_AssemblySettings.ResetExportFileNames( GetName() );
-}
-
-void FeaAssembly::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    m_AssemblySettings.AddLinkableParms( linkable_parm_vec, m_ID );
 }
 
 //////////////////////////////////////////////////////

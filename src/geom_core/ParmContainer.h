@@ -106,7 +106,6 @@ public:
     // Append the IDs of the containers this one lists at the top: its own and, for a container that keeps
     // others at the top beside it -- the Vehicle its Geoms -- theirs after it.
     virtual void AddTopContainerIDs( vector< string > & container_ids );
-    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
     // Name the container this one belongs to; ParmMgr keeps the inverse.
     // One that would put this container below itself is refused, so a chain of parents always ends.

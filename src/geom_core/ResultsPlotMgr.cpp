@@ -858,16 +858,6 @@ void ResultsPlot::ShowAutoLimits( double xmin, double xmax, double ymin, double 
     }
 }
 
-void ResultsPlot::AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id )
-{
-    ParmContainer::AddLinkableParms( linkable_parm_vec, link_container_id );
-
-    for ( int i = 0; i < ( int ) m_Curves.size(); i++ )
-    {
-        m_Curves[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-}
-
 void ResultsPlot::NumberCurves()
 {
     for ( int i = 0; i < ( int ) m_Curves.size(); i++ )

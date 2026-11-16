@@ -852,7 +852,6 @@ public:
     virtual void WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma = true );
     virtual void CreateGeomResults( Results* res );
 
-    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void ChangeID( const string &id );
 
     //==== Sub Surface Management Methods ====//

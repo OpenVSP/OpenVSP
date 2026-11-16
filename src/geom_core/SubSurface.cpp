@@ -1550,17 +1550,6 @@ xmlNodePtr SSXSecCurve::DecodeXml(  xmlNodePtr & node  )
     return xscrv_node;
 }
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void SSXSecCurve::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
-{
-    SubSurface::AddLinkableParms( parm_vec );
-
-    if ( m_XSCurve  )
-    {
-        m_XSCurve->AddLinkableParms( parm_vec, m_ID );
-    }
-}
-
 EditCurveXSec* SSXSecCurve::ConvertToEdit()
 {
     EditCurveXSec* xscrv_ptr = m_XSCurve->ConvertToEdit();

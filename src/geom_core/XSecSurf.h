@@ -94,8 +94,6 @@ public:
         return m_XSecIDVec.size();
     }
 
-    virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
-
     virtual string GetName() const;
 
     static XSecCurve* CreateXSecCurve( int type );

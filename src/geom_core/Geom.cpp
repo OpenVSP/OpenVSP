@@ -6730,16 +6730,6 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool ski
     return TMeshVec;
 }
 
-void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    ParmContainer::AddLinkableParms( linkable_parm_vec );
-
-    for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
-    {
-        m_SubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-}
-
 void Geom::HandFeaStructsTo( Geom* to )
 {
     if ( !to || to == this )

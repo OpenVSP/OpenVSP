@@ -829,21 +829,6 @@ void XSecSurf::ParmChanged( Parm* parm_ptr, int type )
 
 }
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void XSecSurf::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
-{
-    ParmContainer::AddLinkableParms( parm_vec, link_container_id );
-
-    for ( int i = 0 ; i < NumXSec() ; i++ )
-    {
-        XSec* xsec = FindXSec( i );
-        if ( xsec  )
-        {
-            xsec->AddLinkableParms( parm_vec, link_container_id );
-        }
-    }
-}
-
 string XSecSurf::GetName() const
 {
     ParmContainer* pc = GetParentContainerPtr();

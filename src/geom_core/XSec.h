@@ -63,8 +63,6 @@ public:
 
     virtual Matrix4d* GetTransform();
 
-    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
-
     //==== Copy Between Different Types ====//
     virtual void CopyFrom( XSec* xs );
     virtual void CopyBasePos( XSec* xs ) = 0;
@@ -226,8 +224,6 @@ public:
 
     virtual void DeleteAttributes();
     virtual void TakeIdentityOf( XSec* old );
-
-    virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
     // Where the skinning angles are measured from.  See m_CurveBasisFlag.
     virtual void GetBasis( double t, Matrix4d &basis );

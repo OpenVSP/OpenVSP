@@ -59,7 +59,6 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     void SetDrawFlag( bool flag );
 
     // Number each part's and subsurface's group by where it is in the structure.  Kept as they are added,
@@ -988,7 +987,6 @@ public:
     void ReSuffixConnections();
 
     virtual void ResetExportFileNames();
-    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
 
     AssemblySettings m_AssemblySettings;

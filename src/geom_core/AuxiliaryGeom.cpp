@@ -2161,17 +2161,6 @@ xmlNodePtr AuxiliaryGeom::DecodeXml( xmlNodePtr & node )
     return child_node;
 }
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void AuxiliaryGeom::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( parm_vec );
-
-    if ( m_XSCurve  )
-    {
-        m_XSCurve->AddLinkableParms( parm_vec, m_ID );
-    }
-}
-
 void AuxiliaryGeom::SetContactPt1ID( const std::string& id )
 {
     m_ContactPt1_ID = id;

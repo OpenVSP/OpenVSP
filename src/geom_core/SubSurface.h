@@ -290,8 +290,6 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
-
     virtual EditCurveXSec* ConvertToEdit();
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }

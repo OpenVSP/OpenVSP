@@ -1130,26 +1130,6 @@ vector < VspAeroControlSurf > * VSPAEROMgrSingleton::GetActiveCSVecPtr()
     return nullptr;
 }
 
-void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id )
-{
-    ParmContainer::AddLinkableParms( linkable_parm_vec );
-
-    for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
-    {
-        m_ControlSurfaceGroupVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-
-    for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
-    {
-        m_RotorDiskVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-
-    for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
-    {
-        m_CpSliceVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
-}
-
 // InitControlSurfaceGroups - creates the initial default grouping for the control surfaces
 //  The initial grouping collects all surface copies of the subsurface into a single group.
 //  For example if a wing is defined with an aileron and that wing is symmetrical about the

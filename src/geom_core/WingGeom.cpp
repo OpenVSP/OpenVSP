@@ -1444,14 +1444,6 @@ void WingGeom::ChangeID( const string &id )
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
-//==== Look Though All Parms and Load Linkable Ones ===//
-void WingGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
-{
-    Geom::AddLinkableParms( linkable_parm_vec );
-
-    m_XSecSurf.AddLinkableParms( linkable_parm_vec, m_ID  );
-}
-
 //==== Scale ====//
 void WingGeom::ApplyScale( double currentScale )
 {
