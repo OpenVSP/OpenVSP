@@ -7115,6 +7115,7 @@ FeaLayer* FeaMaterial::AddLayer()
         fealayer->SetName( string( "Layer" + std::to_string( m_FeaLayerCount ) ), false ); // false is for removeslashes
         fealayer->SetParentContainer( GetID() );
         m_LayerVec.push_back( fealayer );
+        ReSuffixLayers();
         m_FeaLayerCount++;
     }
 
@@ -7155,7 +7156,16 @@ bool FeaMaterial::DeleteLayer( const string &id )
         }
     }
     m_LayerVec = newlayervec;
+    ReSuffixLayers();
     return delsuccess;
+}
+
+void FeaMaterial::ReSuffixLayers()
+{
+    for ( int i = 0; i < ( int )m_LayerVec.size(); i++ )
+    {
+        m_LayerVec[i]->SetGroupDisplaySuffix( i );
+    }
 }
 
 bool FeaMaterial::ValidLayerInd( int index )
@@ -7171,6 +7181,7 @@ void FeaMaterial::ReorderCurrentLayer( int action )
 {
     int index = GetCurrLayerIndex();
     index = ReorderVectorIndex( m_LayerVec, index, action );
+    ReSuffixLayers();
 
     SetCurrLayerIndex( index );
 }

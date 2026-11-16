@@ -836,7 +836,11 @@ public:
     {
         lay->SetParentContainer( GetID() );
         m_LayerVec.push_back( lay );
+        ReSuffixLayers();
     }
+
+    // Number each layer's group by its place, as they are added, removed and moved.
+    void ReSuffixLayers();
     FeaLayer* AddLayer();
     FeaLayer* GetCurrLayer();
     bool DeleteLayer( const string &id );

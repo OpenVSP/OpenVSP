@@ -41,6 +41,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AGeomsSourcesAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AGeomsTexturesAreNumbered )
         TEST_ADD( ParmIndexTestSuite::UnsteadyGroupsAreNumbered )
+        TEST_ADD( ParmIndexTestSuite::AMaterialsLayersAreNumbered )
     }
 
 private:
@@ -67,6 +68,7 @@ private:
     void AGeomsSourcesAreNumbered();
     void AGeomsTexturesAreNumbered();
     void UnsteadyGroupsAreNumbered();
+    void AMaterialsLayersAreNumbered();
 };
 
 #endif

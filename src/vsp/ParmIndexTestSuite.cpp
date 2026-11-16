@@ -860,3 +860,18 @@ void ParmIndexTestSuite::UnsteadyGroupsAreNumbered()
     TEST_ASSERT( GroupOf( b->GetID() ) == ga );
     VSPAEROMgr.ClearUnsteadyGroupVec();
 }
+
+void ParmIndexTestSuite::AMaterialsLayersAreNumbered()
+{
+    vsp::VSPRenew();
+
+    //==== A laminate's layers ====//
+    string mat = vsp::AddFeaMaterial();
+    vsp::SetParmVal( mat, "FeaMaterialType", "FeaMaterial", vsp::FEA_LAMINATE );
+    string l0 = vsp::AddFeaLayer( mat );
+    string l1 = vsp::AddFeaLayer( mat );
+    string gl0 = GroupOf( l0 );
+    TEST_ASSERT( gl0 != GroupOf( l1 ) );
+    vsp::DeleteFeaLayer( mat, l0 );
+    TEST_ASSERT( GroupOf( l1 ) == gl0 );
+}
