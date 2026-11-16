@@ -1814,6 +1814,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "HUMAN_POSE_METHOD" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_POSE_METHOD", "HUMAN_POSE_ARAP", HUMAN_POSE_ARAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HUMAN_POSE_METHOD", "HUMAN_POSE_FAST", HUMAN_POSE_FAST );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "GEOMETRY_ANALYSIS_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "EXTERNAL_INTERFERENCE", EXTERNAL_INTERFERENCE );

@@ -23,15 +23,7 @@
 #include "VspUtil.h"
 #include "Vsp1DCurve.h"
 #include "ResultsMgr.h"
-
-// Pinocchio types, defined where the rigging is done.
-namespace Pinocchio
-{
-class Mesh;
-class Skeleton;
-struct DataSkeleton;
-class Attachment;
-}
+#include "HumanTetRig.h"
 
 #define REAL_T float
 
@@ -193,13 +185,6 @@ public:
 
     virtual bool IsHumanMeshRep() const;
 
-    virtual void SetupMesh( Pinocchio::Mesh &m );
-    template < typename vertmat > void SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton );
-    static Pinocchio::Attachment * SetupAttach( const Pinocchio::Mesh &m, const Pinocchio::Skeleton &skeleton );
-
-    template < typename vertmat > void CopyVertsToMesh( const vertmat & vm, Pinocchio::Mesh &m );
-    template < typename vertmat > void CopyMeshToVerts( const Pinocchio::Mesh &m, vertmat & vm );
-
     void CopyVertsToSkel( const vector < vec3d > & sv );
 
     virtual void GetDesignEyeVec( vector < vec3d > & eyevec ) const;
@@ -211,6 +196,11 @@ public:
     IntParm m_MassUnit;
 
     IntParm m_Representation;
+
+    IntParm m_PoseMethod;
+    IntParm m_ARAPMaxIter;
+    Parm m_ARAPTol;
+    IntParm m_FASTIter;
 
     IntParm m_PresetPose;  // Used by GUI when set preset pose is triggered.
 
@@ -300,9 +290,6 @@ protected:
     static void ComputeResultsMesh( const REAL_T Q[][6], const vector < double > &X, const REAL_T Ybar[][3], vector < vec3d > &Y );
     static void ComputeResultsSkel( const REAL_T Q[][6], const vector < double > &X, const REAL_T Ybar[][3], vector < vec3d > &Y );
 
-    template < typename vertmat >
-    static void ComputeAvePts( const vertmat &A, const vertmat &B, int n, vertmat &C );
-
 private:
 
     static Vsp1DCurve m_MaleStatureECDF;
@@ -310,9 +297,6 @@ private:
 
     static Vsp1DCurve m_MaleBMIECDF;
     static Vsp1DCurve m_FemaleBMIECDF;
-
-    static Pinocchio::Mesh m_MasterMesh;
-    static Pinocchio::Attachment *m_MasterAttach;
 
     static unordered_set < int > m_VertCopySet;
     // m_VertCopySet contains the lower indices [0:NUM_MESH_VERT-1] that were double-referenced instead of reflected to
@@ -324,6 +308,17 @@ private:
 
 
     vector < vec3d > m_MainVerts;
+
+    // The tet mesh ARAP and FAST pose, and the body it was built for.
+    HumanTetRig m_TetRig;
+    int m_TetGender;
+    vector < double > m_TetVars;
+
+    // The closed full mesh: the half mesh, then the mirrors of its vertices off the centre plane.
+    // Its vertex i is m_MainVerts[ m_FullSrc[i] ].
+    static vector < int > m_FullSrc;
+    static void SetupFullMesh();
+    void PoseTetRig( const vector < Matrix4d > &bone_mats, const vector < HumanPartialRot > &partials, const vector < double > &vars );
 
 public:
     virtual const vector < vec3d > & GetMainVerts() const
@@ -357,8 +352,6 @@ protected:
                             const double &twist, Matrix4d &T );
 
     double Get_mm2UX();
-
-    static void DebugDump();
 };
 
 #endif // !defined(VSP_HUMAN_GEOM__INCLUDED_)

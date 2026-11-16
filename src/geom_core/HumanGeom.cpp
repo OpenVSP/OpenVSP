@@ -9,7 +9,6 @@
 
 #include "HumanGeom.h"
 #include "HumanBezier.h"
-#include "pinocchioApi.h"
 #include "MeshGeom.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
@@ -24,8 +23,7 @@
 #include "FemaleGeomDataReduced.h"
 
 unordered_set < int > HumanGeom::m_VertCopySet;
-Pinocchio::Mesh HumanGeom::m_MasterMesh;
-Pinocchio::Attachment *HumanGeom::m_MasterAttach = nullptr;
+vector < int > HumanGeom::m_FullSrc;
 Vsp1DCurve HumanGeom::m_MaleStatureECDF;
 Vsp1DCurve HumanGeom::m_FemaleStatureECDF;
 Vsp1DCurve HumanGeom::m_MaleBMIECDF;
@@ -54,6 +52,20 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_Representation.Init( "Representation", "Design", this, vsp::HUMAN_REP_MESH, vsp::HUMAN_REP_MESH, vsp::HUMAN_REP_SURF );
     m_Representation.SetDescript( "Represent the human by its mesh or by its surfaces" );
+
+    m_PoseMethod.Init( "PoseMethod", "Pose", this, vsp::HUMAN_POSE_FAST, vsp::HUMAN_POSE_ARAP, vsp::HUMAN_POSE_FAST );
+    m_PoseMethod.SetDescript( "Pose the body by ARAP or FAST" );
+
+    m_ARAPMaxIter.Init( "ARAPMaxIter", "Pose", this, 100, 10, 10000 );
+    m_ARAPMaxIter.SetDescript( "Most ARAP iterations per pose" );
+
+    m_ARAPTol.Init( "ARAPTol", "Pose", this, 0.2, 1e-6, 100.0 );
+    m_ARAPTol.SetDescript( "ARAP stops when no skin point moves more than this (mm) in ten iterations" );
+
+    m_FASTIter.Init( "FASTIter", "Pose", this, 30, 1, 1000 );
+    m_FASTIter.SetDescript( "FAST iterations per pose" );
+
+    m_TetGender = -1;
 
     m_GenderFlag.Init( "GenderFlag", "Anthropometric", this, vsp::MALE, vsp::MALE, vsp::FEMALE );
     m_GenderFlag.SetDescript( "Gender" );
@@ -182,18 +194,9 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_PresetPose.SetDescript( "Pose to set when triggered from GUI" );
 
     // Setup static member variables to be used by all HumanGeom
-    if ( !m_MasterAttach )
+    if ( m_FullSrc.empty() )
     {
-        SetupMesh( m_MasterMesh );
-
-        Pinocchio::DataSkeleton skeleton;
-
-        REAL_T androg_skel_verts[NUM_SKEL_VERT][3];
-        ComputeAvePts( m_male_skel_verts, m_female_skel_verts, NUM_SKEL_VERT, androg_skel_verts );
-
-        SetupSkel( androg_skel_verts, skeleton );
-
-        m_MasterAttach = SetupAttach( m_MasterMesh, skeleton );
+        SetupFullMesh();
 
         // 20 & over.  From NHANES
         vector < double > cprob = {.05, .10, .15, .25, .50, .75, .85, .90, .95};
@@ -207,9 +210,6 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
         m_MaleBMIECDF.InterpolatePCHIP( mbmi, cprob, false );
         m_FemaleBMIECDF.InterpolatePCHIP( fbmi, cprob, false );
-
-        // DebugDump();
-
     }
 
     m_MainSurfVec.clear();
@@ -219,25 +219,6 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 HumanGeom::~HumanGeom()
 {
 
-}
-
-void HumanGeom::DebugDump()
-{
-
-    m_MasterMesh.writeObj("debug.obj");
-
-    //output attachment
-    std::ofstream astrm("attachment.out");
-    for(int i = 0; i < (int)m_MasterMesh.vertices.size(); ++i)
-    {
-        Vector<double, -1> v = m_MasterAttach->getWeights(i);
-        for(int j = 0; j < v.size(); ++j)
-        {
-            double d = floor(0.5 + v[j] * 10000.) / 10000.;
-            astrm << d << " ";
-        }
-        astrm << std::endl;
-    }
 }
 
 
@@ -292,15 +273,6 @@ void HumanGeom::ComputeResultsSkel( const REAL_T Q[][6], const vector < double >
         }
         Y[i] += yadd;
     }
-}
-
-void Mat2Trans( const Matrix4d &M, Pinocchio::Transform<> &T )
-{
-    double qw, qx, qy, qz, tx, ty, tz;
-
-    M.toQuat( qw, qx, qy, qz, tx, ty, tz );
-
-    T = Pinocchio::Transform<>( Pinocchio::Quaternion<>( qw, qx, qy, qz ), 1.0, Vector3( tx, ty, tz ) );
 }
 
 void HumanGeom::CopyVertsToSkel( const vector < vec3d > & sv )
@@ -589,6 +561,32 @@ void HumanGeom::SetPreset()
     }
 }
 
+static void SetPartial( const vec3d &pivot, const vec3d &axis, double angle, HumanPartialRot &pr )
+{
+    pr.m_Pivot = pivot;
+    pr.m_Axis = axis;
+    pr.m_Angle = angle;
+}
+
+// A transformation that rotates about pivot, as a partial rotation.
+static void RotationPartial( const vec3d &pivot, const Matrix4d &T, HumanPartialRot &pr )
+{
+    const double *m = T.const_data();
+    double c = 0.5 * ( m[0] + m[5] + m[10] - 1.0 );
+    c = std::min( 1.0, std::max( -1.0, c ) );
+    double ang = acos( c );
+    pr.m_Pivot = pivot;
+    pr.m_Axis = vec3d( 0, 0, 1 );
+    pr.m_Angle = 0.0;
+    if ( sin( ang ) > 1e-9 )
+    {
+        // Right-handed axis of the matrix ( row, column ) = m[ column * 4 + row ]; Matrix4d::rotate
+        // turns left-handed.
+        pr.m_Axis = vec3d( m[6] - m[9], m[8] - m[2], m[1] - m[4] );
+        pr.m_Angle = -ang;
+    }
+}
+
 void HumanGeom::UpdateSurf()
 {
     ValidateParms();
@@ -744,13 +742,6 @@ void HumanGeom::UpdateSurf()
     bone_mats[LSHIN] = t_ltshin;
     bone_mats[LTHIGH] = t_ltthigh;
 
-    // Transfer transformations to Pinocchio vector form.
-    std::vector< Pinocchio::Transform<> > trs( nbones );
-    for ( int i = 0; i < ( int )nbones; i++ )
-    {
-        Mat2Trans( bone_mats[i], trs[i] );
-    }
-
     // Build up vision transformation matrix.
     Matrix4d tcenter1;
     tcenter1.translatev( -m_SkelVerts[WAIST] );
@@ -774,14 +765,25 @@ void HumanGeom::UpdateSurf()
         ComputeResultsMesh( m_female_half_Q, vars, m_female_half_verts, m_MainVerts );
     }
 
-    Pinocchio::Mesh m_LocalMesh = m_MasterMesh;
+    // The rotations the tet mesh's handles spread along their bones, as the transformations above
+    // apply them.
+    vector < HumanPartialRot > partials( HUMAN_NUM_PARTIALS );
+    SetPartial( m_SkelVerts[ ORIGIN ], m_SkelVerts[ WAIST ] - m_SkelVerts[ ORIGIN ], twist, partials[ HUMAN_PARTIAL_TORSO ] );
+    RotationPartial( m_SkelVerts[ ORIGIN ], t_head, partials[ HUMAN_PARTIAL_NECK ] );
+    SetPartial( m_SkelVerts[ RSHOULDER ], m_SkelVerts[ RELBOW ] - m_SkelVerts[ RSHOULDER ], m_ShoulderIERt() * M_PI / 180.0,
+                partials[ HUMAN_PARTIAL_RSHOULDER_IE ] );
+    SetPartial( m_SkelVerts[ LSHOULDER ], m_SkelVerts[ LELBOW ] - m_SkelVerts[ LSHOULDER ], -m_ShoulderIELt() * M_PI / 180.0,
+                partials[ HUMAN_PARTIAL_LSHOULDER_IE ] );
+    SetPartial( m_SkelVerts[ RWRIST ], m_SkelVerts[ RWRIST ] - m_SkelVerts[ RELBOW ], m_ForearmRt() * M_PI / 180.0,
+                partials[ HUMAN_PARTIAL_RPRONATION ] );
+    SetPartial( m_SkelVerts[ LWRIST ], m_SkelVerts[ LWRIST ] - m_SkelVerts[ LELBOW ], -m_ForearmLt() * M_PI / 180.0,
+                partials[ HUMAN_PARTIAL_LPRONATION ] );
+    SetPartial( m_SkelVerts[ RHIP ], m_SkelVerts[ RKNEE ] - m_SkelVerts[ RHIP ], m_HipIERt() * M_PI / 180.0,
+                partials[ HUMAN_PARTIAL_RHIP_IE ] );
+    SetPartial( m_SkelVerts[ LHIP ], m_SkelVerts[ LKNEE ] - m_SkelVerts[ LHIP ], -m_HipIELt() * M_PI / 180.0,
+                partials[ HUMAN_PARTIAL_LHIP_IE ] );
 
-    CopyVertsToMesh( m_MainVerts, m_LocalMesh );
-
-    // Deform for pose
-    Pinocchio::Mesh newmesh = m_MasterAttach->deform( m_LocalMesh, trs );
-
-    CopyMeshToVerts( newmesh, m_MainVerts );
+    PoseTetRig( bone_mats, partials, vars );
 
     // Get scale for units.
     double sf = Get_mm2UX();
@@ -833,30 +835,6 @@ void HumanGeom::UpdateSurf()
 
         m_MainSurfVec.clear();
     }
-
-
-/*
-    for ( int i = 0; i < nbones; i++ )
-    {
-        Pinocchio::Quaternion<> q = trs[i].getRot();
-
-        printf( "%d ", i );
-
-        for ( int j = 0; j < 4; j++ )
-        {
-            printf( "q_%d %f ", j, q[j] );
-        }
-
-        Vector3 v = trs[i].getTrans();
-
-        for ( int j = 0; j < 3; j++ )
-        {
-            printf( "t_%d %f ", j, v[j] );
-        }
-
-        printf( "s %f\n", trs[i].getScale() );
-    }
-*/
 }
 
 double HumanGeom::CalculateVolume()
@@ -1522,24 +1500,10 @@ bool HumanGeom::IsHumanMeshRep() const
     return m_Representation() == vsp::HUMAN_REP_MESH;
 }
 
-void HumanGeom::SetupMesh( Pinocchio::Mesh &m )
+void HumanGeom::SetupFullMesh()
 {
-    m.algo = Pinocchio::Mesh::DQS;
-//    m.algo = Pinocchio::Mesh::LBS;
-    m.blendWeight = 0.5;
-
-    m.vertices.clear();
-    m.vertices.resize( NUM_MESH_VERT * 2 );
-
+    // The half mesh's vertices on the centre plane serve both halves.
     m_VertCopySet.clear();
-
-    // Seed initial verts as positive copies
-    for ( int i = 0; i < NUM_MESH_VERT; i++ )
-    {
-        m.vertices[ i ].origVertID = i;
-    }
-
-    // Seed initial verts as negative copies -- except on center line, then reference positive one.
     for ( int i = 0; i < NUM_MESH_VERT; i++ )
     {
         double y = m_male_half_verts[i][1];
@@ -1547,197 +1511,66 @@ void HumanGeom::SetupMesh( Pinocchio::Mesh &m )
         {
             m_VertCopySet.emplace_hint( m_VertCopySet.end(), i );
         }
-
-        m.vertices[ i + NUM_MESH_VERT ].origVertID = i + NUM_MESH_VERT;
     }
 
-    REAL_T androg_half_verts[NUM_MESH_VERT][3];
-    ComputeAvePts( m_male_half_verts, m_female_half_verts, NUM_MESH_VERT, androg_half_verts );
-
-    CopyVertsToMesh( androg_half_verts, m );
-
-
-    m.edges.reserve( 3 * 2 * NUM_MESH_TRI );
-
-    // Setup first half of tris as edges.
-    for ( int i = 0; i < NUM_MESH_TRI; i++ )
+    m_FullSrc.clear();
+    for ( int i = 0; i < NUM_MESH_VERT; i++ )
     {
-        int first = m.edges.size();
-        m.edges.resize( m.edges.size() + 3 );
-        for( int j = 0; j < 3; ++j )
-        {
-            m.edges[ first + j ].vertex = m_half_tris[i][j];
-        }
+        m_FullSrc.push_back( i );
     }
-
-    // Setup second half of tris as edges.
-    for ( int i = 0; i < NUM_MESH_TRI; i++ )
+    for ( int i = 0; i < NUM_MESH_VERT; i++ )
     {
-        int first = m.edges.size();
-        m.edges.resize( m.edges.size() + 3 );
-        for( int j = 0; j < 3; ++j )
+        if ( m_VertCopySet.count( i ) == 0 )
         {
-            int k = 2 - j;    // Reverse direction
-
-            int ivert = m_half_tris[i][k] + NUM_MESH_VERT;
-
-            if ( m_VertCopySet.count( m_half_tris[i][k] ) )  // This vert is a duplicate.
-            {
-                ivert = m_half_tris[i][k];
-            }
-
-            m.edges[ first + j ].vertex = ivert;
-        }
-    }
-
-    m.fixDupFaces(); // Also eliminates un-used verts.  Causes re-numbering of m.vertices
-
-    m.computeTopology();
-
-    m.computeVertexNormals();
-
-    m.normalizeBoundingBox();
-}
-
-template < typename vertmat >
-void HumanGeom::SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton )
-{
-    // m_SkelVerts
-    // const int HumanGeom::m_skel_indx[NUM_SKEL] = {0, 1, 2, 3, -4, -5, -6, -7, 4, 5, 6, 7, -8, -9, -10, -11, 8, 9, 10, 11, 12, -12, 13, 14, -14};
-    const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 14, 0, 16, 17, 18, 22, 22, 3, 18, 14};
-
-    std::vector < int > previd( NUM_SKEL );
-    std::vector < Vector3 > skel_pts( NUM_SKEL );
-    for ( int i = 0; i < NUM_SKEL; i++ )
-    {
-        int ivert = m_skel_indx[i];
-        double yref = 1.0;
-        if ( ivert < 0 )
-        {
-            ivert = -ivert;
-            yref = -1.0;
-        }
-
-        skel_pts[i] = Vector3( vm[ivert][0], yref * vm[ivert][1], vm[ivert][2] );
-        previd[i] = prevarr[i];
-    }
-
-    // Set up skeleton.
-    skeleton.init( skel_pts, previd );
-
-
-    // Symmetry
-    skeleton.makeSymmetric( LHIP, RHIP );
-    skeleton.makeSymmetric( LKNEE, RKNEE );
-    skeleton.makeSymmetric( LANKLE, RANKLE );
-    skeleton.makeSymmetric( LTOE, RTOE );
-
-    skeleton.makeSymmetric( LSHOULDER, RSHOULDER );
-    skeleton.makeSymmetric( LELBOW, RELBOW );
-    skeleton.makeSymmetric( LWRIST, RWRIST );
-    skeleton.makeSymmetric( LWRISTAX, RWRISTAX );
-    skeleton.makeSymmetric( LFINGER, RFINGER );
-
-    skeleton.makeSymmetric( LEYE, REYE );
-
-    skeleton.initCompressed();
-
-    skeleton.setFoot( LTOE );
-    skeleton.setFoot( RTOE );
-
-    skeleton.setFat( WAIST );
-    skeleton.setFat( ORIGIN );
-    skeleton.setFat( DES_EYE );
-    skeleton.setFat( LEYE );
-    skeleton.setFat( REYE );
-}
-
-Pinocchio::Attachment* HumanGeom::SetupAttach( const Pinocchio::Mesh &m, const Pinocchio::Skeleton &skeleton )
-{
-    //skip the fitting step--assume the skeleton is already correct for the mesh
-
-    Pinocchio::TreeType *distanceField = constructDistanceField( m );
-
-    Pinocchio::VisTester<Pinocchio::TreeType> *tester = new Pinocchio::VisTester<Pinocchio::TreeType>( distanceField );
-
-    std::vector<Vector3> embedding;
-    embedding = skeleton.fGraph().verts;
-    for ( int i = 0; i < (int) embedding.size(); ++i )
-    {
-        embedding[i] = m.toAdd + embedding[i] * m.scale;
-    }
-
-    Pinocchio::Attachment *a = new Pinocchio::Attachment( m, skeleton, embedding, tester );
-
-    delete tester;
-    delete distanceField;
-
-    return a;
-}
-
-template < typename vertmat >
-void HumanGeom::CopyVertsToMesh( const vertmat & vm, Pinocchio::Mesh &m  )
-{
-    int nvert = m.vertices.size();
-
-    for ( int i = 0; i < nvert; i++ )
-    {
-        int oVID = m.vertices[i].origVertID;
-
-        // Use reflected point
-        double refy = 1.0;
-
-        if ( oVID >= NUM_MESH_VERT )  // Don't check first half -- no point.
-        {
-            oVID = oVID - NUM_MESH_VERT;
-
-            if ( m_VertCopySet.count( oVID ) == 0 ) // Vert is a mirror.
-            {
-                refy = -1.0;
-            }
-        }
-
-        m.vertices[i].pos = Vector3( vm[oVID][0], refy * vm[oVID][1], vm[oVID][2] );
-    }
-}
-
-template < typename vertmat >
-void HumanGeom::CopyMeshToVerts( const Pinocchio::Mesh &m, vertmat & vm )
-{
-    int nvert = m.vertices.size();
-
-    for ( int i = 0; i < nvert; i++ )
-    {
-        int oVID = m.vertices[i].origVertID;
-
-        // Copy point
-        for ( int j = 0; j < 3; j++ )
-        {
-            vm[oVID][j] = m.vertices[i].pos[j];
-        }
-
-        if ( oVID < NUM_MESH_VERT )  // Don't check second half -- no point.
-        {
-            if ( m_VertCopySet.count( oVID ) ) // Vert is used as a copy, copy there too.
-            {
-                int idupper = oVID + NUM_MESH_VERT;
-                for ( int j = 0; j < 3; j++ )
-                {
-                    vm[idupper][j] = m.vertices[i].pos[j];
-                }
-            }
+            m_FullSrc.push_back( i + NUM_MESH_VERT );
         }
     }
 }
 
-template < typename vertmat >
-void HumanGeom::ComputeAvePts( const vertmat &A, const vertmat &B, int n, vertmat &C )
+// Pose m_MainVerts (the body in the data pose, mm) by ARAP or FAST on the tet mesh, placed again
+// when the body changes.
+void HumanGeom::PoseTetRig( const vector < Matrix4d > &bone_mats, const vector < HumanPartialRot > &partials, const vector < double > &vars )
 {
-    for ( int i = 0; i < n; i++ )
+    int nf = m_FullSrc.size();
+
+    // A body is the same when its inputs agree to rounding; ValidateParms' percentile round trip
+    // moves BMI in its last bit.
+    bool same = m_TetRig.IsBuilt() && m_TetGender == m_GenderFlag() && m_TetVars.size() == vars.size();
+    for ( int i = 0; i < ( int ) vars.size() && same; i++ )
     {
-        for ( int j = 0; j < 3; j++ )
+        same = std::fabs( vars[i] - m_TetVars[i] ) <= 1e-9 * std::max( 1.0, std::fabs( vars[i] ) );
+    }
+    if ( !same )
+    {
+        vector < vec3d > skin( nf );
+        for ( int i = 0; i < nf; i++ )
         {
-            C[i][j] = ( A[i][j] + B[i][j] ) * 0.5;
+            skin[i] = m_MainVerts[ m_FullSrc[i] ];
+        }
+        m_TetRig.Build( m_GenderFlag(), vars, skin, m_SkelVerts );
+        m_TetGender = m_GenderFlag();
+        m_TetVars = vars;
+    }
+
+    vector < vec3d > posed;
+    if ( m_PoseMethod() == vsp::HUMAN_POSE_ARAP )
+    {
+        m_TetRig.PoseARAP( bone_mats, partials, m_ARAPMaxIter(), m_ARAPTol(), posed );
+    }
+    else
+    {
+        m_TetRig.PoseFAST( bone_mats, partials, m_FASTIter(), posed );
+    }
+
+    for ( int i = 0; i < nf; i++ )
+    {
+        m_MainVerts[ m_FullSrc[i] ] = posed[i];
+    }
+    for ( int i = 0; i < NUM_MESH_VERT; i++ )
+    {
+        if ( m_VertCopySet.count( i ) )
+        {
+            m_MainVerts[ i + NUM_MESH_VERT ] = m_MainVerts[i];
         }
     }
 }

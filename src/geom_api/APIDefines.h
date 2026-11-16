@@ -966,6 +966,14 @@ enum HUMAN_REP { HUMAN_REP_MESH,	/*!< The triangle mesh */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for how a Human component's mesh is posed. */
+enum HUMAN_POSE_METHOD { HUMAN_POSE_ARAP,	/*!< Volumetric as-rigid-as-possible deformation of a tet mesh */
+                         HUMAN_POSE_FAST	/*!< Fast Automatic Skinning Transformations of a tet mesh */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Geometry analysis types.. */
 enum GEOMETRY_ANALYSIS_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between mutually external bodies */
                               PACKAGING_INTERFERENCE,	/*!< Interference when one body is internal to another */

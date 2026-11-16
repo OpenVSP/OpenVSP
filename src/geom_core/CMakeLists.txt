@@ -65,6 +65,7 @@ GroupTransformations.cpp
 HingeGeom.cpp
 HumanBezier.cpp
 HumanGeom.cpp
+HumanTetRig.cpp
 IDMgr.cpp
 Link.cpp
 LinkMgr.cpp
@@ -156,6 +157,8 @@ HingeGeom.h
 HumanBezier.h
 HumanBezierData.h
 HumanGeom.h
+HumanTetRig.h
+HumanTetData.h
 IDMgr.h
 Light.h
 LightMgr.h

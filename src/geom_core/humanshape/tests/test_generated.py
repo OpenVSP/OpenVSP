@@ -29,3 +29,7 @@ def check_inputs(generated):
 
 def test_the_bezier_data_are_current():
     check_inputs('HumanBezierData.h')
+
+
+def test_the_tet_data_are_current():
+    check_inputs('HumanTetData.h')

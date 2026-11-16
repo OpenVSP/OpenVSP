@@ -120,6 +120,26 @@ python3 human_bezier.py --check    # also measures the fit (much longer)
 Regenerate after changing the anthropometric tables or the part layout.  The
 generator needs NumPy and SciPy.
 
+## The tet mesh: `human_tets.py`
+
+`HumanGeom` poses the body by volumetric
+as-rigid-as-possible deformation (ARAP) or by Fast Automatic Skinning
+Transformations (FAST) of a tetrahedral mesh that fills it.  `human_tets.py`
+generates the mesh and everything the posing needs into `../HumanTetData.h`; its
+header comment describes the construction.  One mesh serves every body of both
+sexes: its connectivity is fixed and its vertices are linear in the
+anthropometric vector, as the skin is.  It is mirror symmetric, and so are its
+handles' weights and FAST's additional weights and rotation groups.
+
+```
+python3 human_tets.py                                 # writes ../HumanTetData.h, under a minute
+python3 human_tets.py --lattice 30 --out FILE         # another lattice cube edge (mm; 40 by default)
+```
+
+Regenerate after changing the anthropometric tables, the skeleton or the
+handles.  It needs NumPy, SciPy and libigl's Python bindings (tested with
+libigl 2.6.3).
+
 ## Tests
 
 ```
