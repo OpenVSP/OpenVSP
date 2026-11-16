@@ -171,6 +171,19 @@ void ParmContainer::SetListedFlag( bool flag )
     }
 }
 
+//==== Number The Groups Of This Container's Parms ====//
+void ParmContainer::SetGroupDisplaySuffix( int num )
+{
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
 //==== Create A Unique ID  =====//
 string ParmContainer::GenerateID()
 {

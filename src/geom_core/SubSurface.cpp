@@ -159,19 +159,6 @@ void SubSurface::SetName( const string& name, bool removeslashes )
     }
 }
 
-void SubSurface::SetDisplaySuffix( int num )
-{
-    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
-    {
-        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
-
-        if ( p )
-        {
-            p->SetGroupDisplaySuffix( num );
-        }
-    }
-}
-
 void SubSurface::SetGroupDisplaySuffixes( unordered_map< string, int > & group_count )
 {
     // This subsurface's number in each of its groups.

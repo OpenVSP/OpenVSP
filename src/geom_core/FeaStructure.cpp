@@ -250,12 +250,12 @@ void FeaStructure::ReSuffixGroupNames()
 
     for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )
     {
-        m_FeaPartVec[i]->SetDisplaySuffix( i );
+        m_FeaPartVec[i]->SetGroupDisplaySuffix( i );
     }
 
     for ( size_t i = 0; i < m_FeaSubSurfVec.size(); i++ )
     {
-        m_FeaSubSurfVec[i]->SetDisplaySuffix( i );
+        m_FeaSubSurfVec[i]->SetGroupDisplaySuffix( i );
     }
 }
 
@@ -1318,19 +1318,6 @@ xmlNodePtr FeaPart::DecodeXml( xmlNodePtr & node )
     }
 
     return ParmContainer::DecodeXml( node );
-}
-
-void FeaPart::SetDisplaySuffix( int num )
-{
-    for ( int i = 0; i < (int)m_ParmVec.size(); i++ )
-    {
-        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
-
-        if ( p )
-        {
-            p->SetGroupDisplaySuffix( num );
-        }
-    }
 }
 
 void FeaPart::UpdateSymmParts()

@@ -1535,18 +1535,6 @@ void SkinSpine::ParmChanged( Parm* parm_ptr, int type )
     }
 }
 
-void SkinSpine::SetGroupDisplaySuffix( int num )
-{
-    for ( int i = 0; i < ( int )m_ParmVec.size(); i++ )
-    {
-        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
-        if ( p )
-        {
-            p->SetGroupDisplaySuffix( num );
-        }
-    }
-}
-
 void SkinSpine::SetGroupAlias( const string & alias )
 {
     for ( int i = 0; i < ( int )m_ParmVec.size(); i++ )

@@ -163,7 +163,6 @@ public:
     // defined in (non-dimensional) parametric u/w space and need nothing; the base is a no-op.
     virtual void Scale( double currentScale ) {}
 
-    virtual void SetDisplaySuffix( int num );
     // Save, Load
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

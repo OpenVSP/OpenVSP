@@ -62,6 +62,9 @@ public:
     void SetListedFlag( bool flag );
     bool GetListedFlag() const                      { return m_ListedFlag; }
 
+    // Number the groups of this container's Parms, so that two of a kind held together are told apart.
+    virtual void SetGroupDisplaySuffix( int num );
+
     virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }
     virtual int GetLatestChangeCnt();
 

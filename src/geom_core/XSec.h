@@ -157,7 +157,6 @@ public:
     // beneath that Geom, so they need to be told apart.  The suffix carries the XSec index,
     // the alias the spine's name -- giving SkinSpine_2_Spine_0 and matching how an XSec's
     // own parms already read.
-    virtual void SetGroupDisplaySuffix( int num );
     virtual void SetGroupAlias( const string & alias );
 
     // Where this spine's mirror images sit.  Right is W = 0, Bottom 1, Left 2, Top 3, so a

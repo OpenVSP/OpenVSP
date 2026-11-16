@@ -6368,15 +6368,7 @@ xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
 void RotorDisk::SetGroupDisplaySuffix(int num)
 {
     m_GroupSuffix = num;
-    //==== Assign Group Suffix To All Parms ====//
-    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
-    {
-        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
-        if ( p )
-        {
-            p->SetGroupDisplaySuffix( num );
-        }
-    }
+    ParmContainer::SetGroupDisplaySuffix( num );
 }
 
 /*##############################################################################
@@ -6551,15 +6543,7 @@ void ControlSurfaceGroup::RemoveControlSurface( const VspAeroControlSurf &contro
 void ControlSurfaceGroup::SetGroupDisplaySuffix( int num )
 {
     m_GroupSuffix = num;
-    //==== Assign Group Suffix To All Parms ====//
-    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
-    {
-        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
-        if ( p )
-        {
-            p->SetGroupDisplaySuffix( num );
-        }
-    }
+    ParmContainer::SetGroupDisplaySuffix( num );
 }
 
 /*##############################################################################
