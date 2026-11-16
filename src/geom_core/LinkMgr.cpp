@@ -665,7 +665,7 @@ void LinkMgrSingleton::BuildLinkableParmData()
         if ( pc )
         {
             //==== Find All Linkable Containers (Children of Base Container) And Parms ===//
-            pc->AddLinkableContainers( m_LinkableContainers );
+            pc->AddTopContainerIDs( m_LinkableContainers );
         }
     }
 

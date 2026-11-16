@@ -288,28 +288,28 @@ void StructureMgrSingleton::CleanUnusedDefaultProperties()
     m_FeaPropertyVec = keep;
 }
 
-void StructureMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )
+void StructureMgrSingleton::AddTopContainerIDs( vector< string > & container_ids )
 {
     vector< FeaStructure* > feastructvec = GetAllFeaStructs();
 
     for ( size_t i = 0; i < feastructvec.size(); i++ )
     {
-        feastructvec[i]->AddLinkableContainers( linkable_container_vec );
+        feastructvec[i]->AddTopContainerIDs( container_ids );
     }
 
     for ( int i = 0; i < (int)m_FeaMaterialVec.size(); i++ )
     {
-        m_FeaMaterialVec[i]->AddLinkableContainers( linkable_container_vec );
+        m_FeaMaterialVec[i]->AddTopContainerIDs( container_ids );
     }
 
     for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
     {
-        m_FeaPropertyVec[i]->AddLinkableContainers( linkable_container_vec );
+        m_FeaPropertyVec[i]->AddTopContainerIDs( container_ids );
     }
 
     for ( int i = 0; i < (int)m_FeaAssemblyVec.size(); i++ )
     {
-        m_FeaAssemblyVec[i]->AddLinkableContainers( linkable_container_vec );
+        m_FeaAssemblyVec[i]->AddTopContainerIDs( container_ids );
     }
 }
 

@@ -38,7 +38,7 @@ public:
 
     void CleanUnusedDefaultProperties();
 
-    void AddLinkableContainers( vector< string > & linkable_container_vec );
+    void AddTopContainerIDs( vector< string > & container_ids );
 
     //==== FeaStructure Management ====//
     static vector < FeaStructure* > GetAllFeaStructs();

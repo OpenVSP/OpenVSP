@@ -488,7 +488,7 @@ string ParmContainer::FindParm( const string& parm_name  )
     return string();
 }
 
-void ParmContainer::AddLinkableContainers( vector< string > & linkable_container_vec )
+void ParmContainer::AddTopContainerIDs( vector< string > & container_ids )
 {
     //==== Find Linkable Parms For This Container ====//
     vector< string > linkable_parm_vec;
@@ -498,7 +498,7 @@ void ParmContainer::AddLinkableContainers( vector< string > & linkable_container
     LoadGroupParmVec( linkable_parm_vec );
 
     //==== Add This Container To Vector Of Linkable Containers ====//
-    linkable_container_vec.push_back( m_ID );
+    container_ids.push_back( m_ID );
 }
 
 //==== Look Though All Parms and Load Linkable Ones ===//

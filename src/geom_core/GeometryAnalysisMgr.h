@@ -220,7 +220,7 @@ public:
 
     string EvaluateAll();
 
-    void AddLinkableContainers( vector< string > & linkable_container_vec );
+    void AddTopContainerIDs( vector< string > & container_ids );
 
 
     string AddGeometryAnalysis();

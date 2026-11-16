@@ -7932,22 +7932,22 @@ vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, const vec3d
     return PathVec;
 }
 
-void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
+void Vehicle::AddTopContainerIDs( vector< string > & container_ids )
 {
-    ParmContainer::AddLinkableContainers( linkable_container_vec );
+    ParmContainer::AddTopContainerIDs( container_ids );
 
     //==== Add Geom Containers ====//
     vector< string > geom_id_vec = GetGeomVec();
     vector< Geom* > geom_vec = FindGeomVec( geom_id_vec );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        geom_vec[i]->AddLinkableContainers( linkable_container_vec );
+        geom_vec[i]->AddTopContainerIDs( container_ids );
     }
 
-    m_ClippingMgr.AddLinkableContainers( linkable_container_vec );
-    StructureMgr.AddLinkableContainers( linkable_container_vec );
-    GeometryAnalysisMgr.AddLinkableContainers( linkable_container_vec );
-    ResultsPlotMgr.AddLinkableContainers( linkable_container_vec );
+    m_ClippingMgr.AddTopContainerIDs( container_ids );
+    StructureMgr.AddTopContainerIDs( container_ids );
+    GeometryAnalysisMgr.AddTopContainerIDs( container_ids );
+    ResultsPlotMgr.AddTopContainerIDs( container_ids );
 }
 
 void Vehicle::UpdateBBox()

@@ -128,7 +128,7 @@ public:
     vector< TetraMassProp* > CreateTetraMassPropVec( int set );
     vector< TetraMassProp* > CreateTetraMassPropVec( const string &geomid );
 
-    virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
+    virtual void AddTopContainerIDs( vector< string > & container_ids );
 
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//
     vector< string > GetGeomVec( bool check_display_flag = false );

@@ -201,7 +201,7 @@ public:
     void Renew();
     void Wype();
 
-    void AddLinkableContainers( vector < string > & linkable_container_vec );
+    void AddTopContainerIDs( vector < string > & container_ids );
 
     // Write a plot, its curves and style but no Results, to a file of its own; false when it cannot be written.
     bool WritePlotFile( int index, const string & file_name );

@@ -3332,13 +3332,13 @@ string GeometryAnalysisMgrSingleton::EvaluateAll()
     return string();
 }
 
-void GeometryAnalysisMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )
+void GeometryAnalysisMgrSingleton::AddTopContainerIDs( vector< string > & container_ids )
 {
     for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
     {
         if ( m_GeometryAnalysisVec[i] )
         {
-            m_GeometryAnalysisVec[i]->AddLinkableContainers( linkable_container_vec );
+            m_GeometryAnalysisVec[i]->AddTopContainerIDs( container_ids );
         }
     }
 }

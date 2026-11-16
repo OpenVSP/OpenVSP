@@ -103,7 +103,7 @@ public:
     // Rebuild the map that finds a Parm by group and name from the Parms held now.
     virtual void UpdateGroupParmMap();
 
-    virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
+    virtual void AddTopContainerIDs( vector< string > & container_ids );
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
     // Name the container this one belongs to; ParmMgr keeps the inverse.
