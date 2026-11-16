@@ -851,6 +851,7 @@ public:
     //==== Sub Surface Management Methods ====//
     virtual void AddSubSurf( SubSurface* sub_surf )
     {
+        sub_surf->SetParentContainer( m_ID );
         m_SubSurfVec.push_back( sub_surf );
     }
     virtual SubSurface* AddSubSurf( int type, int surfindex );

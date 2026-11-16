@@ -14,6 +14,7 @@
 #include "ParmMgr.h"
 #include "ParmContainer.h"
 #include "Parm.h"
+#include "SubSurface.h"
 
 #include <string>
 #include <vector>
@@ -364,4 +365,34 @@ void ParmIndexTestSuite::EveryLiveContainerIsListed()
     vector< ParmContainer* > fewer;
     ParmMgr.GetAllParmContainers( fewer );
     TEST_ASSERT( fewer.size() == all.size() );
+}
+
+void ParmIndexTestSuite::ASubsurfacesParentIsItsOwner()
+{
+    vsp::VSPRenew();
+    string wing = vsp::AddGeom( "WING" );
+    vsp::Update();
+
+    //==== A Geom's own subsurface: the Geom both ways ====//
+    string own = vsp::AddSubSurf( wing, vsp::SS_RECTANGLE );
+    SubSurface* gsub = dynamic_cast< SubSurface* >( ParmMgr.FindParmContainer( own ) );
+    TEST_ASSERT( gsub && gsub->GetParentContainer() == wing && gsub->GetCompID() == wing );
+
+    //==== A structure's: the structure is the parent, the surface it lies on is still the Geom's ====//
+    int istruct = vsp::AddFeaStruct( wing );
+    string fea = vsp::GetFeaStructID( wing, istruct );
+    vsp::AddFeaSubSurf( wing, istruct, vsp::SS_RECTANGLE );
+
+    //==== As are the lines a line array is made into ====//
+    string array = vsp::AddFeaSubSurf( wing, istruct, vsp::SS_LINE_ARRAY );
+    vsp::IndividualizeFeaPart( wing, istruct, array );
+    vsp::Update();
+
+    vector< string > subs = vsp::GetFeaSubSurfIDVec( fea );
+    TEST_ASSERT( subs.size() > 2 );
+    for ( int i = 0; i < ( int )subs.size(); i++ )
+    {
+        SubSurface* sub = dynamic_cast< SubSurface* >( ParmMgr.FindParmContainer( subs[i] ) );
+        TEST_ASSERT( sub && sub->GetParentContainer() == fea && sub->GetCompID() == wing );
+    }
 }

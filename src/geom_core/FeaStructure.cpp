@@ -422,6 +422,7 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
     if ( ssurf )
     {
         ssurf->m_MainSurfIndx.Set( m_MainSurfIndx );
+        ssurf->SetParentContainer( GetID() );
         m_FeaSubSurfVec.push_back( ssurf );
     }
 

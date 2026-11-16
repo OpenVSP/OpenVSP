@@ -29,6 +29,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::TheTopOfANestedCurveIsItsGeom )
         TEST_ADD( ParmIndexTestSuite::AContainerWithNoParentIsItsOwnTop )
         TEST_ADD( ParmIndexTestSuite::EveryLiveContainerIsListed )
+        TEST_ADD( ParmIndexTestSuite::ASubsurfacesParentIsItsOwner )
     }
 
 private:
@@ -43,6 +44,7 @@ private:
     void TheTopOfANestedCurveIsItsGeom();
     void AContainerWithNoParentIsItsOwnTop();
     void EveryLiveContainerIsListed();
+    void ASubsurfacesParentIsItsOwner();
 };
 
 #endif

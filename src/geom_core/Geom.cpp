@@ -6794,9 +6794,9 @@ void Geom::ChangeID( const string &id )
 
     ParmContainer::ChangeID( id );
 
-    // The component ID as well as the parent container: the mesher matches a subsurface to a
-    // surface by comparing that against this Geom's ID, so a Geom whose ID changes has to tell
-    // its subsurfaces both halves or they stop matching anything.
+    // The component ID: the mesher matches a subsurface to a surface by comparing that against
+    // this Geom's ID, so a Geom whose ID changes has to tell its subsurfaces or they stop matching
+    // anything.  Their parent container follows by itself.
     for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i ++ )
     {
         m_SubSurfVec[i]->SetCompID( GetID() );
@@ -6913,7 +6913,6 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
 
     if ( ssurf )
     {
-        ssurf->SetParentContainer( GetID() );
         ssurf->m_MainSurfIndx.Set( surfindex );
         AddSubSurf( ssurf );
     }

@@ -127,6 +127,7 @@ public:
     }
     void AddFeaSubSurf( SubSurface* sub_surf )
     {
+        sub_surf->SetParentContainer( GetID() );
         m_FeaSubSurfVec.push_back( sub_surf );
     }
 
