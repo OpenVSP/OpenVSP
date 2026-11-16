@@ -22,6 +22,29 @@
 #include "MaleGeomDataReduced.h"
 #include "FemaleGeomDataReduced.h"
 
+// The rotation by the rotation vector w ( radians, right handed ).
+static Matrix4d RotVecMat( const vec3d &w )
+{
+    Matrix4d R;
+    double a = w.mag();
+    if ( a > 1e-15 )
+    {
+        R.rotate( -a, w / a );
+    }
+    return R;
+}
+
+// The rotation part of a transform.
+static Matrix4d RotPart( const Matrix4d &T )
+{
+    Matrix4d R = T;
+    double *m = R.data();
+    m[12] = 0.0;
+    m[13] = 0.0;
+    m[14] = 0.0;
+    return R;
+}
+
 unordered_set < int > HumanGeom::m_VertCopySet;
 vector < int > HumanGeom::m_FullSrc;
 Vsp1DCurve HumanGeom::m_MaleStatureECDF;
@@ -103,7 +126,7 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_RLSymFlag.Init( "RLSym", "Pose", this, 1, 0, 1 );
     m_RLSymFlag.SetDescript( "Set left/right pose parameters equal." );
 
-    m_WristRt.Init( "WristRt", "Pose", this, 0.0, -90.0, 90.0 );
+    m_WristRt.Init( "WristRt", "Pose", this, 0.0, -90.0, 80.0 );
     m_WristRt.SetDescript( "Right wrist angle" );
 
     m_ForearmRt.Init( "ForearmRt", "Pose", this, 0.0, -90.0, 90.0 );
@@ -112,19 +135,19 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ElbowRt.Init( "ElbowRt", "Pose", this, 15.0, 0, 150.0 );
     m_ElbowRt.SetDescript( "Right elbow angle" );
 
-    m_ShoulderABADRt.Init( "ShoulderABADRt", "Pose", this, 0, -40, 170.0 );
+    m_ShoulderABADRt.Init( "ShoulderABADRt", "Pose", this, 20.0, -20.0, 180.0 );
     m_ShoulderABADRt.SetDescript( "Right shoulder AB/AD angle" );
 
-    m_ShoulderFERt.Init( "ShoulderFERt", "Pose", this, 0, -30, 180.0 );
+    m_ShoulderFERt.Init( "ShoulderFERt", "Pose", this, 0.0, -60.0, 180.0 );
     m_ShoulderFERt.SetDescript( "Right shoulder FE angle" );
 
-    m_ShoulderIERt.Init( "ShoulderIERt", "Pose", this, 0.0, -30, 100.0 );
+    m_ShoulderIERt.Init( "ShoulderIERt", "Pose", this, 0.0, -90.0, 90.0 );
     m_ShoulderIERt.SetDescript( "Right shoulder IE angle" );
 
-    m_HipABADRt.Init( "HipABADRt", "Pose", this, 0.5, -45, 45.0 );
+    m_HipABADRt.Init( "HipABADRt", "Pose", this, 0.5, -30.0, 45.0 );
     m_HipABADRt.SetDescript( "Right hip AB/AD angle" );
 
-    m_HipFERt.Init( "HipFERt", "Pose", this, 2.5, -15.0, 130.0 );
+    m_HipFERt.Init( "HipFERt", "Pose", this, 2.5, -30.0, 130.0 );
     m_HipFERt.SetDescript( "Right hip FE angle" );
 
     m_HipIERt.Init( "HipIERt", "Pose", this, 0.0, -45.0, 45.0 );
@@ -133,10 +156,10 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_KneeRt.Init( "KneeRt", "Pose", this, 0.0, 0.0, 140.0 );
     m_KneeRt.SetDescript( "Right knee angle" );
 
-    m_AnkleRt.Init( "AnkleRt", "Pose", this, 0.0, -15, 15.0 );
+    m_AnkleRt.Init( "AnkleRt", "Pose", this, 0.0, -50.0, 35.0 );
     m_AnkleRt.SetDescript( "Right ankle angle" );
 
-    m_WristLt.Init( "WristLt", "Pose", this, 0.0, -90.0, 90.0 );
+    m_WristLt.Init( "WristLt", "Pose", this, 0.0, -90.0, 80.0 );
     m_WristLt.SetDescript( "Left wrist angle" );
 
     m_ForearmLt.Init( "ForearmLt", "Pose", this, 0.0, -90.0, 90.0 );
@@ -145,19 +168,19 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ElbowLt.Init( "ElbowLt", "Pose", this, 15.0, 0, 150.0 );
     m_ElbowLt.SetDescript( "Left elbow angle" );
 
-    m_ShoulderABADLt.Init( "ShoulderABADLt", "Pose", this, 0, -40, 170.0 );
+    m_ShoulderABADLt.Init( "ShoulderABADLt", "Pose", this, 20.0, -20.0, 180.0 );
     m_ShoulderABADLt.SetDescript( "Left shoulder AB/AD angle" );
 
-    m_ShoulderFELt.Init( "ShoulderFELt", "Pose", this, 0, -30, 180.0 );
+    m_ShoulderFELt.Init( "ShoulderFELt", "Pose", this, 0.0, -60.0, 180.0 );
     m_ShoulderFELt.SetDescript( "Left shoulder FE angle" );
 
-    m_ShoulderIELt.Init( "ShoulderIELt", "Pose", this, 0.0, -30, 100.0 );
+    m_ShoulderIELt.Init( "ShoulderIELt", "Pose", this, 0.0, -90.0, 90.0 );
     m_ShoulderIELt.SetDescript( "Left shoulder IE angle" );
 
-    m_HipABADLt.Init( "HipABADLt", "Pose", this, 0.5, -45, 45.0 );
+    m_HipABADLt.Init( "HipABADLt", "Pose", this, 0.5, -30.0, 45.0 );
     m_HipABADLt.SetDescript( "Left hip AB/AD angle" );
 
-    m_HipFELt.Init( "HipFELt", "Pose", this, 2.5, -15.0, 130.0 );
+    m_HipFELt.Init( "HipFELt", "Pose", this, 2.5, -30.0, 130.0 );
     m_HipFELt.SetDescript( "Left hip FE angle" );
 
     m_HipIELt.Init( "HipIELt", "Pose", this, 0.0, -45.0, 45.0 );
@@ -166,7 +189,7 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_KneeLt.Init( "KneeLt", "Pose", this, 0.0, 0.0, 140.0 );
     m_KneeLt.SetDescript( "Left knee angle" );
 
-    m_AnkleLt.Init( "AnkleLt", "Pose", this, 0.0, -15, 15.0 );
+    m_AnkleLt.Init( "AnkleLt", "Pose", this, 0.0, -50.0, 35.0 );
     m_AnkleLt.SetDescript( "Left ankle angle" );
 
     m_Back.Init( "Back", "Pose", this, 0.0, -15, 45.0 );
@@ -181,7 +204,7 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TorsoBend.Init( "TorsoBend", "Pose", this, 0.0, -30.0, 30.0 );
     m_TorsoBend.SetDescript( "Torso side bend angle, bent right positive" );
 
-    m_Nod.Init( "Nod", "Pose", this, 0.0, -40, 50.0 );
+    m_Nod.Init( "Nod", "Pose", this, 0.0, -60.0, 50.0 );
     m_Nod.SetDescript( "Nod angle" );
 
     m_RotateHead.Init( "RotateHead", "Pose", this, 0.0, -80, 80.0 );
@@ -622,24 +645,26 @@ void HumanGeom::UpdateSurf()
     Matrix4d t_rtwrist, t_rtforearm, t_rtbicep, t_rtclav, t_rtgh, t_rtfoot, t_rtshin, t_rtthigh, t_back, t_waist, t_head;
     Matrix4d t_ltwrist, t_ltforearm, t_ltbicep, t_ltclav, t_ltgh, t_ltfoot, t_ltshin, t_ltthigh;
 
-    ComputeShoulderTrans( RSHOULDER, RELBOW, m_ShoulderABADRt(), m_ShoulderFERt(), t_rtbicep );
+    ComputeShoulderTrans( RSHOULDER, RELBOW, m_ShoulderABADRt() * M_PI / 180.0, m_ShoulderFERt() * M_PI / 180.0,
+                          m_ShoulderIERt() * M_PI / 180.0, t_rtbicep );
     ComputeShoulderGirdleTrans( RSHOULDER, RELBOW, t_rtbicep, false, t_rtclav, t_rtgh );
     t_rtbicep.postMult( t_rtgh );
 
-    ComputeElbowTrans( RSHOULDER, RELBOW, RWRIST, m_ElbowRt() * M_PI / 180.0, m_ShoulderIERt() * M_PI / 180.0, t_rtforearm );
+    ComputeElbowTrans( RSHOULDER, RELBOW, RWRIST, m_ElbowRt() * M_PI / 180.0, t_rtforearm );
     t_rtforearm.postMult( t_rtbicep );
 
-    ComputeForearmTrans( RELBOW, RWRIST, RWRISTAX, RFINGER, m_ForearmRt() * M_PI / 180.0, m_WristRt() * M_PI / 180.0, t_rtwrist);
+    ComputeForearmTrans( RELBOW, RWRIST, RWRISTAX, RFINGER, m_ForearmRt() * M_PI / 180.0, -m_WristRt() * M_PI / 180.0, t_rtwrist);
     t_rtwrist.postMult( t_rtforearm );
 
-    ComputeShoulderTrans( LSHOULDER, LELBOW, -m_ShoulderABADLt(), m_ShoulderFELt(), t_ltbicep );
+    ComputeShoulderTrans( LSHOULDER, LELBOW, -m_ShoulderABADLt() * M_PI / 180.0, m_ShoulderFELt() * M_PI / 180.0,
+                          -m_ShoulderIELt() * M_PI / 180.0, t_ltbicep );
     ComputeShoulderGirdleTrans( LSHOULDER, LELBOW, t_ltbicep, true, t_ltclav, t_ltgh );
     t_ltbicep.postMult( t_ltgh );
 
-    ComputeElbowTrans( LSHOULDER, LELBOW, LWRIST, m_ElbowLt() * M_PI / 180.0, -m_ShoulderIELt() * M_PI / 180.0, t_ltforearm );
+    ComputeElbowTrans( LSHOULDER, LELBOW, LWRIST, m_ElbowLt() * M_PI / 180.0, t_ltforearm );
     t_ltforearm.postMult( t_ltbicep );
 
-    ComputeForearmTrans( LELBOW, LWRIST, LWRISTAX, LFINGER, -m_ForearmLt() * M_PI / 180.0, -m_WristLt() * M_PI / 180.0, t_ltwrist);
+    ComputeForearmTrans( LELBOW, LWRIST, LWRISTAX, LFINGER, -m_ForearmLt() * M_PI / 180.0, m_WristLt() * M_PI / 180.0, t_ltwrist);
     t_ltwrist.postMult( t_ltforearm );
 
     ComputeHeadTrans( ORIGIN, HEAD, m_Nod() * M_PI / 180.0, m_RotateHead() * M_PI / 180.0, m_HeadTilt() * M_PI / 180.0, t_head );
@@ -654,7 +679,8 @@ void HumanGeom::UpdateSurf()
     ComputeWaistTrans( ORIGIN, BACK, WAIST, RHIP, m_Waist() * M_PI / 180.0, 0.5 * bend, twist, t_waist );
     t_waist.postMult( t_back );
 
-    ComputeHipTrans( WAIST, RHIP, RKNEE, m_HipABADRt(), m_HipFERt(), m_HipIERt() * M_PI / 180.0, t_rtthigh );
+    ComputeHipTrans( WAIST, RHIP, RKNEE, m_HipABADRt() * M_PI / 180.0, m_HipFERt() * M_PI / 180.0, m_HipIERt() * M_PI / 180.0,
+                     t_rtthigh );
     t_rtthigh.postMult( t_waist );
 
     ComputeKneeTrans( RHIP, RKNEE, RANKLE, m_KneeRt() * M_PI / 180.0, t_rtshin );
@@ -664,7 +690,8 @@ void HumanGeom::UpdateSurf()
     t_rtfoot.postMult( t_rtshin );
 
 
-    ComputeHipTrans( WAIST, LHIP, LKNEE, -m_HipABADLt(), m_HipFELt(), -m_HipIELt() * M_PI / 180.0, t_ltthigh );
+    ComputeHipTrans( WAIST, LHIP, LKNEE, -m_HipABADLt() * M_PI / 180.0, m_HipFELt() * M_PI / 180.0, -m_HipIELt() * M_PI / 180.0,
+                     t_ltthigh );
     t_ltthigh.postMult( t_waist );
 
     ComputeKneeTrans( LHIP, LKNEE, LANKLE, m_KneeLt() * M_PI / 180.0, t_ltshin );
@@ -1656,20 +1683,17 @@ static vec3d ShoulderGirdle( double elv )
 
 // The shoulder girdle's transform Tclav, and the move Tgh of the shoulder joint, for the arm
 // posed by Tbicep.  The model is scaled by the shoulder joint's distance from the centre plane,
-// and the girdle moves from the default arm's elevation (both angles zero) to the posed one's.
+// and the girdle moves from the rest arm's elevation to the posed one's.
 // The girdle swings about the sternoclavicular joint to point at the moved shoulder joint, and
 // stretches along that line by the change in their distance.
 void HumanGeom::ComputeShoulderGirdleTrans( const int &ishoulder, const int &ielbow, const Matrix4d &Tbicep, bool mirror, Matrix4d &Tclav, Matrix4d &Tgh )
 {
     const vec3d &pshoulder = m_SkelVerts[ ishoulder ];
 
-    vec3d u = m_SkelVerts[ ielbow ] - pshoulder;
-    u.normalize();
-
-    Matrix4d Tdefault;
-    ComputeShoulderTrans( ishoulder, ielbow, 0.0, 0.0, Tdefault );
-    vec3d u0 = Tdefault.xformnorm( u );
-    vec3d u1 = Tbicep.xformnorm( u );
+    // From the rest arm's elevation to the posed one's.
+    vec3d u0 = m_SkelVerts[ ielbow ] - pshoulder;
+    u0.normalize();
+    vec3d u1 = Tbicep.xformnorm( u0 );
 
     double e0 = acos( clamp( -u0.z(), -1.0, 1.0 ) );
     double e1 = acos( clamp( -u1.z(), -1.0, 1.0 ) );
@@ -1709,7 +1733,92 @@ void HumanGeom::ComputeShoulderGirdleTrans( const int &ishoulder, const int &iel
     Tgh.translatev( d );
 }
 
-void HumanGeom::ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &ang1, const double &ang2, Matrix4d &T )
+// The smallest rotation from a limb's reference direction R0 d0 to the vertical.
+static Matrix4d ToVertical( const vec3d &d0, const Matrix4d &R0 )
+{
+    vec3d dr = R0.xformnorm( d0 );
+    dr.normalize();
+    vec3d down( 0, 0, -1 );
+    vec3d wr = cross( down, dr );
+    double sn = wr.mag();
+    if ( sn > 1e-15 )
+    {
+        wr = wr * ( atan2( sn, dot( down, dr ) ) / sn );
+    }
+    return RotVecMat( wr * -1.0 );
+}
+
+// A limb's transform about its proximal joint p, by abduction abad, flexion fe and internal
+// rotation ie ( radians ), all zero with the limb vertical.  The limb, rest direction d0, is
+// twisted by ie about d0, turned by the reference rotation R0, and taken from its reference
+// direction to the vertical by the smallest rotation; it is then swung by the rotation vector
+// fe Y + abad X.  So fe alone turns it forward and abad alone outward ( for the right side ),
+// each in its own plane, and neither has a singularity short of 180.
+static void ComputeSwingTwistTrans( const vec3d &p, const vec3d &d0, const Matrix4d &R0, double abad, double fe, double ie,
+                                    Matrix4d &T )
+{
+    vec3d w = vec3d( 0, 1, 0 ) * fe + vec3d( 1, 0, 0 ) * abad;
+
+    vec3d axis = d0;
+    axis.normalize();
+
+    T.loadIdentity();
+    T.translatev( p );
+    T.matMult( RotVecMat( w ) );
+    T.matMult( ToVertical( d0, R0 ) );
+    T.matMult( R0 );
+    T.rotate( ie, axis );
+    T.translatev( -p );
+}
+
+// As ComputeSwingTwistTrans, but in the order of the ISB hip: flexion fe about Y, then abduction
+// abad about the floating axis ( perpendicular to Y and the flexed limb ), then internal rotation
+// ie about the limb.  abad is then the limb's angle out of its flexion plane, whatever the
+// flexion; the order is singular only at abad +-90.
+static void ComputeFlexAbductTwistTrans( const vec3d &p, const vec3d &d0, const Matrix4d &R0, double abad, double fe,
+                                         double ie, Matrix4d &T )
+{
+    Matrix4d Rf = RotVecMat( vec3d( 0, 1, 0 ) * fe );
+    vec3d f = Rf.xformnorm( vec3d( 0, 0, -1 ) );
+    vec3d floating = cross( f, vec3d( 0, 1, 0 ) );
+    floating.normalize();
+
+    vec3d axis = d0;
+    axis.normalize();
+
+    T.loadIdentity();
+    T.translatev( p );
+    T.matMult( RotVecMat( floating * abad ) );
+    T.matMult( Rf );
+    T.matMult( ToVertical( d0, R0 ) );
+    T.matMult( R0 );
+    T.rotate( ie, axis );
+    T.translatev( -p );
+}
+
+// The upper arm's transform; its twist reference is the two-angle shoulder's arm at zero.
+void HumanGeom::ComputeShoulderTrans( const int &ishoulder, const int &ielbow, const double &abad, const double &fe,
+                                      const double &ie, Matrix4d &T )
+{
+    Matrix4d Tref;
+    ComputeShoulderRefTrans( ishoulder, ielbow, Tref );
+    const vec3d &pshoulder = m_SkelVerts[ ishoulder ];
+    ComputeSwingTwistTrans( pshoulder, m_SkelVerts[ ielbow ] - pshoulder, RotPart( Tref ), abad, fe, ie, T );
+}
+
+// The thigh's transform, flexion first; its twist reference is the two-angle hip's thigh at zero.
+// Positive ie turns the thigh inward.
+void HumanGeom::ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &abad, const double &fe,
+                                 const double &ie, Matrix4d &T )
+{
+    Matrix4d Tref;
+    ComputeHipRefTrans( iwaist, ihip, iknee, Tref );
+    const vec3d &phip = m_SkelVerts[ ihip ];
+    ComputeFlexAbductTwistTrans( phip, m_SkelVerts[ iknee ] - phip, RotPart( Tref ), abad, fe, ie, T );
+}
+
+// The twist reference of ComputeShoulderTrans: the two-angle shoulder's arm at zero.
+void HumanGeom::ComputeShoulderRefTrans( const int &ishoulder, const int &ielbow, Matrix4d &T )
 {
     const vec3d &pshoulder = m_SkelVerts[ ishoulder ];
     const vec3d &pelbow = m_SkelVerts[ ielbow ];
@@ -1730,28 +1839,26 @@ void HumanGeom::ComputeShoulderTrans( const int &ishoulder, const int &ielbow, c
     vec3d angles = Tstart.getAngles();
 
     T.translatev( pshoulder );
-    T.rotateX( ang1 ); // - angles.x() + 180  );
-    T.rotateY( ang2 - angles.y() );
+    T.rotateY( -angles.y() );
     T.translatev( -pshoulder );
 }
 
-void HumanGeom::ComputeElbowTrans( const int &ishoulder, const int &ielbow, const int &ihand, const double &ang, const double &ang2, Matrix4d &T )
+// Flexion ( radians ) about the upper arm's lateral axis, so the forearm turns forward; the rest
+// forearm's bend sets zero, and its carrying angle is kept.
+void HumanGeom::ComputeElbowTrans( const int &ishoulder, const int &ielbow, const int &ihand, const double &ang, Matrix4d &T )
 {
     const vec3d &pshoulder = m_SkelVerts[ ishoulder ];
     const vec3d &pelbow = m_SkelVerts[ ielbow ];
     const vec3d &phand = m_SkelVerts[ ihand ];
 
-    vec3d vforearm = phand - pelbow;
     vec3d vbicep = pelbow - pshoulder;
+    double angle0 = angle( phand - pelbow, vbicep );
 
-    double angle0 = angle( vforearm, vbicep );
-
-    vec3d axis = cross( vforearm, vbicep );
-    vbicep.normalize();
+    vec3d axis = cross( vbicep, vec3d( -1, 0, 0 ) );
+    axis.normalize();
 
     T.translatev( pelbow );
-    T.rotate( ang2, vbicep );
-    T.rotate( ang - angle0, axis );
+    T.matMult( RotVecMat( axis * ( ang - angle0 ) ) );
     T.translatev( -pelbow );
 }
 
@@ -1775,14 +1882,14 @@ void HumanGeom::ComputeForearmTrans( const int &ielbow, const int &iwrist, const
     T.translatev( -pwrist );
 }
 
-void HumanGeom::ComputeHipTrans( const int &iwaist, const int &ihip, const int &iknee, const double &ang1, const double &ang2, const double &ang3, Matrix4d &T )
+// The twist reference of ComputeHipTrans: the two-angle hip's thigh at zero.
+void HumanGeom::ComputeHipRefTrans( const int &iwaist, const int &ihip, const int &iknee, Matrix4d &T )
 {
     const vec3d &pwaist = m_SkelVerts[ iwaist ];
     const vec3d &phip = m_SkelVerts[ ihip ];
     const vec3d &pknee = m_SkelVerts[ iknee ];
 
     vec3d vthigh = pknee - phip;
-    vec3d vaxis = vthigh;
 
     vec3d vfwd = vec3d( -1, 0, 0 );
 
@@ -1798,9 +1905,8 @@ void HumanGeom::ComputeHipTrans( const int &iwaist, const int &ihip, const int &
     vec3d angles = Tstart.getAngles();
 
     T.translatev( phip );
-    T.rotateX( ang1 - angles.x() + 180  );
-    T.rotateY( ang2 - angles.y() );
-    T.rotate( ang3, vaxis );
+    T.rotateX( 180.0 - angles.x() );
+    T.rotateY( -angles.y() );
     T.translatev( -phip );
 }
 

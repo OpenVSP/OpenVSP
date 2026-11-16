@@ -100,8 +100,8 @@ HANDLES = [('UPSPINE_A', 'UPSPINE', [('ORIGIN', 'BACK', _T0, _TM)], [0], 'TORSO'
            ('SKULL', 'NECK', [('HEAD', 'DES_EYE', _T0, _T1)], [0], None, 0.0)]
 for _s in 'LR':
     HANDLES += [(_s + 'CLAV', _s + 'CLAV', [('ORIGIN', _s + 'SHOULDER', _T0, _T1)], [0], None, 0.0),
-                (_s + 'BICEP_A', _s + 'BICEP', [(_s + 'SHOULDER', _s + 'ELBOW', _T0, _TM)], [0], _s + 'SHOULDER_IE', 0.35),
-                (_s + 'BICEP_B', _s + 'BICEP', [(_s + 'SHOULDER', _s + 'ELBOW', _TM, _T1)], [0], _s + 'SHOULDER_IE', 0.65),
+                (_s + 'BICEP_A', _s + 'BICEP', [(_s + 'SHOULDER', _s + 'ELBOW', _T0, _TM)], [0], _s + 'SHOULDER_IE', -0.65),
+                (_s + 'BICEP_B', _s + 'BICEP', [(_s + 'SHOULDER', _s + 'ELBOW', _TM, _T1)], [0], _s + 'SHOULDER_IE', -0.35),
                 (_s + 'FOREARM_A', _s + 'FOREARM', [(_s + 'ELBOW', _s + 'WRIST', _T0, _TM)], [0], _s + 'PRONATION', 0.35),
                 (_s + 'FOREARM_B', _s + 'FOREARM', [(_s + 'ELBOW', _s + 'WRIST', _TM, _T1),
                                                     (_s + 'WRIST', _s + 'WRISTAX', _T0, _T1)], [0], _s + 'PRONATION', 0.65),
