@@ -31,6 +31,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::EveryLiveContainerIsListed )
         TEST_ADD( ParmIndexTestSuite::ASubsurfacesParentIsItsOwner )
         TEST_ADD( ParmIndexTestSuite::AStructureIsTheParentOfWhatItHolds )
+        TEST_ADD( ParmIndexTestSuite::AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold )
     }
 
 private:
@@ -47,6 +48,7 @@ private:
     void EveryLiveContainerIsListed();
     void ASubsurfacesParentIsItsOwner();
     void AStructureIsTheParentOfWhatItHolds();
+    void AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold();
 };
 
 #endif

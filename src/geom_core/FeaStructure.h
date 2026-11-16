@@ -832,6 +832,7 @@ public:
 
     void AddLayer( FeaLayer *lay )
     {
+        lay->SetParentContainer( GetID() );
         m_LayerVec.push_back( lay );
     }
     FeaLayer* AddLayer();

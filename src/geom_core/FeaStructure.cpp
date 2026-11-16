@@ -7121,6 +7121,7 @@ FeaLayer* FeaMaterial::AddLayer()
     if ( fealayer )
     {
         fealayer->SetName( string( "Layer" + std::to_string( m_FeaLayerCount ) ), false ); // false is for removeslashes
+        fealayer->SetParentContainer( GetID() );
         m_LayerVec.push_back( fealayer );
         m_FeaLayerCount++;
     }
@@ -7875,6 +7876,7 @@ void FeaConnection::SetDrawObjHighlight ( bool highlight )
 
 FeaAssembly::FeaAssembly( )
 {
+    m_AssemblySettings.SetParentContainer( GetID() );
 }
 
 FeaAssembly::~FeaAssembly()
@@ -7976,6 +7978,7 @@ xmlNodePtr FeaAssembly::DecodeXml( xmlNodePtr & assy_node )
                 {
                     FeaConnection *conn = new FeaConnection();
                     conn->DecodeXml( n );
+                    conn->SetParentContainer( GetID() );
                     m_ConnectionVec.push_back( conn );
                 }
             }
@@ -8040,6 +8043,7 @@ void FeaAssembly::AddConnection( const string &startid, const string &startstruc
         conn->m_EndStructID = endstructid;
         conn->m_EndFixPtSurfIndex = endindx;
 
+        conn->SetParentContainer( GetID() );
         m_ConnectionVec.push_back( conn );
     }
 }

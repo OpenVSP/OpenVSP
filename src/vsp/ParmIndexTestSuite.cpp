@@ -433,3 +433,38 @@ void ParmIndexTestSuite::AStructureIsTheParentOfWhatItHolds()
     }
     TEST_ASSERT( fs->GetStructSettingsPtr()->GetParentContainer() == fea );
 }
+
+void ParmIndexTestSuite::AMaterialAndAnAssemblyAreTheParentsOfWhatTheyHold()
+{
+    vsp::VSPRenew();
+
+    //==== A laminate's layers ====//
+    string mat = vsp::AddFeaMaterial();
+    vsp::SetParmVal( mat, "FeaMaterialType", "FeaMaterial", vsp::FEA_LAMINATE );
+    string layer = vsp::AddFeaLayer( mat );
+    TEST_ASSERT( ParmMgr.FindParmContainer( layer )->GetParentContainer() == mat );
+
+    //==== An assembly's connections ====//
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    int s1 = vsp::AddFeaStruct( pod );
+    int s2 = vsp::AddFeaStruct( pod );
+    string id1 = vsp::GetFeaStructID( pod, s1 );
+    string id2 = vsp::GetFeaStructID( pod, s2 );
+    string fix1 = vsp::AddFeaPart( pod, s1, vsp::FEA_FIX_POINT );
+    string fix2 = vsp::AddFeaPart( pod, s2, vsp::FEA_FIX_POINT );
+    string assy = vsp::AddFeaAssembly();
+    vsp::AddFeaAssemblyStructure( assy, id1 );
+    vsp::AddFeaAssemblyStructure( assy, id2 );
+    string conn = vsp::AddFeaAssemblyConnection( assy, fix1, id1, 0, fix2, id2, 0 );
+    TEST_ASSERT( ParmMgr.FindParmContainer( conn )->GetParentContainer() == assy );
+    TEST_ASSERT( StructureMgr.GetFeaAssembly( assy )->m_AssemblySettings.GetParentContainer() == assy );
+
+    //==== Both through a file read ====//
+    vsp::WriteVSPFile( "ParmIndexAssembly.vsp3" );
+    vsp::VSPRenew();
+    vsp::ReadVSPFile( "ParmIndexAssembly.vsp3" );
+    TEST_ASSERT( ParmMgr.FindParmContainer( layer )->GetParentContainer() == mat );
+    vector< string > conns = vsp::GetFeaAssemblyConnectionIDVec( assy );
+    TEST_ASSERT( conns.size() == 1 && ParmMgr.FindParmContainer( conns[0] )->GetParentContainer() == assy );
+}
