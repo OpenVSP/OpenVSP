@@ -339,11 +339,14 @@ public:
     UnsteadyGroup* AddUnsteadyGroup();
     void DeleteUnsteadyGroup( const vector <int> &ind_vec );
     bool ValidUnsteadyGroupInd( int index );
-    void AddUnsteadyGroup( UnsteadyGroup* group )               { m_UnsteadyGroupVec.push_back( group ); }
+    void AddUnsteadyGroup( UnsteadyGroup* group )               { m_UnsteadyGroupVec.push_back( group ); UpdateUnsteadyGroupSuffix(); }
     UnsteadyGroup* GetUnsteadyGroup( int index );
     int GetUnsteadyGroupIndex( const string& id );
     string GetUnsteadyGroupID( int index );
     void ClearUnsteadyGroupVec();
+
+    // Number each unsteady group's group by its place, as they are added, removed and moved.
+    void UpdateUnsteadyGroupSuffix();
     int NumUnsteadyGroups()                                  { return m_UnsteadyGroupVec.size(); }
     int NumUnsteadyRotorGroups();
     void HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_vec );

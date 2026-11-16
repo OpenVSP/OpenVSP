@@ -3717,6 +3717,14 @@ bool VSPAEROMgrSingleton::ValidRotorDiskIndex( int index )
     return false;
 }
 
+void VSPAEROMgrSingleton::UpdateUnsteadyGroupSuffix()
+{
+    for ( int i = 0 ; i < ( int )m_UnsteadyGroupVec.size(); ++i )
+    {
+        m_UnsteadyGroupVec[i]->SetGroupDisplaySuffix( i );
+    }
+}
+
 void VSPAEROMgrSingleton::UpdateRotorDiskSuffix()
 {
     for (int i = 0 ; i < (int) m_RotorDiskVec.size(); ++i)
@@ -4531,6 +4539,7 @@ void VSPAEROMgrSingleton::DeleteUnsteadyGroup( const vector <int> &ind_vec )
         }
     }
     m_UnsteadyGroupVec = tempvec;
+    UpdateUnsteadyGroupSuffix();
 }
 
 UnsteadyGroup* VSPAEROMgrSingleton::AddUnsteadyGroup()
@@ -5008,6 +5017,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         {
             m_UnsteadyGroupVec.erase( m_UnsteadyGroupVec.begin() + fixed_group_index );
             m_UnsteadyGroupVec.insert( m_UnsteadyGroupVec.begin(), fixed_group );
+            UpdateUnsteadyGroupSuffix();
         }
     }
 

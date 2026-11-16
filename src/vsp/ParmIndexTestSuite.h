@@ -40,6 +40,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AGeomsSubsurfacesOfEveryKindAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AGeomsSourcesAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AGeomsTexturesAreNumbered )
+        TEST_ADD( ParmIndexTestSuite::UnsteadyGroupsAreNumbered )
     }
 
 private:
@@ -65,6 +66,7 @@ private:
     void AGeomsSubsurfacesOfEveryKindAreNumbered();
     void AGeomsSourcesAreNumbered();
     void AGeomsTexturesAreNumbered();
+    void UnsteadyGroupsAreNumbered();
 };
 
 #endif

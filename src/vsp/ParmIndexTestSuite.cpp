@@ -845,3 +845,18 @@ void ParmIndexTestSuite::AGeomsTexturesAreNumbered()
         vsp::ErrorMgr.PopLastError();
     }
 }
+
+void ParmIndexTestSuite::UnsteadyGroupsAreNumbered()
+{
+    vsp::VSPRenew();
+    VSPAEROMgr.ClearUnsteadyGroupVec();
+    UnsteadyGroup* a = VSPAEROMgr.AddUnsteadyGroup();
+    UnsteadyGroup* b = VSPAEROMgr.AddUnsteadyGroup();
+    string ga = GroupOf( a->GetID() );
+    TEST_ASSERT( ga != GroupOf( b->GetID() ) );
+
+    //==== Removing the first renumbers the second, taking the first's number ====//
+    VSPAEROMgr.DeleteUnsteadyGroup( vector< int >( 1, 0 ) );
+    TEST_ASSERT( GroupOf( b->GetID() ) == ga );
+    VSPAEROMgr.ClearUnsteadyGroupVec();
+}
