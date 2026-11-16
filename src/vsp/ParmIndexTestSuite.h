@@ -30,6 +30,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AContainerWithNoParentIsItsOwnTop )
         TEST_ADD( ParmIndexTestSuite::EveryLiveContainerIsListed )
         TEST_ADD( ParmIndexTestSuite::ASubsurfacesParentIsItsOwner )
+        TEST_ADD( ParmIndexTestSuite::AStructureIsTheParentOfWhatItHolds )
     }
 
 private:
@@ -45,6 +46,7 @@ private:
     void AContainerWithNoParentIsItsOwnTop();
     void EveryLiveContainerIsListed();
     void ASubsurfacesParentIsItsOwner();
+    void AStructureIsTheParentOfWhatItHolds();
 };
 
 #endif

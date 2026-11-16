@@ -38,6 +38,9 @@ FeaStructure::FeaStructure( const string& geomID, int surf_index )
     m_FeaSubSurfCount = 0;
 
     m_FeaGridDensity.SetParentStruct( this );
+
+    m_StructSettings.SetParentContainer( GetID() );
+    m_FeaGridDensity.SetParentContainer( GetID() );
 }
 
 FeaStructure::~FeaStructure()
@@ -1014,6 +1017,7 @@ FeaPart::FeaPart( const string &geomID, const string &structID, int type )
     m_FeaPartType = type;
     m_ParentGeomID = geomID;
     m_StructID = structID;
+    SetParentContainer( structID );
 
     m_MainSurfIndx = 0;
 
@@ -8070,6 +8074,7 @@ void FeaAssembly::AddLinkableParms( vector< string > & linkable_parm_vec, const 
 FeaBC::FeaBC( const string &structID )
 {
     m_StructID = structID;
+    SetParentContainer( structID );
     m_FeaBCType.Init( "Type", "FeaBC", this, vsp::FEA_BC_STRUCTURE, vsp::FEA_BC_STRUCTURE, vsp::FEA_NUM_BC_TYPES - 1 );
 
     m_ConMode.Init( "ConMode", "FeaBC", this, vsp::FEA_BCM_USER, vsp::FEA_BCM_USER, vsp::FEA_NUM_BCM_MODES - 1 );

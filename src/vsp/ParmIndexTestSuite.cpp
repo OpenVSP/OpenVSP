@@ -15,6 +15,8 @@
 #include "ParmContainer.h"
 #include "Parm.h"
 #include "SubSurface.h"
+#include "FeaStructure.h"
+#include "StructureMgr.h"
 
 #include <string>
 #include <vector>
@@ -395,4 +397,39 @@ void ParmIndexTestSuite::ASubsurfacesParentIsItsOwner()
         SubSurface* sub = dynamic_cast< SubSurface* >( ParmMgr.FindParmContainer( subs[i] ) );
         TEST_ASSERT( sub && sub->GetParentContainer() == fea && sub->GetCompID() == wing );
     }
+}
+
+void ParmIndexTestSuite::AStructureIsTheParentOfWhatItHolds()
+{
+    vsp::VSPRenew();
+    string wing = vsp::AddGeom( "WING" );
+    vsp::Update();
+    int istruct = vsp::AddFeaStruct( wing );
+    string fea = vsp::GetFeaStructID( wing, istruct );
+    string rib = vsp::AddFeaPart( wing, istruct, vsp::FEA_RIB );
+    string bc = vsp::AddFeaBC( fea, vsp::FEA_BC_STRUCTURE );
+
+    TEST_ASSERT( ParmMgr.FindParmContainer( rib )->GetParentContainer() == fea );
+    TEST_ASSERT( ParmMgr.FindParmContainer( bc )->GetParentContainer() == fea );
+
+    //==== Its settings, and its skin ====//
+    FeaStructure* fs = StructureMgr.GetFeaStruct( fea );
+    TEST_ASSERT( fs != nullptr );
+    TEST_ASSERT( fs->GetStructSettingsPtr()->GetParentContainer() == fea );
+    TEST_ASSERT( fs->GetFeaGridDensityPtr()->GetParentContainer() == fea );
+    TEST_ASSERT( fs->GetFeaSkin() && fs->GetFeaSkin()->GetParentContainer() == fea );
+
+    //==== Through a file read ====//
+    vsp::WriteVSPFile( "ParmIndexStructure.vsp3" );
+    vsp::VSPRenew();
+    vsp::ReadVSPFile( "ParmIndexStructure.vsp3" );
+    fs = StructureMgr.GetFeaStruct( fea );
+    TEST_ASSERT( fs != nullptr );
+    vector< FeaPart* > parts = fs->GetFeaPartVec();
+    TEST_ASSERT( parts.size() == 2 );
+    for ( int i = 0; i < ( int )parts.size(); i++ )
+    {
+        TEST_ASSERT( parts[i]->GetParentContainer() == fea );
+    }
+    TEST_ASSERT( fs->GetStructSettingsPtr()->GetParentContainer() == fea );
 }
