@@ -5976,7 +5976,8 @@ void ReorderSubSurf( const std::string & geom_id, const std::string & sub_id, in
         return;
     }
 
-    if ( !geom_ptr->GetSubSurf( sub_id ) )
+    SubSurface* ssurf = geom_ptr->GetSubSurf( sub_id );
+    if ( !ssurf || IsHidden( ssurf ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "ReorderSubSurf::Can't Find Sub Surface " + sub_id );
         return;
@@ -6003,7 +6004,7 @@ void DeleteSubSurf( const std::string & geom_id, const std::string & sub_id )
         return;
     }
     int index = geom_ptr->GetSubSurfIndex( sub_id );
-    if ( index == -1 )
+    if ( index == -1 || IsHidden( geom_ptr->GetSubSurf( index ) ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
@@ -6040,7 +6041,7 @@ void DeleteSubSurf( const std::string & sub_id )
         return;
     }
     int index = geom_ptr->GetSubSurfIndex( sub_id );
-    if ( index == -1 )
+    if ( index == -1 || IsHidden( geom_ptr->GetSubSurf( index ) ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
@@ -6072,7 +6073,7 @@ void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, co
     }
     SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->GetSubSurf( sub_id );
-    if ( !ssurf )
+    if ( !ssurf || IsHidden( ssurf ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "SetSubSurfName::Can't Find Sub Surface " + sub_id );
         return;
@@ -6085,7 +6086,7 @@ void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, co
 void SetSubSurfName( const std::string & sub_id, const std::string & name )
 {
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
-    if ( !ss_ptr )
+    if ( !ss_ptr || IsHidden( ss_ptr ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "SetSubSurfName::Can't Find Sub Surface " + sub_id );
         return;

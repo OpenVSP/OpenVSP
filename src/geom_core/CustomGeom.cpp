@@ -968,6 +968,16 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
     return custom_node;
 }
 
+SubSurface* CustomGeom::AddSubSurf( int type, int surfindex )
+{
+    SubSurface* ss = XSecSurfGeom::AddSubSurf( type, surfindex );
+    if ( ss && CustomGeomMgr.GetRunningCustomGeom() == m_ID )
+    {
+        ss->SetListedFlag( false );
+    }
+    return ss;
+}
+
 //==== Run A Function Of This Component's Script ====//
 int CustomGeom::RunScript( const char* function_name, bool arg_flag, double arg )
 {

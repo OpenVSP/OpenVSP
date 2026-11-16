@@ -755,6 +755,9 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateEndCaps();
 
+    // A subsurface this component's own script adds is internal to it: not listed with it.
+    virtual SubSurface* AddSubSurf( int type, int surfindex );
+
     // The types a surface was given of its own, over those every surface was given.  Needed for transparent
     // custom geoms.
     virtual void UpdateFlags();

@@ -1,0 +1,37 @@
+// A tube whose script adds a line subsurface of its own, and sets and reads it through the component's ID.
+
+void Init()
+{
+    string id = AddParm( PARM_DOUBLE_TYPE, "LineU", "Design" );
+    SetParmValLimits( id, 0.5, 0.0, 1.0 );
+    id = AddParm( PARM_DOUBLE_TYPE, "ReadBack", "Design" );
+    SetParmValLimits( id, 0.0, 0.0, 1.0 );
+
+    string xsec_surf = AddXSecSurf();
+    AppendCustomXSec( xsec_surf, XS_CIRCLE );
+    AppendCustomXSec( xsec_surf, XS_CIRCLE );
+
+    AddSubSurf( GetCurrCustomGeom(), SS_LINE );
+}
+
+void InitGui()
+{
+}
+
+void UpdateGui()
+{
+}
+
+void UpdateSurf()
+{
+    string geom_id = GetCurrCustomGeom();
+
+    string xsec1 = GetXSec( GetXSecSurf( geom_id, 0 ), 1 );
+    SetCustomXSecLoc( xsec1, vec3d( 2.0, 0.0, 0.0 ) );
+
+    double u = GetParmVal( GetParm( geom_id, "LineU", "Design" ) );
+    SetParmVal( geom_id, "Const_Line_Value", "SubSurface_1", u );
+    SetParmVal( GetParm( geom_id, "ReadBack", "Design" ), GetParmVal( GetParm( geom_id, "Const_Line_Value", "SubSurface_1" ) ) );
+
+    SkinXSecSurf();
+}

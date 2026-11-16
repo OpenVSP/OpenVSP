@@ -45,3 +45,63 @@ def testItsScriptStillReachesItsSections():
     vsp.Update()
     large = vsp.GetGeomBBoxMax( gid ).y() - vsp.GetGeomBBoxMin( gid ).y()
     assert large > 3.0 * small
+
+
+def script_subsurf_part():
+    vsp.VSPRenew()
+    gid = vsp.AddGeom( "ScriptSubSurfPart" )
+    vsp.Update()
+    return gid
+
+
+def testAScriptsSubsurfaceIsReachedFromItsScript():
+    gid = script_subsurf_part()
+    vsp.SetParmVal( gid, "LineU", "Design", 0.3 )
+    vsp.Update()
+    assert abs( vsp.GetParmVal( gid, "ReadBack", "Design" ) - 0.3 ) < 1e-12
+
+
+def testAScriptsSubsurfaceIsNotFoundFromOutside():
+    gid = script_subsurf_part()
+    ss = vsp.GetSubSurfIDVec( gid )
+    assert len( ss ) == 1
+    assert vsp.FindParm( gid, "Const_Line_Value", "SubSurface_1" ) == ""
+    assert vsp.GetSubSurfParmIDs( ss[0] ) == ()
+    assert vsp.FindContainerParmIDs( ss[0] ) == ()
+    clear_errors()
+
+
+def testAScriptsSubsurfaceIsNotChangedFromOutside():
+    gid = script_subsurf_part()
+    ss = vsp.GetSubSurfIDVec( gid )[0]
+    name = vsp.GetSubSurfName( ss )
+    vsp.SetSubSurfName( ss, "Renamed" )
+    vsp.SetSubSurfName( gid, ss, "Renamed" )
+    vsp.ReorderSubSurf( gid, ss, vsp.REORDER_MOVE_BOTTOM )
+    vsp.DeleteSubSurf( ss )
+    vsp.DeleteSubSurf( gid, ss )
+    clear_errors()
+    assert vsp.GetSubSurfName( ss ) == name
+    assert vsp.GetSubSurfIDVec( gid ) == ( ss, )
+
+    #==== Its script still drives it ====#
+    vsp.SetParmVal( gid, "LineU", "Design", 0.3 )
+    vsp.Update()
+    assert abs( vsp.GetParmVal( gid, "ReadBack", "Design" ) - 0.3 ) < 1e-12
+
+
+def testASubsurfaceAUserAddsIsChanged():
+    gid = script_subsurf_part()
+    user = vsp.AddSubSurf( gid, vsp.SS_LINE )
+    vsp.SetSubSurfName( user, "Renamed" )
+    assert vsp.GetSubSurfName( user ) == "Renamed"
+    vsp.DeleteSubSurf( user )
+    assert len( vsp.GetSubSurfIDVec( gid ) ) == 1
+
+
+def testASubsurfaceAUserAddsIsFound():
+    gid = script_subsurf_part()
+    user = vsp.AddSubSurf( gid, vsp.SS_LINE )
+    vsp.Update()
+    assert vsp.FindParm( gid, "Const_Line_Value", "SubSurface_2" ) == vsp.GetParm( user, "Const_Line_Value", "SubSurface" )
+    assert vsp.GetSubSurfParmIDs( user ) != ()
