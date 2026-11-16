@@ -569,15 +569,6 @@ void ParmMgrSingleton::SwapIDs( const string &aID, const string &bID )
 
         SwapParmAttributes( parm_a, parm_b );
 
-        // Each container finds its Parms by group and name through a map of IDs.
-        if ( parm_a->GetContainer() )
-        {
-            parm_a->GetContainer()->UpdateGroupParmMap();
-        }
-        if ( parm_b->GetContainer() && parm_b->GetContainer() != parm_a->GetContainer() )
-        {
-            parm_b->GetContainer()->UpdateGroupParmMap();
-        }
         IncNumParmChanges();
     }
 }

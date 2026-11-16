@@ -103,9 +103,6 @@ public:
     virtual string FindParm( const string& parm_name, const string& group_name );
     virtual string FindParm( const string& name );
 
-    // Rebuild the map that finds a Parm by group and name from the Parms held now.
-    virtual void UpdateGroupParmMap();
-
     // Append the IDs of the containers this one lists at the top: its own and, for a container that keeps
     // others at the top beside it -- the Vehicle its Geoms -- theirs after it.
     virtual void AddTopContainerIDs( vector< string > & container_ids );
@@ -173,18 +170,12 @@ protected:
 
     string m_ParentContainer;
 
-    // This container's own Parms by their group names, as they are written to a file.
-    vector< string > m_GroupNames;
-    unordered_map< string, vector< std::pair< string, string > > > m_GroupParmMap;
-
     int m_ParmContainer_Type;                           // Enumerated type for setting collection attachments (geom, veh, link, etc.)
 
     bool m_ListedFlag;
 
     //==== Methods ====//
     virtual string GenerateID();
-
-    virtual void LoadGroupParmVec( const vector< string > & parm_vec );
 
     // Take a new ID.  This moves the object in the registries that find it by ID, and tells
     // whatever this object contains that its container has a new name.  It does not tell

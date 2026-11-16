@@ -67,6 +67,8 @@ public:
         TEST_ADD( ParmIndexTestSuite::ASubsurfacesCurveIsTaggedAndNumberedWithIt )
         TEST_ADD( ParmIndexTestSuite::EveryListedParmHasItsOwnName )
         TEST_ADD( ParmIndexTestSuite::AnFeaSubsurfacesAttributesAreLeftOutOfASearch )
+        TEST_ADD( ParmIndexTestSuite::ARenamedParmIsFoundByItsNewNameOnly )
+        TEST_ADD( ParmIndexTestSuite::AModelIsWrittenTheSameAfterARead )
     }
 
 private:
@@ -119,6 +121,8 @@ private:
     void ASubsurfacesCurveIsTaggedAndNumberedWithIt();
     void EveryListedParmHasItsOwnName();
     void AnFeaSubsurfacesAttributesAreLeftOutOfASearch();
+    void ARenamedParmIsFoundByItsNewNameOnly();
+    void AModelIsWrittenTheSameAfterARead();
 };
 
 #endif

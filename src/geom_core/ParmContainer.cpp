@@ -274,6 +274,28 @@ void ParmContainer::SetName( const string& name, bool removeslashes )
     m_Name = temp_name;
 }
 
+//==== A Container's Own Parms By Their Group Names, As They Are Written To A File ====//
+// Each group's ( Parm ID, Parm name ) pairs, sorted by name; the groups in name order.
+typedef std::map< string, vector< std::pair< string, string > > > ParmGroups;
+
+static void GroupParms( const vector< string > & parm_ids, ParmGroups & groups )
+{
+    for ( int i = 0 ; i < ( int )parm_ids.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( parm_ids[i] );
+        if ( p )
+        {
+            groups[ p->GetGroupName() ].push_back( std::pair< string, string >( parm_ids[i], p->GetName() ) );
+        }
+    }
+
+    ParmGroups::iterator iter;
+    for ( iter = groups.begin() ; iter != groups.end() ; ++iter )
+    {
+        sort( iter->second.begin(), iter->second.end(), ParmNameCompare );
+    }
+}
+
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
 {
@@ -287,22 +309,18 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
 
     xmlNodePtr gnode;
 
-    LoadGroupParmVec( m_ParmVec );
+    ParmGroups groups;
+    GroupParms( m_ParmVec, groups );
 
-    // Write groups in name order.  m_GroupParmMap's iteration order depends on
-    // its history, so it differs between a new and a reloaded model.
-    vector< string > group_names = m_GroupNames;
-    sort( group_names.begin(), group_names.end() );
-
-    for ( int i = 0 ; i < ( int )group_names.size() ; i++ )
+    ParmGroups::iterator groupIter;
+    for ( groupIter = groups.begin() ; groupIter != groups.end() ; ++groupIter )
     {
-        const string & name = group_names[i];
-        gnode = xmlNewChild( parmcontain_node, nullptr, BAD_CAST name.c_str(), nullptr );
+        gnode = xmlNewChild( parmcontain_node, nullptr, BAD_CAST groupIter->first.c_str(), nullptr );
 
         if ( gnode )
         {
             vector< std::pair< string, string > >::iterator parmIter;
-            for ( parmIter = m_GroupParmMap[name].begin(); parmIter != m_GroupParmMap[name].end(); ++parmIter )
+            for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); ++parmIter )
             {
                 string parmID = parmIter->first;
                 Parm* p = ParmMgr.FindParm( parmID );
@@ -334,12 +352,13 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
         SetName( XmlUtil::FindString(  child_node, "Name", m_Name ) );
     }
 
-    LoadGroupParmVec( m_ParmVec );
+    ParmGroups groups;
+    GroupParms( m_ParmVec, groups );
 
     unordered_map< string, xmlNodePtr > group_nodes = XmlUtil::GetNodeMap( child_node );
 
-    unordered_map< string, vector< std::pair< string, string > > >::iterator groupIter;
-    for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; ++groupIter )
+    ParmGroups::iterator groupIter;
+    for ( groupIter = groups.begin() ; groupIter != groups.end() ; ++groupIter )
     {
         xmlNodePtr gnode = XmlUtil::FindNode( group_nodes, groupIter->first );
 
@@ -361,10 +380,6 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
     }
     m_AttrCollection.DecodeXml( child_node );
 
-    // Built again: decoding a Parm can give it a new ID, so the map built above, which the loop walks to
-    // find each group's node, may name IDs that no longer exist.
-    LoadGroupParmVec( m_ParmVec );
-
     return child_node;
 
 }
@@ -375,63 +390,10 @@ bool ParmNameCompare( const std::pair< string, string >& a, const std::pair< str
     return StringUtil::natural_compare( a.second, b.second ) < 0;
 }
 
-//==== Load Parm Vec, Find Groups And Sort ====//
-void ParmContainer::LoadGroupParmVec( const vector< string > & parm_vec )
-{
-    m_GroupNames.clear();
-    m_GroupParmMap.clear();
-
-    //==== Map Parms To Group Names ====//
-    for ( int i = 0 ; i < ( int )parm_vec.size() ; i++ )
-    {
-        const string& pid = parm_vec[i];
-        Parm* p = ParmMgr.FindParm( pid );
-        if ( p )
-        {
-            const string & group_name = p->GetGroupName();
-
-            m_GroupParmMap[group_name].push_back( std::pair< string, string > ( pid, p->GetName() ) );
-        }
-    }
-
-    unordered_map< string, vector< std::pair< string, string > > >::iterator iter;
-    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; ++iter )
-    {
-        m_GroupNames.push_back( iter->first );
-        sort( iter->second.begin(), iter->second.end(), ParmNameCompare );
-    }
-
-    sort( m_GroupNames.begin(), m_GroupNames.end(), []( const string & a, const string & b )
-    {
-        return StringUtil::natural_compare( a, b ) < 0;
-    } );
-}
-
-void ParmContainer::UpdateGroupParmMap()
-{
-    LoadGroupParmVec( m_ParmVec );
-}
-
 //==== Find Parm ID Given GroupName and Parm Name ====//
-// The group map may be out of date, so a Parm found there is taken only while it still exists.
 string ParmContainer::FindParm( const string& parm_name, const string& group_name  )
 {
     string id;
-    unordered_map< string, vector< std::pair< string, string > > >::iterator iter;
-    iter = m_GroupParmMap.find( group_name );
-
-    if ( iter != m_GroupParmMap.end() )
-    {
-        //==== Look For Parm Name ====//
-        const vector< std::pair< string, string > > & pid_vec = iter->second;
-        for ( int i = 0 ; i < (int)pid_vec.size() ; i++ )
-        {
-            if ( pid_vec[i].second == parm_name && ParmMgr.FindParm( pid_vec[i].first ) )
-            {
-                return pid_vec[i].first;
-            }
-        }
-    }
 
     //==== Look Thru All Parms And Return First Name Match ====//
     for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )

@@ -46,6 +46,8 @@
 
 #include <typeinfo>
 #include <set>
+#include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <map>
 
@@ -1778,4 +1780,48 @@ void ParmIndexTestSuite::AnFeaSubsurfacesAttributesAreLeftOutOfASearch()
 
     vector< string > objects = vsp::FindAttributedObjects();
     TEST_ASSERT( Has( objects, ss ) && !Has( objects, fss ) && !Has( objects, fss_parm ) );
+}
+
+void ParmIndexTestSuite::ARenamedParmIsFoundByItsNewNameOnly()
+{
+    vsp::VSPRenew();
+    string pod = vsp::AddGeom( "POD" );
+    vsp::Update();
+    string id = vsp::GetParm( pod, "Length", "Design" );
+    ParmContainer* geom = ParmMgr.FindParmContainer( pod );
+    TEST_ASSERT( geom->FindParm( "Length", "Design" ) == id );
+
+    //==== Written to a file, then renamed and regrouped ====//
+    vsp::WriteVSPFile( "ParmIndexRename.vsp3" );
+    Parm* p = ParmMgr.FindParm( id );
+    p->SetName( "Renamed" );
+    TEST_ASSERT( geom->FindParm( "Length", "Design" ).empty() );
+    TEST_ASSERT( geom->FindParm( "Renamed", "Design" ) == id );
+    p->SetGroupName( "Regrouped" );
+    TEST_ASSERT( geom->FindParm( "Renamed", "Design" ).empty() );
+    TEST_ASSERT( geom->FindParm( "Renamed", "Regrouped" ) == id );
+
+    p->SetGroupName( "Design" );
+    p->SetName( "Length" );
+}
+
+void ParmIndexTestSuite::AModelIsWrittenTheSameAfterARead()
+{
+    vsp::VSPRenew();
+    string fuse = vsp::AddGeom( "FUSELAGE" );
+    vsp::AddGeom( "WING" );
+    vsp::AddSubSurf( fuse, vsp::SS_ELLIPSE );
+    vsp::Update();
+    vsp::WriteVSPFile( "ParmIndexRoundTrip1.vsp3" );
+    vsp::VSPRenew();
+    vsp::ReadVSPFile( "ParmIndexRoundTrip1.vsp3" );
+    vsp::Update();
+    vsp::WriteVSPFile( "ParmIndexRoundTrip2.vsp3" );
+
+    std::ifstream a( "ParmIndexRoundTrip1.vsp3" );
+    std::ifstream b( "ParmIndexRoundTrip2.vsp3" );
+    std::stringstream sa, sb;
+    sa << a.rdbuf();
+    sb << b.rdbuf();
+    TEST_ASSERT( !sa.str().empty() && sa.str() == sb.str() );
 }
