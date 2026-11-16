@@ -160,14 +160,9 @@ public:
         return m_LinkUpdateFlag;
     }
 
-    virtual void SetLinkContainerID( const string & id )
-    {
-        m_LinkContainerID = id;
-    }
-    virtual void ReSetLinkContainerID();
-    // The linkable container that holds this Parm, brought up to date first if Parms were added or removed
-    virtual string GetLinkContainerID() const;
-    virtual ParmContainer* GetLinkContainer() const;
+    // The container at the top of this Parm's container's parents, which it is listed and found under.
+    virtual string GetTopContainerID() const;
+    virtual ParmContainer* GetTopContainer() const;
 
     virtual void EncodeXml( xmlNodePtr & node, bool detailed = false );
     virtual void DecodeXml( xmlNodePtr & node, bool detailed = false );
@@ -207,7 +202,6 @@ protected:
 
     bool m_ActiveFlag;
     bool m_LinkUpdateFlag;  // Used to identify actively updating Parms to prevent circular updates.
-    string m_LinkContainerID;
 
     virtual string GenerateID();
     virtual bool SetValCheckLimits( double val );

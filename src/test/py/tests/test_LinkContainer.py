@@ -39,3 +39,22 @@ def testLinkAllCompLinksTheWholeGeom( change_shape ):
 
     assert direct == rebuilt
     assert direct > 500, "only the curve's Parms were linked"
+
+
+@pytest.mark.parametrize( "ss_type, group", [ ( vsp.SS_ELLIPSE, "SS_Ellipse" ), ( vsp.SS_XSEC_CURVE, "SS_XsecCurve" ),
+                                               ( vsp.SS_INTERSECT, "SS_XsecCurve" ) ] )
+def testLinkAllCompFromASubsurfaceLinksTheWholeGeom( ss_type, group ):
+    """Linking all of a component from a subsurface's Parm links every Parm of the Geom the subsurface is on."""
+    fa, fb, wa, wb = two_fuselages()
+    sa = vsp.AddSubSurf( fa, ss_type )
+    sb = vsp.AddSubSurf( fb, ss_type )
+    vsp.Update()
+    whole = link_all_comp( wa, wb )
+
+    fa, fb, wa, wb = two_fuselages()
+    sa = vsp.AddSubSurf( fa, ss_type )
+    sb = vsp.AddSubSurf( fb, ss_type )
+    vsp.Update()
+    from_sub = link_all_comp( vsp.GetParm( sa, "Center_U", group ), vsp.GetParm( sb, "Center_U", group ) )
+
+    assert from_sub == whole

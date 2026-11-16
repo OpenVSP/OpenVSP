@@ -108,7 +108,7 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
     Parm* parm_ptr = ParmMgr.FindParm( parm_id );
     if ( !parm_ptr )   return;
 
-    string geom_id = parm_ptr->GetLinkContainerID();
+    string geom_id = parm_ptr->GetTopContainerID();
     Geom* geom_ptr = VehicleMgr.GetVehicle()->FindGeom( geom_id );
     if ( !geom_ptr )    return;
 

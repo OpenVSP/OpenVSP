@@ -151,7 +151,7 @@ bool ParmScreen::Update()
         if ( p )
         {
             snprintf( str, sizeof( str ),  "%s:%s:%s:",
-                     p->GetLinkContainer()->GetName().c_str(), 
+                     p->GetTopContainer()->GetName().c_str(), 
                      p->GetGroupName().c_str(), p->GetName().c_str() );
 
             m_LinkToBrowser->add( str );
@@ -164,7 +164,7 @@ bool ParmScreen::Update()
         if ( p )
         {
             snprintf( str, sizeof( str ),  "%s:%s:%s:",
-                     p->GetLinkContainer()->GetName().c_str(), 
+                     p->GetTopContainer()->GetName().c_str(), 
                      p->GetGroupName().c_str(), p->GetName().c_str() );
 
             m_LinkFromBrowser->add( str );

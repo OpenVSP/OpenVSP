@@ -193,16 +193,6 @@ void ParmContainer::ChangeID( const string &id )
     m_ID = id;
     AttachAttrCollection();
 
-    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
-    {
-        string pid = m_ParmVec[i];
-        Parm* p = ParmMgr.FindParm( pid );
-        if ( p )
-        {
-            p->ReSetLinkContainerID();
-        }
-    }
-
     for ( int i = 0 ; i < ( int )children.size() ; i++ )
     {
         children[i]->SetParentContainer( m_ID );
@@ -592,10 +582,6 @@ void ParmContainer::AddLinkableParms( vector< string > & linkable_parm_vec, cons
 
         if ( p )
         {
-            if ( link_container_id.size() )
-            {
-                p->SetLinkContainerID( link_container_id );
-            }
             linkable_parm_vec.push_back( p->GetID() );
         }
     }

@@ -637,3 +637,51 @@ void ParmIndexTestSuite::NestedContainersSitUnderTheirOwnerAfterAFileRead()
     TEST_ASSERT( CountMisplacedContainers() == 0 );
     TEST_ASSERT( ParmMgr.ValidateChildContainerMap() );
 }
+
+void ParmIndexTestSuite::AParmIsUnderItsOwnerAtOnce()
+{
+    // Straight after it is made, with nothing asked of the model in between.
+    vsp::VSPRenew();
+    string fuse = vsp::AddGeom( "FUSELAGE" );
+    string ss = vsp::AddSubSurf( fuse, vsp::SS_XSEC_CURVE );
+    Parm* center = ParmMgr.FindParm( vsp::GetParm( ss, "Center_U", "SS_XsecCurve" ) );
+    TEST_ASSERT( center && center->GetTopContainerID() == fuse );
+
+    //==== The subsurface's own curve, below the subsurface ====//
+    SSXSecCurve* sxc = dynamic_cast< SSXSecCurve* >( ParmMgr.FindParmContainer( ss ) );
+    TEST_ASSERT( sxc != nullptr );
+    vector< string > curve_parms = vsp::FindContainerParmIDs( sxc->GetXSecCurve()->GetID() );
+    TEST_ASSERT( !curve_parms.empty() );
+    TEST_ASSERT( ParmMgr.FindParm( curve_parms[0] )->GetTopContainerID() == fuse );
+
+    //==== A shape change makes a new curve; its Parms are under the Geom too ====//
+    string xss = vsp::GetXSecSurf( fuse, 0 );
+    vsp::ChangeXSecShape( xss, 1, vsp::XS_SUPER_ELLIPSE );
+    Parm* m = ParmMgr.FindParm( vsp::GetXSecParm( vsp::GetXSec( xss, 1 ), "Super_M" ) );
+    TEST_ASSERT( m && m->GetTopContainerID() == fuse );
+
+    //==== A structure's part, subsurface and condition are under the structure ====//
+    string wing = vsp::AddGeom( "WING" );
+    int istruct = vsp::AddFeaStruct( wing );
+    string fea = vsp::GetFeaStructID( wing, istruct );
+    string rib = vsp::AddFeaPart( wing, istruct, vsp::FEA_RIB );
+    string fss = vsp::AddFeaSubSurf( wing, istruct, vsp::SS_LINE );
+    string bc = vsp::AddFeaBC( fea, vsp::FEA_BC_STRUCTURE );
+    vector< string > ids = vsp::FindContainerParmIDs( rib );
+    vector< string > fss_ids = vsp::FindContainerParmIDs( fss );
+    vector< string > bc_ids = vsp::FindContainerParmIDs( bc );
+    ids.insert( ids.end(), fss_ids.begin(), fss_ids.end() );
+    ids.insert( ids.end(), bc_ids.begin(), bc_ids.end() );
+    TEST_ASSERT( ids.size() > 3 );
+    for ( int i = 0; i < ( int )ids.size(); i++ )
+    {
+        TEST_ASSERT( ParmMgr.FindParm( ids[i] )->GetTopContainerID() == fea );
+    }
+
+    //==== A layer is under its material ====//
+    string mat = vsp::AddFeaMaterial();
+    vsp::SetParmVal( mat, "FeaMaterialType", "FeaMaterial", vsp::FEA_LAMINATE );
+    string layer = vsp::AddFeaLayer( mat );
+    Parm* thick = ParmMgr.FindParm( vsp::GetParm( layer, "Thickness", "FeaLayer" ) );
+    TEST_ASSERT( thick && thick->GetTopContainerID() == mat );
+}

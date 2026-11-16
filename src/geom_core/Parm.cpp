@@ -60,11 +60,6 @@ void Parm::Init( const string& name, const string& group_name, ParmContainer* co
     m_GroupName = group_name;
     m_Container = con;
 
-    if ( m_Container )
-    {
-        m_LinkContainerID = m_Container->GetID();
-    }
-
     ParmMgr.AddParm( this );        // Add To Global Manager
     if ( m_Container )
     {
@@ -88,14 +83,6 @@ void Parm::ResetToInitVal()
     if ( m_Val != m_InitVal )
     {
         Set( m_InitVal );
-    }
-}
-
-void Parm::ReSetLinkContainerID()
-{
-    if ( m_Container )
-    {
-        m_LinkContainerID = m_Container->GetID();
     }
 }
 
@@ -417,28 +404,23 @@ void Parm::DecodeXmlNode( xmlNodePtr n, bool detailed )
     Set( val );
 }
 
-// A new Parm names its own container until the linkable data is rebuilt, which names the Geom or other linkable
-// container above it.
-string Parm::GetLinkContainerID() const
+string Parm::GetTopContainerID() const
 {
-    if ( ParmMgr.GetDirtyFlag() )
+    ParmContainer* pc = GetTopContainer();
+    if ( pc )
     {
-        LinkMgr.BuildLinkableParmData();
+        return pc->GetID();
     }
-    return m_LinkContainerID;
+    return string();
 }
 
-ParmContainer* Parm::GetLinkContainer() const
+ParmContainer* Parm::GetTopContainer() const
 {
-    string id = GetLinkContainerID();
-    ParmContainer* pc = ParmMgr.FindParmContainer( id );
-
-    if ( !pc )
+    if ( m_Container )
     {
-        pc = m_Container;
+        return m_Container->GetTopContainer();
     }
-
-    return pc;
+    return nullptr;
 }
 
 //=========================================================================//

@@ -329,14 +329,14 @@ bool LinkMgrSingleton::LinkAllGroup()
     string gnameA = pA->GetDisplayGroupName();
     string gnameB = pB->GetDisplayGroupName();
 
-    if ( ( pA->GetLinkContainer() == pB->GetLinkContainer() ) && ( gnameA == gnameB ) )
+    if ( ( pA->GetTopContainer() == pB->GetTopContainer() ) && ( gnameA == gnameB ) )
     {
         return false;
     }
 
     vector< string > parmAVec, parmBVec;
-    pA->GetLinkContainer()->GetParmIDs( pA->GetID(), parmAVec );
-    pB->GetLinkContainer()->GetParmIDs( pB->GetID(), parmBVec );
+    pA->GetTopContainer()->GetParmIDs( pA->GetID(), parmAVec );
+    pB->GetTopContainer()->GetParmIDs( pB->GetID(), parmBVec );
 
     for ( int k = 0 ; k < ( int )parmAVec.size() ; k++ )
     {
@@ -362,8 +362,8 @@ bool LinkMgrSingleton::LinkAllComp()
     Parm* pA =  ParmMgr.FindParm( m_WorkingLink->GetParmA() );
     Parm* pB =  ParmMgr.FindParm( m_WorkingLink->GetParmB() );
 
-    ParmContainer* pcA = pA->GetLinkContainer();
-    ParmContainer* pcB = pB->GetLinkContainer();
+    ParmContainer* pcA = pA->GetTopContainer();
+    ParmContainer* pcB = pB->GetTopContainer();
 
     if ( !pcA || !pcB )
     {
@@ -647,7 +647,7 @@ int LinkMgrSingleton::GetCurrContainerVec( const string& parm_id, vector< string
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( p )
     {
-        curr_container_id = p->GetLinkContainerID();
+        curr_container_id = p->GetTopContainerID();
     }
 
     //==== Find Index And Load Container Names ===//
@@ -689,7 +689,7 @@ int LinkMgrSingleton::GetCurrGroupNameVec( const string& parm_id, vector< string
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( p )
     {
-        ParmContainer* pc = p->GetLinkContainer();
+        ParmContainer* pc = p->GetTopContainer();
         if ( pc )
         {
             return pc->GetGroupNames( parm_id, nameVec );
@@ -716,7 +716,7 @@ int LinkMgrSingleton::GetCurrParmIDVec( const string& parm_id, vector< string > 
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( p )
     {
-        ParmContainer* pc = p->GetLinkContainer();
+        ParmContainer* pc = p->GetTopContainer();
         if ( pc )
         {
             return pc->GetParmIDs( parm_id, idVec );

@@ -35,6 +35,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AGeomIsTheParentOfItsSourcesTexturesAndColor )
         TEST_ADD( ParmIndexTestSuite::EveryNestedContainerSitsUnderItsOwner )
         TEST_ADD( ParmIndexTestSuite::NestedContainersSitUnderTheirOwnerAfterAFileRead )
+        TEST_ADD( ParmIndexTestSuite::AParmIsUnderItsOwnerAtOnce )
     }
 
 private:
@@ -55,6 +56,7 @@ private:
     void AGeomIsTheParentOfItsSourcesTexturesAndColor();
     void EveryNestedContainerSitsUnderItsOwner();
     void NestedContainersSitUnderTheirOwnerAfterAFileRead();
+    void AParmIsUnderItsOwnerAtOnce();
 };
 
 #endif

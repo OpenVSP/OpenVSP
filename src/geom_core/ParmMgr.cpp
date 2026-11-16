@@ -481,7 +481,7 @@ void ParmMgrSingleton::GetNames( const string& parm_id, string& container_name,
         parm_name = p->GetName();
         group_name = p->GetDisplayGroupName();
 
-        ParmContainer* pc = p->GetLinkContainer();
+        ParmContainer* pc = p->GetTopContainer();
         if ( pc )
         {
             container_name = pc->GetName();
@@ -502,7 +502,7 @@ void ParmMgrSingleton::GetNames( const string& parm_id, string& container_name,
         group_name = p->GetDisplayGroupName( include_alias );
         group_alias = p->GetGroupAlias();
 
-        ParmContainer* pc = p->GetLinkContainer();
+        ParmContainer* pc = p->GetTopContainer();
         if ( pc )
         {
             container_name = pc->GetName();
