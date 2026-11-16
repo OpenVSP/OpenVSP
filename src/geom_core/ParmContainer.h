@@ -56,6 +56,10 @@ public:
     // has none, or is not listed itself.
     ParmContainer* GetTopContainer();
 
+    // The Parms of this container and of every container below it, but not below one that is not listed: its
+    // own first, then each child's in the order the children took it as parent.
+    void GetParmIDsUnder( vector< string > & parm_ids );
+
     // Whether this container is listed under the containers above it.  One that is not -- a Custom Geom's cross
     // section surface, which its script builds again on each update and which is never saved, so its Parms do
     // not last to be linked to -- is the top of its own Parms.

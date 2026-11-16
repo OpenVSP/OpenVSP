@@ -1023,3 +1023,82 @@ void ParmIndexTestSuite::PolySparPointsAreNumberedAcrossTheirStructure()
         TEST_ASSERT( groups.insert( GroupOf( pts[i] ) ).second );
     }
 }
+
+void ParmIndexTestSuite::TheParmsUnderAGeomAreItsOwnAndItsPartsInOrder()
+{
+    vsp::VSPRenew();
+    string fuse = vsp::AddGeom( "FUSELAGE" );
+    vsp::Update();
+    string ss = vsp::AddSubSurf( fuse, vsp::SS_ELLIPSE );
+    ParmContainer* geom = ParmMgr.FindParmContainer( fuse );
+
+    vector< string > under;
+    geom->GetParmIDsUnder( under );
+
+    //==== Each once; the Geom's own first ====//
+    std::set< string > once( under.begin(), under.end() );
+    TEST_ASSERT( once.size() == under.size() );
+    Parm* first = ParmMgr.FindParm( under[0] );
+    TEST_ASSERT( first && first->GetContainer() == geom );
+
+    //==== Every Parm whose container is below the Geom, and no other ====//
+    vector< ParmContainer* > all;
+    ParmMgr.GetAllParmContainers( all );
+    int expected = 0;
+    for ( int i = 0; i < ( int )all.size(); i++ )
+    {
+        if ( all[i]->GetTopContainer() == geom )
+        {
+            vector< string > own = vsp::FindContainerParmIDs( all[i]->GetID() );
+            for ( int j = 0; j < ( int )own.size(); j++ )
+            {
+                if ( ParmMgr.FindParm( own[j] )->GetContainer() == all[i] )
+                {
+                    TEST_ASSERT( once.count( own[j] ) == 1 );
+                    expected++;
+                }
+            }
+        }
+    }
+    TEST_ASSERT( expected == ( int )under.size() );
+
+    //==== A cross section's curve and a subsurface among them ====//
+    string width = vsp::GetXSecParm( vsp::GetXSec( vsp::GetXSecSurf( fuse, 0 ), 1 ), "Ellipse_Width" );
+    TEST_ASSERT( once.count( width ) == 1 );
+    TEST_ASSERT( once.count( vsp::GetParm( ss, "Center_U", "SS_Ellipse" ) ) == 1 );
+
+    //==== A container with nothing below it: its own ====//
+    vector< string > leaf;
+    ParmMgr.FindParmContainer( ss )->GetParmIDsUnder( leaf );
+    vector< string > ss_own = vsp::FindContainerParmIDs( ss );
+    TEST_ASSERT( std::set< string >( leaf.begin(), leaf.end() ) == std::set< string >( ss_own.begin(), ss_own.end() ) );
+}
+
+void ParmIndexTestSuite::AContainerNotListedIsLeftOutOfTheWalkAboveIt()
+{
+    ParmContainer top;
+    ParmContainer hidden;
+    ParmContainer below;
+    Parm p;
+    hidden.SetParentContainer( top.GetID() );
+    below.SetParentContainer( hidden.GetID() );
+    p.Init( "HiddenParm", "HiddenGroup", &below, 1.0, 0.0, 2.0 );
+    hidden.SetListedFlag( false );
+
+    vector< string > ids;
+    top.GetParmIDsUnder( ids );
+    TEST_ASSERT( ids.empty() );
+
+    //==== It still walks what is below it ====//
+    hidden.GetParmIDsUnder( ids );
+    TEST_ASSERT( ids.size() == 1 && ids[0] == p.GetID() );
+
+    //==== Listed again, it is walked again ====//
+    hidden.SetListedFlag( true );
+    ids.clear();
+    top.GetParmIDsUnder( ids );
+    TEST_ASSERT( ids.size() == 1 && ids[0] == p.GetID() );
+
+    below.SetParentContainer( string() );
+    hidden.SetParentContainer( string() );
+}

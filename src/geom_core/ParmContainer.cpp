@@ -162,6 +162,27 @@ ParmContainer* ParmContainer::GetTopContainer()
     return top;
 }
 
+//==== The Parms Of This Container And Of Those Below It ====//
+void ParmContainer::GetParmIDsUnder( vector< string > & parm_ids )
+{
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        if ( ParmMgr.FindParm( m_ParmVec[i] ) )
+        {
+            parm_ids.push_back( m_ParmVec[i] );
+        }
+    }
+
+    const vector< ParmContainer* > & children = ParmMgr.GetChildContainers( m_ID );
+    for ( int i = 0 ; i < ( int )children.size() ; i++ )
+    {
+        if ( children[i]->GetListedFlag() )
+        {
+            children[i]->GetParmIDsUnder( parm_ids );
+        }
+    }
+}
+
 void ParmContainer::SetListedFlag( bool flag )
 {
     if ( flag != m_ListedFlag )

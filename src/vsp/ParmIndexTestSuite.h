@@ -48,6 +48,8 @@ public:
         TEST_ADD( ParmIndexTestSuite::AMaterialsLayersAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AnAssemblysConnectionsAreNumbered )
         TEST_ADD( ParmIndexTestSuite::PolySparPointsAreNumberedAcrossTheirStructure )
+        TEST_ADD( ParmIndexTestSuite::TheParmsUnderAGeomAreItsOwnAndItsPartsInOrder )
+        TEST_ADD( ParmIndexTestSuite::AContainerNotListedIsLeftOutOfTheWalkAboveIt )
     }
 
 private:
@@ -81,6 +83,8 @@ private:
     void AMaterialsLayersAreNumbered();
     void AnAssemblysConnectionsAreNumbered();
     void PolySparPointsAreNumberedAcrossTheirStructure();
+    void TheParmsUnderAGeomAreItsOwnAndItsPartsInOrder();
+    void AContainerNotListedIsLeftOutOfTheWalkAboveIt();
 };
 
 #endif
