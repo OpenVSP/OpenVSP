@@ -95,6 +95,15 @@ ParmContainer::~ParmContainer()
 
 void ParmContainer::SetParentContainer( const string & id )
 {
+    // A container cannot be below itself: a parent that is this container, or sits below it, is refused.
+    for ( ParmContainer* p = ParmMgr.FindParmContainer( id ); p; p = p->GetParentContainerPtr() )
+    {
+        if ( p == this )
+        {
+            return;
+        }
+    }
+
     ParmMgr.ParentContainerChanged( this, m_ParentContainer, id );
     m_ParentContainer = id;
 }

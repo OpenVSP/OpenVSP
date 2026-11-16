@@ -96,6 +96,7 @@ public:
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
 
     // Name the container this one belongs to; ParmMgr keeps the inverse.
+    // One that would put this container below itself is refused, so a chain of parents always ends.
     virtual void SetParentContainer( const string & id );
 
     virtual void CopyVals( ParmContainer *from );

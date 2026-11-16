@@ -24,6 +24,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::ChildrenFollowAnExchangedIdentity )
         TEST_ADD( ParmIndexTestSuite::ADestroyedChildLeavesItsParent )
         TEST_ADD( ParmIndexTestSuite::AContainersChildrenHaveNoParentOnceItIsGone )
+        TEST_ADD( ParmIndexTestSuite::AParentThatWouldMakeALoopIsRefused )
     }
 
 private:
@@ -33,6 +34,7 @@ private:
     void ChildrenFollowAnExchangedIdentity();
     void ADestroyedChildLeavesItsParent();
     void AContainersChildrenHaveNoParentOnceItIsGone();
+    void AParentThatWouldMakeALoopIsRefused();
 };
 
 #endif

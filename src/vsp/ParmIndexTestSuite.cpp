@@ -247,3 +247,36 @@ void ParmIndexTestSuite::AContainersChildrenHaveNoParentOnceItIsGone()
 
     grandchild.SetParentContainer( string() );
 }
+
+void ParmIndexTestSuite::AParentThatWouldMakeALoopIsRefused()
+{
+    ParmContainer* a = new ParmContainer();
+    ParmContainer* b = new ParmContainer();
+    ParmContainer* c = new ParmContainer();
+    b->SetParentContainer( a->GetID() );
+    c->SetParentContainer( b->GetID() );
+
+    //==== Itself, its child, its grandchild: each refused, and nothing changes ====//
+    a->SetParentContainer( a->GetID() );
+    a->SetParentContainer( b->GetID() );
+    a->SetParentContainer( c->GetID() );
+    TEST_ASSERT( a->GetParentContainer().empty() );
+    TEST_ASSERT( b->GetParentContainer() == a->GetID() );
+    TEST_ASSERT( ParmMgr.GetChildContainers( b->GetID() ).size() == 1 );
+    TEST_ASSERT( ParmMgr.GetChildContainers( c->GetID() ).empty() );
+    TEST_ASSERT( ParmMgr.ValidateChildContainerMap() );
+
+    //==== A parent beside the chain is taken ====//
+    ParmContainer* d = new ParmContainer();
+    a->SetParentContainer( d->GetID() );
+    TEST_ASSERT( a->GetParentContainer() == d->GetID() );
+
+    c->SetParentContainer( string() );
+    b->SetParentContainer( string() );
+    a->SetParentContainer( string() );
+    delete c;
+    delete b;
+    delete a;
+    delete d;
+    TEST_ASSERT( ParmMgr.ValidateChildContainerMap() );
+}
