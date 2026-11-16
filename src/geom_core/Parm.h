@@ -165,10 +165,8 @@ public:
         m_LinkContainerID = id;
     }
     virtual void ReSetLinkContainerID();
-    virtual string GetLinkContainerID() const
-    {
-        return m_LinkContainerID;
-    }
+    // The linkable container that holds this Parm, brought up to date first if Parms were added or removed
+    virtual string GetLinkContainerID() const;
     virtual ParmContainer* GetLinkContainer() const;
 
     virtual void EncodeXml( xmlNodePtr & node, bool detailed = false );

@@ -417,6 +417,17 @@ void Parm::DecodeXmlNode( xmlNodePtr n, bool detailed )
     Set( val );
 }
 
+// A new Parm names its own container until the linkable data is rebuilt, which names the Geom or other linkable
+// container above it.
+string Parm::GetLinkContainerID() const
+{
+    if ( ParmMgr.GetDirtyFlag() )
+    {
+        LinkMgr.BuildLinkableParmData();
+    }
+    return m_LinkContainerID;
+}
+
 ParmContainer* Parm::GetLinkContainer() const
 {
     string id = GetLinkContainerID();
