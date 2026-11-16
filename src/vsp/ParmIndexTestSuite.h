@@ -40,6 +40,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::AGeomsSubsurfacesOfEveryKindAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AGeomsSourcesAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AGeomsTexturesAreNumbered )
+        TEST_ADD( ParmIndexTestSuite::AGearsBogiesAreNumbered )
         TEST_ADD( ParmIndexTestSuite::UnsteadyGroupsAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AMaterialsLayersAreNumbered )
         TEST_ADD( ParmIndexTestSuite::AnAssemblysConnectionsAreNumbered )
@@ -69,6 +70,7 @@ private:
     void AGeomsSubsurfacesOfEveryKindAreNumbered();
     void AGeomsSourcesAreNumbered();
     void AGeomsTexturesAreNumbered();
+    void AGearsBogiesAreNumbered();
     void UnsteadyGroupsAreNumbered();
     void AMaterialsLayersAreNumbered();
     void AnAssemblysConnectionsAreNumbered();

@@ -621,6 +621,9 @@ public:
     void DelAllBogies();
     Bogie *  GetBogie( const string &id ) const;
     vector < string > GetAllBogies();
+    // Number each bogie's group by its place, as they are added and removed.
+    void ReSuffixBogies();
+
     void DelBogie( const int &i );
     void DelBogie( const string &id );
 

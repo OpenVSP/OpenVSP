@@ -846,6 +846,28 @@ void ParmIndexTestSuite::AGeomsTexturesAreNumbered()
     }
 }
 
+void ParmIndexTestSuite::AGearsBogiesAreNumbered()
+{
+    vsp::VSPRenew();
+    string gear = vsp::AddGeom( "GEAR" );
+    vector< string > bogies;
+    for ( int i = 0; i < 3; i++ )
+    {
+        bogies.push_back( vsp::CreateAndAddBogie( gear ) );
+    }
+    TEST_ASSERT( NoGroupIsShared( bogies ) );
+
+    //==== Removing the first renumbers the rest, the second taking the first's number ====//
+    string g0 = GroupOf( bogies[0] );
+    vsp::DelBogie( gear, bogies[0] );
+    bogies.erase( bogies.begin() );
+    TEST_ASSERT( GroupOf( bogies[0] ) == g0 );
+    TEST_ASSERT( NoGroupIsShared( bogies ) );
+
+    //==== Still found by its own group name through its own ID ====//
+    TEST_ASSERT( !vsp::FindParm( bogies[0], "NumAcross", "Bogie" ).empty() );
+}
+
 void ParmIndexTestSuite::UnsteadyGroupsAreNumbered()
 {
     vsp::VSPRenew();

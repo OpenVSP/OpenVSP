@@ -3380,6 +3380,7 @@ Bogie * GearGeom::CreateAndAddBogie()
     bogie->SetParentContainer( m_ID );
 
     m_Bogies.push_back( bogie );
+    ReSuffixBogies();
 
     m_CurrBogieIndex = m_Bogies.size() - 1;
 
@@ -3574,6 +3575,14 @@ vector < string > GearGeom::GetAllBogies()
     return rulerList;
 }
 
+void GearGeom::ReSuffixBogies()
+{
+    for ( int i = 0; i < ( int )m_Bogies.size(); i++ )
+    {
+        m_Bogies[i]->SetGroupDisplaySuffix( i );
+    }
+}
+
 void GearGeom::DelBogie( const int & i )
 {
     if ( i < 0 || i >= ( int )m_Bogies.size() )
@@ -3584,6 +3593,7 @@ void GearGeom::DelBogie( const int & i )
     Bogie* ruler = m_Bogies[i];
 
     m_Bogies.erase( m_Bogies.begin() +  i );
+    ReSuffixBogies();
 
     if ( i > m_Bogies.size() - 1 )
     {
