@@ -12,6 +12,7 @@
 # periodic around and clamped along, with both end rows collapsed to poles.  Its
 # control points are linear in the anthropometric vector X, P = Pbar + Q_P X, exactly
 # as the mesh is, because each net is one fixed linear fit of the mesh and skeleton.
+# HumanGeom poses the nets through its tet mesh (human_tets.py).
 # See README.md.
 #
 # Usage:

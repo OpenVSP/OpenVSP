@@ -513,6 +513,78 @@ def off_tets(tm, V):
     return miss, np.hstack([tri, tri2]), bary
 
 
+def surface_points():
+    """The Bezier surface's control points on the androgynous body, in the order HumanGeom builds its
+    nets from ../HumanBezierData.h (BuildHumanBezierNets): each part, its left mirror after a right
+    part, around index then along."""
+    import re
+    text = open(os.path.join(os.path.dirname(HERE), 'HumanBezierData.h')).read()
+
+    def array(name):
+        m = re.search(r'static const double %s\[\d+\] = \{(.*?)\};' % name, text, re.S)
+        return np.array([float(v) for v in m.group(1).replace(',', ' ').split()])
+
+    table = re.search(r'hb_male_parts\[HUMAN_BEZ_NUM_PART\] = \{(.*?)\n\};', text, re.S).group(1)
+    pts = []
+    partner = []
+    for m in re.finditer(r'\{ "(\w+)", (true|false), (\d+), (\d+), \w+, \w+, hb_(\w+)_male_pbar, \w+ \}', table):
+        centre, nu, nv, nm = m.group(2) == 'true', int(m.group(3)), int(m.group(4)), m.group(5)
+        P = 0.0
+        for sex in ('male', 'female'):
+            pb = array('hb_%s_%s_pbar' % (nm, sex)).reshape(nu, nv, 3)
+            q = array('hb_%s_%s_q' % (nm, sex)).reshape(nu, nv, 3, 6)
+            P = P + 0.5 * (pb + q @ XREF[sex])
+        # A point's mirror image is the point at around index ( nu + 2 - i ) mod nu of the left net,
+        # or of a centre net itself.
+        base = sum(len(q) for q in pts)
+        mi = ((nu + 2 - np.arange(nu)) % nu)[:, None] * nv + np.arange(nv)[None, :]
+        pts.append(P.reshape(-1, 3))
+        if centre:
+            partner.append(base + mi.ravel())
+        else:
+            M = P[(nu + 2 - np.arange(nu)) % nu] * np.array([1.0, -1.0, 1.0])
+            pts.append(M.reshape(-1, 3))
+            partner.append(base + nu * nv + mi.ravel())
+            partner.append(base + mi.ravel())
+    return np.vstack(pts), np.concatenate(partner)
+
+
+def embed(tm, P):
+    """The tet each point is in, or else the one it is least far outside (its smallest barycentric
+    coordinate the largest), among the tets with the nearest centroids."""
+    TV, TT = tm['TV'], tm['TT']
+    C = TV[TT].mean(1)
+    _, cand = cKDTree(C).query(P, k=48)
+    best = np.zeros(len(P), int)
+    worst = np.zeros(len(P))
+    for i in range(len(P)):
+        T = TT[cand[i]]
+        A = (TV[T[:, 1:]] - TV[T[:, :1]]).transpose(0, 2, 1)
+        b = np.linalg.solve(A, (P[i] - TV[T[:, 0]])[:, :, None])[:, :, 0]
+        bary = np.hstack([1.0 - b.sum(1, keepdims=True), b])
+        k = np.argmax(bary.min(1))
+        best[i] = cand[i][k]
+        worst[i] = bary[k].min()
+    return best, worst
+
+
+def mirror_embedding(tm, P, tet, partner):
+    """Two tets per control point, whose mean carries it, so that the surface stays mirror symmetric:
+    a point on the centre plane (a pole's, or its own image) takes a tet and that tet's mirror, and
+    any other point and its mirror image take mirror tets."""
+    _, mt = mirror_maps(tm)
+    out = np.zeros((len(tet), 2), int)
+    for i in range(len(tet)):
+        j = partner[i]
+        if P[i, 1] == 0.0:
+            out[i] = (tet[i], mt[tet[i]])
+        elif j < i:
+            out[i] = mt[out[j]]
+        else:
+            out[i] = (tet[i], tet[i])
+    return out
+
+
 def compute(body):
     t0 = time.time()
     V = 0.5 * (body.mesh('male', XREF['male']) + body.mesh('female', XREF['female']))
@@ -534,12 +606,18 @@ def compute(body):
     log('bbw and extra weights %.0f s; ARAP holds %d tet vertices (%d stations, %d in the head)' % (
         time.time() - t0, len(hv), len(tm['st_tv']), len(tm['head_tv'])))
     miss, tri, bary = off_tets(tm, V)
+    cp, partner = surface_points()
+    cp_tet, cp_min = embed(tm, cp)
+    log('surface control points: %d, %d inside a tet; the rest at a smallest barycentric coordinate of %.2f '
+        'median, %.2f worst' % (len(cp), (cp_min >= -1e-9).sum(), np.median(cp_min[cp_min < -1e-9]), cp_min.min()))
+    cp_tet = mirror_embedding(tm, cp, cp_tet, partner)
     frac = [h[5] for h in HANDLES]
     for k, f in torso_fractions(S).items():
         frac[k] = f
     for k, f in neck.items():
         frac[k] = f
     return dict(tm=tm, lin=lin, W=W, We=We, hv=hv, hh=hh, miss=miss, tri=tri, bary=bary, frac=frac,
+                cp_tet=cp_tet,
                 groups=groups)
 
 
@@ -593,6 +671,7 @@ def write_header(path, d):
          '// uses ride on the tet mesh\'s boundary.', '//'] + input_digests([
         'MaleGeomDataReduced.h',
         'FemaleGeomDataReduced.h',
+        'HumanBezierData.h',
     ]) + ['//', '',
          '#if !defined(VSP_HUMAN_TET_DATA__INCLUDED_)', '#define VSP_HUMAN_TET_DATA__INCLUDED_', '',
          '#define HUMAN_TET_NUM_HANDLES %d' % len(HANDLES),
@@ -606,6 +685,7 @@ def write_header(path, d):
          '#define HUMAN_TET_NGRID %d' % len(tm['grid_tv']),
          '#define HUMAN_TET_NHOLD %d' % len(d['hv']),
          '#define HUMAN_TET_NOFF %d' % len(d['miss']),
+         '#define HUMAN_TET_NCP %d' % len(d['cp_tet']),
          '',
          '// The bone whose transform each handle takes.']
     emit(L, 'int', 'human_tet_handle_bone', [B[h[1]] for h in HANDLES])
@@ -639,6 +719,9 @@ def write_header(path, d):
     emit(L, 'int', 'human_tet_off_vert', d['miss'])
     emit(L, 'int', 'human_tet_off_tri', d['tri'], 6)
     emit(L, 'double', 'human_tet_off_bary', d['bary'], 3)
+    L.append('// The two tets whose mean carries each control point of the Bezier surface, in the order')
+    L.append('// HumanGeom builds its nets (human_bezier.py, HumanBezierData.h); mirror symmetric.')
+    emit(L, 'int', 'human_tet_cp_tet', d['cp_tet'], 2)
     L += ['', '#endif // !defined(VSP_HUMAN_TET_DATA__INCLUDED_)', '']
     with open(path, 'w') as f:
         f.write('\n'.join(L))

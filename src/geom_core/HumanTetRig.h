@@ -72,6 +72,12 @@ public:
     void PoseFAST( const vector < Matrix4d > &bone_mats, const vector < HumanPartialRot > &partials, int iters,
                    vector < vec3d > &skin );
 
+    // Move points by the last pose: each, given in the data pose of the body built, goes to the mean
+    // of its images in its two tets (human_tet_cp_tet), keeping its affine coordinates in each as
+    // the tet is posed.  For the control points of the Bezier surface, in the order HumanGeom builds
+    // its nets.
+    void PosePoints( const vector < vec3d > &rest, vector < vec3d > &posed ) const;
+
 private:
     void PrecomputeARAP();
     void PrecomputeFAST();

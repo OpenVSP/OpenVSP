@@ -110,11 +110,19 @@ change `hb_layout.py` only.
 The eyes are fixed points of the head's surface, (u, w) found on each sex's
 reference body, so they move with the surface.
 
+### Posing
+
+The nets are posed without refitting, through the tet mesh that poses the body
+(below): each control point is carried by a tet (two, averaged, on the centre
+plane, so the surface stays mirror symmetric) and keeps its affine coordinates in
+it as the tet is posed.  The elbows and knees have extra control rows.
+
 ### Regenerating
 
 ```
 python3 human_bezier.py            # writes ../HumanBezierData.h, under a minute
 python3 human_bezier.py --check    # also measures the fit (much longer)
+python3 human_tets.py              # then the tet mesh, which carries the control points
 ```
 
 Regenerate after changing the anthropometric tables or the part layout.  The
@@ -130,6 +138,7 @@ header comment describes the construction.  One mesh serves every body of both
 sexes: its connectivity is fixed and its vertices are linear in the
 anthropometric vector, as the skin is.  It is mirror symmetric, and so are its
 handles' weights and FAST's additional weights and rotation groups.
+The tets also carry the surface's control points, two (mirror images) to a point.
 
 ```
 python3 human_tets.py                                 # writes ../HumanTetData.h, under a minute
@@ -139,6 +148,7 @@ python3 human_tets.py --lattice 30 --out FILE         # another lattice cube edg
 Regenerate after changing the anthropometric tables, the skeleton or the
 handles.  It needs NumPy, SciPy and libigl's Python bindings (tested with
 libigl 2.6.3).
+Regenerate it also after the surface's nets (`../HumanBezierData.h`, which it reads).
 
 ## Tests
 

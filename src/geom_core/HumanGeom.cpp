@@ -822,6 +822,30 @@ void HumanGeom::UpdateSurf()
         vector < HumanBezNet > nets;
         BuildHumanBezierNets( m_GenderFlag(), vars, nets );
 
+        // Each control point follows the tet that carries it, as the mesh was posed.
+        vector < vec3d > rest;
+        for ( int n = 0; n < ( int )nets.size(); n++ )
+        {
+            for ( int i = 0; i < ( int )nets[n].m_Pnts.size(); i++ )
+            {
+                rest.insert( rest.end(), nets[n].m_Pnts[i].begin(), nets[n].m_Pnts[i].end() );
+            }
+        }
+        vector < vec3d > posed;
+        m_TetRig.PosePoints( rest, posed );
+        int k = 0;
+        for ( int n = 0; n < ( int )nets.size(); n++ )
+        {
+            for ( int i = 0; i < ( int )nets[n].m_Pnts.size(); i++ )
+            {
+                for ( int j = 0; j < ( int )nets[n].m_Pnts[i].size(); j++ )
+                {
+                    nets[n].m_Pnts[i][j] = posed[k];
+                    k++;
+                }
+            }
+        }
+
         BuildHumanBezierSurfs( m_GenderFlag(), nets, tcenter, m_MainSurfVec );
 
         // The eyes on the surface, and the design eye between them.

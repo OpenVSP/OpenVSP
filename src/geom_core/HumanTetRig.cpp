@@ -67,6 +67,9 @@ struct HumanTetRigData
     vector < int > m_ArapIncStart;
     vector < int > m_ArapInc;
 
+    // The tet vertices of the last pose.
+    Eigen::MatrixXd m_PosedTV;
+
     // FAST, condensed: the skinning matrix M1 = [ W .* x, W .* y, W .* z, W ] (tet vertices by 4 m, m
     // handles and additional weights), the rotation groups' covariance gather CSM (3 k by 4 m, k
     // groups), and the solve for the additional weights' columns, Lsep = Solve * R + Fix * Lhandles.
@@ -642,6 +645,7 @@ int HumanTetRig::PoseARAP( const vector < Matrix4d > &bone_mats, const vector < 
         }
     }
 
+    d.m_PosedTV = U;
     vector < vec3d > tv( U.rows() );
     for ( int v = 0; v < U.rows(); v++ )
     {
@@ -925,6 +929,7 @@ void HumanTetRig::PoseFAST( const vector < Matrix4d > &bone_mats, const vector <
     HandleTransforms( bone_mats, partials, T );
     Eigen::MatrixXd U;
     FASTTets( *m_Data, T, iters, U );
+    m_Data->m_PosedTV = U;
 
     int ntv = U.rows();
     vector < vec3d > tv( ntv );
@@ -933,4 +938,36 @@ void HumanTetRig::PoseFAST( const vector < Matrix4d > &bone_mats, const vector <
         tv[v].set_xyz( U( v, 0 ), U( v, 1 ), U( v, 2 ) );
     }
     SkinFromTets( tv, skin );
+}
+
+// A point's position in the posed tet t, from its affine coordinates in the rest one.
+static Eigen::Vector3d TetImage( const HumanTetRigData &d, int t, const vec3d &rest )
+{
+    Eigen::Vector3d p0 = d.m_TV.row( d.m_Shared->m_TT( t, 0 ) ).transpose();
+    Eigen::Matrix3d A;
+    for ( int k = 0; k < 3; k++ )
+    {
+        A.col( k ) = d.m_TV.row( d.m_Shared->m_TT( t, k + 1 ) ).transpose() - p0;
+    }
+    Eigen::Vector3d b = A.partialPivLu().solve( Eigen::Vector3d( rest.x(), rest.y(), rest.z() ) - p0 );
+    Eigen::Vector3d q = ( 1.0 - b.sum() ) * d.m_PosedTV.row( d.m_Shared->m_TT( t, 0 ) ).transpose();
+    for ( int k = 0; k < 3; k++ )
+    {
+        q += b( k ) * d.m_PosedTV.row( d.m_Shared->m_TT( t, k + 1 ) ).transpose();
+    }
+    return q;
+}
+
+void HumanTetRig::PosePoints( const vector < vec3d > &rest, vector < vec3d > &posed ) const
+{
+    const HumanTetRigData &d = *m_Data;
+    // The tet data embed the nets of HumanBezierData.h, point for point.
+    assert( ( int ) rest.size() == HUMAN_TET_NCP );
+    int n = std::min( ( int ) rest.size(), HUMAN_TET_NCP );
+    posed = rest;
+    for ( int i = 0; i < n; i++ )
+    {
+        Eigen::Vector3d q = 0.5 * ( TetImage( d, human_tet_cp_tet[i][0], rest[i] ) + TetImage( d, human_tet_cp_tet[i][1], rest[i] ) );
+        posed[i].set_xyz( q( 0 ), q( 1 ), q( 2 ) );
+    }
 }
