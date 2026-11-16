@@ -52,6 +52,12 @@ public:
     virtual string GetParentContainer() const       { return m_ParentContainer; }
     virtual ParmContainer* GetParentContainerPtr() const;
 
+    // Whether this container is listed under the containers above it.  One that is not -- a Custom Geom's cross
+    // section surface, which its script builds again on each update and which is never saved, so its Parms do
+    // not last to be linked to -- is the top of its own Parms.
+    void SetListedFlag( bool flag );
+    bool GetListedFlag() const                      { return m_ListedFlag; }
+
     virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }
     virtual int GetLatestChangeCnt();
 
@@ -162,6 +168,8 @@ protected:
     unordered_map< string, vector< std::pair< string, string > > > m_GroupParmMap;     // Group names mapped to vectors of parms
 
     int m_ParmContainer_Type;                           // Enumerated type for setting collection attachments (geom, veh, link, etc.)
+
+    bool m_ListedFlag;
 
     //==== Methods ====//
     virtual string GenerateID();

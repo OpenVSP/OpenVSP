@@ -271,6 +271,8 @@ XSecSurf* XSecSurfGeom::NewXSecSurf( int xsec_type )
         xsec_surf->SetXSecType( xsec_type );
         xsec_surf->SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
         xsec_surf->SetParentContainer( GetID() );
+        // Built again from the component's inputs on each update, so its Parms are not listed with it.
+        xsec_surf->SetListedFlag( false );
         m_XSecSurfVec.push_back( xsec_surf );
         m_NextSurf = ( int )m_XSecSurfVec.size();
     }

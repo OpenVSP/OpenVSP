@@ -280,3 +280,18 @@ void ParmIndexTestSuite::AParentThatWouldMakeALoopIsRefused()
     delete d;
     TEST_ASSERT( ParmMgr.ValidateChildContainerMap() );
 }
+
+void ParmIndexTestSuite::ACustomGeomsCrossSectionsAreNotListed()
+{
+    vsp::VSPRenew();
+    string cone = vsp::AddGeom( "Cone" );
+    string fuse = vsp::AddGeom( "FUSELAGE" );
+    vsp::Update();
+    TEST_ASSERT( !ParmMgr.FindParmContainer( vsp::GetXSecSurf( cone, 0 ) )->GetListedFlag() );
+    TEST_ASSERT( ParmMgr.FindParmContainer( vsp::GetXSecSurf( fuse, 0 ) )->GetListedFlag() );
+
+    //==== Still not listed after the script makes them again ====//
+    vsp::SetParmVal( cone, "Height", "Design", 3.0 );
+    vsp::Update();
+    TEST_ASSERT( !ParmMgr.FindParmContainer( vsp::GetXSecSurf( cone, 0 ) )->GetListedFlag() );
+}

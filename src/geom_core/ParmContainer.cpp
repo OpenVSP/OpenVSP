@@ -75,6 +75,7 @@ ParmContainer::ParmContainer()
     m_Name = string( "Default" );
     m_LateUpdateFlag = true; // Force update first time through.
     m_ParmContainer_Type = vsp::ATTROBJ_FREE;
+    m_ListedFlag = true;
     AttachAttrCollection();
     ParmMgr.AddParmContainer( this );
 }
@@ -148,6 +149,15 @@ void ParmContainer::ResetToInitVals()
 ParmContainer* ParmContainer::GetParentContainerPtr() const
 {
     return ParmMgr.FindParmContainer( m_ParentContainer );
+}
+
+void ParmContainer::SetListedFlag( bool flag )
+{
+    if ( flag != m_ListedFlag )
+    {
+        m_ListedFlag = flag;
+        ParmMgr.IncNumParmChanges();
+    }
 }
 
 //==== Create A Unique ID  =====//

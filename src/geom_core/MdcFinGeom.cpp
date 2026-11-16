@@ -92,6 +92,8 @@ MdcFinGeom::MdcFinGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_UserXSecSurf = new XSecSurf();
     m_UserXSecSurf->SetXSecType( XSEC_BARE );
     m_UserXSecSurf->SetParentContainer( GetID() );
+    // The fin set's GUI reads and keeps the USER section, so its Parms are not listed with the fin set.
+    m_UserXSecSurf->SetListedFlag( false );
     m_UserXSecSurf->AddXSec( XS_FILE_AIRFOIL );
 
     vector< vec3d > up;

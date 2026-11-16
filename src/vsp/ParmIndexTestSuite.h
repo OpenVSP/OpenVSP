@@ -25,6 +25,7 @@ public:
         TEST_ADD( ParmIndexTestSuite::ADestroyedChildLeavesItsParent )
         TEST_ADD( ParmIndexTestSuite::AContainersChildrenHaveNoParentOnceItIsGone )
         TEST_ADD( ParmIndexTestSuite::AParentThatWouldMakeALoopIsRefused )
+        TEST_ADD( ParmIndexTestSuite::ACustomGeomsCrossSectionsAreNotListed )
     }
 
 private:
@@ -35,6 +36,7 @@ private:
     void ADestroyedChildLeavesItsParent();
     void AContainersChildrenHaveNoParentOnceItIsGone();
     void AParentThatWouldMakeALoopIsRefused();
+    void ACustomGeomsCrossSectionsAreNotListed();
 };
 
 #endif
