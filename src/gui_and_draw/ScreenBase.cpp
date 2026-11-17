@@ -524,6 +524,22 @@ BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, co
 
 }
 
+void BasicScreen::SetTitleReserve( int w )
+{
+    int help = 0;
+    if ( m_MasterHelpButton )
+    {
+        help = 20 + 4;
+    }
+    int title_w = m_FLTK_Window->w() - 4 - help - w;
+    m_FL_TitleBox->resize( 2, 2, title_w, 20 );
+    if ( m_MasterHelpButton )
+    {
+        m_MasterHelpButton->resize( 2 + title_w + 4, 2, 20, 20 );
+    }
+    m_FLTK_Window->redraw();
+}
+
 //==== Destructor ====//
 BasicScreen::~BasicScreen()
 {

@@ -92,6 +92,10 @@ public:
     // Moves the window into a frame inside the main window, over the 3D view, or with nullptr back out to a window of
     // its own; Show, Hide and IsShown then act on the frame.  A screen shown stays shown.
     void SetCaptive( VspCaptiveLayer* layer );
+
+    // Leaves room of this width at the right of the title row, for a control put there from outside
+    virtual void SetTitleReserve( int w )                          {}
+
     VspCaptiveFrame* GetCaptiveFrame()
     {
         return m_CaptiveFrame;
@@ -190,6 +194,10 @@ public:
 
     virtual void SetTitle( const string& title );
     string GetTitle();
+
+    // The title, and the help button if there is one, move over to leave the room, as the title does for the help
+    // button
+    virtual void SetTitleReserve( int w );
 
     virtual bool Update()
     {
