@@ -22,6 +22,7 @@
 #include "ToolbarIcons.h"
 #include "MainGLWindow.h"
 #include "VspCaptiveWindow.h"
+#include "VspSidePanel.h"
 #include "ScreenMgr.h"
 #include "GraphicEngine.h"
 #include "Display.h"
@@ -86,6 +87,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_FLTK_Window = nullptr;
     m_GlWin = nullptr;
     m_CaptiveLayer = nullptr;
+    m_SidePanel = nullptr;
     m_DumpName = "Main";
 
     m_ShowXYZArrow = true;
@@ -369,6 +371,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     Fl_Group* cur = Fl_Group::current();
     Fl_Group::current( nullptr );
     m_CaptiveLayer = new VspCaptiveLayer( m_GlWin->x(), m_GlWin->y(), m_GlWin->w(), m_GlWin->h() );
+    m_SidePanel = new VspSidePanel( m_CaptiveLayer );
     Fl_Group::current( cur );
     m_GenLayout.GetGroup()->add( m_CaptiveLayer );
     m_CaptiveLayer->SetView( m_GlWin );

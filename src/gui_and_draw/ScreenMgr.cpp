@@ -39,6 +39,7 @@
 #include "ManageBackground3DScreen.h"
 #include "ManageCORScreen.h"
 #include "VspCaptiveWindow.h"
+#include "VspSidePanel.h"
 #include "ManageGeomScreen.h"
 #include "ManageMeasureScreen.h"
 #include "ManageLightingScreen.h"
@@ -1268,6 +1269,7 @@ void ScreenMgr::FirstShow()
         }
     }
 
+    KeepBrowsersInPanel( true );
     SetWindowMode( GetWindowModePref() );
 
     // Show() after setting non_modal, as modality can not change if window shown.
@@ -1530,11 +1532,26 @@ int ScreenMgr::DumpScreens( int screen, int geom_screen, const string &dir, doub
 {
     // Each screen is dumped from a window of its own
     int mode = m_WindowMode;
+    KeepBrowsersInPanel( false );
     SetWindowMode( vsp::WINDOW_MODE_FREE );
     ScreenDumper dumper( this );
     int ret = dumper.Dump( screen, geom_screen, dir, scale );
+    KeepBrowsersInPanel( true );
     SetWindowMode( mode );
     return ret;
+}
+
+// The Geom Browser and the Nerf one are kept in the main window's side panel, or given back as windows of their own
+void ScreenMgr::KeepBrowsersInPanel( bool keep )
+{
+    VspSidePanel* panel = nullptr;
+    if ( keep )
+    {
+        MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenVec[vsp::VSP_MAIN_SCREEN] );
+        panel = main->GetSidePanel();
+    }
+    m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->SetSidePanel( panel );
+    m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN]->SetSidePanel( panel );
 }
 
 void ScreenMgr::GetWindowScreens( vector< VspScreen* > &screens )

@@ -35,6 +35,7 @@ class Vehicle;
 class Geom;
 class VspCaptiveLayer;
 class VspCaptiveFrame;
+class VspSidePanel;
 
 // The Fl_Color matching one of DrawObj's, so a divider can key the controls beneath it to
 // the vectors drawn in the 3D view.
@@ -92,6 +93,10 @@ public:
     // Moves the window into a frame inside the main window, over the 3D view, or with nullptr back out to a window of
     // its own; Show, Hide and IsShown then act on the frame.  A screen shown stays shown.
     void SetCaptive( VspCaptiveLayer* layer );
+
+    // Keeps the screen in the side panel inside the main window, in either window mode, or gives it back as a window
+    // of its own
+    void SetSidePanel( VspSidePanel* panel );
 
     // Leaves room of this width at the right of the title row, for a control put there from outside
     virtual void SetTitleReserve( int w )                          {}
@@ -153,6 +158,7 @@ protected:
     Fl_Double_Window* m_FLTK_Window;
 
     VspCaptiveFrame* m_CaptiveFrame;
+    VspSidePanel* m_SidePanel;
 
     // The height of the strip below the widgets that takes the window's growth, or 0
     int m_SpacerH;

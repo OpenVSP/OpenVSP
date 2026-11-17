@@ -35,6 +35,7 @@
 #include "FL/Fl_Image_Surface.H"
 #include "FL/Fl_PostScript.H"
 #include "VspCaptiveWindow.h"
+#include "VspSidePanel.h"
 
 using namespace vsp;
 
@@ -49,6 +50,7 @@ VspScreen::VspScreen( ScreenMgr* mgr )
     m_ScreenMgr = mgr;
     m_FLTK_Window = nullptr;
     m_CaptiveFrame = nullptr;
+    m_SidePanel = nullptr;
     m_SpacerH = 0;
     m_ScreenType = -1;
     m_PrevGeom = nullptr;
@@ -71,6 +73,11 @@ void VspScreen::Show()
             return;
         }
     }
+    if ( m_SidePanel )
+    {
+        m_SidePanel->ShowScreen( this );
+        return;
+    }
     if ( m_CaptiveFrame )
     {
         m_CaptiveFrame->ShowFrame();
@@ -83,6 +90,10 @@ void VspScreen::Show()
 //==== Is Window Shown ====//
 bool VspScreen::IsShown()
 {
+    if ( m_SidePanel )
+    {
+        return m_SidePanel->ScreenShown( this );
+    }
     if ( m_CaptiveFrame )
     {
         return m_CaptiveFrame->FrameShown();
@@ -94,6 +105,11 @@ bool VspScreen::IsShown()
 //==== Hide Window ====//
 void VspScreen::Hide()
 {
+    if ( m_SidePanel )
+    {
+        m_SidePanel->HideScreen( this );
+        return;
+    }
     if ( m_CaptiveFrame )
     {
         m_CaptiveFrame->HideFrame();
@@ -106,7 +122,7 @@ void VspScreen::Hide()
 //==== Show Inside The Main Window ====//
 void VspScreen::SetCaptive( VspCaptiveLayer* layer )
 {
-    if ( !m_FLTK_Window || ( layer && m_CaptiveFrame ) || ( !layer && !m_CaptiveFrame ) )
+    if ( !m_FLTK_Window || m_SidePanel || ( layer && m_CaptiveFrame ) || ( !layer && !m_CaptiveFrame ) )
     {
         return;
     }
@@ -154,6 +170,38 @@ void VspScreen::SetCaptive( VspCaptiveLayer* layer )
             VSP_Window::SetGeomRight( m_FLTK_Window->x() + m_FLTK_Window->w() );
             VSP_Window::SetGeomY( m_FLTK_Window->y() );
         }
+        m_FLTK_Window->set_non_modal();
+    }
+
+    if ( was_shown )
+    {
+        Show();
+    }
+}
+
+//==== Keep In The Side Panel ====//
+void VspScreen::SetSidePanel( VspSidePanel* panel )
+{
+    if ( !m_FLTK_Window || panel == m_SidePanel || ( panel && m_CaptiveFrame ) )
+    {
+        return;
+    }
+
+    bool was_shown = IsShown();
+    if ( m_SidePanel )
+    {
+        VspSidePanel* old = m_SidePanel;
+        m_SidePanel = nullptr;
+        old->ReleaseScreen( this );
+    }
+    if ( panel )
+    {
+        m_FLTK_Window->hide();
+        m_SidePanel = panel;
+        panel->TakeScreen( this );
+    }
+    else
+    {
         m_FLTK_Window->set_non_modal();
     }
 
@@ -543,7 +591,12 @@ void BasicScreen::SetTitleReserve( int w )
 //==== Destructor ====//
 BasicScreen::~BasicScreen()
 {
-    // The window goes with the screen, so it is only taken out of its frame
+    // The window goes with the screen, so it is only taken out of its frame or panel
+    if ( m_SidePanel )
+    {
+        m_SidePanel->ForgetScreen( this );
+        m_SidePanel = nullptr;
+    }
     if ( m_CaptiveFrame )
     {
         m_CaptiveFrame->ForgetBody();

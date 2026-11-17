@@ -49,6 +49,11 @@ void VspCaptiveLayer::resize( int x, int y, int w, int h )
         {
             f->Clamp();
         }
+        VspBodyHolder* holder = dynamic_cast< VspBodyHolder* >( child( i ) );
+        if ( holder && !f )
+        {
+            holder->BodyResized();
+        }
     }
 }
 

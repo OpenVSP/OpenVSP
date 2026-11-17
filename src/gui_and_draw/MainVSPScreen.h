@@ -30,6 +30,7 @@ struct NavSettings;
 
 class SelectFileScreen;
 class VspCaptiveLayer;
+class VspSidePanel;
 
 // How large the main window's toolbar is drawn.
 enum ToolbarSize
@@ -74,6 +75,11 @@ public:
     VspCaptiveLayer * GetCaptiveLayer()
     {
         return m_CaptiveLayer;
+    }
+
+    VspSidePanel* GetSidePanel()
+    {
+        return m_SidePanel;
     }
 
     static int ConvertViewEnums( int v );
@@ -255,6 +261,7 @@ protected:
     VSPGUI::VspGlWindow * m_GlWin;
     VSPGUI::NavDevice * m_NavDevice;
     VspCaptiveLayer * m_CaptiveLayer;
+    VspSidePanel * m_SidePanel;
     Fl_Box * m_TitleBox;
     Fl_Box * m_FileNameBox;
     Fl_Button * m_DeviceButton;

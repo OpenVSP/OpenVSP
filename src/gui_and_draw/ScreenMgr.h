@@ -168,6 +168,7 @@ protected:
 
     // Every screen with a window but the main one, the Geom screens included
     void GetWindowScreens( vector< VspScreen* > &screens );
+    void KeepBrowsersInPanel( bool keep );
 
     int m_WindowMode;
 };
