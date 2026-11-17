@@ -14,12 +14,13 @@
 #include <vector>
 
 class Vehicle;
+class Fl_Window;
 
 // Deletes or cuts the selected Geoms.  If that would leave a Clone with nothing to copy, asks
-// first what to do with it; the user may cancel.
-void DeleteOrCutActiveGeomVec( Vehicle* veh, bool cut );
+// first what to do with it, centered on the main window; the user may cancel.
+void DeleteOrCutActiveGeomVec( Vehicle* veh, bool cut, Fl_Window* main );
 
 // Returns a vsp::CLONE_DELETE_TYPE for these Clones, or -1 for cancel.
-int AskCloneDelete( Vehicle* veh, const std::vector< std::string > & clone_vec, bool cut );
+int AskCloneDelete( Vehicle* veh, const std::vector< std::string > & clone_vec, bool cut, Fl_Window* main );
 
 #endif // CLONEDELETEDIALOG_H

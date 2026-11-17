@@ -1216,11 +1216,11 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CutButton )
     {
-        DeleteOrCutActiveGeomVec( m_VehiclePtr, true );
+        DeleteOrCutActiveGeomVec( m_VehiclePtr, true, m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN )->GetFlWindow() );
     }
     else if ( device == &m_DeleteButton )
     {
-        DeleteOrCutActiveGeomVec( m_VehiclePtr, false );
+        DeleteOrCutActiveGeomVec( m_VehiclePtr, false, m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN )->GetFlWindow() );
     }
     else if ( device == &m_CloneButton )
     {

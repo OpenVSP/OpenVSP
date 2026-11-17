@@ -1198,7 +1198,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_CutMenuItem )
     {
-        DeleteOrCutActiveGeomVec( VehicleMgr.GetVehicle(), true );
+        DeleteOrCutActiveGeomVec( VehicleMgr.GetVehicle(), true, m_FLTK_Window );
     }
     else if ( data == &m_CopyMenuItem )
     {
@@ -1210,7 +1210,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_DeleteMenuItem )
     {
-        DeleteOrCutActiveGeomVec( VehicleMgr.GetVehicle(), false );
+        DeleteOrCutActiveGeomVec( VehicleMgr.GetVehicle(), false, m_FLTK_Window );
     }
     else if ( data == &m_SelAllMenuItem )
     {

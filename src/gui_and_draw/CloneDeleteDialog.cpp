@@ -37,7 +37,7 @@ static void CloneDeleteCloseCB( Fl_Widget* w, void* )
     w->hide();
 }
 
-void DeleteOrCutActiveGeomVec( Vehicle* veh, bool cut )
+void DeleteOrCutActiveGeomVec( Vehicle* veh, bool cut, Fl_Window* main )
 {
     if ( !veh )
     {
@@ -59,7 +59,7 @@ void DeleteOrCutActiveGeomVec( Vehicle* veh, bool cut )
         return;
     }
 
-    int clone_delete = AskCloneDelete( veh, clone_vec, cut );
+    int clone_delete = AskCloneDelete( veh, clone_vec, cut, main );
     if ( clone_delete < 0 )
     {
         return;
@@ -75,7 +75,7 @@ void DeleteOrCutActiveGeomVec( Vehicle* veh, bool cut )
     }
 }
 
-int AskCloneDelete( Vehicle* veh, const vector< string > & clone_vec, bool cut )
+int AskCloneDelete( Vehicle* veh, const vector< string > & clone_vec, bool cut, Fl_Window* main )
 {
     string verb = "Deleting";
     string with_label = "Delete Too";
@@ -176,10 +176,8 @@ int AskCloneDelete( Vehicle* veh, const vector< string > & clone_vec, bool cut )
     win->end();
     win->set_modal();
 
-    // Center on the screen the pointer is on.
-    int sx, sy, sw, sh;
-    Fl::screen_work_area( sx, sy, sw, sh );
-    win->position( sx + ( sw - win_w ) / 2, sy + ( sh - win_h ) / 2 );
+    // Centered on the main window, where the other windows open
+    win->position( main->x() + ( main->w() - win_w ) / 2, main->y() + ( main->h() - win_h ) / 2 );
 
     s_CloneDeleteChoice = -1;
     win->show();
