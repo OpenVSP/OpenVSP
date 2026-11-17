@@ -29,6 +29,7 @@ struct NavSettings;
 }
 
 class SelectFileScreen;
+class VspCaptiveLayer;
 
 // How large the main window's toolbar is drawn.
 enum ToolbarSize
@@ -67,6 +68,12 @@ public:
     VSPGUI::NavDevice * GetNavDevice()
     {
         return m_NavDevice;
+    }
+
+    // The part of the window over the 3D view that screens shown inside the main window lie in
+    VspCaptiveLayer * GetCaptiveLayer()
+    {
+        return m_CaptiveLayer;
     }
 
     static int ConvertViewEnums( int v );
@@ -247,6 +254,7 @@ protected:
     Fl_Sys_Menu_Bar *m_MenuBar;
     VSPGUI::VspGlWindow * m_GlWin;
     VSPGUI::NavDevice * m_NavDevice;
+    VspCaptiveLayer * m_CaptiveLayer;
     Fl_Box * m_TitleBox;
     Fl_Box * m_FileNameBox;
     Fl_Button * m_DeviceButton;

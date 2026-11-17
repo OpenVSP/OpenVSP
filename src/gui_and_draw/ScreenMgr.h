@@ -122,6 +122,16 @@ public:
     // Writes images of the screens for testing and documentation; see ScreenDumper::Dump
     int DumpScreens( int screen, int geom_screen, const string &dir, double scale );
 
+    // Screens shown as windows of their own, or inside the main window over the 3D view: a vsp::WINDOW_MODE
+    void SetWindowMode( int mode );
+    int GetWindowMode()
+    {
+        return m_WindowMode;
+    }
+    // The window mode kept in the user's preferences, which VSP starts in
+    static int GetWindowModePref();
+    static void SetWindowModePref( int mode );
+
 protected:
 
     void Init();
@@ -151,6 +161,11 @@ protected:
     vector < bool > m_DisabledGUIElements;
     vector < bool > m_DisabledGUIScreens;
     vector < bool > m_DisabledGeomScreens;
+
+    // Every screen with a window but the main one, the Geom screens included
+    void GetWindowScreens( vector< VspScreen* > &screens );
+
+    int m_WindowMode;
 };
 
 

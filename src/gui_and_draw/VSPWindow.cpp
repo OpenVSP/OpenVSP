@@ -11,6 +11,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Input_.H>
 #include "VSPWindow.h"
+#include "VspCaptiveWindow.h"
 
 bool valid_hotkey( int event_length, int key )
 {
@@ -56,7 +57,8 @@ VSP_Window::VSP_Window(int x, int y, int w, int h, const char* l) : Fl_Double_Wi
 
 void VSP_Window::show()
 {
-    if ( m_GeomScreen )
+    // A window inside a frame is placed by the frame
+    if ( m_GeomScreen && !parent() )
     {
         // A window not yet shown takes its coordinates in the scale of the screen it is assigned to.
         if ( !shown() && m_screen >= 0 )
@@ -72,7 +74,7 @@ void VSP_Window::show()
 
 void VSP_Window::resize( int x_in, int y_in, int w_in, int h_in )
 {
-    if ( m_GeomScreen && shown() )
+    if ( m_GeomScreen && shown() && !parent() )
     {
         m_Right = x_in + w_in;
         m_y = y_in;
@@ -84,6 +86,13 @@ void VSP_Window::resize( int x_in, int y_in, int w_in, int h_in )
     if ( m_ResizeCB )
     {
         m_ResizeCB( this, m_ResizeData );
+    }
+
+    // The window holding this one inside the main window takes the size its screen gives it, and keeps it in place
+    VspBodyHolder* holder = dynamic_cast< VspBodyHolder* >( parent() );
+    if ( holder )
+    {
+        holder->BodyResized();
     }
 }
 

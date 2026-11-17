@@ -49,6 +49,14 @@ public:
     {
         m_y = Y;
     }
+    static int GetGeomRight()
+    {
+        return m_Right;
+    }
+    static int GetGeomY()
+    {
+        return m_y;
+    }
     static void SetGeomScreen( int n )
     {
         m_screen = n;

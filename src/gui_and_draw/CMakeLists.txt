@@ -129,6 +129,8 @@ UserParmScreen.cpp
 VectorScreenshotScreen.cpp
 VarPresetEditorScreen.cpp
 VehNotesScreen.cpp
+VspCaptiveRaise.cpp
+VspCaptiveWindow.cpp
 VSPAEROPlotScreen.cpp
 VSPAEROScreen.cpp
 VSPWindow.cpp
@@ -236,6 +238,7 @@ UserParmScreen.h
 VectorScreenshotScreen.h
 VarPresetEditorScreen.h
 VehNotesScreen.h
+VspCaptiveWindow.h
 VSPAEROPlotScreen.h
 VSPAEROScreen.h
 VSPWindow.h

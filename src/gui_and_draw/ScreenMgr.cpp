@@ -38,6 +38,7 @@
 #include "ManageBackgroundScreen.h"
 #include "ManageBackground3DScreen.h"
 #include "ManageCORScreen.h"
+#include "VspCaptiveWindow.h"
 #include "ManageGeomScreen.h"
 #include "ManageMeasureScreen.h"
 #include "ManageLightingScreen.h"
@@ -110,6 +111,8 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     #endif
 
     m_NativeFileChooser = nullptr;
+
+    m_WindowMode = vsp::WINDOW_MODE_FREE;
 
     m_RunGUI = true;
 
@@ -1194,6 +1197,8 @@ void ScreenMgr::FirstShow()
         }
     }
 
+    SetWindowMode( GetWindowModePref() );
+
     // Show() after setting non_modal, as modality can not change if window shown.
     m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->Show();
     m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN]->Show();
@@ -1452,6 +1457,99 @@ int ScreenMgr::GlobalHandler(int event)
 
 int ScreenMgr::DumpScreens( int screen, int geom_screen, const string &dir, double scale )
 {
+    // Each screen is dumped from a window of its own
+    int mode = m_WindowMode;
+    SetWindowMode( vsp::WINDOW_MODE_FREE );
     ScreenDumper dumper( this );
-    return dumper.Dump( screen, geom_screen, dir, scale );
+    int ret = dumper.Dump( screen, geom_screen, dir, scale );
+    SetWindowMode( mode );
+    return ret;
+}
+
+void ScreenMgr::GetWindowScreens( vector< VspScreen* > &screens )
+{
+    screens.clear();
+    for ( int i = 0; i < ( int )m_ScreenVec.size(); i++ )
+    {
+        VspScreen* s = m_ScreenVec[i];
+        if ( !s || i == vsp::VSP_MAIN_SCREEN || !s->GetFlWindow() )
+        {
+            continue;
+        }
+        screens.push_back( s );
+
+        ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( s );
+        if ( mgs )
+        {
+            vector< VspScreen* > geom_screens = mgs->GetGeomScreenVec();
+            for ( int j = 0; j < ( int )geom_screens.size(); j++ )
+            {
+                if ( geom_screens[j] && geom_screens[j]->GetFlWindow() )
+                {
+                    screens.push_back( geom_screens[j] );
+                }
+            }
+        }
+    }
+}
+
+//==== Window Mode ====//
+// Each screen keeps its place and size on the screen, inside the main window or out of it.  A screen outside the main
+// window is moved into it.
+void ScreenMgr::SetWindowMode( int mode )
+{
+    if ( mode != vsp::WINDOW_MODE_CAPTIVE )
+    {
+        mode = vsp::WINDOW_MODE_FREE;
+    }
+    if ( mode == m_WindowMode )
+    {
+        return;
+    }
+
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenVec[vsp::VSP_MAIN_SCREEN] );
+    if ( !main || !main->GetCaptiveLayer() )
+    {
+        return;
+    }
+
+    vector< VspScreen* > screens;
+    GetWindowScreens( screens );
+
+    if ( mode == vsp::WINDOW_MODE_CAPTIVE )
+    {
+        VspCaptiveFrame::InstallRaiseHook( main->GetCaptiveLayer() );
+        for ( int i = 0; i < ( int )screens.size(); i++ )
+        {
+            screens[i]->SetCaptive( main->GetCaptiveLayer() );
+        }
+    }
+    else
+    {
+        for ( int i = 0; i < ( int )screens.size(); i++ )
+        {
+            screens[i]->SetCaptive( nullptr );
+        }
+    }
+
+    m_WindowMode = mode;
+}
+
+int ScreenMgr::GetWindowModePref()
+{
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    Fl_Preferences app( prefs, "Application" );
+
+    int mode = vsp::WINDOW_MODE_FREE;
+    app.get( "Window_Mode", mode, vsp::WINDOW_MODE_FREE );
+    return mode;
+}
+
+void ScreenMgr::SetWindowModePref( int mode )
+{
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    Fl_Preferences app( prefs, "Application" );
+
+    app.set( "Window_Mode", mode );
+    prefs.flush();
 }

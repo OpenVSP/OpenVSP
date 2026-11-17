@@ -33,6 +33,8 @@
 class ScreenMgr;
 class Vehicle;
 class Geom;
+class VspCaptiveLayer;
+class VspCaptiveFrame;
 
 // The Fl_Color matching one of DrawObj's, so a divider can key the controls beneath it to
 // the vectors drawn in the 3D view.
@@ -87,6 +89,16 @@ public:
     virtual bool Update();
     virtual void GetCollIDs( vector < string > &collIDVec ) {};
 
+    // Moves the window into a frame inside the main window, over the 3D view, or with nullptr back out to a window of
+    // its own; Show, Hide and IsShown then act on the frame.  A screen shown stays shown.
+    void SetCaptive( VspCaptiveLayer* layer );
+    VspCaptiveFrame* GetCaptiveFrame()
+    {
+        return m_CaptiveFrame;
+    }
+    // Closes the screen from its frame's close button, as its own window's close box does
+    void CloseFromFrame();
+
     void AddResizeSpacer();
     void SetGrowWidget( Fl_Widget* w, Fl_Group* top = nullptr );
     Fl_Box* AddGrowBox( Fl_Group* g, int x, int y, int w, int h );
@@ -129,9 +141,14 @@ protected:
     // Fills the screen's panels before a dump, by selecting the first item of each list
     virtual void PrepareDump()                          {}
 
+    // The title a frame inside the main window shows
+    virtual string GetCaptiveTitle();
+
     ScreenMgr* m_ScreenMgr;
 
     Fl_Double_Window* m_FLTK_Window;
+
+    VspCaptiveFrame* m_CaptiveFrame;
 
     // The height of the strip below the widgets that takes the window's growth, or 0
     int m_SpacerH;
@@ -187,6 +204,8 @@ public:
     }
 
 protected:
+
+    virtual string GetCaptiveTitle();
 
     Fl_Box* m_FL_TitleBox;
     Fl_Button* m_MasterHelpButton;

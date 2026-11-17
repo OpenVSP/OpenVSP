@@ -21,6 +21,7 @@
 #include "NavIcons.h"
 #include "ToolbarIcons.h"
 #include "MainGLWindow.h"
+#include "VspCaptiveWindow.h"
 #include "ScreenMgr.h"
 #include "GraphicEngine.h"
 #include "Display.h"
@@ -84,6 +85,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 {
     m_FLTK_Window = nullptr;
     m_GlWin = nullptr;
+    m_CaptiveLayer = nullptr;
     m_DumpName = "Main";
 
     m_ShowXYZArrow = true;
@@ -362,6 +364,15 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     m_ToolbarMenuItem.Update( m_ToolbarSize != TOOLBAR_HIDDEN );
     UpdateToolbar();
+
+    // Over the 3D view, after it, so the frames in it are drawn above the view
+    Fl_Group* cur = Fl_Group::current();
+    Fl_Group::current( nullptr );
+    m_CaptiveLayer = new VspCaptiveLayer( m_GlWin->x(), m_GlWin->y(), m_GlWin->w(), m_GlWin->h() );
+    Fl_Group::current( cur );
+    m_GenLayout.GetGroup()->add( m_CaptiveLayer );
+    m_CaptiveLayer->SetView( m_GlWin );
+    m_GenLayout.GetGroup()->resizable( m_CaptiveLayer );
 
     StartGesturePlayer( this );
 }
@@ -749,19 +760,19 @@ void MainVSPScreen::SetToolbarSize( int size )
         m_ToolActions.clear();
     }
 
-    int top = m_GlWin->y() - oldh;
+    int top = m_CaptiveLayer->y() - oldh;
     int newh = 0;
     if ( size != TOOLBAR_HIDDEN )
     {
-        m_Toolbar = BuildToolbar( m_GlWin->x(), top, m_GlWin->w(), size );
+        m_Toolbar = BuildToolbar( m_CaptiveLayer->x(), top, m_CaptiveLayer->w(), size );
         m_GenLayout.GetGroup()->add( m_Toolbar );
         newh = m_Toolbar->h();
         m_ShownToolbarSize = size;
     }
     m_ToolbarSize = size;
 
-    // The 3D window takes the rest.
-    m_GlWin->resize( m_GlWin->x(), top + newh, m_GlWin->w(), m_GlWin->h() + oldh - newh );
+    // The layer, the 3D window under its windows, takes the rest.
+    m_CaptiveLayer->resize( m_CaptiveLayer->x(), top + newh, m_CaptiveLayer->w(), m_CaptiveLayer->h() + oldh - newh );
     m_GenLayout.GetGroup()->init_sizes();
     m_FLTK_Window->redraw();
 

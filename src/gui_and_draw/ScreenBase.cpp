@@ -34,6 +34,7 @@
 
 #include "FL/Fl_Image_Surface.H"
 #include "FL/Fl_PostScript.H"
+#include "VspCaptiveWindow.h"
 
 using namespace vsp;
 
@@ -47,6 +48,7 @@ VspScreen::VspScreen( ScreenMgr* mgr )
 {
     m_ScreenMgr = mgr;
     m_FLTK_Window = nullptr;
+    m_CaptiveFrame = nullptr;
     m_SpacerH = 0;
     m_ScreenType = -1;
     m_PrevGeom = nullptr;
@@ -69,6 +71,11 @@ void VspScreen::Show()
             return;
         }
     }
+    if ( m_CaptiveFrame )
+    {
+        m_CaptiveFrame->ShowFrame();
+        return;
+    }
     assert( m_FLTK_Window );
     m_FLTK_Window->show();
 }
@@ -76,6 +83,10 @@ void VspScreen::Show()
 //==== Is Window Shown ====//
 bool VspScreen::IsShown()
 {
+    if ( m_CaptiveFrame )
+    {
+        return m_CaptiveFrame->FrameShown();
+    }
     assert( m_FLTK_Window );
     return !!( m_FLTK_Window->shown() );
 }
@@ -83,8 +94,96 @@ bool VspScreen::IsShown()
 //==== Hide Window ====//
 void VspScreen::Hide()
 {
+    if ( m_CaptiveFrame )
+    {
+        m_CaptiveFrame->HideFrame();
+        return;
+    }
     assert( m_FLTK_Window );
     m_FLTK_Window->hide();
+}
+
+//==== Show Inside The Main Window ====//
+void VspScreen::SetCaptive( VspCaptiveLayer* layer )
+{
+    if ( !m_FLTK_Window || ( layer && m_CaptiveFrame ) || ( !layer && !m_CaptiveFrame ) )
+    {
+        return;
+    }
+
+    bool was_shown = IsShown();
+    VSP_Window* vw = dynamic_cast< VSP_Window* >( m_FLTK_Window );
+    bool geom = vw && vw->GetGeomScreenFlag();
+
+    if ( layer )
+    {
+        // The frame goes where the window was on the screen, the Geom screens where they share a place as the frame
+        // is shown.  A window never placed is centered.
+        int rx = m_FLTK_Window->x();
+        int ry = m_FLTK_Window->y();
+        bool placed = geom || m_FLTK_Window->shown() || rx != 0 || ry != 0;
+
+        m_FLTK_Window->hide();
+        m_FLTK_Window->clear_modal_states();
+
+        Fl_Window* top = layer->window();
+        int fx = rx - top->x() - VspCaptiveFrame::EDGE;
+        int fy = ry - top->y() - VspCaptiveFrame::TITLE_H;
+        if ( !placed )
+        {
+            fx = layer->x() + ( layer->w() - m_FLTK_Window->w() ) / 2;
+            fy = layer->y() + ( layer->h() - m_FLTK_Window->h() ) / 2;
+        }
+
+        m_CaptiveFrame = new VspCaptiveFrame( this, m_FLTK_Window, layer, fx, fy );
+        m_CaptiveFrame->SetTitle( GetCaptiveTitle() );
+    }
+    else
+    {
+        VspCaptiveFrame* frame = m_CaptiveFrame;
+        m_CaptiveFrame = nullptr;
+        frame->ReleaseBody();
+        if ( frame->parent() )
+        {
+            frame->parent()->remove( frame );
+        }
+        Fl::delete_widget( frame );
+
+        if ( geom && was_shown )
+        {
+            VSP_Window::SetGeomRight( m_FLTK_Window->x() + m_FLTK_Window->w() );
+            VSP_Window::SetGeomY( m_FLTK_Window->y() );
+        }
+        m_FLTK_Window->set_non_modal();
+    }
+
+    if ( was_shown )
+    {
+        Show();
+    }
+}
+
+// Closes the screen as its own window's close box does: through the window's callback, unless that is FLTK's, which
+// would hide the window and leave its frame
+void VspScreen::CloseFromFrame()
+{
+    if ( m_FLTK_Window && m_FLTK_Window->callback() != ( Fl_Callback* )Fl_Window::default_callback )
+    {
+        m_FLTK_Window->do_callback();
+    }
+    else
+    {
+        Hide();
+    }
+}
+
+string VspScreen::GetCaptiveTitle()
+{
+    if ( m_FLTK_Window && m_FLTK_Window->label() )
+    {
+        return string( m_FLTK_Window->label() );
+    }
+    return string();
 }
 
 //==== Grow Below The Widgets ====//
@@ -428,6 +527,17 @@ BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, co
 //==== Destructor ====//
 BasicScreen::~BasicScreen()
 {
+    // The window goes with the screen, so it is only taken out of its frame
+    if ( m_CaptiveFrame )
+    {
+        m_CaptiveFrame->ForgetBody();
+        if ( m_CaptiveFrame->parent() )
+        {
+            m_CaptiveFrame->parent()->remove( m_CaptiveFrame );
+        }
+        Fl::delete_widget( m_CaptiveFrame );
+        m_CaptiveFrame = nullptr;
+    }
     delete m_FLTK_Window;
 }
 
@@ -438,7 +548,16 @@ void BasicScreen::SetTitle( const string& title )
     {
         m_Title = title;
         m_FL_TitleBox->copy_label( m_Title.c_str() );
+        if ( m_CaptiveFrame )
+        {
+            m_CaptiveFrame->SetTitle( m_Title );
+        }
     }
+}
+
+string BasicScreen::GetCaptiveTitle()
+{
+    return m_Title;
 }
 
 string BasicScreen::GetTitle()

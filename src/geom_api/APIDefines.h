@@ -1091,6 +1091,14 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for how the GUI shows its screens. */
+enum WINDOW_MODE { WINDOW_MODE_FREE,	/*!< Each screen is a window of its own */
+                   WINDOW_MODE_CAPTIVE,	/*!< Each screen is a window inside the main window */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for how a Hinge's axes are set. */
 enum HINGE_ORIENT_TYPE { HINGE_ORIENT_ROT,	/*!< From the XForm rotations (default) */
                          HINGE_ORIENT_VEC,	/*!< From directions; the XForm rotations are computed from them */

@@ -2047,6 +2047,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_ALL_SCREENS", VSP_ALL_SCREENS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "WINDOW_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WINDOW_MODE", "WINDOW_MODE_FREE", WINDOW_MODE_FREE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WINDOW_MODE", "WINDOW_MODE_CAPTIVE", WINDOW_MODE_CAPTIVE );
+    assert( r >= 0 );
+
 
     r = se->RegisterEnum( "HINGE_ORIENT_TYPE" );
     assert( r >= 0 );
