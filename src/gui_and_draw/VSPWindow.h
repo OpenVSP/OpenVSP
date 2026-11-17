@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// Custom FLTK Window type to allow windows to be attached to each other
+// Custom FLTK Window type for the screens
 // Alex Gary
 //
 //////////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 #define VSPWINDOW_H_
 
 #include <FL/Fl_Double_Window.H>
-#include <vector>
 
 //==== Valid Hotkeys are all chars and function keys, excludes shift, ctrl, alt, etc. ====//
 bool valid_hotkey( int event_length, int key );
@@ -27,9 +26,6 @@ public:
     // Ctrl or Cmd with X, C or V given to the text field that has the keyboard, if one does: true if it took the key
     static bool TextEditKey( int key );
 
-    enum { WIN_ATT_NONE, WIN_ATT_LSIDE, WIN_ATT_RSIDE, WIN_ATT_TOP, WIN_ATT_BOTTOM, WIN_ATT_NUM_TYPES };
-    enum { WIN_ALN_NONE, WIN_ALN_LEFT, WIN_ALN_RIGHT, WIN_ALN_TOP, WIN_ALN_BOTTOM, WIN_ALN_NUM_TYPES };
-
     void SetGeomScreenFlag( bool f )
     {
         m_GeomScreen = f;
@@ -38,28 +34,10 @@ public:
     {
         return m_GeomScreen;
     }
-    int GetAttachType()
-    {
-        return m_AttachType;
-    }
-    void SetAttachType( int t);
-    int GetAlignType()
-    {
-        return m_AlignType;
-    }
-    void SetAlignType( int t);
-
-    void AddChild( VSP_Window* win );
-    void RemoveChild( VSP_Window* win);
-    void SetParent( VSP_Window* win );
 
     void resize( int X, int Y, int W, int H );
-    void resizeFromParent( int X, int Y, int W, int H);
-    void resizeFromChild( int X, int Y, int W, int H, VSP_Window * child);
     void show();
     int handle( int fl_event );
-    virtual void UpdateChildren( VSP_Window* child = nullptr);
-    virtual void UpdateParent();
 
     static void SetGeomX( int X )
     {
@@ -83,11 +61,6 @@ protected:
     static int m_x;
     static int m_y;
     static int m_screen;
-    std::vector< VSP_Window* > m_Children;
-    VSP_Window* m_Parent;
-
-    int m_AttachType;
-    int m_AlignType;
 
     Fl_Callback* m_KeyCB;
     void* m_KeyCBData;
