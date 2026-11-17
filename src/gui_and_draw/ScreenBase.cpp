@@ -4410,16 +4410,16 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_OgiveGroup.SetShear( EndCapTypeGroup::ALWAYS );
     m_PowerLawGroup.SetExtra( "Exponent" );
     m_VonKarmanGroup.SetExtra( "Haack C" );
-    m_PowerLawGroup.SetRadius( EndCapTypeGroup::TRUNC_ONLY );
-    m_VonKarmanGroup.SetRadius( EndCapTypeGroup::TRUNC_ONLY );
-    m_SearsHaackGroup.SetRadius( EndCapTypeGroup::TRUNC_ONLY );
+    m_PowerLawGroup.SetRadius( EndCapTypeGroup::ALWAYS );
+    m_VonKarmanGroup.SetRadius( EndCapTypeGroup::ALWAYS );
+    m_SearsHaackGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_PowerLawGroup.SetTrunc( true );
     m_VonKarmanGroup.SetTrunc( true );
     m_SearsHaackGroup.SetTrunc( true );
-    // A profile cap's rows are the end scaled anyway; Scaled Rows sizes only a truncated cap's face.
-    m_PowerLawGroup.SetScaled( EndCapTypeGroup::TRUNC_ONLY );
-    m_VonKarmanGroup.SetScaled( EndCapTypeGroup::TRUNC_ONLY );
-    m_SearsHaackGroup.SetScaled( EndCapTypeGroup::TRUNC_ONLY );
+    // A profile cap's rows are the end scaled anyway; Scaled Rows sizes only its sphere or truncated face.
+    m_PowerLawGroup.SetScaled( EndCapTypeGroup::ALWAYS );
+    m_VonKarmanGroup.SetScaled( EndCapTypeGroup::ALWAYS );
+    m_SearsHaackGroup.SetScaled( EndCapTypeGroup::ALWAYS );
 
     // The groups share the space of the one with the most lines.
     vector< EndCapTypeGroup* > groups = Groups();
