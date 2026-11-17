@@ -39,9 +39,11 @@ public:
     void show();
     int handle( int fl_event );
 
-    static void SetGeomX( int X )
+    // The Geom screens share one place, kept by its upper-right corner, so screens of different widths line up
+    // along their right edges
+    static void SetGeomRight( int X )
     {
-        m_x = X;
+        m_Right = X;
     }
     static void SetGeomY( int Y )
     {
@@ -58,7 +60,7 @@ public:
 protected:
 
     bool m_GeomScreen;
-    static int m_x;
+    static int m_Right;
     static int m_y;
     static int m_screen;
 

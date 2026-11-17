@@ -32,7 +32,7 @@ bool valid_hotkey( int event_length, int key )
     return false;
 }
 
-int VSP_Window::m_x = 1;
+int VSP_Window::m_Right = 1;
 int VSP_Window::m_y = 1;
 int VSP_Window::m_screen = -1;
 
@@ -63,7 +63,7 @@ void VSP_Window::show()
         {
             screen_num( m_screen );
         }
-        position( m_x, m_y);
+        position( m_Right - w(), m_y );
     }
 
     Fl_Double_Window::show();
@@ -74,7 +74,7 @@ void VSP_Window::resize( int x_in, int y_in, int w_in, int h_in )
 {
     if ( m_GeomScreen && shown() )
     {
-        m_x = x_in;
+        m_Right = x_in + w_in;
         m_y = y_in;
         m_screen = screen_num();
     }

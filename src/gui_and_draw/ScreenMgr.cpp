@@ -1169,7 +1169,16 @@ void ScreenMgr::FirstShow()
     y = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->y();
     w = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->w();
 
-    VSP_Window::SetGeomX( x + w );
+    // The Geom screens open to the right of the browser, the widest of them against it
+    int geom_w = 0;
+    ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN] );
+    vector< VspScreen* > geom_screens = mgs->GetGeomScreenVec();
+    for ( int i = 0; i < ( int )geom_screens.size(); i++ )
+    {
+        geom_w = std::max( geom_w, geom_screens[i]->GetFlWindow()->w() );
+    }
+
+    VSP_Window::SetGeomRight( x + w + geom_w );
     VSP_Window::SetGeomY( y );
 
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
