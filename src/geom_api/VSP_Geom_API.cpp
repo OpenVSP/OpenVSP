@@ -56,7 +56,10 @@
 #include "LightMgr.h"
 #include "VspUtil.h"
 #include "WingGeom.h"
+#include "MdcBodGeom.h"
 #include "MdcFinGeom.h"
+#include "MdcProtubGeom.h"
+#include "MdcInletGeom.h"
 #include "MeshGeom.h"
 #include "PtCloudGeom.h"
 #include "StlHelper.h"
@@ -4886,6 +4889,74 @@ std::string ConvertFuselageToStack( const std::string & geom_id )
 
     ErrorMgr.NoError();
     return stack_id;
+}
+
+void SetMdcPreset( const std::string & geom_id, int preset )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetMdcPreset::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    MdcBodGeom* body = dynamic_cast< MdcBodGeom* >( geom_ptr );
+    MdcFinGeom* fin = dynamic_cast< MdcFinGeom* >( geom_ptr );
+    MdcInletGeom* inlet = dynamic_cast< MdcInletGeom* >( geom_ptr );
+    MdcProtubGeom* protub = dynamic_cast< MdcProtubGeom* >( geom_ptr );
+
+    int npreset = 0;
+    if ( body )
+    {
+        npreset = NUM_MDC_BOD_PRESET;
+    }
+    else if ( fin )
+    {
+        npreset = NUM_MDC_FIN_PRESET;
+    }
+    else if ( inlet )
+    {
+        npreset = NUM_MDC_INLET_PRESET;
+    }
+    else if ( protub )
+    {
+        npreset = NUM_MDC_PROTUB_PRESET;
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetMdcPreset::Geom " + geom_id + " is not an MDC_BOD, MDC_FIN, MDC_INLET or MDC_PROTUB" );
+        return;
+    }
+
+    if ( preset < 0 || preset >= npreset )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetMdcPreset::Invalid Preset " + to_string( preset ) );
+        return;
+    }
+
+    if ( body )
+    {
+        body->m_Preset = preset;
+        body->SetPreset();
+    }
+    else if ( fin )
+    {
+        fin->m_Preset = preset;
+        fin->SetPreset();
+    }
+    else if ( inlet )
+    {
+        inlet->m_Preset = preset;
+        inlet->SetPreset();
+    }
+    else
+    {
+        protub->m_Preset = preset;
+        protub->SetPreset();
+    }
+
+    ErrorMgr.NoError();
 }
 
 std::string ConvertMdcBodToStack( const std::string & geom_id, bool replace_flag )

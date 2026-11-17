@@ -15,28 +15,9 @@ from bodyfig import vsp, X, Y, Z, FS
 TYPES = [ ( "VCYL", 1 ), ( "HCYL", 2 ), ( "LUG", 3 ), ( "SHOE", 4 ), ( "BLOCK", 5 ), ( "FAIRING", 6 ) ]
 
 
-SRC = os.path.join( HERE, "..", "..", "..", "geom_core", "MdcProtubGeom.cpp" )
-
-
-def default_members( ptype ):
-    """The ( LPROT, WPROT, HPROT, OPROT ) of each member of ptype, for a body 6 in radius, as the Set Default button
-    sets them.  The button is not in the API, so they are read from where it is written."""
-    import re
-    text = open( SRC ).read()
-    body = text[ text.index( "void MdcProtubGeom::SetDefaults" ): text.index( "double MdcProtubGeom::Bottom" ) ]
-    names = { 1: "VCYL", 2: "HCYL", 3: "LUG", 4: "SHOE", 5: "BLOCK" }
-    if ptype in names:
-        cond = "ptype == " + names[ ptype ]
-        part = body[ body.index( cond ): ]
-    else:
-        part = body[ body.index( "else\n    {\n        mems" ): ]
-    part = part[ part.index( "mems = {" ): part.index( ";" , part.index( "mems = {" ) ) ]
-    rows = re.findall( r"\{\s*([-\d.]+),\s*([-\d.]+),\s*([-\d.]+),\s*([-\d.]+)\s*\}", part )
-    return [ [ float( v ) for v in r ] for r in rows ]
-
-
 def protub( ptype, rbody = 6.0, defaults = True ):
-    """The protuberance of ptype on a body of radius rbody, with the sizes Set Default gives."""
+    """The protuberance of ptype on a body of radius rbody, with the sizes its type's preset gives, the preset
+    numbered as the type is."""
     g = vsp.AddGeom( "MDC_PROTUB" )
     vsp.Update()
     vsp.SetParmVal( g, "RBODY", "Design", rbody )
@@ -45,12 +26,24 @@ def protub( ptype, rbody = 6.0, defaults = True ):
     # The members' Parms are made by the update after PTYPE.
     vsp.Update()
     if defaults:
-        k = rbody / 6.0
-        for m, row in enumerate( default_members( ptype ) ):
-            for nm, v in zip( ( "LPROT", "WPROT", "HPROT", "OPROT" ), row ):
-                vsp.SetParmVal( g, "%s_%d" % ( nm, m + 1 ), "Design", k * v )
+        vsp.SetMdcPreset( g, ptype )
     vsp.Update()
     return g
+
+
+def preset_members( ptype ):
+    """The ( LPROT, WPROT, HPROT, OPROT ) of each member of ptype, for a body 6 in radius, as its type's preset sets
+    them."""
+    g = protub( ptype )
+    names = set( vsp.GetParmName( p ) for p in vsp.GetGeomParmIDs( g ) )
+    rows = []
+    m = 1
+    while "LPROT_%d" % m in names:
+        rows.append( [ vsp.GetParmVal( g, "%s_%d" % ( nm, m ), "Design" ) for nm in ( "LPROT", "WPROT", "HPROT", "OPROT" ) ] )
+        m += 1
+    vsp.DeleteGeom( g )
+    vsp.Update()
+    return rows
 
 
 def types():

@@ -33,6 +33,8 @@ protected:
 
     TriggerButton m_ConvertToStackButton;
 
+    Choice m_PresetChoice;
+    TriggerButton m_SetPresetButton;
     Choice m_NamelistChoice;
     // XO is the XForm tab's X location.
     SliderAdjRangeInput m_XOSlider;

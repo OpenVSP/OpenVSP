@@ -35,6 +35,8 @@ protected:
     GroupLayout m_SectionLayout;
 
     // Fin Set
+    Choice m_PresetChoice;
+    TriggerButton m_SetPresetButton;
     Choice m_SecTypChoice;
     SliderAdjRangeInput m_NPanelSlider;
     SliderAdjRangeInput m_RBodySlider;

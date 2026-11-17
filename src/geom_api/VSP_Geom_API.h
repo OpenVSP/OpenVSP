@@ -14405,6 +14405,65 @@ extern std::string ConvertFuselageToStack( const std::string & geom_id );
     \ingroup Geom
 */
 /*!
+    Give an MDC_BOD, MDC_FIN, MDC_INLET or MDC_PROTUB one of its preset shapes, as the Set button beside its Preset
+    choice does: the shape's Design Parms, and an MDC_BOD's end caps, are set, and the component's placement is kept.
+    A fin set's or inlet's generic rocket shape is sized to the largest radius of the MDC_BOD it stands on as the
+    rocket's are to its body of radius 5, wherever along the body the component is; with no MDC_BOD under it, it takes
+    the rocket's own size.
+    A protuberance's preset other than the default sets its type and members, sized to its RBODY as they are to the
+    body they are for, and keeps its locations.  Call Update afterward.
+    \forcpponly
+    \code{.cpp}
+    string body_id = AddGeom( "MDC_BOD" );
+    SetMdcPreset( body_id, MDC_BOD_PRESET_GENERIC_ROCKET );
+    Update();
+
+    string fin_id = AddGeom( "MDC_FIN", body_id );
+    SetParmVal( fin_id, "X_Rel_Location", "XForm", 70.0 );
+    Update();
+
+    SetMdcPreset( fin_id, MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES );
+    Update();
+
+    // On the rocket's own body the strakes are the rocket's: two panels, 90 chord at the root.
+    if ( GetParmVal( fin_id, "NPANEL", "Design" ) != 2.0 || abs( GetParmVal( fin_id, "CHORD_1", "Design" ) - 90.0 ) > 1e-3 )
+    {
+        Print( "ERROR: SetMdcPreset did not give the rocket's strakes" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    body_id = AddGeom( "MDC_BOD" )
+    SetMdcPreset( body_id, MDC_BOD_PRESET_GENERIC_ROCKET )
+    Update()
+
+    fin_id = AddGeom( "MDC_FIN", body_id )
+    SetParmVal( fin_id, "X_Rel_Location", "XForm", 70.0 )
+    Update()
+
+    SetMdcPreset( fin_id, MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES )
+    Update()
+
+    # On the rocket's own body the strakes are the rocket's: two panels, 90 chord at the root.
+    assert GetParmVal( fin_id, "NPANEL", "Design" ) == 2.0, "SetMdcPreset did not give the rocket's strakes"
+    assert abs( GetParmVal( fin_id, "CHORD_1", "Design" ) - 90.0 ) < 1e-3, "SetMdcPreset did not size the strakes"
+
+    \endcode
+    \endPythonOnly
+    \sa MDC_BOD_PRESET, MDC_FIN_PRESET, MDC_INLET_PRESET, MDC_PROTUB_PRESET
+    \param [in] geom_id string MDC_BOD, MDC_FIN, MDC_INLET or MDC_PROTUB Geom ID
+    \param [in] preset int Preset enum of the component's type (i.e. MDC_FIN_PRESET_GENERIC_ROCKET_FINS)
+*/
+
+extern void SetMdcPreset( const std::string & geom_id, int preset );
+
+/*!
+    \ingroup Geom
+*/
+/*!
     Make a Stack of the same shape as an MDC_BOD.  The Stack is skinned through a copy of each of the MDC_BOD's cross
     sections, each placed where the MDC_BOD put it and raised by the body's camber there, with the same tangent
     conditions; and its nose is the MDC_BOD's nose, sheared by the camber across it.  The Stack takes the MDC_BOD's

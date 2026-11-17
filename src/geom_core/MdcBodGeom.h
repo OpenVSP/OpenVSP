@@ -25,6 +25,9 @@ public:
     // The distance r from the body's axis at x, in its shape frame, to its mold line in the direction phi, degrees
     // clockwise from the top looking forward.  False where x is not along the body.
     virtual bool Radius( double x, double phi, double & r ) const = 0;
+
+    // The largest half width or half height of the body's sections; zero before it is built.
+    virtual double MaxRadius() const = 0;
 };
 
 //==== MDC_BOD Geom ====//
@@ -64,6 +67,9 @@ public:
 
     virtual void ApplyScale( double currentScale );
 
+    // Sets the shape of the preset Preset names: the body as new, or the generic rocket's.
+    void SetPreset();
+
     // The rotation center is Origin along the body's length from the tip of its nose.
     virtual void ComputeCenter();
 
@@ -71,17 +77,22 @@ public:
     void GetCamber( vector< double > & x, vector< double > & z ) const;
 
     virtual bool Radius( double x, double phi, double & r ) const;
+    virtual double MaxRadius() const;
 
     // The radius under the point x along a component, in the component's frame, in the direction phi, when the
     // component's parent is an MDC_BOD or a Clone of one: DATCOM takes a protuberance's, an inlet's and a fin's
     // from the body.
     static bool RadiusUnder( Geom* geom_ptr, double x, double phi, double & r );
 
+    // The largest radius of the MDC_BOD, or Clone of one, geom_ptr stands on.  False if it stands on none.
+    static bool MaxRadiusOfParent( Geom* geom_ptr, double & r );
+
     // Marks the children of body that stand on it to rebuild their surfaces.
     static void DirtyStandingChildren( Geom* body );
 
     virtual void UpdateEndCaps();
 
+    IntParm m_Preset;
     IntParm m_Namelist;
 
 
@@ -115,6 +126,9 @@ public:
 
 protected:
     virtual void UpdateSurf();
+
+    // The shape as the body was made, the default preset.
+    vector< PresetValue > m_DefaultValues;
 
     // A child that stands on the body is under a new part of it when the body moves.
     virtual void UpdateChildren( bool fullupdate );

@@ -18,6 +18,7 @@ The MDC_FIN has three tabs of its own: Fin Set, Planform and Section.  The [Gen]
 [Mass](MassTab.md) and [Sub](SubTab.md) tabs are described on their own pages.
 
 - The Fin Set tab sets the [panels](#panels), their number, roll angles and dihedral, and the section type.
+- The Fin Set tab's [preset](#presets) gives a shape to start from.
 - The Planform tab sets the [planform](#planform) at its span stations, and the [flaps](#flaps).
 - The Section tab sets the [sections](#sections): [HEX and ARC](#hex-and-arc-sections), [NACA](#naca-sections) and
   [USER](#user-sections).
@@ -28,6 +29,7 @@ The MDC_FIN has three tabs of its own: Fin Set, Planform and Section.  The [Gen]
 1. Add the body, an [MDC_BOD](MdcBod.md), and an MDC_FIN as its child.  A new MDC_FIN is four tapered panels, 1.5
    chord at the root and 0.75 at the tip, 1 span, 5 percent thick diamonds, rolled to the top, right, bottom and left
    of the body at X = 8 to 9.5, on the default MDC_BOD.
+   To start from a rocket's fins or strakes instead, choose them as the Preset and press Set.
 2. On the Fin Set tab, set *NPANEL*, the number of panels.
 3. On the Planform tab, set *NSPAN*, the number of span stations, and at each station its *SSPAN*, *CHORD* and *XLE*,
    or its *SWEEP*.
@@ -37,6 +39,15 @@ The MDC_FIN has three tabs of its own: Fin Set, Planform and Section.  The [Gen]
 ![Figure 1. A fin set](images/MdcFin_overview.png "Figure 1. A fin set")
 
 *Figure 1. The default MDC_FIN on a body.*
+
+## Presets
+
+The Preset choice and its Set button, on the Fin Set tab, give the fin set a whole shape, and it keeps its place along
+the body.  Choosing a preset changes nothing until Set is pressed.  Default is the fin set as new.  Generic Rocket Fins
+are a rocket's four tail fins, 12 chord at the root and 8 in span, and Generic Rocket Strakes its pair of long, low
+strakes at the sides, 90 chord at the root and 2 in span.  Each is sized to the largest radius of the MDC_BOD it stands
+on as the rocket's are to a body of radius 5; with no MDC_BOD under it, it takes the rocket's size.
+The API call `SetMdcPreset` does the same.
 
 ## Panels
 

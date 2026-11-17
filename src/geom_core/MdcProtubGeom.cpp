@@ -42,6 +42,11 @@ MdcProtubGeom::MdcProtubGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr
 
     SizeParms();
 
+    m_Preset.Init( "Preset", "Design", this, vsp::MDC_PROTUB_PRESET_DEFAULT, vsp::MDC_PROTUB_PRESET_DEFAULT,
+                   vsp::NUM_MDC_PROTUB_PRESET - 1 );
+    m_Preset.SetDescript( "Preset shape Set gives the protuberance: as new, a type, or a small, medium or large lug" );
+    GetPresetValues( { "Design" }, { "Preset", "LocIndex" }, m_DefaultValues );
+
     m_TessU = 9;
     m_TessW = 17;
 }
@@ -104,45 +109,55 @@ int MdcProtubGeom::NumMembers( int ptype )
     return 1;
 }
 
-void MdcProtubGeom::SetDefaults()
+// Each preset but the default: its type, the radius of the body it is for, and LPROT, WPROT, HPROT and OPROT of
+// each member.  The namelist's sample body has no HCYL or LUG; the lugs are a rocket's: a base plate, two posts
+// and a top plate.
+struct ProtubPreset
 {
-    // LPROT, WPROT, HPROT and OPROT of each member, for a body 6 in radius.  The sample body has no HCYL or LUG.
-    vector< vector< double > > mems;
-    int ptype = m_PType();
-    if ( ptype == VCYL )
+    int ptype;
+    double rbody;
+    int nmem;
+    double mems[MdcProtubGeom::MAX_MEM][4];
+};
+
+static const ProtubPreset protub_presets[] = {
+    { MdcProtubGeom::VCYL, 6.0, 1, { { 1.0, 1.0, 0.5, 0.0 } } },
+    { MdcProtubGeom::HCYL, 6.0, 1, { { 3.0, 1.0, 1.0, 0.0 } } },
+    { MdcProtubGeom::LUG, 6.0, 4, { { 3.0, 2.0, 0.1, 0.0 }, { 1.5, 0.25, 0.5, 0.1 }, { 1.5, 0.25, 0.5, 0.1 },
+                                    { 1.5, 1.0, 0.15, 0.6 } } },
+    { MdcProtubGeom::SHOE, 6.0, 3, { { 10.0, 4.0, 0.1, 0.0 }, { 10.0, 0.25, 0.75, 0.1 }, { 10.0, 1.0, 0.25, 0.85 } } },
+    { MdcProtubGeom::BLOCK, 6.0, 1, { { 0.5, 2.0, 1.5, 0.0 } } },
+    { MdcProtubGeom::FAIRING, 6.0, 1, { { 5.0, 2.0, 1.0, 0.0 } } },
+    { MdcProtubGeom::LUG, 5.0, 4, { { 1.0, 1.0, 0.3, 0.0 }, { 0.422, 0.155, 0.75, 0.3 }, { 0.422, 0.155, 1.177, 0.3 },
+                                    { 0.422, 1.0, 0.48, 1.05 } } },
+    { MdcProtubGeom::LUG, 5.0, 4, { { 1.74, 1.74, 0.1, 0.0 }, { 0.422, 0.5, 1.0, 0.1 }, { 0.422, 0.5, 1.0, 0.1 },
+                                    { 0.422, 1.74, 0.55, 1.1 } } },
+    { MdcProtubGeom::LUG, 5.0, 4, { { 2.3, 2.3, 0.1, 0.0 }, { 0.7, 0.5, 1.5, 0.1 }, { 0.7, 0.5, 1.5, 0.1 },
+                                    { 0.7, 2.3, 0.77, 1.6 } } }
+};
+
+void MdcProtubGeom::SetPreset()
+{
+    if ( m_Preset() == vsp::MDC_PROTUB_PRESET_DEFAULT )
     {
-        mems = { { 1.0, 1.0, 0.5, 0.0 } };
-    }
-    else if ( ptype == HCYL )
-    {
-        mems = { { 3.0, 1.0, 1.0, 0.0 } };
-    }
-    else if ( ptype == LUG )
-    {
-        mems = { { 3.0, 2.0, 0.1, 0.0 }, { 1.5, 0.25, 0.5, 0.1 }, { 1.5, 0.25, 0.5, 0.1 }, { 1.5, 1.0, 0.15, 0.6 } };
-    }
-    else if ( ptype == SHOE )
-    {
-        mems = { { 10.0, 4.0, 0.1, 0.0 }, { 10.0, 0.25, 0.75, 0.1 }, { 10.0, 1.0, 0.25, 0.85 } };
-    }
-    else if ( ptype == BLOCK )
-    {
-        mems = { { 0.5, 2.0, 1.5, 0.0 } };
-    }
-    else
-    {
-        mems = { { 5.0, 2.0, 1.0, 0.0 } };
+        // The counts first, then the rolls and members they size.
+        SetPresetValues( m_DefaultValues );
+        SizeParms();
+        SetPresetValues( m_DefaultValues );
+        return;
     }
 
+    const ProtubPreset & p = protub_presets[m_Preset() - 1];
+    m_PType.Set( p.ptype );
     SizeParms();
 
-    double k = m_RBody() / 6.0;
-    for ( int m = 0; m < ( int )mems.size(); m++ )
+    double k = m_RBody() / p.rbody;
+    for ( int m = 0; m < p.nmem; m++ )
     {
-        m_LProt[m]->Set( k * mems[m][0] );
-        m_WProt[m]->Set( k * mems[m][1] );
-        m_HProt[m]->Set( k * mems[m][2] );
-        m_OProt[m]->Set( k * mems[m][3] );
+        m_LProt[m]->Set( k * p.mems[m][0] );
+        m_WProt[m]->Set( k * p.mems[m][1] );
+        m_HProt[m]->Set( k * p.mems[m][2] );
+        m_OProt[m]->Set( k * p.mems[m][3] );
     }
 }
 

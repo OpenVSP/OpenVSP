@@ -76,6 +76,10 @@ MdcInletGeom::MdcInletGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_Ramp.Init( "RAMP", "Design", this, 15.0, 0.1, 89.0 );
     m_Ramp.SetDescript( "External compression inlet ramp angle" );
 
+    m_Preset.Init( "Preset", "Design", this, vsp::MDC_INLET_PRESET_DEFAULT, vsp::MDC_INLET_PRESET_DEFAULT, vsp::NUM_MDC_INLET_PRESET - 1 );
+    m_Preset.SetDescript( "Preset shape Set gives the inlet: as new, or a generic rocket's" );
+    GetPresetValues( { "Design" }, { "Preset", "INLET" }, m_DefaultValues );
+
     m_TessU = 9;
     m_TessW = 17;
 }
@@ -99,6 +103,57 @@ xmlNodePtr MdcInletGeom::DecodeXml( xmlNodePtr & node )
     SizeParms();
 
     return XSecSurfGeom::DecodeXml( node );
+}
+
+// The generic rocket's inlet, under its body of radius 5.
+static const XSecSurfGeom::PresetValue rocket_inlet[] = {
+    { "Design", "COVER", 0.0 },
+    { "Design", "H2", 2.5 },
+    { "Design", "H3", 3.0 },
+    { "Design", "H4", 3.0 },
+    { "Design", "H5", 1.0 },
+    { "Design", "HDIV", 0.0 },
+    { "Design", "INTYPE", 1.0 },
+    { "Design", "LDIV", 2.0 },
+    { "Design", "NIN", 1.0 },
+    { "Design", "PHIFlag", 1.0 },
+    { "Design", "PHI_1", 180.0 },
+    { "Design", "RAMP", 10.0 },
+    { "Design", "RBODY", 5.0 },
+    { "Design", "W1", 4.0 },
+    { "Design", "W2", 5.5 },
+    { "Design", "W3", 6.5 },
+    { "Design", "W4", 6.5 },
+    { "Design", "W5", 3.0 },
+    { "Design", "X2", 6.0 },
+    { "Design", "X3", 10.0 },
+    { "Design", "X4", 55.0 },
+    { "Design", "X5", 60.0 },
+    { "Design", "XDIV", 0.5 }
+};
+
+void MdcInletGeom::SetPreset()
+{
+    vector< PresetValue > vals = m_DefaultValues;
+    double scale = 1.0;
+    if ( m_Preset() == vsp::MDC_INLET_PRESET_GENERIC_ROCKET )
+    {
+        vals = vector< PresetValue >( rocket_inlet, rocket_inlet + sizeof( rocket_inlet ) / sizeof( rocket_inlet[0] ) );
+        double rmax = 0.0;
+        if ( MdcBodGeom::MaxRadiusOfParent( this, rmax ) )
+        {
+            scale = rmax / 5.0;
+        }
+    }
+
+    // The count first, then the rolls it sizes.
+    SetPresetValues( vals );
+    SizeParms();
+    SetPresetValues( vals );
+    if ( scale != 1.0 )
+    {
+        ApplyScale( scale );
+    }
 }
 
 //==== Scale ====//

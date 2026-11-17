@@ -84,6 +84,7 @@ described on their own pages. The Design tab sets</p>
 <ul>
 <li>the <a href="#types-of-protuberance">type</a> and <a
 href="#placing-a-protuberance">where it stands</a>;</li>
+<li>a <a href="#presets">preset</a> shape to start from;</li>
 <li>the <a href="#placing-a-protuberance">size</a> of each of its
 members;</li>
 <li>the <a href="#locations">number and roll angles</a> of the
@@ -96,8 +97,8 @@ MDC_PROTUB as its child. A new MDC_PROTUB is a small cylinder at X = 5,
 on the default MDC_BOD.</li>
 <li>Set <em>XPROT</em> to the station of the protuberance's center. The
 protuberance stands on the body there.</li>
-<li>Choose <em>PTYPE</em>, then press Set Default to size it, in
-proportion to the body, as a protuberance of that type.</li>
+<li>Choose a Preset, the type you want, and press Set to size it, in
+proportion to the body.</li>
 <li>Change the size of each member as needed: <em>LPROT</em>,
 <em>WPROT</em>, <em>HPROT</em> and <em>OPROT</em>.</li>
 <li>Set <em>NLOC</em>, the number of protuberances, and, if they are not
@@ -126,8 +127,8 @@ plate, centered across the body.</li>
 <p><img src="images/MdcProtub_types.png"
 title="Figure 1. Types of protuberance"
 alt="Figure 1. Types of protuberance" /></p>
-<p><em>Figure 1. The six types, each as the Set Default button sizes it,
-on a body of radius 6.</em></p>
+<p><em>Figure 1. The six types, each as its preset sizes it, on a body
+of radius 6.</em></p>
 <p>A LUG or SHOE is built of members, each a box. Member 1 is the base
 plate of both. Member 2 is a SHOE's web or a LUG's first post, member 3
 is a SHOE's top plate or the LUG's second post, and member 4 is a LUG's
@@ -140,18 +141,28 @@ title="Figure 2. Members of a LUG and a SHOE"
 alt="Figure 2. Members of a LUG and a SHOE" /></p>
 <p><em>Figure 2. The members of a LUG and of a SHOE, from behind the
 body.</em></p>
-<h3 id="set-default">Set Default</h3>
-<p>Choosing a <em>PTYPE</em> leaves the members' sizes as they are. The
-Set Default button sets the sizes of every member the type has to those
-of a protuberance of that type, in proportion to the body: the sizes of
-the protuberances of DATCOM's sample body, which has a radius of 6,
-scaled by <em>RBODY</em> over 6. Use it as a starting point after
-choosing a type, and change the sizes from there.</p>
-<p>The sizes in the table are for a body of radius 6.</p>
+<h3 id="presets">Presets</h3>
+<p>The Preset choice and its Set button give the protuberance a shape.
+Choosing a preset changes nothing until Set is pressed. Default is the
+protuberance as new. Every other preset sets <em>PTYPE</em> and the
+sizes of every member the type has, in proportion to the body: the sizes
+in the table below, which are for a body of the radius given, scaled by
+<em>RBODY</em> over that radius. The locations, <em>NLOC</em> and
+<em>PHIPRO</em>, are kept. Use a preset as a starting point and change
+the sizes from there. Choosing a <em>PTYPE</em> on its own keeps the
+sizes of the members the two types share and gives each member it adds
+the sizes of a new one, with no offset; use a preset for a LUG or SHOE
+with its members stacked.</p>
+<p>The VCYL, SHOE, BLOCK and FAIRING presets are the protuberances of
+DATCOM's sample body, which has a radius of 6; it has no HCYL or LUG, so
+those two are in proportion with them. The Small, Medium and Large Lug
+presets are launch lugs for a rocket of radius 5. The API call
+<code>SetMdcPreset</code> does the same.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Preset</th>
+<th style="text-align: right;">Radius</th>
 <th style="text-align: left;">Member</th>
 <th style="text-align: right;">LPROT</th>
 <th style="text-align: right;">WPROT</th>
@@ -162,6 +173,7 @@ choosing a type, and change the sizes from there.</p>
 <tbody>
 <tr>
 <td style="text-align: left;">VCYL</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">1</td>
@@ -170,6 +182,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">HCYL</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">1</td>
@@ -178,6 +191,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">LUG</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">2</td>
@@ -186,6 +200,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">LUG</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: right;">1.5</td>
 <td style="text-align: right;">0.25</td>
@@ -194,6 +209,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">LUG</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: right;">1.5</td>
 <td style="text-align: right;">0.25</td>
@@ -202,6 +218,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">LUG</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">4</td>
 <td style="text-align: right;">1.5</td>
 <td style="text-align: right;">1</td>
@@ -210,6 +227,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">SHOE</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">4</td>
@@ -218,6 +236,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">SHOE</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">0.25</td>
@@ -226,6 +245,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">SHOE</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">1</td>
@@ -234,6 +254,7 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">BLOCK</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">0.5</td>
 <td style="text-align: right;">2</td>
@@ -242,11 +263,120 @@ choosing a type, and change the sizes from there.</p>
 </tr>
 <tr>
 <td style="text-align: left;">FAIRING</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">Small Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">Small Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">0.422</td>
+<td style="text-align: right;">0.155</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">0.3</td>
+</tr>
+<tr>
+<td style="text-align: left;">Small Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">0.422</td>
+<td style="text-align: right;">0.155</td>
+<td style="text-align: right;">1.177</td>
+<td style="text-align: right;">0.3</td>
+</tr>
+<tr>
+<td style="text-align: left;">Small Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">0.422</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.48</td>
+<td style="text-align: right;">1.05</td>
+</tr>
+<tr>
+<td style="text-align: left;">Medium Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">1.74</td>
+<td style="text-align: right;">1.74</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">Medium Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">0.422</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Medium Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">0.422</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Medium Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">0.422</td>
+<td style="text-align: right;">1.74</td>
+<td style="text-align: right;">0.55</td>
+<td style="text-align: right;">1.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Large Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">Large Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Large Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Large Lug</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">1.6</td>
 </tr>
 </tbody>
 </table>
@@ -270,9 +400,9 @@ XForm tab, shown again on the Design tab.</p>
 <em>HPROT</em> high, out from the body (Figure 3). <em>OPROT</em> is the
 height of the member's bottom above the mold line, zero by default, so a
 member with no offset sits on the body. A raised member, such as a LUG's
-top plate, floats above it. Set Default stacks the members of a LUG or a
-SHOE: it gives each the height of the members under it as its
-offset.</p>
+top plate, floats above it. The presets stack the members of a LUG or a
+SHOE: each member's <em>OPROT</em> is the height of the members under
+it.</p>
 <p><img src="images/MdcProtub_dims.png"
 title="Figure 3. Sizes of a block"
 alt="Figure 3. Sizes of a block" /></p>
@@ -330,6 +460,13 @@ LUG and three for a SHOE. They are made and deleted as <em>NLOC</em> and
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align: left;">Preset</td>
+<td style="text-align: left;"><code>Preset</code></td>
+<td style="text-align: left;">Default</td>
+<td style="text-align: left;">The shape Set gives: Default, a type, or a
+Small, Medium or Large Lug.</td>
+</tr>
 <tr>
 <td style="text-align: left;">PTYPE</td>
 <td style="text-align: left;"><code>PTYPE</code></td>

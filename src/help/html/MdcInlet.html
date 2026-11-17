@@ -81,6 +81,7 @@ described on their own pages. The Design tab sets</p>
 <ul>
 <li>the <a href="#types-of-inlet">type</a> and where the inlet <a
 href="#placing-an-inlet">stands</a>;</li>
+<li>a <a href="#presets">preset</a> shape to start from;</li>
 <li>the <a href="#stations">stations</a> that give its size and
 shape;</li>
 <li>the <a href="#ramp-and-cover">ramp and cover</a>;</li>
@@ -92,7 +93,8 @@ inlets.</li>
 <ol type="1">
 <li>Add the body, an <a href="MdcBod.html">MDC_BOD</a>, and an MDC_INLET
 as its child. A new MDC_INLET is a top-mounted two-dimensional inlet, 3
-long, at X = 4, on the default MDC_BOD.</li>
+long, at X = 4, on the default MDC_BOD. To start from a rocket's inlet
+instead, choose Generic Rocket as the Preset and press Set.</li>
 <li>Choose <em>INTYPE</em>, and set <em>XINLT</em> to the inlet's
 leading edge. The inlet stands on the body there.</li>
 <li>Set the five stations' positions <em>X</em>, heights <em>H</em> and
@@ -147,6 +149,15 @@ the plane of
 for a two-dimensional inlet, and the lowest line of the cowl for an
 axisymmetric one, whose axis is half of <em>W(3)</em> above it. The
 heights <em>H</em> are measured from the inner face.</p>
+<h3 id="presets">Presets</h3>
+<p>The Preset choice and its Set button give the inlet a whole shape:
+every input of the Design tab is set, and the inlet keeps its place
+along the body. Choosing a preset changes nothing until Set is pressed.
+Default is the inlet as new. Generic Rocket is a rocket's open,
+conformal two-dimensional inlet under its body, 60 long, sized to the
+largest radius of the MDC_BOD it stands on as it is to a body of radius
+5; with no MDC_BOD under it, it takes that size. The API call
+<code>SetMdcPreset</code> does the same.</p>
 <h2 id="stations">Stations</h2>
 <p>The inlet's shape is given at five stations along it (Figure 2), and
 runs straight between them: the leading edge or tip, the cowl lip, the
@@ -249,6 +260,13 @@ as <em>NIN</em> changes, at the next update.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align: left;">Preset</td>
+<td style="text-align: left;"><code>Preset</code></td>
+<td style="text-align: left;">Default</td>
+<td style="text-align: left;">The shape Set gives: Default or Generic
+Rocket.</td>
+</tr>
 <tr>
 <td style="text-align: left;">INTYPE</td>
 <td style="text-align: left;"><code>INTYPE</code></td>

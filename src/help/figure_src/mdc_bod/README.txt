@@ -19,8 +19,7 @@ of .md files.
 
 verify.py prints what it measured; a failed check raises.  Rerun it after any change to the four Geoms.
 
-mdc_protub_figs.py reads the sizes the Set Default button gives from the table in src/geom_core/MdcProtubGeom.cpp, because the
-button is not in the API.
+mdc_protub_figs.py gives each type the sizes of its preset, with SetMdcPreset.
 
 See ../fuselagestack/README.txt for the conventions.  2D views keep OpenVSP's frame; the view from behind the body, the
 way the namelists measure a roll angle clockwise from the top looking forward, has Y to the right and Z up.

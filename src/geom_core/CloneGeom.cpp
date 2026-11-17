@@ -2029,6 +2029,16 @@ bool CloneGeom::Radius( double x, double phi, double & r ) const
     return body->Radius( x, phi, r );
 }
 
+double CloneGeom::MaxRadius() const
+{
+    MdcBodRole* body = Geom::CastTo< MdcBodRole >( GetOriginalGeom() );
+    if ( !body )
+    {
+        return 0.0;
+    }
+    return body->MaxRadius();
+}
+
 void CloneGeom::UpdateChildren( bool fullupdate )
 {
     if ( ( m_UpdateXForm || m_UpdateSurf ) && Geom::CastTo< MdcBodRole >( this ) )

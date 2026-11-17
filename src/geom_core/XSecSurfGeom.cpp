@@ -472,3 +472,39 @@ double XSecSurfGeom::DesignValue( xmlNodePtr & node, const char* name, double de
     }
     return def;
 }
+
+void XSecSurfGeom::GetPresetValues( const vector< string > & groups, const vector< string > & skip,
+                                    vector< PresetValue > & vals )
+{
+    vals.clear();
+    for ( int i = 0; i < ( int )m_ParmVec.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( !p )
+        {
+            continue;
+        }
+        if ( std::find( groups.begin(), groups.end(), p->GetGroupName() ) == groups.end() ||
+             std::find( skip.begin(), skip.end(), p->GetName() ) != skip.end() )
+        {
+            continue;
+        }
+        PresetValue v;
+        v.m_Group = p->GetGroupName();
+        v.m_Name = p->GetName();
+        v.m_Val = p->Get();
+        vals.push_back( v );
+    }
+}
+
+void XSecSurfGeom::SetPresetValues( const vector< PresetValue > & vals )
+{
+    for ( int i = 0; i < ( int )vals.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( FindParm( vals[i].m_Name, vals[i].m_Group ) );
+        if ( p )
+        {
+            p->Set( vals[i].m_Val );
+        }
+    }
+}

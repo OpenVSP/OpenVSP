@@ -95,6 +95,10 @@ MdcFinGeom::MdcFinGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     }
     GetUserAirfoil()->SetAirfoilPnts( up, lo );
 
+    m_Preset.Init( "Preset", "Design", this, vsp::MDC_FIN_PRESET_DEFAULT, vsp::MDC_FIN_PRESET_DEFAULT, vsp::NUM_MDC_FIN_PRESET - 1 );
+    m_Preset.SetDescript( "Preset shape Set gives the fin set: as new, or a generic rocket's fins or strakes" );
+    GetPresetValues( { "Design" }, { "Preset", "STATION", "PANEL" }, m_DefaultValues );
+
     m_TessU = 5;
     m_TessW = 41;
 }
@@ -184,6 +188,180 @@ void MdcFinGeom::SizeParms()
     }
     ResizeParms( m_Gam, npanel, d, "GAM", 0.0, -180.0, 180.0, "Dihedral of the panel, positive when PHIF is "
                  "increased" );
+}
+
+// The generic rocket's four tail fins, and its pair of strakes, on its body of radius 5.
+static const XSecSurfGeom::PresetValue rocket_fin[] = {
+    { "Design", "CFOC_1", 1.0 },
+    { "Design", "CFOC_2", 1.0 },
+    { "Design", "CFOC_3", 1.0 },
+    { "Design", "CHORD_1", 12.0 },
+    { "Design", "CHORD_2", 12.0 },
+    { "Design", "CHORD_3", 2.0 },
+    { "Design", "GAM_1", 0.0 },
+    { "Design", "GAM_2", 0.0 },
+    { "Design", "GAM_3", 0.0 },
+    { "Design", "GAM_4", 0.0 },
+    { "Design", "LER_1", 0.0 },
+    { "Design", "LER_2", 0.0 },
+    { "Design", "LER_3", 0.0 },
+    { "Design", "LFLATLRatio_1", 1.0 },
+    { "Design", "LFLATLRatio_2", 1.0 },
+    { "Design", "LFLATLRatio_3", 1.0 },
+    { "Design", "LFLATLRelFlag", 1.0 },
+    { "Design", "LFLATL_1", 0.0 },
+    { "Design", "LFLATL_2", 0.0 },
+    { "Design", "LFLATL_3", 0.0 },
+    { "Design", "LFLATU_1", 0.0 },
+    { "Design", "LFLATU_2", 0.0 },
+    { "Design", "LFLATU_3", 0.0 },
+    { "Design", "LMAXLRatio_1", 1.0 },
+    { "Design", "LMAXLRatio_2", 1.0 },
+    { "Design", "LMAXLRatio_3", 1.0 },
+    { "Design", "LMAXLRelFlag", 1.0 },
+    { "Design", "LMAXL_1", 0.5 },
+    { "Design", "LMAXL_2", 0.5 },
+    { "Design", "LMAXL_3", 0.5 },
+    { "Design", "LMAXU_1", 0.5 },
+    { "Design", "LMAXU_2", 0.5 },
+    { "Design", "LMAXU_3", 0.5 },
+    { "Design", "NACADES", 12.0 },
+    { "Design", "NACAFLAT", 0.0 },
+    { "Design", "NACAMEAN", 1.0 },
+    { "Design", "NACAMOD", 63.0 },
+    { "Design", "NACASEA", 0.0 },
+    { "Design", "NACASER", 0.0 },
+    { "Design", "NACAXMAX", 50.0 },
+    { "Design", "NPANEL", 4.0 },
+    { "Design", "NSPAN", 3.0 },
+    { "Design", "PHIFFlag", 0.0 },
+    { "Design", "PHIF_1", 0.0 },
+    { "Design", "PHIF_2", 90.0 },
+    { "Design", "PHIF_3", 180.0 },
+    { "Design", "PHIF_4", 270.0 },
+    { "Design", "RBODY", 5.0 },
+    { "Design", "SECTYP", 0.0 },
+    { "Design", "SSPAN_1", 0.0 },
+    { "Design", "SSPAN_2", 1.0 },
+    { "Design", "SSPAN_3", 8.0 },
+    { "Design", "STA_1", 1.0 },
+    { "Design", "STA_2", 1.0 },
+    { "Design", "SWEEP_1", 0.0 },
+    { "Design", "SWEEP_2", 0.0 },
+    { "Design", "XLEFlag_1", 0.0 },
+    { "Design", "XLEFlag_2", 0.0 },
+    { "Design", "XLE_2", 0.0 },
+    { "Design", "XLE_3", 10.0 },
+    { "Design", "ZLOWERRatio_1", 1.0 },
+    { "Design", "ZLOWERRatio_2", 1.0 },
+    { "Design", "ZLOWERRatio_3", 1.0 },
+    { "Design", "ZLOWERRelFlag", 1.0 },
+    { "Design", "ZLOWER_1", 0.025 },
+    { "Design", "ZLOWER_2", 0.025 },
+    { "Design", "ZLOWER_3", 0.025 },
+    { "Design", "ZUPPER_1", 0.025 },
+    { "Design", "ZUPPER_2", 0.025 },
+    { "Design", "ZUPPER_3", 0.025 }
+};
+
+static const XSecSurfGeom::PresetValue rocket_strake[] = {
+    { "Design", "CFOC_1", 1.0 },
+    { "Design", "CFOC_2", 1.0 },
+    { "Design", "CFOC_3", 1.0 },
+    { "Design", "CHORD_1", 90.0 },
+    { "Design", "CHORD_2", 80.0 },
+    { "Design", "CHORD_3", 75.0 },
+    { "Design", "GAM_1", 0.0 },
+    { "Design", "GAM_2", 0.0 },
+    { "Design", "LER_1", 0.0 },
+    { "Design", "LER_2", 0.0 },
+    { "Design", "LER_3", 0.0 },
+    { "Design", "LFLATLRatio_1", 1.0 },
+    { "Design", "LFLATLRatio_2", 1.0 },
+    { "Design", "LFLATLRatio_3", 1.0 },
+    { "Design", "LFLATLRelFlag", 1.0 },
+    { "Design", "LFLATL_1", 0.25 },
+    { "Design", "LFLATL_2", 0.25 },
+    { "Design", "LFLATL_3", 0.0 },
+    { "Design", "LFLATU_1", 0.25 },
+    { "Design", "LFLATU_2", 0.25 },
+    { "Design", "LFLATU_3", 0.0 },
+    { "Design", "LMAXLRatio_1", 1.0 },
+    { "Design", "LMAXLRatio_2", 1.0 },
+    { "Design", "LMAXLRatio_3", 1.0 },
+    { "Design", "LMAXLRelFlag", 1.0 },
+    { "Design", "LMAXL_1", 0.5 },
+    { "Design", "LMAXL_2", 0.5 },
+    { "Design", "LMAXL_3", 0.5 },
+    { "Design", "LMAXU_1", 0.5 },
+    { "Design", "LMAXU_2", 0.5 },
+    { "Design", "LMAXU_3", 0.5 },
+    { "Design", "NACADES", 12.0 },
+    { "Design", "NACAFLAT", 0.0 },
+    { "Design", "NACAMEAN", 1.0 },
+    { "Design", "NACAMOD", 63.0 },
+    { "Design", "NACASEA", 0.0 },
+    { "Design", "NACASER", 0.0 },
+    { "Design", "NACAXMAX", 50.0 },
+    { "Design", "NPANEL", 2.0 },
+    { "Design", "NSPAN", 3.0 },
+    { "Design", "PHIFFlag", 1.0 },
+    { "Design", "PHIF_1", 90.0 },
+    { "Design", "PHIF_2", 270.0 },
+    { "Design", "RBODY", 5.0 },
+    { "Design", "SECTYP", 0.0 },
+    { "Design", "SSPAN_1", 0.0 },
+    { "Design", "SSPAN_2", 1.0 },
+    { "Design", "SSPAN_3", 2.0 },
+    { "Design", "STA_1", 0.5 },
+    { "Design", "STA_2", 0.5 },
+    { "Design", "SWEEP_1", 0.0 },
+    { "Design", "SWEEP_2", 0.0 },
+    { "Design", "XLEFlag_1", 0.0 },
+    { "Design", "XLEFlag_2", 0.0 },
+    { "Design", "XLE_2", 5.0 },
+    { "Design", "XLE_3", 7.5 },
+    { "Design", "ZLOWERRatio_1", 1.0 },
+    { "Design", "ZLOWERRatio_2", 1.0 },
+    { "Design", "ZLOWERRatio_3", 1.0 },
+    { "Design", "ZLOWERRelFlag", 1.0 },
+    { "Design", "ZLOWER_1", 0.005 },
+    { "Design", "ZLOWER_2", 0.003 },
+    { "Design", "ZLOWER_3", 0.001 },
+    { "Design", "ZUPPER_1", 0.005 },
+    { "Design", "ZUPPER_2", 0.003 },
+    { "Design", "ZUPPER_3", 0.001 }
+};
+
+void MdcFinGeom::SetPreset()
+{
+    vector< PresetValue > vals = m_DefaultValues;
+    double scale = 1.0;
+    if ( m_Preset() == vsp::MDC_FIN_PRESET_GENERIC_ROCKET_FINS || m_Preset() == vsp::MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES )
+    {
+        if ( m_Preset() == vsp::MDC_FIN_PRESET_GENERIC_ROCKET_FINS )
+        {
+            vals = vector< PresetValue >( rocket_fin, rocket_fin + sizeof( rocket_fin ) / sizeof( rocket_fin[0] ) );
+        }
+        else
+        {
+            vals = vector< PresetValue >( rocket_strake, rocket_strake + sizeof( rocket_strake ) / sizeof( rocket_strake[0] ) );
+        }
+        double rmax = 0.0;
+        if ( MdcBodGeom::MaxRadiusOfParent( this, rmax ) )
+        {
+            scale = rmax / 5.0;
+        }
+    }
+
+    // The counts first, then the stations and panels they size.
+    SetPresetValues( vals );
+    SizeParms();
+    SetPresetValues( vals );
+    if ( scale != 1.0 )
+    {
+        ApplyScale( scale );
+    }
 }
 
 //==== Scale ====//

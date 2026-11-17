@@ -1664,6 +1664,51 @@ enum STACK_ORDER_POLICY { STACK_FREE,	/*!< Every cross section placed freely (de
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the preset shapes Set gives an MDC_BOD. */
+enum MDC_BOD_PRESET { MDC_BOD_PRESET_DEFAULT,	/*!< The MDC_BOD as new */
+                      MDC_BOD_PRESET_GENERIC_ROCKET,	/*!< A generic rocket's body, 175 long and 10 across, its nose and tail capped */
+                      NUM_MDC_BOD_PRESET	/*!< Number of MDC_BOD presets */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for the preset shapes Set gives an MDC_FIN, the generic rocket's sized to its body as the rocket's are to a body of radius 5. */
+enum MDC_FIN_PRESET { MDC_FIN_PRESET_DEFAULT,	/*!< The MDC_FIN as new */
+                      MDC_FIN_PRESET_GENERIC_ROCKET_FINS,	/*!< A generic rocket's four tail fins */
+                      MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES,	/*!< A generic rocket's pair of long, low strakes */
+                      NUM_MDC_FIN_PRESET	/*!< Number of MDC_FIN presets */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for the preset shapes Set gives an MDC_INLET, the generic rocket's sized to its body as the rocket's is to a body of radius 5. */
+enum MDC_INLET_PRESET { MDC_INLET_PRESET_DEFAULT,	/*!< The MDC_INLET as new */
+                        MDC_INLET_PRESET_GENERIC_ROCKET,	/*!< A generic rocket's inlet, under its body */
+                        NUM_MDC_INLET_PRESET	/*!< Number of MDC_INLET presets */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for the preset shapes Set gives an MDC_PROTUB: but for the default, its type and members, sized in proportion to RBODY, its locations kept. */
+enum MDC_PROTUB_PRESET { MDC_PROTUB_PRESET_DEFAULT,	/*!< The MDC_PROTUB as new */
+                         MDC_PROTUB_PRESET_VCYL,	/*!< The VCYL of DATCOM's sample body, of radius 6 */
+                         MDC_PROTUB_PRESET_HCYL,	/*!< An HCYL in proportion with the protuberances of DATCOM's sample body, of radius 6 */
+                         MDC_PROTUB_PRESET_LUG,	/*!< A LUG in proportion with the protuberances of DATCOM's sample body, of radius 6 */
+                         MDC_PROTUB_PRESET_SHOE,	/*!< The SHOE of DATCOM's sample body, of radius 6 */
+                         MDC_PROTUB_PRESET_BLOCK,	/*!< The BLOCK of DATCOM's sample body, of radius 6 */
+                         MDC_PROTUB_PRESET_FAIRING,	/*!< The FAIRING of DATCOM's sample body, of radius 6 */
+                         MDC_PROTUB_PRESET_SMALL_LUG,	/*!< A small launch lug, its base plate 1 square on a body of radius 5 */
+                         MDC_PROTUB_PRESET_MEDIUM_LUG,	/*!< A medium launch lug, its base plate 1.74 square on a body of radius 5 */
+                         MDC_PROTUB_PRESET_LARGE_LUG,	/*!< A large launch lug, its base plate 2.3 square on a body of radius 5 */
+                         NUM_MDC_PROTUB_PRESET	/*!< Number of MDC_PROTUB presets */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that identifies a StackGeom starting point.  Each preset builds a
     different set of cross sections, most of them nacelle layouts. */
 enum STACK_PRESETS { STACK_PRESET_DEFAULT = 0,	/*!< Standard init type */

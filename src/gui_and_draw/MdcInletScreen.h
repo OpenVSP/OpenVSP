@@ -27,11 +27,14 @@ public:
     virtual bool Update();
 
     virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
 
     GroupLayout m_DesignLayout;
 
+    Choice m_PresetChoice;
+    TriggerButton m_SetPresetButton;
     Choice m_InTypeChoice;
     // XINLT is the XForm tab's X location.
     SliderAdjRangeInput m_XInltSlider;

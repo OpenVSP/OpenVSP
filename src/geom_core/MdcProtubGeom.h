@@ -62,14 +62,17 @@ public:
     // The members a type of protuberance has.
     static int NumMembers( int ptype );
 
-    // Sets LPROT, WPROT, HPROT and OPROT of each member PTYPE has to a protuberance of that type, sized to RBODY
-    // as the protuberances of the namelist's sample body, 6 in radius, are.  The members of a LUG or SHOE are
-    // stacked, each OPROT the height of the members under it.
-    void SetDefaults();
-
     // Sizes PHIPRO to NLOC and LPROT, WPROT, HPROT and OPROT to the members PTYPE has.
     void SizeParms();
 
+    // Sets the shape of the preset Preset names: the protuberance as new, or a type and its members, sized to
+    // RBODY as they are to the body they are for, its locations kept.  A type's are the protuberance of that type
+    // of the namelist's sample body, 6 in radius, the HCYL and LUG, which it lacks, in proportion with them, and
+    // the lugs are those of a rocket 5 in radius.  The members of a LUG or SHOE are stacked, each OPROT the height
+    // of the members under it.
+    void SetPreset();
+
+    IntParm m_Preset;
     IntParm m_PType;
     Parm m_RBody;
     IntParm m_NLoc;
@@ -83,6 +86,9 @@ public:
     vector< Parm* > m_OProt;
 
 protected:
+    // The Design Parms as new, for the default preset.
+    vector< PresetValue > m_DefaultValues;
+
     virtual void UpdateSurf();
 
     // The section shapes.

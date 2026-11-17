@@ -81,6 +81,10 @@ MdcBodGeom::MdcBodGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_DExit.Init( "DEXIT", "Design", this, 0.0, 0.0, 1.0e12 );
     m_DExit.SetDescript( "Nozzle exit diameter, drawn as a cone into the base DEXIT / 4 deep" );
 
+    m_Preset.Init( "Preset", "Design", this, vsp::MDC_BOD_PRESET_DEFAULT, vsp::MDC_BOD_PRESET_DEFAULT, vsp::NUM_MDC_BOD_PRESET - 1 );
+    m_Preset.SetDescript( "Preset shape Set gives the body: as new, or a generic rocket's" );
+    GetPresetValues( { "Design", "EndCap" }, { "Preset" }, m_DefaultValues );
+
     m_TessU = 9;
     m_TessW = 17;
 }
@@ -88,6 +92,79 @@ MdcBodGeom::MdcBodGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
 //==== Destructor ====//
 MdcBodGeom::~MdcBodGeom()
 {
+}
+
+// The generic rocket's body, 175 long and 10 across, nose and tail capped.
+static const XSecSurfGeom::PresetValue rocket_body[] = {
+    { "Design", "BNOSE", 0.0 },
+    { "Design", "CENTRDefault", 1.0 },
+    { "Design", "DAFT", 9.0 },
+    { "Design", "DCENTR", 10.0 },
+    { "Design", "DEXIT", 0.0 },
+    { "Design", "DNOSE", 10.0 },
+    { "Design", "EAFT", 1.0 },
+    { "Design", "ECENTR", 1.0 },
+    { "Design", "ENOSE", 1.0 },
+    { "Design", "LAFT", 3.0 },
+    { "Design", "LCENTR", 142.0 },
+    { "Design", "LNOSE", 30.0 },
+    { "Design", "NAMELIST", 0.0 },
+    { "Design", "POWER", 1.0 },
+    { "Design", "SLPNOS", 0.0 },
+    { "Design", "SLPTAL", 0.0 },
+    { "Design", "TAFT", 0.0 },
+    { "Design", "TNOSE", 4.0 },
+    { "Design", "TRUNC", 0.0 },
+    { "Design", "WAFT", 9.0 },
+    { "Design", "WCENTR", 10.0 },
+    { "Design", "WNOSE", 10.0 },
+    { "Design", "ZAFT", 0.0 },
+    { "Design", "ZCENTR", 0.0 },
+    { "Design", "ZNOSE", 0.0 },
+    { "Design", "ZTIP", 0.0 },
+    { "EndCap", "CapUMaxHaackC", 0.0 },
+    { "EndCap", "CapUMaxLength", 0.0 },
+    { "EndCap", "CapUMaxLengthDim", 0.0 },
+    { "EndCap", "CapUMaxOffset", 0.0 },
+    { "EndCap", "CapUMaxOffsetDim", 0.0 },
+    { "EndCap", "CapUMaxOgiveAngle", 0.0 },
+    { "EndCap", "CapUMaxOption", 5.0 },
+    { "EndCap", "CapUMaxPowerExp", 0.5 },
+    { "EndCap", "CapUMaxRadius", 0.05555352670287594 },
+    { "EndCap", "CapUMaxRadiusDim", 0.24999999999999975 },
+    { "EndCap", "CapUMaxRelFlag", 0.0 },
+    { "EndCap", "CapUMaxScaledFlag", 0.0 },
+    { "EndCap", "CapUMaxShearFlag", 0.0 },
+    { "EndCap", "CapUMaxStrength", 0.5 },
+    { "EndCap", "CapUMaxSweepFlag", 0.0 },
+    { "EndCap", "CapUMaxTruncFlag", 0.0 },
+    { "EndCap", "CapUMinHaackC", 0.0 },
+    { "EndCap", "CapUMinLength", 5.99978088391061 },
+    { "EndCap", "CapUMinLengthDim", 30.0 },
+    { "EndCap", "CapUMinOffset", 0.0 },
+    { "EndCap", "CapUMinOffsetDim", 0.0 },
+    { "EndCap", "CapUMinOgiveAngle", 0.0 },
+    { "EndCap", "CapUMinOption", 14.0 },
+    { "EndCap", "CapUMinPowerExp", 1.0 },
+    { "EndCap", "CapUMinRadius", 0.0 },
+    { "EndCap", "CapUMinRadiusDim", 0.0 },
+    { "EndCap", "CapUMinRelFlag", 0.0 },
+    { "EndCap", "CapUMinScaledFlag", 1.0 },
+    { "EndCap", "CapUMinShearFlag", 0.0 },
+    { "EndCap", "CapUMinStrength", 0.5 },
+    { "EndCap", "CapUMinSweepFlag", 0.0 },
+    { "EndCap", "CapUMinTess", 3.0 },
+    { "EndCap", "CapUMinTruncFlag", 0.0 }
+};
+
+void MdcBodGeom::SetPreset()
+{
+    vector< PresetValue > vals = m_DefaultValues;
+    if ( m_Preset() == vsp::MDC_BOD_PRESET_GENERIC_ROCKET )
+    {
+        vals = vector< PresetValue >( rocket_body, rocket_body + sizeof( rocket_body ) / sizeof( rocket_body[0] ) );
+    }
+    SetPresetValues( vals );
 }
 
 //==== Scale ====//
@@ -512,6 +589,32 @@ bool MdcBodGeom::Radius( double x, double phi, double & r ) const
     double disc = std::max( qb * qb - 4.0 * qa * qc, 0.0 );
     r = std::max( ( -qb + sqrt( disc ) ) / ( 2.0 * qa ), 0.0 );
     return true;
+}
+
+double MdcBodGeom::MaxRadius() const
+{
+    double r = 0.0;
+    for ( int i = 0; i < ( int )m_ProfileX.size(); i++ )
+    {
+        r = std::max( r, std::max( m_ProfileHalfW[i], m_ProfileHalfH[i] ) );
+    }
+    return r;
+}
+
+bool MdcBodGeom::MaxRadiusOfParent( Geom* geom_ptr, double & r )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return false;
+    }
+    const MdcBodRole* body = Geom::CastTo< MdcBodRole >( veh->FindGeom( geom_ptr->GetParentID() ) );
+    if ( !body )
+    {
+        return false;
+    }
+    r = body->MaxRadius();
+    return r > 0.0;
 }
 
 bool MdcBodGeom::RadiusUnder( Geom* geom_ptr, double x, double phi, double & r )

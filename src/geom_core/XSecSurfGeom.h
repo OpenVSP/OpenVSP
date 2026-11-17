@@ -29,6 +29,14 @@
 class XSecSurfGeom : public Geom
 {
 public:
+    // A Parm's value by group and name, as a preset gives it.
+    struct PresetValue
+    {
+        string m_Group;
+        string m_Name;
+        double m_Val;
+    };
+
     XSecSurfGeom( Vehicle* vehicle_ptr );
     virtual ~XSecSurfGeom();
 
@@ -114,6 +122,13 @@ protected:
     // Each of the first nsurf surfaces, rolled to each of the n rolls after pre has placed it.  Each surface's
     // copies are made before it is itself moved, so each starts from the surface as built.
     void RollSurfs( int nsurf, int n, const vector< Parm* > & phi, const Matrix4d & pre );
+
+    // The values of this Geom's Parms in groups, but those named in skip.
+    void GetPresetValues( const vector< string > & groups, const vector< string > & skip,
+                          vector< PresetValue > & vals );
+
+    // Sets each of this Geom's Parms named in vals; the names it does not have are passed over.
+    void SetPresetValues( const vector< PresetValue > & vals );
 
     // Sizes parms to n.  Those past n are deleted.  Each one added is a Parm of type parm_type named name_k, k its
     // place counted from first, in group, with value val between lower and upper.  Answers the size before, the

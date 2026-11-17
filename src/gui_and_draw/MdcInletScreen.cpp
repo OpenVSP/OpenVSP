@@ -21,6 +21,18 @@ MdcInletScreen::MdcInletScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "M
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Inlet" );
+    // A preset shape, set on demand so a choice keeps the shape as it is.
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.AddChoice( m_PresetChoice, "Preset", m_DesignLayout.GetButtonWidth() );
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.AddButton( m_SetPresetButton, "Set" );
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.SetSameLineFlag( false );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_PresetChoice.AddItem( "Default", vsp::MDC_INLET_PRESET_DEFAULT );
+    m_PresetChoice.AddItem( "Generic Rocket", vsp::MDC_INLET_PRESET_GENERIC_ROCKET );
+    m_PresetChoice.UpdateItems();
     m_DesignLayout.AddChoice( m_InTypeChoice, "INTYPE" );
     m_InTypeChoice.AddItem( "2DTOP", MdcInletGeom::TOP2D );
     m_InTypeChoice.AddItem( "2DSIDE", MdcInletGeom::SIDE2D );
@@ -83,6 +95,7 @@ bool MdcInletScreen::Update()
     MdcInletGeom* inlet = dynamic_cast< MdcInletGeom* >( geom_ptr );
     assert( inlet );
 
+    m_PresetChoice.Update( inlet->m_Preset.GetID() );
     m_InTypeChoice.Update( inlet->m_InType.GetID() );
     m_XInltSlider.Update( inlet->m_XRelLoc.GetID() );
     m_RBodySlider.Update( inlet->m_RBody.GetID() );
@@ -137,4 +150,16 @@ bool MdcInletScreen::Update()
 void MdcInletScreen::CallBack( Fl_Widget *w )
 {
     GeomScreen::CallBack( w );
+}
+
+void MdcInletScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    MdcInletGeom* preset_geom = dynamic_cast< MdcInletGeom* >( m_ScreenMgr->GetCurrGeom() );
+    if ( preset_geom && device == &m_SetPresetButton )
+    {
+        preset_geom->SetPreset();
+        preset_geom->Update();
+    }
+
+    GeomScreen::GuiDeviceCallBack( device );
 }

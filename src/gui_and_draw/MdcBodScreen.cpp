@@ -25,6 +25,18 @@ MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_B
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Body" );
+    // A preset shape, set on demand so a choice keeps the shape as it is.
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.AddChoice( m_PresetChoice, "Preset", m_DesignLayout.GetButtonWidth() );
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.AddButton( m_SetPresetButton, "Set" );
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.SetSameLineFlag( false );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_PresetChoice.AddItem( "Default", vsp::MDC_BOD_PRESET_DEFAULT );
+    m_PresetChoice.AddItem( "Generic Rocket", vsp::MDC_BOD_PRESET_GENERIC_ROCKET );
+    m_PresetChoice.UpdateItems();
     m_DesignLayout.AddChoice( m_NamelistChoice, "NAMELIST" );
     m_NamelistChoice.AddItem( "AXIBOD" );
     m_NamelistChoice.AddItem( "ELLBOD" );
@@ -104,6 +116,7 @@ bool MdcBodScreen::Update()
     MdcBodGeom* body = dynamic_cast< MdcBodGeom* >( geom_ptr );
     assert( body );
 
+    m_PresetChoice.Update( body->m_Preset.GetID() );
     m_NamelistChoice.Update( body->m_Namelist.GetID() );
     m_XOSlider.Update( body->m_XRelLoc.GetID() );
 
@@ -219,6 +232,13 @@ void MdcBodScreen::CallBack( Fl_Widget *w )
 
 void MdcBodScreen::GuiDeviceCallBack( GuiDevice* device )
 {
+    MdcBodGeom* preset_geom = dynamic_cast< MdcBodGeom* >( m_ScreenMgr->GetCurrGeom() );
+    if ( preset_geom && device == &m_SetPresetButton )
+    {
+        preset_geom->SetPreset();
+        preset_geom->Update();
+    }
+
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
     if ( device == &m_ConvertToStackButton && geom_ptr && geom_ptr->GetType().m_Type == MDC_BOD_GEOM_TYPE )
     {

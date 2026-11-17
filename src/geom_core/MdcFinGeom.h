@@ -68,6 +68,11 @@ public:
 
     virtual void ApplyScale( double currentScale );
 
+    // Sets the shape of the preset Preset names: the fin set as new, or the generic rocket's fins or strakes, sized
+    // to the largest radius of the body it stands on as the rocket's are to its body of radius 5, wherever along the
+    // body it is.
+    void SetPreset();
+
     // It stands on its parent MDC_BOD's mold line.
     virtual bool ShapeFollowsParent() const                { return true; }
 
@@ -91,6 +96,7 @@ public:
     // Sizes the station and segment Parms to NSPAN and the panel Parms to NPANEL.
     void SizeParms();
 
+    IntParm m_Preset;
     IntParm m_SecTyp;
     IntParm m_LERType;
     IntParm m_NPanel;
@@ -140,6 +146,9 @@ public:
 
 protected:
     virtual void UpdateSurf();
+
+    // The shape as the fin set was made, the default preset.
+    vector< PresetValue > m_DefaultValues;
 
     XSecSurf* m_UserXSecSurf;
 

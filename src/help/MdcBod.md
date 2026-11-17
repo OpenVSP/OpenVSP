@@ -16,6 +16,7 @@ The MDC_BOD has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XForm
 [Sub](SubTab.md) tabs are described on their own pages.  The Design tab sets
 
 - the [layout](#layout) of the three parts;
+- a [preset](#presets) shape to start from;
 - the [nose](#nose), its shape, [bluntness](#bluntness-and-truncation) and [ogive slope](#secant-ogives);
 - the [centerbody and aft body](#centerbody-and-aft-body);
 - [elliptical bodies](#elliptical-bodies) and [camber](#camber);
@@ -25,6 +26,7 @@ The MDC_BOD has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XForm
 
 1. Add an MDC_BOD.  A new one is 10 long: an ogive nose 3 long and 1 in diameter, on a cylinder 7 long, closed by a
    flat base.  Its nose tip is at its origin and its axis is along $X$.
+   To start from a rocket instead, choose Generic Rocket as the Preset and press Set.
 2. Place it with the XForm tab.
 3. Choose *NAMELIST*: AXIBOD for circular sections, ELLBOD for elliptical ones.
 4. Shape the nose with *TNOSE*, *LNOSE* and *DNOSE* (*WNOSE* and *ENOSE* for ELLBOD).
@@ -54,6 +56,14 @@ inputs of the namelist not chosen and the inputs that shape nothing in the nose.
 moves the whole body without changing its shape.  The XForm tab moves and rotates the body as it does any component,
 turning it about the point along its length that the XForm tab's Origin gives as a fraction of the body's length from
 the nose tip.
+
+### Presets
+
+The Preset choice and its Set button give the body a whole shape: every input of the Design tab is set, and the body
+keeps its place.  Choosing a preset changes nothing until Set is pressed.  Default is the body as new.  Generic Rocket
+is a body 175 long and 10 across: a Von Karman nose 30 long, a cylinder 142 long and a conical boattail 3 long to 9
+across.
+The API call `SetMdcPreset` does the same.
 
 In DATCOM the centerbody's size defaults to the nose's.  With *Nose's size* on, the default, *DCENTR* is *DNOSE* and
 *WCENTR* is *WNOSE*, and they follow the nose when it changes.  Turn it off to give the centerbody a size of its own.
@@ -171,6 +181,7 @@ Design tab's section.
 
 | Section    | Control     | Parm                     | Default | Meaning                                                        |
 |:-----------|:------------|:-------------------------|:--------|:---------------------------------------------------------------|
+| Body       | Preset      | `Preset`                 | Default | The shape Set gives: Default or Generic Rocket.                |
 | Body       | NAMELIST    | `NAMELIST`               | AXIBOD  | AXIBOD, circular sections, or ELLBOD, elliptical sections.     |
 | Body       | XO          | `X_Rel_Location` (XForm) | 0       | Position of the nose tip along $X$.                            |
 | Nose       | TNOSE       | `TNOSE`                  | OGIVE   | CONE, OGIVE, POWER, HAACK or KARMAN.                           |

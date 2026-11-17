@@ -33,8 +33,9 @@ protected:
 
     GroupLayout m_DesignLayout;
 
+    Choice m_PresetChoice;
+    TriggerButton m_SetPresetButton;
     Choice m_PTypeChoice;
-    TriggerButton m_SetDefaultButton;
     // XPROT is the XForm tab's X location.
     SliderAdjRangeInput m_XProtSlider;
     SliderAdjRangeInput m_RBodySlider;

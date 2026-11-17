@@ -17,6 +17,7 @@ The MDC_INLET has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XFo
 [Sub](SubTab.md) tabs are described on their own pages.  The Design tab sets
 
 - the [type](#types-of-inlet) and where the inlet [stands](#placing-an-inlet);
+- a [preset](#presets) shape to start from;
 - the [stations](#stations) that give its size and shape;
 - the [ramp and cover](#ramp-and-cover);
 - the [diverter](#diverter), or the lack of one;
@@ -26,6 +27,7 @@ The MDC_INLET has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XFo
 
 1. Add the body, an [MDC_BOD](MdcBod.md), and an MDC_INLET as its child.  A new MDC_INLET is a top-mounted
    two-dimensional inlet, 3 long, at X = 4, on the default MDC_BOD.
+   To start from a rocket's inlet instead, choose Generic Rocket as the Preset and press Set.
 2. Choose *INTYPE*, and set *XINLT* to the inlet's leading edge.  The inlet stands on the body there.
 3. Set the five stations' positions *X*, heights *H* and widths *W*.
 4. Choose whether the inlet is open or covered with *COVER*, and give an open inlet its *RAMP* angle.
@@ -67,6 +69,14 @@ location of the XForm tab, shown again on the Design tab.
 The inner face of the inlet is *HDIV* out from the mold line: the plane of $H = 0$ for a two-dimensional inlet, and the
 lowest line of the cowl for an axisymmetric one, whose axis is half of *W(3)* above it.  The heights *H* are measured
 from the inner face.
+
+### Presets
+
+The Preset choice and its Set button give the inlet a whole shape: every input of the Design tab is set, and the inlet
+keeps its place along the body.  Choosing a preset changes nothing until Set is pressed.  Default is the inlet as new.
+Generic Rocket is a rocket's open, conformal two-dimensional inlet under its body, 60 long, sized to the largest radius
+of the MDC_BOD it stands on as it is to a body of radius 5; with no MDC_BOD under it, it takes that size.
+The API call `SetMdcPreset` does the same.
 
 ## Stations
 
@@ -144,6 +154,7 @@ inlets, made and deleted as *NIN* changes, at the next update.
 
 | Control   | Parm                     | Default                 | Meaning                                                                |
 |:----------|:-------------------------|:------------------------|:-----------------------------------------------------------------------|
+| Preset    | `Preset`                 | Default                 | The shape Set gives: Default or Generic Rocket.                        |
 | INTYPE    | `INTYPE`                 | 2DTOP                   | 2DTOP, 2DSIDE or AXI.                                                  |
 | XINLT     | `X_Rel_Location` (XForm) | 4                       | Station of the inlet's leading edge along $X$.                         |
 | RBODY     | `RBODY`                  | 0.5                     | The body's radius under the inlet: a parent MDC_BOD's, else an input.  Not an input of DATCOM's namelist. |

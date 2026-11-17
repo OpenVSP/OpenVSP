@@ -25,6 +25,19 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
 
     m_FinSetLayout.AddYGap();
     m_FinSetLayout.AddDividerBox( "Fin Set" );
+    // A preset shape, set on demand so a choice keeps the shape as it is.
+    m_FinSetLayout.SetSameLineFlag( true );
+    m_FinSetLayout.SetFitWidthFlag( true );
+    m_FinSetLayout.AddChoice( m_PresetChoice, "Preset", m_FinSetLayout.GetButtonWidth() );
+    m_FinSetLayout.SetFitWidthFlag( false );
+    m_FinSetLayout.AddButton( m_SetPresetButton, "Set" );
+    m_FinSetLayout.ForceNewLine();
+    m_FinSetLayout.SetSameLineFlag( false );
+    m_FinSetLayout.SetFitWidthFlag( true );
+    m_PresetChoice.AddItem( "Default", vsp::MDC_FIN_PRESET_DEFAULT );
+    m_PresetChoice.AddItem( "Generic Rocket Fins", vsp::MDC_FIN_PRESET_GENERIC_ROCKET_FINS );
+    m_PresetChoice.AddItem( "Generic Rocket Strakes", vsp::MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES );
+    m_PresetChoice.UpdateItems();
     m_FinSetLayout.AddChoice( m_SecTypChoice, "SECTYP" );
     m_SecTypChoice.AddItem( "HEX" );
     m_SecTypChoice.AddItem( "NACA" );
@@ -139,6 +152,7 @@ bool MdcFinScreen::Update()
     int i = station - 1;
 
     //==== Fin Set ====//
+    m_PresetChoice.Update( fin->m_Preset.GetID() );
     m_SecTypChoice.Update( fin->m_SecTyp.GetID() );
     m_NPanelSlider.Update( fin->m_NPanel.GetID() );
     m_RBodySlider.Update( fin->m_RBody.GetID() );
@@ -270,6 +284,13 @@ void MdcFinScreen::CallBack( Fl_Widget *w )
 //==== Gui Device Callbacks ====//
 void MdcFinScreen::GuiDeviceCallBack( GuiDevice* device )
 {
+    MdcFinGeom* preset_geom = dynamic_cast< MdcFinGeom* >( m_ScreenMgr->GetCurrGeom() );
+    if ( preset_geom && device == &m_SetPresetButton )
+    {
+        preset_geom->SetPreset();
+        preset_geom->Update();
+    }
+
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
     if ( device == &m_ConvertToWingButton && geom_ptr && geom_ptr->GetType().m_Type == MDC_FIN_GEOM_TYPE )
     {

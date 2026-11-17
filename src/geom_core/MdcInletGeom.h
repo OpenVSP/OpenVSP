@@ -58,6 +58,10 @@ public:
 
     virtual void ApplyScale( double currentScale );
 
+    // Sets the shape of the preset Preset names: the inlet as new, or the generic rocket's, sized to the largest
+    // radius of the body it stands on as the rocket's is to its body of radius 5, wherever along the body it is.
+    void SetPreset();
+
     // It stands on its parent MDC_BOD's mold line.
     virtual bool ShapeFollowsParent() const                { return true; }
 
@@ -67,6 +71,7 @@ public:
     // Sizes PHI to NIN.
     void SizeParms();
 
+    IntParm m_Preset;
     IntParm m_InType;
     Parm m_RBody;
     Parm m_XDiv;
@@ -89,6 +94,9 @@ public:
 
 protected:
     virtual void UpdateSurf();
+
+    // The shape as the inlet was made, the default preset.
+    vector< PresetValue > m_DefaultValues;
 
     // The fraction of the ramp's length the face between its end and the cowl lip leans back across.
     static const double RAMP_END;

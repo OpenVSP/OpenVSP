@@ -256,6 +256,7 @@ public:
 
     //==== Standing in for an MDC_BOD ====//
     virtual bool Radius( double x, double phi, double & r ) const override;
+    virtual double MaxRadius() const override;
 
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;

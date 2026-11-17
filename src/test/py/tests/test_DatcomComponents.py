@@ -276,6 +276,59 @@ def testBlockStandsOnTheMoldLineAtXprot():
     assert zhi == pytest.approx( 1.0 + 0.3, abs=1e-6 )
 
 
+# Each preset's type, the radius of the body it is for, and each member's LPROT, WPROT, HPROT and OPROT.
+PRESETS = {
+    1: ( 1, 6.0, ( ( 1.0, 1.0, 0.5, 0.0 ), ) ),
+    2: ( 2, 6.0, ( ( 3.0, 1.0, 1.0, 0.0 ), ) ),
+    3: ( 3, 6.0, ( ( 3.0, 2.0, 0.1, 0.0 ), ( 1.5, 0.25, 0.5, 0.1 ), ( 1.5, 0.25, 0.5, 0.1 ), ( 1.5, 1.0, 0.15, 0.6 ) ) ),
+    4: ( 4, 6.0, ( ( 10.0, 4.0, 0.1, 0.0 ), ( 10.0, 0.25, 0.75, 0.1 ), ( 10.0, 1.0, 0.25, 0.85 ) ) ),
+    5: ( 5, 6.0, ( ( 0.5, 2.0, 1.5, 0.0 ), ) ),
+    6: ( 6, 6.0, ( ( 5.0, 2.0, 1.0, 0.0 ), ) ),
+    7: ( 3, 5.0, ( ( 1.0, 1.0, 0.3, 0.0 ), ( 0.422, 0.155, 0.75, 0.3 ), ( 0.422, 0.155, 1.177, 0.3 ),
+                   ( 0.422, 1.0, 0.48, 1.05 ) ) ),
+    8: ( 3, 5.0, ( ( 1.74, 1.74, 0.1, 0.0 ), ( 0.422, 0.5, 1.0, 0.1 ), ( 0.422, 0.5, 1.0, 0.1 ),
+                   ( 0.422, 1.74, 0.55, 1.1 ) ) ),
+    9: ( 3, 5.0, ( ( 2.3, 2.3, 0.1, 0.0 ), ( 0.7, 0.5, 1.5, 0.1 ), ( 0.7, 0.5, 1.5, 0.1 ), ( 0.7, 2.3, 0.77, 1.6 ) ) ),
+}
+
+
+def member_sizes( gid, n ):
+    return [ tuple( get( gid, nm + str( m ) ) for nm in ( "LPROT_", "WPROT_", "HPROT_", "OPROT_" ) )
+             for m in range( 1, n + 1 ) ]
+
+
+@pytest.mark.parametrize( "preset", sorted( PRESETS ) )
+def testProtuberancePresetIsItsTypeSizedToRbody( preset ):
+    ptype, rbody, mems = PRESETS[preset]
+    gid = new( "MDC_PROTUB", RBODY=2.0, NLOC=3 )
+    vsp.SetMdcPreset( gid, preset )
+    assert_no_errors()
+    vsp.Update()
+    assert get( gid, "PTYPE" ) == ptype
+    assert vsp.GetNumMainSurfs( gid ) >= 3
+    k = 2.0 / rbody
+    for got, want in zip( member_sizes( gid, len( mems ) ), mems ):
+        assert got == pytest.approx( tuple( k * v for v in want ) )
+
+    # Its locations are kept, and Default gives it back as new.
+    assert get( gid, "NLOC" ) == 3
+    vsp.SetMdcPreset( gid, 0 )
+    vsp.Update()
+    assert get( gid, "PTYPE" ) == 1
+    assert get( gid, "NLOC" ) == 1
+
+
+def testProtuberancePresetOnABodyIsSizedToTheBodyUnderIt():
+    # On a body of radius 10, a lug for a body of radius 5 is twice its size.
+    body = new( "MDC_BOD", DNOSE=20.0, LNOSE=30.0, LCENTR=100.0 )
+    gid = child( "MDC_PROTUB", body, 60.0 )
+    vsp.SetMdcPreset( gid, 9 )
+    vsp.Update()
+    assert get( gid, "RBODY" ) == pytest.approx( 10.0 )
+    for got, want in zip( member_sizes( gid, 4 ), PRESETS[9][2] ):
+        assert got == pytest.approx( tuple( 2.0 * v for v in want ) )
+
+
 def testProtuberancesLimitTheIndexToTheirNumber():
     gid = new( "MDC_PROTUB", NLOC=3 )
     put( gid, LocIndex=3 )

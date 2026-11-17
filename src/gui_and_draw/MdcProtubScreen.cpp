@@ -22,15 +22,29 @@ MdcProtubScreen::MdcProtubScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Protuberance" );
 
-    // The type's default members, set on demand so a choice of type keeps the members as they are.
+    // A preset shape, set on demand so a choice keeps the shape as it is.
     m_DesignLayout.SetSameLineFlag( true );
     m_DesignLayout.SetFitWidthFlag( true );
-    m_DesignLayout.AddChoice( m_PTypeChoice, "PTYPE", m_DesignLayout.GetButtonWidth() );
+    m_DesignLayout.AddChoice( m_PresetChoice, "Preset", m_DesignLayout.GetButtonWidth() );
     m_DesignLayout.SetFitWidthFlag( false );
-    m_DesignLayout.AddButton( m_SetDefaultButton, "Set Default" );
+    m_DesignLayout.AddButton( m_SetPresetButton, "Set" );
     m_DesignLayout.ForceNewLine();
     m_DesignLayout.SetSameLineFlag( false );
     m_DesignLayout.SetFitWidthFlag( true );
+    m_PresetChoice.AddItem( "Default", vsp::MDC_PROTUB_PRESET_DEFAULT );
+    m_PresetChoice.AddItem( "VCYL", vsp::MDC_PROTUB_PRESET_VCYL );
+    m_PresetChoice.AddItem( "HCYL", vsp::MDC_PROTUB_PRESET_HCYL );
+    m_PresetChoice.AddItem( "LUG", vsp::MDC_PROTUB_PRESET_LUG );
+    m_PresetChoice.AddItem( "SHOE", vsp::MDC_PROTUB_PRESET_SHOE );
+    m_PresetChoice.AddItem( "BLOCK", vsp::MDC_PROTUB_PRESET_BLOCK );
+    m_PresetChoice.AddItem( "FAIRING", vsp::MDC_PROTUB_PRESET_FAIRING );
+    m_PresetChoice.AddItem( "Small Lug", vsp::MDC_PROTUB_PRESET_SMALL_LUG );
+    m_PresetChoice.AddItem( "Medium Lug", vsp::MDC_PROTUB_PRESET_MEDIUM_LUG );
+    m_PresetChoice.AddItem( "Large Lug", vsp::MDC_PROTUB_PRESET_LARGE_LUG );
+    m_PresetChoice.UpdateItems();
+
+    // A choice of type keeps the members as they are.
+    m_DesignLayout.AddChoice( m_PTypeChoice, "PTYPE" );
     m_PTypeChoice.AddItem( "VCYL", MdcProtubGeom::VCYL );
     m_PTypeChoice.AddItem( "HCYL", MdcProtubGeom::HCYL );
     m_PTypeChoice.AddItem( "LUG", MdcProtubGeom::LUG );
@@ -88,6 +102,7 @@ bool MdcProtubScreen::Update()
     MdcProtubGeom* protub = dynamic_cast< MdcProtubGeom* >( geom_ptr );
     assert( protub );
 
+    m_PresetChoice.Update( protub->m_Preset.GetID() );
     m_PTypeChoice.Update( protub->m_PType.GetID() );
     m_XProtSlider.Update( protub->m_XRelLoc.GetID() );
     m_RBodySlider.Update( protub->m_RBody.GetID() );
@@ -130,9 +145,9 @@ void MdcProtubScreen::CallBack( Fl_Widget *w )
 void MdcProtubScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     MdcProtubGeom* protub = dynamic_cast< MdcProtubGeom* >( m_ScreenMgr->GetCurrGeom() );
-    if ( protub && device == &m_SetDefaultButton )
+    if ( protub && device == &m_SetPresetButton )
     {
-        protub->SetDefaults();
+        protub->SetPreset();
         protub->Update();
     }
 

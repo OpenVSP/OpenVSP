@@ -123,12 +123,12 @@ def protub():
     near( hi[ 2 ], 7.5, 1e-6, "A block is HPROT above the mold line" )
     # The members of a LUG and a SHOE are stacked at their offsets.
     for t in ( 3, 4 ):
-        m = pf.default_members( t )
+        m = pf.preset_members( t )
         top = 0.0
         for k in range( len( m ) ):
             print( "    PTYPE %d member %d: LPROT %g WPROT %g HPROT %g OPROT %g" % ( ( t, k + 1 ) + tuple( m[ k ] ) ) )
-    near( pf.default_members( 3 )[ 3 ][ 3 ], 0.1 + 0.5, 1e-12, "LUG top plate offset is the base plate plus a post" )
-    near( pf.default_members( 4 )[ 2 ][ 3 ], 0.1 + 0.75, 1e-12, "SHOE top plate offset is the base plate plus the web" )
+    near( pf.preset_members( 3 )[ 3 ][ 3 ], 0.1 + 0.5, 1e-12, "LUG top plate offset is the base plate plus a post" )
+    near( pf.preset_members( 4 )[ 2 ][ 3 ], 0.1 + 0.75, 1e-12, "SHOE top plate offset is the base plate plus the web" )
 
 
 def inlet():

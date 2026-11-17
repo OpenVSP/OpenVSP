@@ -2812,6 +2812,60 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "MDC_BOD_PRESET" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_BOD_PRESET", "MDC_BOD_PRESET_DEFAULT", MDC_BOD_PRESET_DEFAULT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_BOD_PRESET", "MDC_BOD_PRESET_GENERIC_ROCKET", MDC_BOD_PRESET_GENERIC_ROCKET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_BOD_PRESET", "NUM_MDC_BOD_PRESET", NUM_MDC_BOD_PRESET );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "MDC_FIN_PRESET" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_FIN_PRESET", "MDC_FIN_PRESET_DEFAULT", MDC_FIN_PRESET_DEFAULT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_FIN_PRESET", "MDC_FIN_PRESET_GENERIC_ROCKET_FINS", MDC_FIN_PRESET_GENERIC_ROCKET_FINS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_FIN_PRESET", "MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES", MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_FIN_PRESET", "NUM_MDC_FIN_PRESET", NUM_MDC_FIN_PRESET );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "MDC_INLET_PRESET" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_INLET_PRESET", "MDC_INLET_PRESET_DEFAULT", MDC_INLET_PRESET_DEFAULT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_INLET_PRESET", "MDC_INLET_PRESET_GENERIC_ROCKET", MDC_INLET_PRESET_GENERIC_ROCKET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_INLET_PRESET", "NUM_MDC_INLET_PRESET", NUM_MDC_INLET_PRESET );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "MDC_PROTUB_PRESET" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_DEFAULT", MDC_PROTUB_PRESET_DEFAULT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_VCYL", MDC_PROTUB_PRESET_VCYL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_HCYL", MDC_PROTUB_PRESET_HCYL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_LUG", MDC_PROTUB_PRESET_LUG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_SHOE", MDC_PROTUB_PRESET_SHOE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_BLOCK", MDC_PROTUB_PRESET_BLOCK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_FAIRING", MDC_PROTUB_PRESET_FAIRING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_SMALL_LUG", MDC_PROTUB_PRESET_SMALL_LUG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_MEDIUM_LUG", MDC_PROTUB_PRESET_MEDIUM_LUG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "MDC_PROTUB_PRESET_LARGE_LUG", MDC_PROTUB_PRESET_LARGE_LUG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MDC_PROTUB_PRESET", "NUM_MDC_PROTUB_PRESET", NUM_MDC_PROTUB_PRESET );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "STACK_PRESETS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_DEFAULT", STACK_PRESET_DEFAULT );
@@ -5388,6 +5442,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string ConvertFuselageToStack( const string & in geom_id )", asFUNCTION( vsp::ConvertFuselageToStack ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void SetMdcPreset( const string & in geom_id, int preset )", asFUNCTION( vsp::SetMdcPreset ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string ConvertMdcBodToStack( const string & in geom_id, bool replace_flag )", asFUNCTION( vsp::ConvertMdcBodToStack ), asCALL_CDECL );
     assert( r >= 0 );

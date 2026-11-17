@@ -82,6 +82,7 @@ href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
 described on their own pages. The Design tab sets</p>
 <ul>
 <li>the <a href="#layout">layout</a> of the three parts;</li>
+<li>a <a href="#presets">preset</a> shape to start from;</li>
 <li>the <a href="#nose">nose</a>, its shape, <a
 href="#bluntness-and-truncation">bluntness</a> and <a
 href="#secant-ogives">ogive slope</a>;</li>
@@ -96,7 +97,9 @@ href="#camber">camber</a>;</li>
 <li>Add an MDC_BOD. A new one is 10 long: an ogive nose 3 long and 1 in
 diameter, on a cylinder 7 long, closed by a flat base. Its nose tip is
 at its origin and its axis is along
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.
+To start from a rocket instead, choose Generic Rocket as the Preset and
+press Set.</li>
 <li>Place it with the XForm tab.</li>
 <li>Choose <em>NAMELIST</em>: AXIBOD for circular sections, ELLBOD for
 elliptical ones.</li>
@@ -135,6 +138,13 @@ it moves the whole body without changing its shape. The XForm tab moves
 and rotates the body as it does any component, turning it about the
 point along its length that the XForm tab's Origin gives as a fraction
 of the body's length from the nose tip.</p>
+<h3 id="presets">Presets</h3>
+<p>The Preset choice and its Set button give the body a whole shape:
+every input of the Design tab is set, and the body keeps its place.
+Choosing a preset changes nothing until Set is pressed. Default is the
+body as new. Generic Rocket is a body 175 long and 10 across: a Von
+Karman nose 30 long, a cylinder 142 long and a conical boattail 3 long
+to 9 across. The API call <code>SetMdcPreset</code> does the same.</p>
 <p>In DATCOM the centerbody's size defaults to the nose's. With
 <em>Nose's size</em> on, the default, <em>DCENTR</em> is <em>DNOSE</em>
 and <em>WCENTR</em> is <em>WNOSE</em>, and they follow the nose when it
@@ -292,6 +302,14 @@ section.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align: left;">Body</td>
+<td style="text-align: left;">Preset</td>
+<td style="text-align: left;"><code>Preset</code></td>
+<td style="text-align: left;">Default</td>
+<td style="text-align: left;">The shape Set gives: Default or Generic
+Rocket.</td>
+</tr>
 <tr>
 <td style="text-align: left;">Body</td>
 <td style="text-align: left;">NAMELIST</td>

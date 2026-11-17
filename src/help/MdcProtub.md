@@ -18,6 +18,7 @@ The MDC_PROTUB has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XF
 [Sub](SubTab.md) tabs are described on their own pages.  The Design tab sets
 
 - the [type](#types-of-protuberance) and [where it stands](#placing-a-protuberance);
+- a [preset](#presets) shape to start from;
 - the [size](#placing-a-protuberance) of each of its members;
 - the [number and roll angles](#locations) of the protuberances in the set.
 
@@ -26,7 +27,7 @@ The MDC_PROTUB has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XF
 1. Add the body, an [MDC_BOD](MdcBod.md), and an MDC_PROTUB as its child.  A new MDC_PROTUB is a small cylinder at
    X = 5, on the default MDC_BOD.
 2. Set *XPROT* to the station of the protuberance's center.  The protuberance stands on the body there.
-3. Choose *PTYPE*, then press Set Default to size it, in proportion to the body, as a protuberance of that type.
+3. Choose a Preset, the type you want, and press Set to size it, in proportion to the body.
 4. Change the size of each member as needed: *LPROT*, *WPROT*, *HPROT* and *OPROT*.
 5. Set *NLOC*, the number of protuberances, and, if they are not evenly spaced, turn on *PHIPRO given* and give each
    its roll angle.
@@ -48,7 +49,7 @@ The MDC_PROTUB has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XF
 
 ![Figure 1. Types of protuberance](images/MdcProtub_types.png "Figure 1. Types of protuberance")
 
-*Figure 1. The six types, each as the Set Default button sizes it, on a body of radius 6.*
+*Figure 1. The six types, each as its preset sizes it, on a body of radius 6.*
 
 A LUG or SHOE is built of members, each a box.  Member 1 is the base plate of both.  Member 2 is a SHOE's web or a
 LUG's first post, member 3 is a SHOE's top plate or the LUG's second post, and member 4 is a LUG's top plate.  The
@@ -60,28 +61,45 @@ the type does not have.
 
 *Figure 2. The members of a LUG and of a SHOE, from behind the body.*
 
-### Set Default
+### Presets
 
-Choosing a *PTYPE* leaves the members' sizes as they are.  The Set Default button sets the sizes of every member the
-type has to those of a protuberance of that type, in proportion to the body: the sizes of the protuberances of DATCOM's
-sample body, which has a radius of 6, scaled by *RBODY* over 6.  Use it as a starting point after choosing a type,
-and change the sizes from there.
+The Preset choice and its Set button give the protuberance a shape.  Choosing a preset changes nothing until Set is
+pressed.  Default is the protuberance as new.  Every other preset sets *PTYPE* and the sizes of every member the type
+has, in proportion to the body: the sizes in the table below, which are for a body of the radius given, scaled by
+*RBODY* over that radius.  The locations, *NLOC* and *PHIPRO*, are kept.  Use a preset as a starting point and change
+the sizes from there.  Choosing a *PTYPE* on its own keeps the sizes of the members the two types share and gives each
+member it adds the sizes of a new one, with no offset; use a preset for a LUG or SHOE with its members stacked.
 
-The sizes in the table are for a body of radius 6.
+The VCYL, SHOE, BLOCK and FAIRING presets are the protuberances of DATCOM's sample body, which has a radius of 6; it
+has no HCYL or LUG, so those two are in proportion with them.  The Small, Medium and Large Lug presets are launch lugs
+for a rocket of radius 5.
+The API call `SetMdcPreset` does the same.
 
-| Type    | Member | LPROT | WPROT | HPROT | OPROT |
-|:--------|:-------|------:|------:|------:|------:|
-| VCYL    | 1      | 1     | 1     | 0.5   | 0     |
-| HCYL    | 1      | 3     | 1     | 1     | 0     |
-| LUG     | 1      | 3     | 2     | 0.1   | 0     |
-| LUG     | 2      | 1.5   | 0.25  | 0.5   | 0.1   |
-| LUG     | 3      | 1.5   | 0.25  | 0.5   | 0.1   |
-| LUG     | 4      | 1.5   | 1     | 0.15  | 0.6   |
-| SHOE    | 1      | 10    | 4     | 0.1   | 0     |
-| SHOE    | 2      | 10    | 0.25  | 0.75  | 0.1   |
-| SHOE    | 3      | 10    | 1     | 0.25  | 0.85  |
-| BLOCK   | 1      | 0.5   | 2     | 1.5   | 0     |
-| FAIRING | 1      | 5     | 2     | 1     | 0     |
+| Preset     | Radius | Member | LPROT | WPROT | HPROT | OPROT |
+|:-----------|-------:|:-------|------:|------:|------:|------:|
+| VCYL       | 6      | 1      | 1     | 1     | 0.5   | 0     |
+| HCYL       | 6      | 1      | 3     | 1     | 1     | 0     |
+| LUG        | 6      | 1      | 3     | 2     | 0.1   | 0     |
+| LUG        | 6      | 2      | 1.5   | 0.25  | 0.5   | 0.1   |
+| LUG        | 6      | 3      | 1.5   | 0.25  | 0.5   | 0.1   |
+| LUG        | 6      | 4      | 1.5   | 1     | 0.15  | 0.6   |
+| SHOE       | 6      | 1      | 10    | 4     | 0.1   | 0     |
+| SHOE       | 6      | 2      | 10    | 0.25  | 0.75  | 0.1   |
+| SHOE       | 6      | 3      | 10    | 1     | 0.25  | 0.85  |
+| BLOCK      | 6      | 1      | 0.5   | 2     | 1.5   | 0     |
+| FAIRING    | 6      | 1      | 5     | 2     | 1     | 0     |
+| Small Lug  | 5      | 1      | 1     | 1     | 0.3   | 0     |
+| Small Lug  | 5      | 2      | 0.422 | 0.155 | 0.75  | 0.3   |
+| Small Lug  | 5      | 3      | 0.422 | 0.155 | 1.177 | 0.3   |
+| Small Lug  | 5      | 4      | 0.422 | 1     | 0.48  | 1.05  |
+| Medium Lug | 5      | 1      | 1.74  | 1.74  | 0.1   | 0     |
+| Medium Lug | 5      | 2      | 0.422 | 0.5   | 1     | 0.1   |
+| Medium Lug | 5      | 3      | 0.422 | 0.5   | 1     | 0.1   |
+| Medium Lug | 5      | 4      | 0.422 | 1.74  | 0.55  | 1.1   |
+| Large Lug  | 5      | 1      | 2.3   | 2.3   | 0.1   | 0     |
+| Large Lug  | 5      | 2      | 0.7   | 0.5   | 1.5   | 0.1   |
+| Large Lug  | 5      | 3      | 0.7   | 0.5   | 1.5   | 0.1   |
+| Large Lug  | 5      | 4      | 0.7   | 2.3   | 0.77  | 1.6   |
 
 ## Placing a Protuberance
 
@@ -98,7 +116,7 @@ location of the XForm tab, shown again on the Design tab.
 Each member is centered along the body at *XPROT*.  It is *LPROT* long, along the body, *WPROT* wide, across it, and
 *HPROT* high, out from the body (Figure 3).  *OPROT* is the height of the member's bottom above the mold line, zero by
 default, so a member with no offset sits on the body.  A raised member, such as a LUG's top plate, floats above it.
-Set Default stacks the members of a LUG or a SHOE: it gives each the height of the members under it as its offset.
+The presets stack the members of a LUG or a SHOE: each member's *OPROT* is the height of the members under it.
 
 ![Figure 3. Sizes of a block](images/MdcProtub_dims.png "Figure 3. Sizes of a block")
 
@@ -140,6 +158,7 @@ deleted as *NLOC* and *PTYPE* change, at the next update.
 
 | Control      | Parm                     | Default | Meaning                                                  |
 |:-------------|:-------------------------|:--------|:---------------------------------------------------------|
+| Preset       | `Preset`                 | Default | The shape Set gives: Default, a type, or a Small, Medium or Large Lug. |
 | PTYPE        | `PTYPE`                  | VCYL    | VCYL, HCYL, LUG, SHOE, BLOCK or FAIRING.                 |
 | XPROT        | `X_Rel_Location` (XForm) | 5       | Station of the center of the protuberance along $X$.     |
 | RBODY        | `RBODY`                  | 0.5     | The body's radius under the protuberance: a parent MDC_BOD's, else an input.  Not an input of DATCOM's namelist. |
