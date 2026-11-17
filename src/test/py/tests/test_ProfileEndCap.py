@@ -4,8 +4,9 @@
 # radius, as a fraction of the end's, at s, the distance from the point as a fraction of the length, is
 # s^CapU*PowerExp for POWER_LAW_END_CAP, the Haack series with C CapU*HaackC for VON_KARMAN_END_CAP, and the
 # front half of the Sears-Haack body for SEARS_HAACK_END_CAP.  Each row of the cap is the end scaled about its
-# middle, so any end's shape runs to the point.  The caps take no tip radius unless truncated: CapU*Radius is
-# left as it is and ignored.  An offset moves the point, the cap sheared along to it.
+# middle, so any end's shape runs to the point.  A radius blunts the cap with a sphere whose front is the point
+# (test_BluntProfileEndCap.py); these tests take none unless they say so.  An offset moves the point, the cap
+# sheared along to it.
 #
 # The cap's half of the end in u is the profile's cubics from the end to the point.
 
@@ -184,16 +185,19 @@ def testEachRowIsTheEndScaled( typ, cap_type ):
 
 @pytest.mark.parametrize( "cap_type", PROFILES )
 @pytest.mark.parametrize( "typ", TYPES )
-def testRadiusIsIgnoredAndOffsetMovesThePoint( typ, cap_type ):
-    """A profile cap is sharp: the same with a tip radius set as without.  Its offset moves its point along
+def testRadiusKeepsThePointAndOffsetMovesIt( typ, cap_type ):
+    """A tip radius blunts a profile cap but leaves its point where it is.  Its offset moves its point along
     Z, the cap sheared along to it."""
     length = 3.0
     gid = tube( typ )
     set_caps( gid, cap_type, length )
+    sharp = [ point( gid, u, 0.0 ) for end, u in ENDS ]
     before = [ point( gid, i / 40.0, j / NW ) for i in range( 41 ) for j in range( NW + 1 ) ]
     set_caps( gid, cap_type, length, 0.0, 0.4 )
     after = [ point( gid, i / 40.0, j / NW ) for i in range( 41 ) for j in range( NW + 1 ) ]
-    assert max( norm( sub( a, b ) ) for a, b in zip( before, after ) ) < 1e-12
+    assert max( norm( sub( a, b ) ) for a, b in zip( before, after ) ) > 1e-2
+    for tip, ( end, u ) in zip( sharp, ENDS ):
+        assert norm( sub( point( gid, u, 0.0 ), tip ) ) < 1e-9, end
     frames = [ frame( gid, u ) for end, u in ENDS ]
     set_caps( gid, cap_type, length, 0.8, 0.4 )
     for ( end, u ), ( mid, axis ) in zip( ENDS, frames ):

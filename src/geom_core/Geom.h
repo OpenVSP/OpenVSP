@@ -1124,7 +1124,6 @@ protected:
     void UpdateCapDims( const VspSurf &surf, bool umax );
     static vector < int > CapTypes( bool body );
     static bool ProfileCap( int capType );
-    double CapRadius( bool umax );
 
     // Translate the capped main surfaces so the chosen coordinates of the first one's nose tip are
     // zero.  The tip is where the nose cap's length and offset place it, or with no cap the middle

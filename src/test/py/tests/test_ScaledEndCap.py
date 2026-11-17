@@ -4,7 +4,7 @@
 # meridian: the cone or ogive, and its sphere, found for a round end the end's half width across.  On a
 # circular end it is the cap without the flag.  On an elliptical end the sphere becomes an ellipsoid as high
 # as the end is high to wide, and a truncated cap's face is the end scaled to the radius's share of the half
-# width.  A profile cap's rows are scaled anyway; the flag sizes its face by the half width too.
+# width.  A profile cap's rows are scaled anyway; the flag sizes its sphere or face by the half width too.
 
 import math
 
@@ -125,13 +125,14 @@ def testATruncatedEllipticalNosesFaceIsTheEndScaledToTheHalfWidth( typ ):
     assert max( abs( p[2] ) for p in face ) == pytest.approx( RADIUS * e, abs=2e-4 )
 
 
-@pytest.mark.parametrize( "cap_type", ( vsp.FLAT_END_CAP, vsp.ROUND_END_CAP, vsp.POINT_END_CAP,
-                                        vsp.POWER_LAW_END_CAP ) )
-def testTheFlagLeavesOtherCapsAlone( cap_type ):
+@pytest.mark.parametrize( "cap_type,radius", ( ( vsp.FLAT_END_CAP, RADIUS ), ( vsp.ROUND_END_CAP, RADIUS ),
+                                               ( vsp.POINT_END_CAP, RADIUS ), ( vsp.POWER_LAW_END_CAP, 0.0 ) ) )
+def testTheFlagLeavesOtherCapsAlone( cap_type, radius ):
+    # A sharp profile cap has no sphere or face for the flag to size.
     gid = body( "STACK", 1.2, 0.72 )
-    set_cap( gid, cap_type, RADIUS, False, 0.0, False )
+    set_cap( gid, cap_type, radius, False, 0.0, False )
     before = nose( gid, ( 0.0, 0.1, 0.25 ), 100 )
-    set_cap( gid, cap_type, RADIUS, False, 0.0, True )
+    set_cap( gid, cap_type, radius, False, 0.0, True )
     assert max( math.dist( p, q ) for p, q in zip( before, nose( gid, ( 0.0, 0.1, 0.25 ), 100 ) ) ) < 1e-12
 
 

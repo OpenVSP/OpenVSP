@@ -798,10 +798,15 @@ void ConformalGeom::OffsetCap( int cap_type, bool trunc, double ang, double pexp
         }
         rad_off = std::max( rad - off * ( 1.0 - sin( phi ) ) / cos( phi ), 0.0 );
     }
-    else if ( sphere && rad >= off )
+    else if ( ( sphere || profile ) && rad >= off )
     {
         // The same sphere, its radius less the offset; the sides are offset onto it.
         rad_off = rad - off;
+    }
+    else if ( profile )
+    {
+        // The sphere is gone, and the offset profile runs to the tip.
+        rad_off = 0.0;
     }
     else if ( cap_type == vsp::POINT_END_CAP && theta > 0.0 )
     {
@@ -1668,11 +1673,11 @@ void ConformalGeom::CapAsParent( VspSurf & surf )
     vec3d ptoff;
     UpdateCapDims( surf, false );
     surf.CapUMin( m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff,
-                  m_CapUMinSweepFlag(), CapRadius( false ), m_CapUMinOgiveAngle() * M_PI / 180.0, m_CapUMinPowerExp(),
+                  m_CapUMinSweepFlag(), m_CapUMinRadius(), m_CapUMinOgiveAngle() * M_PI / 180.0, m_CapUMinPowerExp(),
                   m_CapUMinHaackC(), m_CapUMinTruncFlag(), m_CapUMinShearFlag(), m_CapUMinScaledFlag() );
     UpdateCapDims( surf, true );
     surf.CapUMax( m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff,
-                  m_CapUMaxSweepFlag(), CapRadius( true ), m_CapUMaxOgiveAngle() * M_PI / 180.0, m_CapUMaxPowerExp(),
+                  m_CapUMaxSweepFlag(), m_CapUMaxRadius(), m_CapUMaxOgiveAngle() * M_PI / 180.0, m_CapUMaxPowerExp(),
                   m_CapUMaxHaackC(), m_CapUMaxTruncFlag(), m_CapUMaxShearFlag(), m_CapUMaxScaledFlag() );
 }
 
