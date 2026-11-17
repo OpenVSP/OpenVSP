@@ -107,11 +107,16 @@ an ogive nose, and is greyed otherwise.
 
 ### Bluntness and truncation
 
-*BNOSE* blunts or truncates the nose (Figure 4).  Without *TRUNC*, it blunts a cone or ogive nose with a sphere of
-radius *BNOSE*, tangent to the nose, so the tip is rounded; the nose keeps its length *LNOSE*.  With *TRUNC* on, it
-instead cuts the nose off flat, at a face of radius *BNOSE* at the tip, and this is so for every shape of nose.  A
-power law, Haack or Von Karman nose that is not truncated has no bluntness, so *BNOSE* is greyed.  For an elliptical
-body *BNOSE* is measured across the width, and the sphere or face is *ENOSE* times as high.
+*BNOSE* blunts or truncates the nose (Figure 4).  Without *TRUNC*, it blunts the nose with a sphere of radius *BNOSE*
+whose front is the tip, so the tip is rounded and the nose keeps its length *LNOSE* and its base.  A cone or ogive is
+drawn from the base to touch the sphere.  A power law, Haack or Von Karman profile is drawn from a virtual tip, ahead
+of the tip or just behind it, placed so that the profile touches the sphere.  A power law nose of exponent one-half
+is already as round at its tip as a sphere of radius $R^2 / (2 L)$, so no profile of it touches a smaller sphere,
+and such a nose stays sharp.  A smaller exponent is blunter still and stays sharp under larger spheres: with exponent
+0.3 a sphere needs a radius of about 0.45 of the base radius.  A sphere as large as the nose base is met by the
+straight line from the base that touches it, as on a cone.  With *TRUNC* on, *BNOSE* instead cuts the nose off flat,
+at a face of radius *BNOSE* at the tip, and this is so for every shape of nose.  For an elliptical body *BNOSE* is
+measured across the width, and the sphere or face is *ENOSE* times as high.
 
 ![Figure 4. Blunted and truncated noses](images/MdcBod_blunt.png "Figure 4. Blunted and truncated noses")
 

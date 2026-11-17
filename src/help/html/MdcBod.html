@@ -203,14 +203,24 @@ alt="Figure 3. Secant ogives" /></p>
 slopes at the base, the last being the cone.</em></p>
 <h3 id="bluntness-and-truncation">Bluntness and truncation</h3>
 <p><em>BNOSE</em> blunts or truncates the nose (Figure 4). Without
-<em>TRUNC</em>, it blunts a cone or ogive nose with a sphere of radius
-<em>BNOSE</em>, tangent to the nose, so the tip is rounded; the nose
-keeps its length <em>LNOSE</em>. With <em>TRUNC</em> on, it instead cuts
-the nose off flat, at a face of radius <em>BNOSE</em> at the tip, and
-this is so for every shape of nose. A power law, Haack or Von Karman
-nose that is not truncated has no bluntness, so <em>BNOSE</em> is
-greyed. For an elliptical body <em>BNOSE</em> is measured across the
-width, and the sphere or face is <em>ENOSE</em> times as high.</p>
+<em>TRUNC</em>, it blunts the nose with a sphere of radius
+<em>BNOSE</em> whose front is the tip, so the tip is rounded and the
+nose keeps its length <em>LNOSE</em> and its base. A cone or ogive is
+drawn from the base to touch the sphere. A power law, Haack or Von
+Karman profile is drawn from a virtual tip, ahead of the tip or just
+behind it, placed so that the profile touches the sphere. A power law
+nose of exponent one-half is already as round at its tip as a sphere of
+radius
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mn>2</mn></msup><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R^2 / (2 L)</annotation></semantics></math>,
+so no profile of it touches a smaller sphere, and such a nose stays
+sharp. A smaller exponent is blunter still and stays sharp under larger
+spheres: with exponent 0.3 a sphere needs a radius of about 0.45 of the
+base radius. A sphere as large as the nose base is met by the straight
+line from the base that touches it, as on a cone. With <em>TRUNC</em>
+on, <em>BNOSE</em> instead cuts the nose off flat, at a face of radius
+<em>BNOSE</em> at the tip, and this is so for every shape of nose. For
+an elliptical body <em>BNOSE</em> is measured across the width, and the
+sphere or face is <em>ENOSE</em> times as high.</p>
 <p><img src="images/MdcBod_blunt.png"
 title="Figure 4. Blunted and truncated noses"
 alt="Figure 4. Blunted and truncated noses" /></p>

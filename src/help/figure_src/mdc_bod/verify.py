@@ -74,6 +74,29 @@ def mdc_bod():
     g = mf.body( TNOSE = 1, BNOSE = 0.2 )
     P = mf.top( g, 2001 )
     near( P[ :, 0 ].min(), 0.0, 1e-9, "A blunted nose keeps its length" )
+    # A power law, Haack or Von Karman nose blunted: its tip on the sphere, its length and base kept.
+    for t, name in ( ( 2, "power law" ), ( 3, "Haack" ), ( 4, "Von Karman" ) ):
+        g = mf.body( TNOSE = t, POWER = 0.75, BNOSE = 0.1 )
+        P = mf.top( g, 4001 )
+        P = P[ np.argsort( P[ :, 0 ] ) ]
+        near( P[ :, 0 ].min(), 0.0, 1e-9, "A blunted %s nose keeps its length" % name )
+        near( P[ P[ :, 0 ] <= 3.0 + 1e-9, 2 ].max(), 0.5, 5e-4, "A blunted %s nose keeps its base" % name )
+        near( np.interp( 0.02, P[ :, 0 ], P[ :, 2 ] ), np.sqrt( 0.1 ** 2 - 0.08 ** 2 ), 1e-3,
+              "A blunted %s nose's tip is on the sphere of radius BNOSE" % name )
+    # A power law nose of exponent one-half is rounder than a sphere smaller than R^2 / ( 2 L ), and stays sharp.
+    g = mf.body( TNOSE = 2, POWER = 0.5, BNOSE = 0.02 )
+    P = mf.top( g, 4001 )
+    P = P[ np.argsort( P[ :, 0 ] ) ]
+    near( np.interp( 0.02, P[ :, 0 ], P[ :, 2 ] ), 0.5 * np.sqrt( 0.02 / 3.0 ), 1e-3,
+          "A power law nose of exponent one-half under a small sphere stays sharp" )
+    # A sphere as large as the base gives the blunted cone's shape.
+    tops = []
+    for t in ( 0, 2 ):
+        g = mf.body( TNOSE = t, POWER = 0.75, BNOSE = 0.5 )
+        P = mf.top( g, 2001 )
+        P = P[ np.argsort( P[ :, 0 ] ) ]
+        tops.append( np.interp( np.linspace( 0.0, 3.0, 301 ), P[ :, 0 ], P[ :, 2 ] ) )
+    near( np.abs( tops[ 0 ] - tops[ 1 ] ).max(), 0.0, 2e-3, "A sphere as large as the base gives the blunted cone" )
     # Camber.
     g = mf.body( TNOSE = 1, LNOSE = 3.0, LCENTR = 4.0, LAFT = 2.0, DAFT = 0.6, ZTIP = 0.0, ZNOSE = 0.4, ZCENTR = 1.0, ZAFT = 0.6 )
     us = np.linspace( 0.0, 1.0, 4001 )

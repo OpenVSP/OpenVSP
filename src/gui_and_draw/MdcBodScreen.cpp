@@ -149,11 +149,10 @@ bool MdcBodScreen::Update()
     m_DExitSlider.Update( body->m_DExit.GetID() );
 
     // Deactivate the inputs that shape nothing: the other namelist's sizes, a centerbody size that takes the nose's,
-    // POWER but for a power law nose, SLPNOS but for an ogive, BNOSE for a power law or Haack nose that is not
-    // truncated, a centerbody's or aft body's inputs where it has no length, and SLPTAL but for an ogive aft body.
+    // POWER but for a power law nose, SLPNOS but for an ogive, a centerbody's or aft body's inputs where it has no
+    // length, and SLPTAL but for an ogive aft body.
     bool ell = body->m_Namelist() == MdcBodGeom::ELLBOD;
     int tnose = body->m_TNose();
-    bool profile = tnose == MdcBodGeom::POWER || tnose == MdcBodGeom::HAACK || tnose == MdcBodGeom::KARMAN;
     bool centr = body->m_LCentr() > 0.0;
     bool aft = body->m_LAft() > 0.0;
 
@@ -164,10 +163,6 @@ bool MdcBodScreen::Update()
     if ( tnose != MdcBodGeom::OGIVE )
     {
         m_SlpNosSlider.Deactivate();
-    }
-    if ( profile && !body->m_Trunc() )
-    {
-        m_BNoseSlider.Deactivate();
     }
 
     if ( ell )
