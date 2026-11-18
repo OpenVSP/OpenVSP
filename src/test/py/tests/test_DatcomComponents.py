@@ -630,6 +630,109 @@ def testFinSetArcSectionIsABiconvexAirfoil():
     assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadius" ) ) == 0.0
 
 
+def testFinRootIsOnTheBodyUnlessBuried():
+    # One panel at the top, its span along z and its thickness along y, on a body 0.5 in radius.
+    gid = new( "MDC_FIN", NPANEL=1, RBODY=0.5 )
+    pts = [ vsp.CompPnt01( gid, 0, i / 100.0, j / 100.0 ) for i in range( 101 ) for j in range( 101 ) ]
+    zlo = min( p.z() for p in pts )
+    zhi = max( p.z() for p in pts )
+    assert zlo == pytest.approx( 0.5, abs=1e-9 )
+
+    # The default section is a diamond 0.025 of the 1.5 chord either side.
+    half = 0.025 * 1.5
+
+    # Buried, the root goes in as far as the body falls under its sides, and a hundredth of the radius further.
+    put( gid, BuryRoot=1 )
+    pts = [ vsp.CompPnt01( gid, 0, i / 100.0, j / 100.0 ) for i in range( 101 ) for j in range( 101 ) ]
+    depth = 0.5 - math.sqrt( 0.5 ** 2 - half ** 2 ) + 0.005
+    assert min( p.z() for p in pts ) == pytest.approx( 0.5 - depth, abs=1e-5 )
+    assert min( p.z() for p in pts ) <= 0.5 - depth
+    assert max( p.z() for p in pts ) == pytest.approx( zhi, abs=1e-9 )
+
+
+def chord_line( gid, u ):
+    """The leading and trailing edge x and the span z of the top panel's section at u."""
+    pts = [ vsp.CompPnt01( gid, 0, u, j / 400.0 ) for j in range( 401 ) ]
+    return min( p.x() for p in pts ), max( p.x() for p in pts ), pts[0].z()
+
+
+def testFinRootExtrapolatedFollowsTheFirstSegment():
+    # A tapered, swept panel on a body 0.5 in radius: the buried section is on the lines through the root's and
+    # the tip's leading and trailing edges.  With the end caps the surface has four patches, the buried section at
+    # the start of the second.
+    gid = new( "MDC_FIN", NPANEL=1, RBODY=0.5, CHORD_1=1.5, CHORD_2=0.5, SWEEP_1=40.0, BuryRoot=1, BuryRootType=1 )
+    le0, te0, z0 = chord_line( gid, 0.25 )
+    ler, ter, zr = chord_line( gid, 0.5 )
+    let, tet, zt = chord_line( gid, 0.75 )
+    assert zr == pytest.approx( 0.5, abs=1e-9 )
+    assert z0 < zr
+    f = ( zr - z0 ) / ( zt - zr )
+    assert le0 == pytest.approx( ler - f * ( let - ler ), abs=1e-6 )
+    assert te0 == pytest.approx( ter - f * ( tet - ter ), abs=1e-6 )
+
+    # Straight in, it is the root's chord at the root's place.
+    put( gid, BuryRootType=0 )
+    le0, te0, z0 = chord_line( gid, 0.25 )
+    assert le0 == pytest.approx( ler, abs=1e-9 )
+    assert te0 == pytest.approx( ter, abs=1e-9 )
+
+
+def testFinRootBuriedOnANoseIsInsideIt():
+    # On a cone nose the body is smallest under the root's leading edge, so the root goes in past it there.
+    body = new( "MDC_BOD", TNOSE=0, LNOSE=4.0, DNOSE=2.0, LCENTR=6.0 )
+    for kind in ( 0, 1 ):
+        gid = child( "MDC_FIN", body, 1.5, NPANEL=1, CHORD_1=1.5, CHORD_2=0.5, SWEEP_1=40.0, BuryRoot=1,
+                     BuryRootType=kind )
+        for j in range( 201 ):
+            p = vsp.CompPnt01( gid, 0, 0.0, j / 200.0 )
+            assert math.hypot( p.y(), p.z() ) < min( p.x(), 4.0 ) / 4.0
+        vsp.DeleteGeom( gid )
+
+
+@pytest.mark.parametrize( "gam", ( -30.0, 10.0, 30.0 ) )
+def testFinRootWithDihedralIsBuriedInsideTheBody( gam ):
+    # The buried section goes in along the panel, turned with its dihedral, on a round body 0.5 in radius.
+    gid = new( "MDC_FIN", NPANEL=4, RBODY=0.5, GAM_1=gam, GAM_2=gam, GAM_3=gam, GAM_4=gam, BuryRoot=1 )
+    for s in range( 4 ):
+        for j in range( 201 ):
+            p = vsp.CompPnt01( gid, s, 0.25, j / 200.0 )
+            assert math.hypot( p.y(), p.z() ) < 0.5
+
+
+@pytest.mark.parametrize( "kind", ( 0, 1 ) )
+def testFinRootDepthChangesSmoothlyWithDihedral( kind ):
+    # Turned far enough, a side of the root crosses the round body and leaves it again, and further still it misses
+    # the body; the depth grows to where the side just touches and falls away after it, never jumping across the body.
+    gid = new( "MDC_FIN", NPANEL=1, RBODY=0.5, BuryRoot=1, BuryRootType=kind )
+    depths = []
+    for gam in range( 0, 90 ):
+        put( gid, GAM_1=float( gam ) )
+        g = math.radians( gam )
+        q = vsp.CompPnt01( gid, 0, 0.25, 0.0 )
+        depths.append( -( q.y() * math.sin( g ) + ( q.z() - 0.5 ) * math.cos( g ) ) )
+    # The depth rises steeply just before the side touches, to about 0.19 here, but never reaches across the body.
+    assert min( depths ) > 0.0
+    assert max( depths ) < 0.25
+    assert max( abs( b - a ) for a, b in zip( depths, depths[1:] ) ) < 0.05
+
+
+def testFinRootOffTheBodyIsNotBuried():
+    gid = new( "MDC_FIN", NPANEL=1, SSPAN_1=1.0, SSPAN_2=2.0, BuryRoot=1 )
+    zlo, zhi = extent( gid, 2 )
+    assert zlo == pytest.approx( 1.0, abs=1e-9 )
+
+
+def testBuriedFinFlapStaysOnItsSegment():
+    # The root carried into the body is one more patch before the segment.
+    gid = new( "MDC_FIN", NPANEL=1, CFOC_1=0.25, CFOC_2=0.25 )
+    ss = vsp.GetSubSurfIDVec( gid )[0]
+    assert vsp.GetParmVal( vsp.FindParm( ss, "UStart", "SS_Control" ) ) == pytest.approx( 1.0 / 3.0 )
+    assert vsp.GetParmVal( vsp.FindParm( ss, "UEnd", "SS_Control" ) ) == pytest.approx( 2.0 / 3.0 )
+    put( gid, BuryRoot=1 )
+    assert vsp.GetParmVal( vsp.FindParm( ss, "UStart", "SS_Control" ) ) == pytest.approx( 2.0 / 4.0 )
+    assert vsp.GetParmVal( vsp.FindParm( ss, "UEnd", "SS_Control" ) ) == pytest.approx( 3.0 / 4.0 )
+
+
 def testFinSetFlapIsAControlSurfaceAsDeepAsCfocTimesTheChord():
     gid = new( "MDC_FIN", NPANEL=1, CFOC_1=0.25, CFOC_2=0.25 )
     ss = vsp.GetSubSurfIDVec( gid )[0]

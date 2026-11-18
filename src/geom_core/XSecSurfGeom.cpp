@@ -303,6 +303,13 @@ BareXSec* XSecSurfGeom::AppendXSec( XSecSurf* xsec_surf, int type, const vec3d &
     return xs;
 }
 
+int XSecSurfGeom::SetNextXSec( XSecSurf* xsec_surf, int index )
+{
+    int was = m_NextXSec[xsec_surf];
+    m_NextXSec[xsec_surf] = index;
+    return was;
+}
+
 void XSecSurfGeom::NeedTessW( int n )
 {
     int a = m_TessMult;

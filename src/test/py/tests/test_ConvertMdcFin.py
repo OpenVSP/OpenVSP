@@ -111,6 +111,13 @@ FIN_CASES = [
       ( 45.0, 135.0, 225.0, 315.0 ), 4, 1 ),
     ( "cambered arc", dict( SECTYP=2, ZUPPER_1=0.06, ZUPPER_2=0.06, ZLOWER_1=0.02, ZLOWER_2=0.02, ZLOWERRelFlag=0 ),
       ( 0.0, 90.0 ), 2, 1 ),
+    ( "buried root", dict( BuryRoot=1 ), None, 4, 1 ),
+    ( "buried root, three swept stations", dict( BuryRoot=1, NSPAN=3, SSPAN_3=2.5, CHORD_3=0.4, SWEEP_1=30.0,
+                                                  SWEEP_2=40.0 ), None, 4, 1 ),
+    ( "buried root, cambered", dict( BuryRoot=1, SECTYP=1, NACADES=4412.0 ), ( 45.0, 135.0, 225.0, 315.0 ), 4, 1 ),
+    ( "buried root extrapolated", dict( BuryRoot=1, BuryRootType=1, CHORD_2=0.5, SWEEP_1=40.0 ), None, 4, 1 ),
+    ( "buried root extrapolated, three stations", dict( BuryRoot=1, BuryRootType=1, NSPAN=3, SSPAN_3=2.5, CHORD_3=0.4,
+                                                        SWEEP_1=30.0, SWEEP_2=40.0, STA_1=0.5 ), None, 4, 1 ),
 ]
 
 
@@ -133,10 +140,11 @@ def testFinSetConvertsToTheSameSurfaces( name, parms, angles, ngeom, nsurf ):
     assert fin_deviation( fid, wings ) < 1e-9
 
 
-def testFinSetOnAnEllipticBodyConvertsToTheSameSurfaces():
+@pytest.mark.parametrize( "bury,kind", ( ( 0, 0 ), ( 1, 0 ), ( 1, 1 ) ) )
+def testFinSetOnAnEllipticBodyConvertsToTheSameSurfaces( bury, kind ):
     vsp.VSPRenew()
     body = new( "MDC_BOD", NAMELIST=1, WNOSE=2.0, ENOSE=0.5, CENTRDefault=1, ECENTR=0.5, LNOSE=2.0, LCENTR=8.0 )
-    fid = new( "MDC_FIN", parent=body, NPANEL=4 )
+    fid = new( "MDC_FIN", parent=body, NPANEL=4, BuryRoot=bury, BuryRootType=kind, CHORD_2=0.5, SWEEP_1=40.0 )
     vsp.SetParmVal( vsp.FindParm( fid, "X_Rel_Location", "XForm" ), 6.0 )
     vsp.Update()
 

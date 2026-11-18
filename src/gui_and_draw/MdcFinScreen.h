@@ -40,6 +40,8 @@ protected:
     Choice m_SecTypChoice;
     SliderAdjRangeInput m_NPanelSlider;
     SliderAdjRangeInput m_RBodySlider;
+    ToggleButton m_BuryRootToggle;
+    Choice m_BuryRootTypeChoice;
     ToggleButton m_PhiFFlagToggle;
     IndexSelector m_PanelSelector;
     SliderAdjRangeInput m_PhiFSlider;

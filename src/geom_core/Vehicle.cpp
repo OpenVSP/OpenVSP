@@ -2733,10 +2733,11 @@ static void PlaceByMatrix( Geom* g, const Matrix4d & total, int absrel )
 }
 
 // Where a panel of a fin set is in the fin set's frame: its root is on the body at its roll, and it is turned to its
-// own direction, clockwise from the top.  A Wing's leading edge, at its origin, is at the fin set's root leading edge.
-static Matrix4d PanelMatrix( MdcFinGeom* fin, double xle, int p, double phi, double gam )
+// own direction, clockwise from the top.  A Wing's leading edge, at its origin, is at the fin set's first section's
+// leading edge, span0 along the panel from the root.
+static Matrix4d PanelMatrix( MdcFinGeom* fin, double xle, double span0, int p, double phi, double gam )
 {
-    double rr = fin->RootRadius( p );
+    double rr = fin->RootRadius( p ) + span0;
     double rphi = phi * M_PI / 180.0;
 
     Matrix4d panel;
@@ -2748,8 +2749,11 @@ static Matrix4d PanelMatrix( MdcFinGeom* fin, double xle, int p, double phi, dou
 
 // A Wing with the sections of a fin set's first panel, the planform of the fin set, and no placement.  The sections
 // are inverted where the panel is reflected rather than rotated.  Its sweeps are the panel's, so the surface is the
-// panel's wherever a Wing's skinning gives the sections' shape between them as a fin set's does.
-static WingGeom* MakeFinWing( Vehicle* veh, MdcFinGeom* fin, const vector< FinStation > & st, bool reflect )
+// panel's wherever a Wing's skinning gives the sections' shape between them as a fin set's does.  A root carried
+// into the body, buried sections before the root's, is a segment swept along its leading edge from the buried
+// section's to the root's.
+static WingGeom* MakeFinWing( Vehicle* veh, MdcFinGeom* fin, const vector< FinStation > & st, bool reflect,
+                              int buried )
 {
     WingGeom* wing = dynamic_cast < WingGeom* > ( veh->FindGeom( veh->CreateGeom( GeomType( MS_WING_GEOM_TYPE, "Wing", true ) ) ) );
     if ( !wing )
@@ -2801,7 +2805,13 @@ static WingGeom* MakeFinWing( Vehicle* veh, MdcFinGeom* fin, const vector< FinSt
         if ( i > 0 )
         {
             int k = i - 1;
-            double sta = fin->m_Sta[k]->Get();
+            double sta = 0.0;
+            double sweep = atan2( st[i].xle - st[k].xle, st[i].span - st[k].span ) * 180.0 / M_PI;
+            if ( k >= buried )
+            {
+                sta = fin->m_Sta[k - buried]->Get();
+                sweep = fin->m_Sweep[k - buried]->Get();
+            }
 
             // The two locations along the chord sweeps are measured at must differ, so the secondary one is put well
             // away from the one that is wanted before it is set.
@@ -2815,7 +2825,7 @@ static WingGeom* MakeFinWing( Vehicle* veh, MdcFinGeom* fin, const vector< FinSt
             ws->m_RootChord.Set( st[k].chord );
             ws->m_Span.Set( st[i].span - st[k].span );
             ws->m_SweepLoc.Set( sta );
-            ws->m_Sweep.Set( fin->m_Sweep[k]->Get() );
+            ws->m_Sweep.Set( sweep );
             ws->m_Dihedral.Set( 0.0 );
             ws->m_Twist.Set( 0.0 );
         }
@@ -3423,13 +3433,26 @@ vector< string > Vehicle::ConvertMdcFinToWing( const string & finset_id, bool re
     }
 
     //==== The planform, as the panel's stations ====//
+    // A root carried into the body is a section before the root's.
+    int buried = 0;
+    if ( fin->RootDepth() > 0.0 )
+    {
+        buried = 1;
+    }
     vector< FinStation > st;
     for ( int i = 0; i < fxss->NumXSec(); i++ )
     {
         BareXSec* fxs = dynamic_cast < BareXSec* > ( fxss->FindXSec( i ) );
 
         FinStation s;
-        s.chord = fin->m_Chord[i]->Get();
+        if ( i < buried )
+        {
+            s.chord = fin->BuriedChord();
+        }
+        else
+        {
+            s.chord = fin->m_Chord[i - buried]->Get();
+        }
         s.span = fxs->GetLoc().x();
         s.xle = fxs->GetLoc().y() - 0.5 * s.chord;
         st.push_back( s );
@@ -3457,7 +3480,7 @@ vector< string > Vehicle::ConvertMdcFinToWing( const string & finset_id, bool re
     }
 
     //==== The Wing and its Clones ====//
-    WingGeom* wing = MakeFinWing( this, fin, st, reflect0 );
+    WingGeom* wing = MakeFinWing( this, fin, st, reflect0, buried );
     if ( !wing )
     {
         return vector< string >();
@@ -3471,7 +3494,7 @@ vector< string > Vehicle::ConvertMdcFinToWing( const string & finset_id, bool re
     int absrel = fin->m_AbsRelFlag();
 
     Matrix4d first = placed[0];
-    Matrix4d panel = PanelMatrix( fin, st[0].xle, 0, phis[0], gams[0] );
+    Matrix4d panel = PanelMatrix( fin, st[0].xle, st[0].span, 0, phis[0], gams[0] );
     first.matMult( panel.data() );
     PlaceByMatrix( wing, first, absrel );
 
@@ -3480,7 +3503,7 @@ vector< string > Vehicle::ConvertMdcFinToWing( const string & finset_id, bool re
         int p = fin->GetMainSurfID( k );
 
         Matrix4d total = placed[k];
-        panel = PanelMatrix( fin, st[0].xle, p, phis[p], gams[p] );
+        panel = PanelMatrix( fin, st[0].xle, st[0].span, p, phis[p], gams[p] );
         total.matMult( panel.data() );
 
         if ( MdcFinGeom::Reflected( phis[p] ) != reflect0 )

@@ -188,6 +188,10 @@ protected:
     int m_NextSurf;
     map< XSecSurf*, int > m_NextXSec;
 
+    // Moves where the next AppendXSec on xsec_surf goes to index, so a section appended already is made again
+    // there, and answers where it was.
+    int SetNextXSec( XSecSurf* xsec_surf, int index );
+
     // Deletes the surfaces from index on.
     void DeleteXSecSurfsFrom( int index );
 

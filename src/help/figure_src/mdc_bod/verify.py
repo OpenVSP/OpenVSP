@@ -259,6 +259,26 @@ def finset():
     bf.renew()
     g = ff.fin( NPANEL = 4, CFOC_1 = 1.0, CFOC_2 = 0.3 )
     near( vsp.GetNumSubSurf( g ), 0, 0, "CFOC_1 of 1 makes no flap" )
+    # A buried root, on a round body of RBODY 0.5: the default diamond's sides, 0.0375 either side, meet the body
+    # 0.5 - sqrt( 0.25 - 0.0375^2 ) below the root, and the section goes a hundredth of RBODY further.
+    bf.renew()
+    g = ff.fin( NPANEL = 1, RBODY = 0.5, BuryRoot = 1 )
+    lo, hi = extent( g, nu = 121, nw = 161 )
+    near( lo[ 2 ], np.sqrt( 0.25 - 0.0375 ** 2 ) - 0.005, 1e-4, "A buried root goes in as far as the body falls under its sides, and a hundredth of RBODY" )
+    # With dihedral it goes in along the panel and stays inside the body.
+    for gam in ( 20.0, -20.0 ):
+        bf.renew()
+        g = ff.fin( NPANEL = 1, RBODY = 0.5, BuryRoot = 1, GAM_1 = gam )
+        P = bf.grid( g, 0, nu = 1, nw = 401, u = [ 0.25 ] ).reshape( -1, 3 )
+        check( np.hypot( P[ :, 1 ], P[ :, 2 ] ).max() < 0.5, "A buried root with GAM %g is inside the body" % gam )
+    # Extrapolated, the buried section is on the first segment's leading edge line.
+    bf.renew()
+    g = ff.fin( NPANEL = 1, RBODY = 0.5, BuryRoot = 1, BuryRootType = 1, CHORD_2 = 0.5, SWEEP_1 = 40.0 )
+    le = [ bf.grid( g, 0, nu = 1, nw = 401, u = [ u ] ).reshape( -1, 3 ) for u in ( 0.25, 0.5, 0.75 ) ]
+    xs = [ P[ :, 0 ].min() for P in le ]
+    zs = [ P[ 0, 2 ] for P in le ]
+    near( xs[ 0 ], xs[ 1 ] - ( xs[ 2 ] - xs[ 1 ] ) * ( zs[ 1 ] - zs[ 0 ] ) / ( zs[ 2 ] - zs[ 1 ] ), 1e-6,
+          "An extrapolated buried section is on the first segment's leading edge line" )
     # The USER section is a 5 percent biconvex airfoil until read.
     bf.renew()
     g = ff.one_panel( SECTYP = 3, NSPAN = 2, CHORD_1 = 1.0, CHORD_2 = 1.0, X = 0.0 )

@@ -23,6 +23,9 @@ MdcFinGeom::MdcFinGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_Type.m_Name = "MDC_FIN";
     m_Type.m_Type = MDC_FIN_GEOM_TYPE;
 
+    m_RootDepth = 0.0;
+    m_BuriedChord = 0.0;
+
     // The end caps are set from the shape, so they are not offered.
     HideEndCaps();
 
@@ -44,6 +47,12 @@ MdcFinGeom::MdcFinGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_RBody.Init( "RBODY", "Design", this, 0.5, 0.0, 1.0e12 );
     m_RBody.SetDescript( "Distance of the root chord's middle from the axis, the body's radius there, where SSPAN_1 "
                          "is zero" );
+    m_BuryRoot.Init( "BuryRoot", "Design", this, false, false, true );
+    m_BuryRoot.SetDescript( "Flag to carry a root on the body into it, else the root is flat on the body as DATCOM "
+                            "draws it (not a FINSET input)" );
+    m_BuryRootType.Init( "BuryRootType", "Design", this, BURY_STRAIGHT, BURY_STRAIGHT, BURY_EXTRAPOLATE );
+    m_BuryRootType.SetDescript( "How a buried root goes into the body: straight, or extrapolating the first "
+                                "segment's taper and sweep (not a FINSET input)" );
 
     m_Station.Init( "STATION", "Design", this, 1, 1, MAXSTN );
     m_Station.SetDescript( "Span station the planform and section inputs show" );
@@ -654,6 +663,147 @@ BareXSec* MdcFinGeom::StationSection( XSecSurf* surf, int k, double c, int secty
     return xs;
 }
 
+void MdcFinGeom::BuryShape( BareXSec* root, const vector< double > & span, const vector< double > & chord,
+                            const vector< double > & xle, const vector< double > & phif, double & depth, double & cb,
+                            double & xb )
+{
+    // The root section's thickness is across its smaller extent, from its chord line at zero.
+    BndBox bb;
+    root->GetXSecCurve()->GetCurve().GetBoundingBox( bb );
+    int across = 1;
+    if ( bb.GetMax( 0 ) - bb.GetMin( 0 ) < bb.GetMax( 1 ) - bb.GetMin( 1 ) )
+    {
+        across = 0;
+    }
+    double c0 = chord[0];
+    double ratio = std::max( fabs( bb.GetMin( across ) ), fabs( bb.GetMax( across ) ) ) / c0;
+
+    // The chord's and leading edge's change per unit of span into the body.
+    double dc = 0.0;
+    double dx = 0.0;
+    if ( m_BuryRootType() == BURY_EXTRAPOLATE && span.size() > 1 && span[1] - span[0] > 1.0e-12 )
+    {
+        dc = ( chord[0] - chord[1] ) / ( span[1] - span[0] );
+        dx = -( xle[1] - xle[0] ) / ( span[1] - span[0] );
+    }
+
+    double rmax = 0.0;
+    for ( int p = 0; p < ( int )m_RootRadiusVec.size(); p++ )
+    {
+        rmax = std::max( rmax, m_RootRadiusVec[p] );
+    }
+
+    // The section's place moves with its depth where it is extrapolated, so the depth is found again from it until
+    // it no longer grows.
+    depth = 0.0;
+    for ( int it = 0; it < 8; it++ )
+    {
+        cb = std::max( c0 + dc * depth, 0.01 * c0 );
+        xb = xle[0] + dx * depth;
+        double half = ratio * cb;
+        double fall = 0.0;
+        for ( int p = 0; p < ( int )m_RootRadiusVec.size(); p++ )
+        {
+            double rr = m_RootRadiusVec[p];
+            double gam = m_Gam[p]->Get();
+            fall = std::max( fall, RootFall( xb, phif[p], gam, rr, half ) );
+            fall = std::max( fall, RootFall( xb + cb, phif[p], gam, rr, half ) );
+        }
+        double next = fall + 0.01 * rmax;
+        if ( next <= depth * ( 1.0 + 1.0e-9 ) )
+        {
+            break;
+        }
+        depth = next;
+    }
+    cb = std::max( c0 + dc * depth, 0.01 * c0 );
+    xb = xle[0] + dx * depth;
+}
+
+double MdcFinGeom::RootFall( double x, double phi, double gam, double rr, double half )
+{
+    // The root at rr along phi, across the body; the panel out along psi, and its thickness square to that.
+    double p = phi * M_PI / 180.0;
+    double psi = ( phi + gam ) * M_PI / 180.0;
+    double ry = rr * sin( p );
+    double rz = rr * cos( p );
+    double sy = sin( psi );
+    double sz = cos( psi );
+
+    // Along the panel the side's line crosses the body as a chord, so how far outside it its point is falls to a least
+    // value and rises again.  The fall is the first t inside, before that least; where the line misses the body, the
+    // root cannot be buried and the fall is the t of that least, which joins the other where the line just touches.
+    const double golden = 0.5 * ( sqrt( 5.0 ) - 1.0 );
+    double fall = 0.0;
+    for ( int side = -1; side <= 1; side += 2 )
+    {
+        double off = side * half;
+        if ( Outside( x, ry, rz, sy, sz, off, 0.0 ) <= 0.0 )
+        {
+            continue;
+        }
+
+        double a = 0.0;
+        double b = 2.0 * rr;
+        double c = b - golden * ( b - a );
+        double d = a + golden * ( b - a );
+        double fc = Outside( x, ry, rz, sy, sz, off, c );
+        double fd = Outside( x, ry, rz, sy, sz, off, d );
+        for ( int it = 0; it < 80; it++ )
+        {
+            if ( fc < fd )
+            {
+                b = d;
+                d = c;
+                fd = fc;
+                c = b - golden * ( b - a );
+                fc = Outside( x, ry, rz, sy, sz, off, c );
+            }
+            else
+            {
+                a = c;
+                c = d;
+                fc = fd;
+                d = a + golden * ( b - a );
+                fd = Outside( x, ry, rz, sy, sz, off, d );
+            }
+        }
+        double tleast = 0.5 * ( a + b );
+        if ( Outside( x, ry, rz, sy, sz, off, tleast ) > 0.0 )
+        {
+            fall = std::max( fall, tleast );
+            continue;
+        }
+
+        double lo = 0.0;
+        double hi = tleast;
+        for ( int it = 0; it < 60; it++ )
+        {
+            double mid = 0.5 * ( lo + hi );
+            if ( Outside( x, ry, rz, sy, sz, off, mid ) > 0.0 )
+            {
+                lo = mid;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+        fall = std::max( fall, hi );
+    }
+    return fall;
+}
+
+double MdcFinGeom::Outside( double x, double ry, double rz, double sy, double sz, double off, double t )
+{
+    double y = ry - t * sy + off * sz;
+    double z = rz - t * sz - off * sy;
+    double r = hypot( y, z );
+    double rb = hypot( ry, rz );
+    MdcBodGeom::RadiusUnder( this, x, atan2( y, z ) * 180.0 / M_PI, rb );
+    return r - rb;
+}
+
 void MdcFinGeom::PanelAngles( int npanel, vector< double > & phif )
 {
     SpaceRolls( m_PhiFFlag(), npanel, m_PhiF );
@@ -761,12 +911,27 @@ void MdcFinGeom::UpdateSurf()
         m_RootRadiusVec.assign( npanel, offset );
     }
 
+    // A root on the body carried into it is a section like the root's before it, placed once its depth is known.
+    bool bury = m_BuryRoot() && offset == 0.0 && chord[0] > 1.0e-9;
+    m_RootDepth = 0.0;
+    m_BuriedChord = 0.0;
+    double xb = 0.0;
+
     BeginXSecSurfs();
     for ( int p = 0; p < npanel; p++ )
     {
         XSecSurf* surf = NewXSecSurf();
         bool reflect = Reflected( phif[p] );
 
+        BareXSec* buried = nullptr;
+        if ( bury )
+        {
+            buried = StationSection( surf, 1, chord[0], sectyp );
+            dynamic_cast< Airfoil* >( buried->GetXSecCurve() )->m_Invert.Set( !reflect );
+            buried->SetContinuity( 0 );
+        }
+
+        BareXSec* rootxs = nullptr;
         for ( int i = 0; i < nspan; i++ )
         {
             BareXSec* xs = nullptr;
@@ -781,6 +946,28 @@ void MdcFinGeom::UpdateSurf()
             }
             xs->SetLoc( vec3d( span[i], xle[i] + 0.5 * chord[i], 0.0 ) );
             xs->SetContinuity( 0 );
+            if ( i == 0 )
+            {
+                rootxs = xs;
+            }
+        }
+
+        // The buried section was made with the root's chord; where it has another it is made again with that.
+        if ( buried )
+        {
+            if ( p == 0 )
+            {
+                BuryShape( rootxs, span, chord, xle, phif, m_RootDepth, m_BuriedChord, xb );
+            }
+            if ( m_BuriedChord != chord[0] )
+            {
+                int next = SetNextXSec( surf, 0 );
+                buried = StationSection( surf, 1, m_BuriedChord, sectyp );
+                dynamic_cast< Airfoil* >( buried->GetXSecCurve() )->m_Invert.Set( !reflect );
+                buried->SetContinuity( 0 );
+                SetNextXSec( surf, next );
+            }
+            buried->SetLoc( vec3d( span[0] - m_RootDepth, xb + 0.5 * m_BuriedChord, 0.0 ) );
         }
 
         // The skin is along x with its sections' chords along y and thickness along z.  It is turned to the
@@ -833,11 +1020,16 @@ void MdcFinGeom::UpdateFlaps( int nspan, const vector< double > & chord )
     {
         caps++;
     }
-    double patches = nspan - 1 + caps;
-    double first = 0.0;
+    int buried = 0;
+    if ( m_RootDepth > 0.0 )
+    {
+        buried = 1;
+    }
+    double patches = nspan - 1 + caps + buried;
+    double first = buried;
     if ( chord[0] > 1.0e-9 )
     {
-        first = 1.0;
+        first += 1.0;
     }
 
     vector< bool > wanted;

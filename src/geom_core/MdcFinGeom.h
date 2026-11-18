@@ -45,7 +45,12 @@ class Wedge;
 // converted to an airfoil file first.
 //
 // A panel at PHIF is rolled clockwise from the top looking forward, its root on the body RBODY from the axis, or
-// at SSPAN_1 where it is not zero, and then turned GAM further about its root.  A panel on the left, PHIF
+// at SSPAN_1 where it is not zero, and then turned GAM further about its root.  A root on the body is flat, as
+// DATCOM draws it, or with BuryRoot set is carried into the body, a section like the root's that far in, so it
+// crosses the body all around.  BuryRootType says how: straight in, the root's chord, or extrapolating the first
+// segment's planform, its leading edge and chord, linearly.  It goes as far as the body falls below the root's
+// plane where it passes under the buried section's sides at its leading and trailing edges, at any panel, and a
+// hundredth of the root's distance from the axis further.  A panel on the left, PHIF
 // between 180 and 360 degrees, or at the top, has its section reflected from the right's rather than rotated,
 // so that camber lifts the same way on both sides.
 //
@@ -57,6 +62,7 @@ class MdcFinGeom : public XSecSurfGeom
 {
 public:
     enum { HEX, NACA, ARC, USER };
+    enum { BURY_STRAIGHT, BURY_EXTRAPOLATE };
     enum { LER_SHARP, LER_KEEP_CREST, LER_KEEP_ANGLE };
     enum { NACA4, NACA4M, NACA5, NACA5M, NACA1, NACA6, NACAS1, NACAS2, NACAS3 };
 
@@ -93,6 +99,11 @@ public:
     // else the radius of a parent MDC_BOD under the root chord's middle at the panel's roll, else RBODY.
     double RootRadius( int panel ) const;
 
+    // How far each panel's root was carried into the body, as the last update built it, zero where it was not, and
+    // the buried section's chord.
+    double RootDepth() const                               { return m_RootDepth; }
+    double BuriedChord() const                             { return m_BuriedChord; }
+
     // Sizes the station and segment Parms to NSPAN and the panel Parms to NPANEL.
     void SizeParms();
 
@@ -102,6 +113,8 @@ public:
     IntParm m_NPanel;
     IntParm m_NSpan;
     Parm m_RBody;
+    BoolParm m_BuryRoot;
+    IntParm m_BuryRootType;
 
     IntParm m_Station;
     IntParm m_Panel;
@@ -172,18 +185,41 @@ protected:
     // Station k's section of chord c on surf.
     BareXSec* StationSection( XSecSurf* surf, int k, double c, int sectyp );
 
+    // The buried section's depth below the root, chord and leading edge, for the root section root and the
+    // stations' span, chord and xle: the section straight in, or the first segment extrapolated, as deep along the
+    // panel as the body falls below the root under the section's sides at its leading and trailing edges, at any
+    // panel's roll phif and dihedral, and a hundredth of the furthest root's distance from the axis further.  The
+    // section's thickness is the root's in proportion to its chord.
+    void BuryShape( BareXSec* root, const vector< double > & span, const vector< double > & chord,
+                    const vector< double > & xle, const vector< double > & phif, double & depth, double & cb,
+                    double & xb );
+
+    // How far into the body along a panel at the roll phi, turned gam further about its root rr from the axis, the
+    // sides of a section half either side of it meet the body at x along the fin set: the larger of the two, zero
+    // where both are in it already.  A side whose line misses the body counts where it comes nearest.  The body is a
+    // parent MDC_BOD, else round and rr in radius.
+    double RootFall( double x, double phi, double gam, double rr, double half );
+
+    // How far outside the body the point t along the panel's line into the body, from the root at ( ry, rz ) in
+    // the direction -( sy, sz ), and off across it, is at x.
+    double Outside( double x, double ry, double rz, double sy, double sz, double off, double t );
+
     // The panel angles: PHIF where it is given, else the panels evenly spaced from zero, written to the parms.
     void PanelAngles( int npanel, vector< double > & phif );
 
     // The flaps CFOC gives: a control surface, first named FLAP_k, on the trailing edge of each segment k whose two
     // stations' CFOC are not zero, unless CFOC_1 is 1 or more and the whole fin moves.  Its ends are the segment's
     // stations, which are the surface's U of a section's place among the surface's patches, with a patch for each
-    // end cap, and its chord fractions are the stations' CFOC.  The control surfaces are on every panel.  Those
+    // end cap and for a root carried into the body, and its chord fractions are the stations' CFOC.  The control surfaces are on every panel.  Those
     // not wanted are deleted.
     void UpdateFlaps( int nspan, const vector< double > & chord );
 
     // Each panel's root's distance from the axis.
     vector< double > m_RootRadiusVec;
+
+    // How far each panel's root is carried into the body, and the chord there.
+    double m_RootDepth;
+    double m_BuriedChord;
 
     // The ID of segment k's flap at index k - 1, or empty where it has none.
     vector< string > m_FlapIDVec;

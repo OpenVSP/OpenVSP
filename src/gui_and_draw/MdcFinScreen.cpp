@@ -46,6 +46,11 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
     m_SecTypChoice.UpdateItems();
     m_FinSetLayout.AddSlider( m_NPanelSlider, "NPANEL", 10, "%5.0f" );
     m_FinSetLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
+    m_FinSetLayout.AddButton( m_BuryRootToggle, "Bury Root" );
+    m_FinSetLayout.AddChoice( m_BuryRootTypeChoice, "Extension" );
+    m_BuryRootTypeChoice.AddItem( "Straight", MdcFinGeom::BURY_STRAIGHT );
+    m_BuryRootTypeChoice.AddItem( "Extrapolate", MdcFinGeom::BURY_EXTRAPOLATE );
+    m_BuryRootTypeChoice.UpdateItems();
 
     m_FinSetLayout.AddYGap();
     m_FinSetLayout.AddDividerBox( "Panels" );
@@ -156,6 +161,18 @@ bool MdcFinScreen::Update()
     m_SecTypChoice.Update( fin->m_SecTyp.GetID() );
     m_NPanelSlider.Update( fin->m_NPanel.GetID() );
     m_RBodySlider.Update( fin->m_RBody.GetID() );
+
+    // A root off the body, at SSPAN_1, is not buried.
+    m_BuryRootToggle.Update( fin->m_BuryRoot.GetID() );
+    m_BuryRootTypeChoice.Update( fin->m_BuryRootType.GetID() );
+    if ( fin->m_SSpan[0]->Get() > 1.0e-12 )
+    {
+        m_BuryRootToggle.Deactivate();
+    }
+    if ( fin->m_SSpan[0]->Get() > 1.0e-12 || !fin->m_BuryRoot() )
+    {
+        m_BuryRootTypeChoice.Deactivate();
+    }
 
     m_PhiFFlagToggle.Update( fin->m_PhiFFlag.GetID() );
     m_PanelSelector.Update( fin->m_Panel.GetID() );

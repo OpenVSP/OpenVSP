@@ -60,6 +60,24 @@ first panel's and is greyed.  Any other MDC_FIN puts every root *RBODY* from the
 DATCOM's namelist.  If *SSPAN_1*, the span station of the root, is not zero, it is the root's distance from the axis
 and the body is not used (see [Planform](#planform)).
 
+A root on the body is flat, as DATCOM draws it: it touches the body under the middle of its chord, and on a round body
+its sides stand a little clear of it.  With *Bury Root* on, the root is carried into the body, a section like the
+root's, so the panel crosses the body all around.  *Extension* says how.  *Straight* carries the root section straight
+in, unswept, with the root's chord.  *Extrapolate* carries on the first segment's planform: its leading and trailing
+edges go on in straight lines, so the section is wider in the body where the panel tapers and further forward where it
+is swept.  Either way the section is the root's, scaled to its chord.
+
+The buried section goes in along the panel, turned with its dihedral, as far as the body falls below the root where it
+passes under the section's sides at the section's leading and trailing edges, and a hundredth of the root's distance
+from the axis further.  The deepest panel decides, and every panel goes in as far.  On a nose or a boattail the end over
+the narrower body decides it, and on an elliptical body the body is followed round to the section's sides.  An MDC_FIN
+that is not a child of an MDC_BOD takes the body to be round, *RBODY* in radius.  The section goes no further in than
+the root's distance from the axis, so a panel with dihedral extrapolated forward on a nose can come out through the
+side of the body; use *Straight* there.  The part inside the body is not seen once the model is joined.  Leave *Bury
+Root* off to match DATCOM's geometry; turn it on for a model to be joined, meshed or analyzed in OpenVSP.  A root off
+the body, at *SSPAN_1*, or of zero chord is not buried.  *Bury Root* is greyed for a root off the body, and *Extension*
+unless *Bury Root* is on.
+
 Each panel is rolled around the body to its angle *PHIF*, measured clockwise from the top looking forward, so 90
 degrees is to the right (Figure 2).  Unless *PHIF given* is on, the panels are evenly spaced around the body, the first
 at the top, and the angles are set from *NPANEL*; four panels are the cross of top, right, bottom and left.  The PHIF
@@ -219,6 +237,10 @@ the fins need what a Wing has, such as a different section at each station.  A W
 and a zero root chord is not a Wing's, so a fin set with either is a little off.  The API call
 `ConvertMdcFinToWing` does the same.
 
+A buried root becomes the Wing's first segment, from the buried section to the root, swept along the line through
+their leading edges.  Its depth is the one at the time of conversion; the Wing does not follow later changes to the
+body.
+
 ## Parameters
 
 A fin set has one of each station input for each of its *NSPAN* stations, numbered from 1, as `SSPAN_1` to `SSPAN_n`; a
@@ -232,6 +254,8 @@ the other parms are in the *Design* group.
 | Fin Set  | SECTYP            | `SECTYP`                     | HEX                  | HEX, NACA, ARC or USER.                                     |
 | Fin Set  | NPANEL            | `NPANEL`                     | 4                    | Number of panels, 1 to 8.                                   |
 | Fin Set  | RBODY             | `RBODY`                      | 0.5                  | Distance of the middle of the root chord from the axis, where SSPAN_1 is zero: a parent MDC_BOD's radius, else an input.  Not an input of DATCOM's namelist. |
+| Fin Set  | Bury Root         | `BuryRoot`                   | off                  | Carry a root on the body into it, rather than leave it flat on the body as DATCOM draws it.  Not an input of DATCOM's namelist. |
+| Fin Set  | Extension         | `BuryRootType`               | Straight             | How a buried root goes into the body: Straight, the root section unswept, or Extrapolate, the first segment's planform carried on.  Not an input of DATCOM's namelist. |
 | Fin Set  | PHIF given        | `PHIFFlag`                   | off                  | Give the roll angles, rather than space the panels evenly from the top. |
 | Fin Set  | Panel             | `PANEL`                      | 1                    | Which panel the PHIF and GAM sliders show.                  |
 | Fin Set  | PHIF              | `PHIF_1` to `PHIF_n`         | 0, 90, 180, 270, ... | Roll angle of a panel, clockwise from the top looking forward. |
