@@ -462,6 +462,22 @@ void ManageGeomScreen::LoadBrowser()
     }
     m_GeomBrowser->redraw();
 
+    //==== Resync Selection if Active Geoms Changed Outside Browser ====//
+    vector < string > sel_geom_vec = m_SelVec;
+    sel_geom_vec.erase( remove( sel_geom_vec.begin(), sel_geom_vec.end(), m_VehiclePtr->GetID() ), sel_geom_vec.end() );
+    if ( sel_geom_vec != activeVec )
+    {
+        // The geom screens were shown for the old selection; show them again for this one.
+        if ( m_VehSelected )
+        {
+            SetNeedsShowHideGeoms();
+            m_ScreenMgr->SetUpdateFlag( true );
+        }
+        m_VehSelected = false;
+        m_SelVec = activeVec;
+        m_GeomBrowser->deselect_all( nullptr, 0 );
+    }
+
     //==== Select Vehicle if Previously Clicked ====//
     if ( m_VehSelected )
     {
