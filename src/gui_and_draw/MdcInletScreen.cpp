@@ -46,6 +46,7 @@ MdcInletScreen::MdcInletScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "M
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Diverter" );
     m_DesignLayout.AddSlider( m_HDivSlider, "HDIV", 10, "%7.3f" );
+    m_DesignLayout.AddButton( m_BuryRootToggle, "Bury Root" );
     m_DesignLayout.AddSlider( m_XDivSlider, "XDIV", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_LDivSlider, "LDIV", 10, "%7.3f" );
 
@@ -103,6 +104,13 @@ bool MdcInletScreen::Update()
     m_RampSlider.Update( inlet->m_Ramp.GetID() );
 
     m_HDivSlider.Update( inlet->m_HDiv.GetID() );
+
+    // A semi-submerged inlet is in the body already.
+    m_BuryRootToggle.Update( inlet->m_BuryRoot.GetID() );
+    if ( inlet->m_HDiv() < 0.0 )
+    {
+        m_BuryRootToggle.Deactivate();
+    }
     m_XDivSlider.Update( inlet->m_XDiv.GetID() );
     m_LDivSlider.Update( inlet->m_LDiv.GetID() );
 

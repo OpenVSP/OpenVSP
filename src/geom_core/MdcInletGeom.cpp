@@ -36,6 +36,9 @@ MdcInletGeom::MdcInletGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_InType.SetDescript( "Type of inlet: 2DTOP, 2DSIDE or AXI" );
     m_RBody.Init( "RBODY", "Design", this, 0.5, 1.0e-6, 1.0e12 );
     m_RBody.SetDescript( "Body radius under the inlet, from the axis to the mold line (not an INLET input)" );
+    m_BuryRoot.Init( "BuryRoot", "Design", this, false, false, true );
+    m_BuryRoot.SetDescript( "Flag to sink a conformal inlet or the diverter into the body, else each touches the "
+                            "body as DATCOM draws it (not an INLET input)" );
     m_XDiv.Init( "XDIV", "Design", this, 0.5, 0.0, 1.0e12 );
     m_XDiv.SetDescript( "Longitudinal distance from inlet leading edge to diverter leading edge" );
     m_HDiv.Init( "HDIV", "Design", this, 0.1, -1.0e12, 1.0e12 );
@@ -260,6 +263,17 @@ void MdcInletGeom::BuildSecs( int intype, double r, double hd )
     }
 }
 
+void MdcInletGeom::LowerInnerFace( double r, double phi )
+{
+    for ( int i = 0; i < ( int )m_Secs.size(); i++ )
+    {
+        Sec & s = m_Secs[i];
+        double half = std::max( fabs( s.ya ), fabs( s.yb ) );
+        double z = std::min( Under( r, half ), r - MdcBodGeom::FallUnder( this, s.x, phi, r, half ) );
+        s.za = std::min( s.za, z - 0.01 * r );
+    }
+}
+
 MdcInletGeom::Sec MdcInletGeom::Shared( double x, double tol )
 {
     double ya = -1.0e30;
@@ -331,7 +345,7 @@ void MdcInletGeom::InletSurf( int intype, double tol )
     AppendPointXSec( surf, vec3d( e.x, 0.5 * ( e.ya + e.yb ), 0.5 * ( e.za + e.zb ) ) );
 }
 
-bool MdcInletGeom::DiverterSurf( double r, double hd, double tol )
+bool MdcInletGeom::DiverterSurf( double r, double phi, double hd, double tol )
 {
     double l = m_Secs.back().x - m_Secs[0].x;
     double xd = m_Secs[0].x + m_XDiv();
@@ -363,7 +377,7 @@ bool MdcInletGeom::DiverterSurf( double r, double hd, double tol )
     int n = ( int )xs.size();
     vector< double > wd;
     vector< double > zt;
-    double ymax = 0.0;
+    vector< double > zb;
     for ( int i = 0; i < n; i++ )
     {
         Sec s = Shared( xs[i], tol );
@@ -371,16 +385,20 @@ bool MdcInletGeom::DiverterSurf( double r, double hd, double tol )
         double w = std::min( wend * ( xs[i] - xd ) / ( xe - xd ), lim );
         wd.push_back( w );
         zt.push_back( s.za );
-        ymax = std::max( ymax, fabs( yc ) + 0.5 * w );
+        double z = Under( r, fabs( yc ) + 0.5 * w );
+        if ( m_BuryRoot() )
+        {
+            z = std::min( z, r - MdcBodGeom::FallUnder( this, xs[i], phi, r, fabs( yc ) + 0.5 * w ) ) - 0.1 * hd;
+        }
+        zb.push_back( z );
     }
-    double zbot = Under( r, ymax ) - 0.1 * hd;
 
     XSecSurf* surf = NewXSecSurf();
     for ( int i = 0; i < n; i++ )
     {
-        AddBoxSection( surf, xs[i], yc - 0.5 * wd[i], yc + 0.5 * wd[i], zbot, zt[i] );
+        AddBoxSection( surf, xs[i], yc - 0.5 * wd[i], yc + 0.5 * wd[i], zb[i], zt[i] );
     }
-    AppendPointXSec( surf, vec3d( xe, yc, 0.5 * ( zbot + zt[n - 1] ) ) );
+    AppendPointXSec( surf, vec3d( xe, yc, 0.5 * ( zb[n - 1] + zt[n - 1] ) ) );
     return true;
 }
 
@@ -415,8 +433,9 @@ void MdcInletGeom::UpdateSurf()
         m_RBody.Activate();
     }
 
-    // One inlet, rolled to each place, where they all sit on the same radius; else one at each place.
-    bool same = true;
+    // One inlet, rolled to each place, where they all sit on the same radius; else one at each place.  A buried
+    // diverter on a body reaches as far as the body under it falls, which can differ from place to place.
+    bool same = !( m_BuryRoot() && attached );
     for ( int k = 1; k < nin; k++ )
     {
         same = same && fabs( radii[k] - radii[0] ) <= Tol( radii[0] );
@@ -432,7 +451,7 @@ void MdcInletGeom::UpdateSurf()
     vector< int > nsurf;
     for ( int k = 0; k < nbuild; k++ )
     {
-        nsurf.push_back( AddSurfs( intype, radii[k] ) );
+        nsurf.push_back( AddSurfs( intype, radii[k], m_Phi[k]->Get() ) );
     }
 
     // Rows around every surface at every corner of its sections.
@@ -468,19 +487,23 @@ void MdcInletGeom::UpdateSurf()
     }
 }
 
-int MdcInletGeom::AddSurfs( int intype, double r )
+int MdcInletGeom::AddSurfs( int intype, double r, double phi )
 {
     double hd = m_HDiv();
     double sink = hd;
-    if ( hd == 0.0 )
+    if ( hd == 0.0 && m_BuryRoot() && intype == AXI )
     {
         sink = -0.01 * r;
     }
     double tol = Tol( r );
 
     BuildSecs( intype, r, sink );
+    if ( hd == 0.0 && m_BuryRoot() && intype != AXI )
+    {
+        LowerInnerFace( r, phi );
+    }
     InletSurf( intype, tol );
-    if ( hd > 0.0 && DiverterSurf( r, hd, tol ) )
+    if ( hd > 0.0 && DiverterSurf( r, phi, hd, tol ) )
     {
         return 2;
     }

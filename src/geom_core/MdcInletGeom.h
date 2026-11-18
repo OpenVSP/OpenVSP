@@ -31,8 +31,10 @@
 // the top of its extent down, centered on the axis at its tallest, and W out from the body.  An AXI inlet is a
 // body of revolution of diameter Wi, with its axis W3 / 2 out from the line the cowl's top touches, and its tip
 // W1 across, a point where W1 is zero.  The inner face is HDIV from the mold line: for a 2D inlet a plane, for
-// an AXI inlet the line the cowl's top touches.  Where HDIV is zero the inlet is sunk a hundredth of RBODY into
-// the body, so it crosses the body rather than touching it along a line.
+// an AXI inlet the line the cowl's top touches.  Where HDIV is zero the inlet touches the body along its top line,
+// as DATCOM draws it.  With BuryRoot set a 2D inlet's inner face is lowered at each section to a hundredth of RBODY
+// below where the body passes under its sides, the rest of the inlet staying where it is, and an AXI inlet is sunk
+// a hundredth of RBODY into the body, so each crosses the body rather than touching it along a line.
 //
 // An open inlet has a ramp in front of the cowl lip: a wedge, or for AXI a cone, from the leading edge to
 // station 2 at the angle RAMP, flat across the lip's face between it and the cowl.  A covered inlet is plugged
@@ -42,7 +44,9 @@
 //
 // Where HDIV is greater than zero a diverter fills the gap between the body and the inlet: a plate XDIV from
 // the leading edge, LDIV long, tapering in plan from nothing to 95 percent of the inlet's extent across the
-// body at its aft end, standing from below the mold line to halfway up the inlet.  It is a little narrower than
+// body at its aft end, each section standing from where the mold line passes under its sides, as DATCOM draws it,
+// or with BuryRoot set a tenth of HDIV below that or where the body passes under them at the section, at the
+// inlet's roll, whichever is lower, to halfway up the inlet.  It is a little narrower than
 // the inlet and ends short of its aft face, so that no faces meet exactly.  It ends no further aft than the
 // inlet does.
 class MdcInletGeom : public XSecSurfGeom
@@ -74,6 +78,7 @@ public:
     IntParm m_Preset;
     IntParm m_InType;
     Parm m_RBody;
+    BoolParm m_BuryRoot;
     Parm m_XDiv;
     Parm m_HDiv;
     Parm m_LDiv;
@@ -129,8 +134,13 @@ protected:
     // Fills the sections from the namelist's stations.  The inner line is hd out from the mold line r.
     void BuildSecs( int intype, double r, double hd );
 
+    // Lowers a 2D inlet's inner face, on the mold line r, at each section to a hundredth of r below where the body
+    // passes under the section's sides at the roll phi, or under them on a round body r in radius if that is lower.
+    // The rest of the inlet stays where it is.
+    void LowerInnerFace( double r, double phi );
+
     // Adds an inlet's surfaces on a body of radius r, at its top, and answers how many.
-    int AddSurfs( int intype, double r );
+    int AddSurfs( int intype, double r, double phi );
 
     // The extents at x that every section there shares: where two sections stand at x the narrower across and the
     // lower middle up.  Its za and zb are both that middle height.
@@ -146,7 +156,7 @@ protected:
     // The diverter as one surface, a plate from the apex at its leading edge to its aft end, its width at each
     // section where the inlet changes or the diverter ends as the narrower of the linear taper and DIV_FIT of the
     // inlet's extent.  Answers whether there is one.
-    bool DiverterSurf( double r, double hd, double tol );
+    bool DiverterSurf( double r, double phi, double hd, double tol );
 };
 
 #endif // !defined(VSP_MDC_INLET_GEOM__INCLUDED_)

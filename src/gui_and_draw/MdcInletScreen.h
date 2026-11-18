@@ -43,6 +43,7 @@ protected:
     SliderAdjRangeInput m_RampSlider;
 
     SliderAdjRangeInput m_HDivSlider;
+    ToggleButton m_BuryRootToggle;
     SliderAdjRangeInput m_XDivSlider;
     SliderAdjRangeInput m_LDivSlider;
 

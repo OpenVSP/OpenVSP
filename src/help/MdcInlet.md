@@ -114,19 +114,27 @@ unless *W(1)* is small.
 *HDIV* is the height of the inner face above the mold line, and sets how the inlet meets the body (Figure 4).
 
 - With *HDIV* above zero, the inlet stands off the body, and a diverter fills the gap between them.
-- With *HDIV* zero, the inlet is conformal.  It is sunk a hundredth of *RBODY* into the body, so that it crosses the
-  body rather than touching it along a line.  There is no diverter.
+- With *HDIV* zero, the inlet is conformal.  Its inner face is on the body's top line, touching the body along it, as
+  DATCOM draws it.  With *Bury Root* on, a 2DTOP or 2DSIDE inlet's inner face is lowered at each section to a
+  hundredth of *RBODY* below where the body passes under its sides, so that it crosses the body rather than touching
+  it along a line; the rest of the inlet stays where it is.  An AXI inlet, which is round, is sunk a hundredth of
+  *RBODY* into the body as a whole.  There is no diverter.
 - With *HDIV* below zero, the inlet is semi-submerged, its inner face that far below the mold line.  There is no
-  diverter.
+  diverter, and *Bury Root* is greyed, since the inlet is in the body already.
 
 ![Figure 4. Inner face](images/MdcInlet_hdiv.png "Figure 4. Inner face")
 
 *Figure 4. Sections of an inlet in its midbody, with a diverter, conformal, and semi-submerged.*
 
-A diverter is a plate, standing from just below the mold line up to halfway up the inlet.  It begins *XDIV* behind the
-leading edge, as a point, and its width grows linearly to its aft end, *LDIV* further, where it is 95 percent of the
-inlet's width across the body.  It is nowhere wider than that, so it is a little narrower than the inlet, and it ends
-no further aft than the inlet does (Figure 5).  Its *XDIV* and *LDIV* are greyed where there is no diverter.
+A diverter is a plate, standing from the mold line up to halfway up the inlet.  Its bottom is flat across, and at each
+section its edges are on the mold line as the inlet takes it, a circle of the radius under its leading edge, as DATCOM
+draws it, so its middle is a little below the mold line.  With *Bury Root* on, each section's bottom goes a tenth of
+*HDIV* below the lower of that and where the body passes under its edges there, so that it crosses the body all around
+on a nose, a boattail or an elliptical body as well.  Leave *Bury Root* off to match DATCOM's geometry; turn it on for a
+model to be joined, meshed or analyzed in OpenVSP.  It begins *XDIV* behind the leading edge, as a point, and its width
+grows linearly to its aft end, *LDIV* further, where it is 95 percent of the inlet's width across the body.  It is
+nowhere wider than that, so it is a little narrower than the inlet, and it ends no further aft than the inlet does
+(Figure 5).  Its *XDIV* and *LDIV* are greyed where there is no diverter.
 
 ![Figure 5. Diverter](images/MdcInlet_diverter.png "Figure 5. Diverter")
 
@@ -161,6 +169,7 @@ inlets, made and deleted as *NIN* changes, at the next update.
 | COVER     | `COVER`                  | off                     | Plug the inlet flush with its face.                                    |
 | RAMP      | `RAMP`                   | 15                      | Angle of the ramp, degrees, 0.1 to 89.                                 |
 | HDIV      | `HDIV`                   | 0.1                     | Height of the inner face above the mold line; zero for conformal, negative for semi-submerged. |
+| Bury Root | `BuryRoot`               | off                     | Carry a conformal inlet's inner face, or the diverter's bottom, into the body, rather than touch it as DATCOM draws it.  Not an input of DATCOM's namelist. |
 | XDIV      | `XDIV`                   | 0.5                     | Distance from the leading edge to the start of the diverter.           |
 | LDIV      | `LDIV`                   | 2                       | Length of the diverter.                                                |
 | NIN       | `NIN`                    | 1                       | Number of inlets, 1 to 20.                                             |

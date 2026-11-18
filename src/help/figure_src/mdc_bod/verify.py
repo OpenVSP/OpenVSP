@@ -169,7 +169,27 @@ def inlet():
     bf.renew()
     g = inf.inlet( HDIV = 0.0 )
     lo, hi = extent( g )
-    near( lo[ 2 ], 0.5 - 0.005, 1e-9, "A conformal inlet is sunk a hundredth of RBODY" )
+    near( lo[ 2 ], 0.5, 1e-9, "A conformal inlet stands on the body's top line" )
+    vsp.SetParmVal( g, "BuryRoot", "Design", 1.0 )
+    vsp.Update()
+    blo, bhi = extent( g )
+    near( blo[ 2 ], np.sqrt( 0.25 - hi[ 1 ] ** 2 ) - 0.005, 1e-9,
+          "A buried conformal inlet's inner face is a hundredth of RBODY under where the body passes under its sides" )
+    near( bhi[ 2 ], hi[ 2 ], 1e-9, "Burying a conformal inlet leaves the rest of it where it is" )
+    # A diverter's bottom corners are on the mold line at its sections, straight between, and buried a tenth of
+    # HDIV lower; rows on its flat aft face are left out.
+    bf.renew()
+    g = inf.inlet( HDIV = 0.1 )
+    P = bf.grid( g, 1, nu = 201, nw = 161 )
+    rows = [ R for R in P if R[ :, 0 ].max() < P[ :, :, 0 ].max() - 1e-9 ]
+    corner = [ np.hypot( np.abs( R[ :, 1 ] ).max(), R[ :, 2 ].min() ) for R in rows ]
+    near( max( corner ), 0.5, 1e-3, "A diverter's bottom corners are on the mold line" )
+    check( max( corner ) <= 0.5 + 1e-9, "A diverter's bottom corners are nowhere outside the mold line" )
+    vsp.SetParmVal( g, "BuryRoot", "Design", 1.0 )
+    vsp.Update()
+    B = bf.grid( g, 1, nu = 201, nw = 161 )
+    drop = [ R[ :, 2 ].min() - S[ :, 2 ].min() for R, S in zip( B, P ) if R[ :, 0 ].max() < P[ :, :, 0 ].max() - 1e-9 ]
+    near( max( abs( d + 0.01 ) for d in drop ), 0.0, 1e-9, "A buried diverter's bottom is a tenth of HDIV lower" )
     # A ramp steeper than the plug is the plug.
     for t in ( 1, 3 ):
         bf.renew()

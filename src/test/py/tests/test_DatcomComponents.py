@@ -387,6 +387,73 @@ def testInletHasADiverterOnlyWhereHdivIsAboveZero():
     assert vsp.GetNumMainSurfs( gid ) == 1
 
 
+def testConformalInletTouchesTheTopLineUnlessItsRootIsBuried():
+    gid = new( "MDC_INLET", RBODY=1.0, HDIV=0.0 )
+    zlo, zhi = extent( gid, 2 )
+    assert zlo == pytest.approx( 1.0, abs=1e-9 )
+
+    # Buried, its inner face is lowered to a hundredth of RBODY below where the body passes under its sides, and
+    # the rest of it stays where it is.
+    half = vsp.GetGeomBBoxMax( gid, 0 ).y()
+    put( gid, BuryRoot=1 )
+    blo, bhi = extent( gid, 2 )
+    assert blo == pytest.approx( math.sqrt( 1.0 - half ** 2 ) - 0.01, abs=1e-9 )
+    assert bhi == pytest.approx( zhi, abs=1e-9 )
+    assert vsp.GetGeomBBoxMax( gid, 0 ).y() == pytest.approx( half, abs=1e-9 )
+
+
+def testConformalAxiInletIsSunkWhenItsRootIsBuried():
+    gid = new( "MDC_INLET", RBODY=1.0, HDIV=0.0, INTYPE=3 )
+    zlo, zhi = extent( gid, 2 )
+    put( gid, BuryRoot=1 )
+    blo, bhi = extent( gid, 2 )
+    assert blo == pytest.approx( zlo - 0.01, abs=1e-9 )
+    assert bhi == pytest.approx( zhi - 0.01, abs=1e-9 )
+
+
+def diverter_rows( gid ):
+    """Each row across the diverter of a 2DTOP inlet at the top, ahead of its flat aft face: its half width and its
+    bottom."""
+    xend = vsp.GetGeomBBoxMax( gid, 1 ).x()
+    rows = []
+    for i in range( 1, 200 ):
+        ring = [ vsp.CompPnt01( gid, 1, i / 200.0, j / 400.0 ) for j in range( 401 ) ]
+        if max( p.x() for p in ring ) < xend - 1e-9:
+            rows.append( ( max( abs( p.y() ) for p in ring ), min( p.z() for p in ring ) ) )
+    return rows
+
+
+def testDiverterCornersAreOnTheBodyUnlessItsRootIsBuried():
+    gid = new( "MDC_INLET", RBODY=1.0, HDIV=0.1 )
+    rows = diverter_rows( gid )
+
+    # Its sections' bottom corners are on the body, straight between, so never outside it.
+    corner = [ math.hypot( hw, zb ) for hw, zb in rows ]
+    assert max( corner ) == pytest.approx( 1.0, abs=1e-5 )
+    assert max( corner ) <= 1.0 + 1e-9
+
+    # Buried, every row's bottom is a tenth of HDIV lower and its width is the same.
+    put( gid, BuryRoot=1 )
+    for ( hw, zb ), ( bw, bz ) in zip( rows, diverter_rows( gid ) ):
+        assert bw == pytest.approx( hw, abs=1e-9 )
+        assert bz == pytest.approx( zb - 0.01, abs=1e-9 )
+
+
+def testBuriedDiverterIsInsideAnEllipticBody():
+    # On the side of a body 2 wide and 1 high, which curves more tightly there than a circle of its radius.
+    body = new( "MDC_BOD", NAMELIST=1, WNOSE=2.0, ENOSE=0.5, CENTRDefault=1, ECENTR=0.5, LNOSE=2.0, LCENTR=8.0 )
+    gid = child( "MDC_INLET", body, 3.0, PHIFlag=1, PHI_1=90.0, HDIV=0.05, BuryRoot=1 )
+    xend = vsp.GetGeomBBoxMax( gid, 1 ).x()
+    for i in range( 1, 100 ):
+        ring = [ vsp.CompPnt01( gid, 1, i / 100.0, j / 200.0 ) for j in range( 201 ) ]
+        if max( p.x() for p in ring ) >= xend - 1e-9:
+            continue
+        ylo = min( p.y() for p in ring )
+        for p in ring:
+            if p.y() < ylo + 1e-9:
+                assert p.y() ** 2 + ( p.z() / 0.5 ) ** 2 < 1.0
+
+
 def testInletSetHasNInCopiesSpacedEvenly():
     gid = new( "MDC_INLET", NIN=3, HDIV=0.0 )
     assert vsp.GetNumMainSurfs( gid ) == 3

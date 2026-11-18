@@ -204,18 +204,33 @@ and sets how the inlet meets the body (Figure 4).</p>
 <ul>
 <li>With <em>HDIV</em> above zero, the inlet stands off the body, and a
 diverter fills the gap between them.</li>
-<li>With <em>HDIV</em> zero, the inlet is conformal. It is sunk a
-hundredth of <em>RBODY</em> into the body, so that it crosses the body
-rather than touching it along a line. There is no diverter.</li>
+<li>With <em>HDIV</em> zero, the inlet is conformal. Its inner face is
+on the body's top line, touching the body along it, as DATCOM draws it.
+With <em>Bury Root</em> on, a 2DTOP or 2DSIDE inlet's inner face is
+lowered at each section to a hundredth of <em>RBODY</em> below where the
+body passes under its sides, so that it crosses the body rather than
+touching it along a line; the rest of the inlet stays where it is. An
+AXI inlet, which is round, is sunk a hundredth of <em>RBODY</em> into
+the body as a whole. There is no diverter.</li>
 <li>With <em>HDIV</em> below zero, the inlet is semi-submerged, its
-inner face that far below the mold line. There is no diverter.</li>
+inner face that far below the mold line. There is no diverter, and
+<em>Bury Root</em> is greyed, since the inlet is in the body
+already.</li>
 </ul>
 <p><img src="images/MdcInlet_hdiv.png" title="Figure 4. Inner face"
 alt="Figure 4. Inner face" /></p>
 <p><em>Figure 4. Sections of an inlet in its midbody, with a diverter,
 conformal, and semi-submerged.</em></p>
-<p>A diverter is a plate, standing from just below the mold line up to
-halfway up the inlet. It begins <em>XDIV</em> behind the leading edge,
+<p>A diverter is a plate, standing from the mold line up to halfway up
+the inlet. Its bottom is flat across, and at each section its edges are
+on the mold line as the inlet takes it, a circle of the radius under its
+leading edge, as DATCOM draws it, so its middle is a little below the
+mold line. With <em>Bury Root</em> on, each section's bottom goes a
+tenth of <em>HDIV</em> below the lower of that and where the body passes
+under its edges there, so that it crosses the body all around on a nose,
+a boattail or an elliptical body as well. Leave <em>Bury Root</em> off
+to match DATCOM's geometry; turn it on for a model to be joined, meshed
+or analyzed in OpenVSP. It begins <em>XDIV</em> behind the leading edge,
 as a point, and its width grows linearly to its aft end, <em>LDIV</em>
 further, where it is 95 percent of the inlet's width across the body. It
 is nowhere wider than that, so it is a little narrower than the inlet,
@@ -306,6 +321,14 @@ parent MDC_BOD's, else an input. Not an input of DATCOM's namelist.</td>
 <td style="text-align: left;">0.1</td>
 <td style="text-align: left;">Height of the inner face above the mold
 line; zero for conformal, negative for semi-submerged.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Bury Root</td>
+<td style="text-align: left;"><code>BuryRoot</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Carry a conformal inlet's inner face, or
+the diverter's bottom, into the body, rather than touch it as DATCOM
+draws it. Not an input of DATCOM's namelist.</td>
 </tr>
 <tr>
 <td style="text-align: left;">XDIV</td>
