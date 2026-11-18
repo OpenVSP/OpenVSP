@@ -1797,6 +1797,7 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
     }
 
     vector < vector < int > > connlist;
+    vector < vec3d > newpts;
 
     // Triangulate_TRI( solutionPolyVec3d, connlist, addpts );
     //
@@ -1811,7 +1812,7 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
     if ( connlist.empty() )
     {
         printf( "Delabella failed in Triangulate, trying Triangle.\n" );
-        Triangulate_TRI( solutionPolyVec3d, connlist, addpts );
+        Triangulate_TRI( solutionPolyVec3d, connlist, addpts, newpts );
     }
 
     int ntri = connlist.size();
@@ -1835,6 +1836,14 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
         {
             TNode *n = new TNode();
             n->m_Pnt = addpts[ i ];
+            tMesh->m_NVec.push_back( n );
+        }
+
+        // Points the triangulator added, numbered after the given points
+        for ( int i = 0; i < newpts.size(); i++ )
+        {
+            TNode *n = new TNode();
+            n->m_Pnt = newpts[ i ];
             tMesh->m_NVec.push_back( n );
         }
 
@@ -1868,7 +1877,7 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
     return tmv;
 }
 
-void ProjectionMgrSingleton::Triangulate_TRI( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > &addpts )
+void ProjectionMgrSingleton::Triangulate_TRI( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > &addpts, vector < vec3d > &newpts )
 {
     int nseg = 0;
     for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
@@ -1978,6 +1987,32 @@ void ProjectionMgrSingleton::Triangulate_TRI( const vector < vector < vec3d > > 
             connlist[i].push_back( out.trianglelist[ptcnt + 2] );
 
             ptcnt += 3;
+        }
+
+        // Triangle adds a point where segments cross; it takes the x every given point shares.
+        newpts.clear();
+        if ( out.numberofpoints > npt )
+        {
+            // x of the first point given to Triangle
+            double x = 0;
+            bool found = false;
+            for ( int i = 0; i < solutionPolyVec3d.size() && !found; i++ )
+            {
+                if ( solutionPolyVec3d[ i ].size() > 1 )
+                {
+                    x = solutionPolyVec3d[ i ][ 0 ].x();
+                    found = true;
+                }
+            }
+            if ( !found && nadd > 0 )
+            {
+                x = addpts[ 0 ].x();
+            }
+
+            for ( int i = npt; i < out.numberofpoints; i++ )
+            {
+                newpts.push_back( vec3d( x, out.pointlist[ 2 * i ], out.pointlist[ 2 * i + 1 ] ) );
+            }
         }
     }
 
