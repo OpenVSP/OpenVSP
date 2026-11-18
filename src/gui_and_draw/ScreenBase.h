@@ -101,6 +101,10 @@ public:
     // Leaves room of this width at the right of the title row, for a control put there from outside
     virtual void SetTitleReserve( int w )                          {}
 
+    // Places the screen, if it is not shown, beside another one: its upper-right corner against the other's upper-left,
+    // in either window mode
+    void PlaceBeside( VspScreen* other );
+
     VspCaptiveFrame* GetCaptiveFrame()
     {
         return m_CaptiveFrame;

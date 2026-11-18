@@ -1598,7 +1598,7 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ShowXSecButton )
     {
-        m_ScreenMgr->ShowScreen( vsp::VSP_XSEC_SCREEN );
+        m_ScreenMgr->ShowScreenBeside( vsp::VSP_XSEC_SCREEN, this );
     }
     else if ( gui_device == &m_ConvertCEDITButton )
     {

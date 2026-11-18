@@ -1224,7 +1224,7 @@ void ScreenMgr::FirstShow()
     VSP_Window::SetGeomScreen( screen );
 
     // Set manage geom screen to show up to the main screen as the default.
-    int x,y,w,w1,h1,h2,h3;
+    int x,y,w,w1,h1,h3;
     x = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->x();
     y = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->y();
     w = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->w();
@@ -1232,9 +1232,6 @@ void ScreenMgr::FirstShow()
 
     m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
     m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
-
-    h2 = m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->h();
-    m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->position( x + w + 5, y + h1 - h2 );
 
     h3 = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->h();
     w1 = m_ScreenVec[vsp::VSP_VEH_NOTES_SCREEN]->GetFlWindow()->w();
@@ -1309,6 +1306,15 @@ void ScreenMgr::UpdateAllScreens()
 }
 
 //==== Show Screen ====//
+void ScreenMgr::ShowScreenBeside( int id, VspScreen* other )
+{
+    if ( id >= 0 && id < vsp::VSP_NUM_SCREENS && m_ScreenVec[id] && !IsGUIScreenDisabled( id ) )
+    {
+        m_ScreenVec[id]->PlaceBeside( other );
+    }
+    ShowScreen( id );
+}
+
 void ScreenMgr::ShowScreen( int id )
 {
     if ( id >= 0 && id < vsp::VSP_NUM_SCREENS )

@@ -179,6 +179,34 @@ void VspScreen::SetCaptive( VspCaptiveLayer* layer )
     }
 }
 
+//==== Place Beside Another Screen ====//
+void VspScreen::PlaceBeside( VspScreen* other )
+{
+    if ( !m_FLTK_Window || !other || !other->GetFlWindow() || m_SidePanel || IsShown() )
+    {
+        return;
+    }
+
+    VspCaptiveFrame* other_frame = other->GetCaptiveFrame();
+    if ( m_CaptiveFrame && other_frame )
+    {
+        m_CaptiveFrame->position( other_frame->x() - m_CaptiveFrame->w(), other_frame->y() );
+        m_CaptiveFrame->Clamp();
+    }
+    else if ( !m_CaptiveFrame && !other_frame )
+    {
+        // Room is left for both windows' borders, and the window is kept on the other's display
+        Fl_Window* ow = other->GetFlWindow();
+        int side = ( ow->decorated_w() - ow->w() ) / 2;
+        int x = ow->x() - 2 * side - m_FLTK_Window->w();
+
+        int sx, sy, sw, sh;
+        Fl::screen_work_area( sx, sy, sw, sh, ow->screen_num() );
+        x = std::max( x, sx + side );
+        m_FLTK_Window->position( x, ow->y() );
+    }
+}
+
 //==== Keep In The Side Panel ====//
 void VspScreen::SetSidePanel( VspSidePanel* panel )
 {
@@ -3406,7 +3434,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SSXSCShowXSecButton )
     {
-        m_ScreenMgr->ShowScreen( vsp::VSP_XSEC_SCREEN );
+        m_ScreenMgr->ShowScreenBeside( vsp::VSP_XSEC_SCREEN, this );
     }
     else if ( device == &m_SSXSCConvertCEDITButton )
     {
@@ -5306,7 +5334,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if (gui_device == &m_ShowXSecButton)
     {
-        m_ScreenMgr->ShowScreen( vsp::VSP_XSEC_SCREEN );
+        m_ScreenMgr->ShowScreenBeside( vsp::VSP_XSEC_SCREEN, this );
     }
     else if (gui_device == &m_ConvertCEDITButton)
     {

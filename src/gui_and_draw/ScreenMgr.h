@@ -38,6 +38,8 @@ public:
     virtual void FirstShow();
 
     virtual void ShowScreen( int id );
+    // Shows the screen, opening it beside another one
+    void ShowScreenBeside( int id, VspScreen* other );
     virtual void HideScreen( int id );
     virtual Vehicle* GetVehiclePtr()
     {

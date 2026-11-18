@@ -3331,7 +3331,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_FeaSSXSCShowXSecButton )
         {
-            m_ScreenMgr->ShowScreen( vsp::VSP_XSEC_SCREEN );
+            m_ScreenMgr->ShowScreenBeside( vsp::VSP_XSEC_SCREEN, this );
         }
         else if ( device == &m_FeaSSXSCConvertCEDITButton )
         {
