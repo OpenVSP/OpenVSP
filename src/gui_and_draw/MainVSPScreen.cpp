@@ -102,42 +102,19 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_FLTK_Window->resizable( m_FLTK_Window );
     VspScreen::SetFlWindow( m_FLTK_Window );
 
-    // Lay the windows out on the work area of the screen under the mouse, which leaves out the taskbar
-    // or menu bar.  Before it is shown, a window's coordinates are taken in the scale of its assigned
-    // screen, so the main window is assigned to this one.
+    // On the screen under the mouse.  Before it is shown, a window's coordinates are taken in the scale of its
+    // assigned screen, so the main window is assigned to this one.  It fills the work area once shown, when its
+    // title bar and borders are known.
     int mx, my;
     Fl::get_mouse( mx, my );
     int screen = Fl::screen_num( mx, my );
     Fl::screen_work_area( x, y, w, h, screen );
     m_FLTK_Window->screen_num( screen );
-
-    //==== Determine remaining screen width after geombrowser + geomscreen usage ====//
-    int geom_group_width = 0;
-    ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( mgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
-    if ( mgs )
-    {
-        vector< VspScreen* > geomscreen_vec = mgs->GetGeomScreenVec();
-        for ( int i = 0; i < geomscreen_vec.size(); i++ )
-        {
-            geom_group_width = std::max( geom_group_width, geomscreen_vec[i]->GetFlWindow()->w() );
-        }
-        // Add ManageGeomScreen's width
-        geom_group_width += mgs->GetFlWindow()->w();
-    }
-
-    //==== Figure out which is smaller, remaining width or the height ====//
-    // Window frames lie outside these client sizes.  Leave a frame's width, enough at 200% scaling on
-    // Windows, at each end of the row of windows, and the 5 between the main window and the browser,
-    // so no frame reaches past the screen and the windows are not moved to fit another screen.
-    int frame = 16;
-    int w_allow = w - geom_group_width - 2 * frame - 5;
-    int h_allow = 0.9 * h;
-
-    m_FLTK_Window->resize( x + frame, y + 30, w_allow, h_allow );
+    m_FLTK_Window->resize( x, y, w, h );
 
     m_FLTK_Window->callback( staticCloseCB, this );
 
-    Fl_Group * grp = new Fl_Group( 0, 0, w_allow, h_allow);
+    Fl_Group * grp = new Fl_Group( 0, 0, w, h );
     m_FLTK_Window->add( grp );
     m_GenLayout.SetGroupAndScreen( grp, this );
 
@@ -847,6 +824,25 @@ void MainVSPScreen::Show()
     {
         m_GlWin->show();
     }
+}
+
+// The window's title bar and borders, as the system draws them: the width of the border at each side and below, and
+// the height above
+void MainVSPScreen::GetDecoration( int &side, int &top )
+{
+    side = ( m_FLTK_Window->decorated_w() - m_FLTK_Window->w() ) / 2;
+    top = m_FLTK_Window->decorated_h() - m_FLTK_Window->h() - side;
+}
+
+// Sizes the shown window to the work area of its screen, its title bar and borders inside it, with a margin all around
+void MainVSPScreen::FillWorkArea()
+{
+    int x, y, w, h;
+    Fl::screen_work_area( x, y, w, h, m_FLTK_Window->screen_num() );
+    int side, top;
+    GetDecoration( side, top );
+    int margin = 10;
+    m_FLTK_Window->resize( x + margin + side, y + margin + top, w - 2 * margin - 2 * side, h - 2 * margin - top - side );
 }
 
 void MainVSPScreen::Hide()

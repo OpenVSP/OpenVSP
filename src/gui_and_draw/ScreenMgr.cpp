@@ -1210,7 +1210,9 @@ void ScreenMgr::Init()
 
 void ScreenMgr::FirstShow()
 {
-    m_ScreenVec[vsp::VSP_MAIN_SCREEN]->Show();
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenVec[vsp::VSP_MAIN_SCREEN] );
+    main->Show();
+    main->FillWorkArea();
 
     // Windows not yet shown take their coordinates in the scale of the main window's screen.
     int screen = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->screen_num();
@@ -1223,35 +1225,29 @@ void ScreenMgr::FirstShow()
     }
     VSP_Window::SetGeomScreen( screen );
 
-    // Set manage geom screen to show up to the main screen as the default.
-    int x,y,w,w1,h1,h3;
-    x = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->x();
-    y = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->y();
-    w = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->w();
-    h1 = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->h();
+    // The Geom Browser is kept in the side panel along the 3D view's right edge, and the Geom screens open to its
+    // left, their right edges against it.  Room is left for a window's title bar and borders, its own or a
+    // frame's inside the main window, so the windows are placed alike either way.
+    VspCaptiveLayer* view = main->GetCaptiveLayer();
+    Fl_Window* mw = main->GetFlWindow();
+    int vx = mw->x() + view->x();
+    int vy = mw->y() + view->y();
+    int vw = view->w();
 
-    m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
-    m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
+    int side, top;
+    main->GetDecoration( side, top );
+    side = std::max( side, ( int )VspCaptiveFrame::EDGE );
+    top = std::max( top, ( int )VspCaptiveFrame::TITLE_H );
 
-    h3 = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->h();
-    w1 = m_ScreenVec[vsp::VSP_VEH_NOTES_SCREEN]->GetFlWindow()->w();
-    m_ScreenVec[vsp::VSP_VEH_NOTES_SCREEN]->GetFlWindow()->resize( x + w + 5, y + h3 + 35, w1, h1 - ( y + h3 + 5 ) );
+    Fl_Window* browser = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow();
+    int px = vx + vw - VspSidePanel::OuterW( browser->w() );
 
-    x = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->x();
-    y = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->y();
-    w = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->w();
+    VSP_Window::SetGeomRight( px - side );
+    VSP_Window::SetGeomY( vy + top );
 
-    // The Geom screens open to the right of the browser, the widest of them against it
-    int geom_w = 0;
-    ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN] );
-    vector< VspScreen* > geom_screens = mgs->GetGeomScreenVec();
-    for ( int i = 0; i < ( int )geom_screens.size(); i++ )
-    {
-        geom_w = std::max( geom_w, geom_screens[i]->GetFlWindow()->w() );
-    }
-
-    VSP_Window::SetGeomRight( x + w + geom_w );
-    VSP_Window::SetGeomY( y );
+    // The notes at the view's upper left
+    Fl_Window* notes = m_ScreenVec[vsp::VSP_VEH_NOTES_SCREEN]->GetFlWindow();
+    notes->position( vx + side, vy + top );
 
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {

@@ -82,6 +82,10 @@ public:
         return m_SidePanel;
     }
 
+    // The shown window's title bar and borders, and its size to the work area of its screen within them
+    void GetDecoration( int &side, int &top );
+    void FillWorkArea();
+
     static int ConvertViewEnums( int v );
     void SetAllViews( int view );
     void SetView( int viewport, int view );
