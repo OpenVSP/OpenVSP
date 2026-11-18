@@ -9,6 +9,7 @@ obvious use, including where a Parm can be dragged and dropped.
 
 | Topic | Where |
 |---|---|
+| [Windows](#windows) | File > Preferences > General |
 | [Toolbar](#toolbar) | under the menu bar |
 | [Moving the view](#moving-the-view) | the 3D window |
 | [Picking and selecting](#picking-and-selecting) | the 3D window |
@@ -23,6 +24,23 @@ obvious use, including where a Parm can be dragged and dropped.
 
 On macOS, Option is the key other systems call Alt, and Cmd stands in for Ctrl in many shortcuts.  This page writes
 Alt for Alt or Option.
+
+## Windows
+
+The Geom Browser sits in a panel along the right edge of the 3D view, over the view and its full height.  The button at
+the right of its title hides it, and the small tab left at the right edge of the view, Model > Geometry or the
+toolbar's Geometry browser button brings it back.
+
+File > Preferences > General > Windows > Screens sets how the other screens are shown.  With Free Windows, the
+default, each is a window of its own.  With Captive Windows, each is a window inside the main window, over the 3D view:
+drag its title bar to move it, drag its edges and corners to size it, and close it with the button at the right of its
+title bar.  A captive window stays inside the main window, keeps its size as the main window is resized, and comes to
+the top when it is clicked or typed in.  A change moves the open screens in or out at once and is kept for the next
+start.
+
+The Geom windows share one place, their right edges against the Geom Browser's panel, and each opens where the last
+one was left.  A window made taller keeps its controls their size: its plot, 3D view, list or table, where it has one,
+takes the extra height.
 
 ## Toolbar
 
@@ -152,7 +170,8 @@ cannot be changed in the preferences.
 
 ## Keyboard in the 3D window
 
-These keys act while the 3D window has the keyboard focus.  Most are also in the View menu.
+The keys in the View and Edit menus act from any OpenVSP window, unless a text box is being typed in.  z, tapped or
+held, and F1 to F4 act only in the 3D window.
 
 | Key | Does |
 |---|---|
@@ -338,7 +357,8 @@ of its slicing line.
 
 ## Keyboard shortcuts
 
-Ctrl is Cmd on macOS for the menu shortcuts; Cut, Copy and Paste answer Ctrl there as well.
+Ctrl is Cmd on macOS for the menu shortcuts; Cut, Copy and Paste answer Ctrl there as well.  The menu shortcuts work
+from every window, but a key without Ctrl, Cmd or Alt types into a text box that is being typed in.
 
 | Key | Does |
 |---|---|
@@ -352,8 +372,6 @@ The View menu's keys are listed under [Keyboard in the 3D window](#keyboard-in-t
 
 Other windows have keys of their own:
 
-- Geom browser: Ctrl+X, Ctrl+C and Ctrl+V cut, copy and paste, as Cmd does on macOS.
-- Geom browser and Geom windows: x views the front of the Geom, without leaving the window.
 - Attribute Explorer: Ctrl+X, Ctrl+C, Ctrl+V and Delete, as its buttons show.
 - Attribute text and Vehicle Notes: Enter keeps the text; Shift+Enter or Ctrl+Enter starts a new line.
 - Esc in any window, when nothing there uses it, clears the selection.

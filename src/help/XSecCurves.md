@@ -53,10 +53,11 @@ airfoil takes the width as its chord and the height as its thickness.  Everythin
 across too, such as the Modify tab's settings, and the section keeps its position and skinning.  Parameters the old
 type had and the new one does not are lost, so changing back does not restore them.
 
-*Show* opens a window that draws the active section on its own.  *Convert CEDIT* turns the active section, of whatever
-type, into an [Edit Curve](#edit-curve) of the same shape, so a standard shape can be the starting point for a custom
-one.  Most shapes become a cubic Bezier fitted to the curve; a Rounded Rectangle and the AC 25.773 shape become straight
-lines, with the rectangle's corner radii kept as point radii.  The new Edit Curve has *R-L Symmetry* off.
+*Show* opens a window that draws the active section on its own, beside the window whose button opened it.  *Convert
+CEDIT* turns the active section, of whatever type, into an [Edit Curve](#edit-curve) of the same shape, so a standard
+shape can be the starting point for a custom one.  Most shapes become a cubic Bezier fitted to the curve; a Rounded
+Rectangle and the AC 25.773 shape become straight lines, with the rectangle's corner radii kept as point radii.  The new
+Edit Curve has *R-L Symmetry* off.
 
 ## Width, Height, Area and H/W Ratio
 
