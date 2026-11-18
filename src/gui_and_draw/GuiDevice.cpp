@@ -2494,7 +2494,7 @@ void Counter::Init( VspScreen* screen, Fl_Counter* counter, VspButton* parm_butt
     AddWidget(counter, true);
  }
 
-//==== Set Counter Value ====//
+//==== Set Counter Value and Limits ====//
 void Counter::SetValAndLimits( Parm* p )
 {
     assert( m_Counter );
@@ -2502,7 +2502,13 @@ void Counter::SetValAndLimits( Parm* p )
     {
         return;
     }
+    m_Counter->bounds( p->GetLowerLimit(), p->GetUpperLimit() );
     m_Counter->value( p->Get() );
+
+    if ( m_ParmButtonFlag )
+    {
+        m_ParmButton.Update( p->GetID() );
+    }
 }
 
 //==== Callback ====//

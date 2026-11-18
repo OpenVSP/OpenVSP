@@ -1673,6 +1673,7 @@ void SSIntersect::Intersect()
     {
         m_ICurve.Set( 0 );
     }
+    m_ICurve.SetUpperLimit( std::max( m_NCurves() - 1.0, 0.0 ) );
 
     // Set subsurface from chain
     if ( uwchains.size() > m_ICurve() )
