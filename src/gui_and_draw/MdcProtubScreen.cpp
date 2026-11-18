@@ -54,6 +54,7 @@ MdcProtubScreen::MdcProtubScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_PTypeChoice.UpdateItems();
     m_DesignLayout.AddSlider( m_XProtSlider, "XPROT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
+    m_DesignLayout.AddButton( m_BuryRootToggle, "Bury Root" );
 
     // PHIPRO of the protuberance the counter shows.
     m_DesignLayout.AddYGap();
@@ -106,6 +107,7 @@ bool MdcProtubScreen::Update()
     m_PTypeChoice.Update( protub->m_PType.GetID() );
     m_XProtSlider.Update( protub->m_XRelLoc.GetID() );
     m_RBodySlider.Update( protub->m_RBody.GetID() );
+    m_BuryRootToggle.Update( protub->m_BuryRoot.GetID() );
 
     m_NLocSlider.Update( protub->m_NLoc.GetID() );
     m_PhiProFlagToggle.Update( protub->m_PhiProFlag.GetID() );

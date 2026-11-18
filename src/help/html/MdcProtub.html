@@ -409,19 +409,33 @@ alt="Figure 3. Sizes of a block" /></p>
 <p><em>Figure 3. A BLOCK of length LPROT, width WPROT and height HPROT,
 raised by OPROT, on a body of radius RBODY, at the station
 XPROT.</em></p>
-<p>A member with no offset reaches down into the body, below the mold
-line, so that it meets the body all around its footprint rather than
-touching it along a line. It goes as far as the mold line passes under
-its sides, and a tenth of its height further. A FAIRING's flat base is
-on the body's top line, the body's radius above its axis, so on a round
-body the edges of its base stand clear of the body at its sides, by more
-the wider it is. Its offset is zero, as DATCOM takes it, and its
-<em>OPROT</em> is greyed.</p>
-<p>The members of a LUG or SHOE meet one another the same way. Members
-of one length that meet are made one surface. Where members of different
-lengths meet exactly, one is buried in the other by half the other's
-height. No two surfaces touch exactly, so the surfaces intersect cleanly
-where the model is meshed or analyzed.</p>
+<p>A member with no offset stands with its flat bottom on the body's top
+line, the body's radius above its axis, as DATCOM draws it. It touches
+the body along that line, and on a round body the edges of its bottom
+stand clear of the body at its sides, by more the wider it is. A
+FAIRING's flat base is on the top line the same way. Its offset is zero,
+as DATCOM takes it, and its <em>OPROT</em> is greyed.</p>
+<p>With <em>Bury Root</em> on, a member with no offset reaches down into
+the body instead, so that it meets the body all around its footprint
+rather than touching it along a line. It goes as far as the body passes
+under its sides at its two ends, or as far as a round body of the radius
+under its center passes under them, whichever is lower, and a tenth of
+its height further; a FAIRING's base is carried straight down as far. On
+a nose or a boattail the end over the narrower body decides it, and on
+an elliptical body the body is followed round to the member's sides.
+Where the body at an end is narrower than the member, the member reaches
+down to the body's axis. The part inside the body is not seen once the
+model is joined, and the outside is the same but for the gap under the
+sides, which is filled. A raised member, and an HCYL, which lies along
+the body, are not buried. Leave <em>Bury Root</em> off to match DATCOM's
+geometry; turn it on for a model to be joined, meshed or analyzed in
+OpenVSP, so that each protuberance meets the body with no gap under
+it.</p>
+<p>The members of a LUG or SHOE are joined, with or without <em>Bury
+Root</em>. Members of one length that meet are one surface. Where
+members of different lengths meet exactly, one is buried in the other by
+half the other's height. No two surfaces touch exactly, so the surfaces
+intersect cleanly where the model is meshed or analyzed.</p>
 <h2 id="locations">Locations</h2>
 <p><em>NLOC</em> is the number of protuberances in the set, from 1 to
 20, all the same. They are rolled around the body at the station
@@ -489,6 +503,14 @@ along
 <td style="text-align: left;">The body's radius under the protuberance:
 a parent MDC_BOD's, else an input. Not an input of DATCOM's
 namelist.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Bury Root</td>
+<td style="text-align: left;"><code>BuryRoot</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Reach a member on the body down into it,
+rather than touch the body's top line as DATCOM draws it. Not an input
+of DATCOM's namelist.</td>
 </tr>
 <tr>
 <td style="text-align: left;">NLOC</td>

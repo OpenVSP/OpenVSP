@@ -268,12 +268,51 @@ def testBlockStandsOnTheMoldLineAtXprot():
     zlo, zhi = extent( gid, 2 )
     assert zhi == pytest.approx( 1.0 + 0.1 + 0.3, abs=1e-6 )
 
-    # Raised OPROT above the mold line it stands on nothing, and with no offset it reaches down into the body.
+    # Raised OPROT above the mold line it stands on nothing, and with no offset it stands on the body's top line.
     assert zlo == pytest.approx( 1.0 + 0.1, abs=1e-6 )
     put( gid, OPROT_1=0.0 )
     zlo, zhi = extent( gid, 2 )
-    assert zlo < 1.0
+    assert zlo == pytest.approx( 1.0, abs=1e-9 )
     assert zhi == pytest.approx( 1.0 + 0.3, abs=1e-6 )
+
+
+# VCYL, BLOCK and FAIRING, 0.2 wide and 0.3 high on a body of radius 1.
+@pytest.mark.parametrize( "ptype", ( 1, 5, 6 ) )
+def testProtuberanceTouchesTheTopLineUnlessItsRootIsBuried( ptype ):
+    gid = new( "MDC_PROTUB", PTYPE=ptype, RBODY=1.0, LPROT_1=0.4, WPROT_1=0.2, HPROT_1=0.3, OPROT_1=0.0 )
+    zlo, zhi = extent( gid, 2 )
+    assert zlo == pytest.approx( 1.0, abs=1e-9 )
+    assert zhi == pytest.approx( 1.3, abs=1e-6 )
+
+    # Buried, it reaches below where the mold line passes under its sides by a tenth of its height; its top stays.
+    put( gid, BuryRoot=1 )
+    zlo, zhi = extent( gid, 2 )
+    assert zlo == pytest.approx( math.sqrt( 1.0 - 0.1 ** 2 ) - 0.03, abs=1e-6 )
+    assert zhi == pytest.approx( 1.3, abs=1e-6 )
+
+
+def testBuriedProtuberanceIsInsideANose():
+    # A BLOCK 1 long on a cone nose growing 0.25 in radius per unit: its front end is over the narrower body.
+    body = new( "MDC_BOD", TNOSE=0, LNOSE=4.0, DNOSE=2.0, LCENTR=6.0 )
+    gid = child( "MDC_PROTUB", body, 2.0, PTYPE=5, LPROT_1=1.0, WPROT_1=0.2, HPROT_1=0.3, OPROT_1=0.0, BuryRoot=1 )
+    zlo, zhi = extent( gid, 2 )
+    assert zlo == pytest.approx( math.sqrt( 0.375 ** 2 - 0.1 ** 2 ) - 0.03, abs=1e-6 )
+
+
+def testBuriedProtuberanceCornersAreInsideAnEllipticBody():
+    # On the side of a body 2 wide and 1 high, which curves more tightly there than a circle of its radius.
+    body = new( "MDC_BOD", NAMELIST=1, WNOSE=2.0, ENOSE=0.5, CENTRDefault=1, ECENTR=0.5, LNOSE=2.0, LCENTR=8.0 )
+    gid = child( "MDC_PROTUB", body, 6.0, PTYPE=5, NLOC=1, PHIPROFlag=1, PHIPRO_1=90.0, LPROT_1=0.4, WPROT_1=0.6,
+                 HPROT_1=0.3, OPROT_1=0.0, BuryRoot=1 )
+    ylo = vsp.GetGeomBBoxMin( gid, 0 ).y()
+    # The body passes under the sides, 0.3 either side of the middle, at y = 0.8.
+    assert ylo == pytest.approx( 0.8 - 0.03, abs=1e-6 )
+
+
+def testRaisedProtuberanceIsNotBuried():
+    gid = new( "MDC_PROTUB", PTYPE=5, RBODY=1.0, LPROT_1=0.4, WPROT_1=0.2, HPROT_1=0.3, OPROT_1=0.1, BuryRoot=1 )
+    zlo, zhi = extent( gid, 2 )
+    assert zlo == pytest.approx( 1.1, abs=1e-6 )
 
 
 # Each preset's type, the radius of the body it is for, and each member's LPROT, WPROT, HPROT and OPROT.

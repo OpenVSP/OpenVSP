@@ -33,6 +33,9 @@ MdcProtubGeom::MdcProtubGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr
     m_PType.SetDescript( "Protuberance set type: VCYL, HCYL, LUG, SHOE, BLOCK or FAIRING" );
     m_RBody.Init( "RBODY", "Design", this, 0.5, 1.0e-6, 1.0e12 );
     m_RBody.SetDescript( "Body radius at XPROT, from the axis to the mold line (not a PROTUB input)" );
+    m_BuryRoot.Init( "BuryRoot", "Design", this, false, false, true );
+    m_BuryRoot.SetDescript( "Flag to reach a member standing on the body down into it, else it touches the body's "
+                            "top line as DATCOM draws it (not a PROTUB input)" );
     m_NLoc.Init( "NLOC", "Design", this, 1, 1, MAX_LOC );
     m_NLoc.SetDescript( "Number of protuberances in set" );
     m_LocIndex.Init( "LocIndex", "Design", this, 1, 1, MAX_LOC );
@@ -161,13 +164,19 @@ void MdcProtubGeom::SetPreset()
     }
 }
 
-double MdcProtubGeom::Bottom( double r, double w, double h, double o )
+double MdcProtubGeom::Bottom( double r, double phi, double hl, double half, double h, double o )
 {
     if ( o > 0.0 )
     {
         return r + o;
     }
-    return Under( r, 0.5 * w ) - 0.1 * h;
+    if ( m_BuryRoot() )
+    {
+        double fall = std::max( MdcBodGeom::FallUnder( this, -hl, phi, r, half ),
+                                MdcBodGeom::FallUnder( this, hl, phi, r, half ) );
+        return std::min( Under( r, half ), r - fall ) - 0.1 * h;
+    }
+    return r;
 }
 
 double MdcProtubGeom::Overlap( double a0, double a1, double b0, double b1 )
@@ -209,7 +218,7 @@ void MdcProtubGeom::Bury( Member & a, Member & b )
     }
 }
 
-MdcProtubGeom::Member MdcProtubGeom::MemberBox( int m, double r, double y0, double y1 )
+MdcProtubGeom::Member MdcProtubGeom::MemberBox( int m, double r, double phi, double y0, double y1 )
 {
     double w = m_WProt[m - 1]->Get();
     double h = m_HProt[m - 1]->Get();
@@ -219,7 +228,7 @@ MdcProtubGeom::Member MdcProtubGeom::MemberBox( int m, double r, double y0, doub
     mem.hl = 0.5 * m_LProt[m - 1]->Get();
     mem.y0 = y0;
     mem.y1 = y1;
-    mem.z0 = Bottom( r, w, h, o );
+    mem.z0 = Bottom( r, phi, mem.hl, std::max( fabs( y0 ), fabs( y1 ) ), h, o );
     mem.z1 = r + o + h;
     return mem;
 }
@@ -261,10 +270,15 @@ void MdcProtubGeom::Prism( XSecSurf* surf, int shape, double x0, double x1, doub
 
 // The top half of an ellipsoid l long, w wide and h high, built along x from its flat base at the origin for
 // UpdateSurf to stand up on z and turn to lie along x: the base, an ellipse, is the surface's one section, which the
-// end caps close, flat below and round h long above.  The round cap's poles are at the ends of its length.
-void MdcProtubGeom::HalfEllipsoid( XSecSurf* surf, double l, double w )
+// end caps close, flat below and round h long above.  The round cap's poles are at the ends of its length.  Where
+// depth is not zero the base is carried down to -depth, a second section, and the flat cap closes that.
+void MdcProtubGeom::HalfEllipsoid( XSecSurf* surf, double l, double w, double depth )
 {
     NeedTessW( 4 );
+    if ( depth > 0.0 )
+    {
+        AddSection( surf, ELLIPSE, -depth, 0.0, 0.0, l, w );
+    }
     AddSection( surf, ELLIPSE, 0.0, 0.0, 0.0, l, w );
 }
 
@@ -457,14 +471,14 @@ void MdcProtubGeom::StairSurf( double x, double hl, const vector< double > & lo,
 
 // A SHOE: its base plate, web and top plate, centered across the body.  Members of one length make one surface
 // where they meet or overlap; members of different lengths that meet are buried in each other.
-int MdcProtubGeom::Shoe( double x, double r )
+int MdcProtubGeom::Shoe( double x, double r, double phi )
 {
     double tol = Tol( r );
     vector< Member > mems;
     for ( int m = 1; m <= 3; m++ )
     {
         double w = m_WProt[m - 1]->Get();
-        mems.push_back( MemberBox( m, r, -0.5 * w, 0.5 * w ) );
+        mems.push_back( MemberBox( m, r, phi, -0.5 * w, 0.5 * w ) );
     }
 
     for ( int i = 0; i < 3; i++ )
@@ -511,7 +525,7 @@ bool MdcProtubGeom::Reaches( const Member & post, const Member & top, double tol
 // its ends closed on a spine up the middle of the posts and across the middle of the top plate.  Otherwise each
 // member is a surface of its own, the posts set in from the ends of the top plate by half their widths so their
 // sides do not meet its.  Members that meet are buried in each other.
-int MdcProtubGeom::Lug( double x, double r )
+int MdcProtubGeom::Lug( double x, double r, double phi )
 {
     double tol = Tol( r );
     double w1 = m_WProt[0]->Get();
@@ -519,10 +533,10 @@ int MdcProtubGeom::Lug( double x, double r )
     double w3 = m_WProt[2]->Get();
     double yo = 0.5 * m_WProt[3]->Get();
 
-    Member base = MemberBox( 1, r, -0.5 * w1, 0.5 * w1 );
-    Member p2 = MemberBox( 2, r, -yo, w2 - yo );
-    Member p3 = MemberBox( 3, r, yo - w3, yo );
-    Member top = MemberBox( 4, r, -yo, yo );
+    Member base = MemberBox( 1, r, phi, -0.5 * w1, 0.5 * w1 );
+    Member p2 = MemberBox( 2, r, phi, -yo, w2 - yo );
+    Member p3 = MemberBox( 3, r, phi, yo - w3, yo );
+    Member top = MemberBox( 4, r, phi, -yo, yo );
 
     bool wrap = fabs( p2.hl - top.hl ) <= tol && fabs( p3.hl - top.hl ) <= tol && Reaches( p2, top, tol ) &&
                 Reaches( p3, top, tol ) && p2.y1 < p3.y0 - tol;
@@ -564,18 +578,18 @@ int MdcProtubGeom::Lug( double x, double r )
     return 4;
 }
 
-int MdcProtubGeom::AddSurfs( int ptype, double r )
+int MdcProtubGeom::AddSurfs( int ptype, double r, double phi )
 {
     // The members are centered on the origin along x.
     double x = 0.0;
 
     if ( ptype == SHOE )
     {
-        return Shoe( x, r );
+        return Shoe( x, r, phi );
     }
     if ( ptype == LUG )
     {
-        return Lug( x, r );
+        return Lug( x, r, phi );
     }
 
     double l = m_LProt[0]->Get();
@@ -587,7 +601,7 @@ int MdcProtubGeom::AddSurfs( int ptype, double r )
     if ( ptype == VCYL )
     {
         // Built along x from the origin, the height from its bottom, for UpdateSurf to stand up on z.
-        Prism( surf, ELLIPSE, 0.0, r + o + h - Bottom( r, w, h, o ), 0.0, 0.0, w, l );
+        Prism( surf, ELLIPSE, 0.0, r + o + h - Bottom( r, phi, 0.5 * l, 0.5 * w, h, o ), 0.0, 0.0, w, l );
     }
     else if ( ptype == HCYL )
     {
@@ -595,11 +609,16 @@ int MdcProtubGeom::AddSurfs( int ptype, double r )
     }
     else if ( ptype == FAIRING )
     {
-        HalfEllipsoid( surf, l, w );
+        double depth = 0.0;
+        if ( m_BuryRoot() )
+        {
+            depth = r - Bottom( r, phi, 0.5 * l, 0.5 * w, h, 0.0 );
+        }
+        HalfEllipsoid( surf, l, w, depth );
     }
     else
     {
-        double zb = Bottom( r, w, h, o );
+        double zb = Bottom( r, phi, 0.5 * l, 0.5 * w, h, o );
         double zt = r + o + h;
         Prism( surf, BOX, x - 0.5 * l, x + 0.5 * l, 0.0, 0.5 * ( zb + zt ), w, zt - zb );
     }
@@ -636,8 +655,9 @@ void MdcProtubGeom::UpdateSurf()
         m_RBody.Activate();
     }
 
-    // One protuberance, rolled to each place, where they all stand on the same radius; else one at each place.
-    bool same = true;
+    // One protuberance, rolled to each place, where they all stand on the same radius; else one at each place.  A
+    // buried one on a body reaches as far as the body under it falls, which can differ from place to place.
+    bool same = !( m_BuryRoot() && attached );
     for ( int k = 1; k < nloc; k++ )
     {
         same = same && fabs( radii[k] - radii[0] ) <= Tol( radii[0] );
@@ -653,7 +673,7 @@ void MdcProtubGeom::UpdateSurf()
     vector< int > nsurf;
     for ( int k = 0; k < nbuild; k++ )
     {
-        nsurf.push_back( AddSurfs( ptype, radii[k] ) );
+        nsurf.push_back( AddSurfs( ptype, radii[k], m_PhiPro[k]->Get() ) );
     }
 
     // Rows around every surface at every corner of its sections.
@@ -679,7 +699,7 @@ void MdcProtubGeom::UpdateSurf()
 
     if ( same )
     {
-        RollSurfs( nsurf[0], nloc, m_PhiPro, Stand( ptype, radii[0] ) );
+        RollSurfs( nsurf[0], nloc, m_PhiPro, Stand( ptype, radii[0], m_PhiPro[0]->Get() ) );
         return;
     }
 
@@ -690,7 +710,7 @@ void MdcProtubGeom::UpdateSurf()
         Matrix4d mat;
         mat.loadIdentity();
         mat.rotateX( -m_PhiPro[k]->Get() );
-        Matrix4d stand = Stand( ptype, radii[k] );
+        Matrix4d stand = Stand( ptype, radii[k], m_PhiPro[k]->Get() );
         mat.matMult( stand.const_data() );
         for ( int j = 0; j < nsurf[k]; j++ )
         {
@@ -700,7 +720,7 @@ void MdcProtubGeom::UpdateSurf()
     }
 }
 
-Matrix4d MdcProtubGeom::Stand( int ptype, double r )
+Matrix4d MdcProtubGeom::Stand( int ptype, double r, double phi )
 {
     // A VCYL stands on its bottom at the origin, a FAIRING on its base on the body's top line, turned so its length
     // lies along x.
@@ -708,7 +728,8 @@ Matrix4d MdcProtubGeom::Stand( int ptype, double r )
     stand.loadIdentity();
     if ( ptype == VCYL )
     {
-        double zb = Bottom( r, m_WProt[0]->Get(), m_HProt[0]->Get(), m_OProt[0]->Get() );
+        double zb = Bottom( r, phi, 0.5 * m_LProt[0]->Get(), 0.5 * m_WProt[0]->Get(), m_HProt[0]->Get(),
+                            m_OProt[0]->Get() );
         stand.translatef( 0.0, 0.0, zb );
         stand.rotateY( -90.0 );
     }

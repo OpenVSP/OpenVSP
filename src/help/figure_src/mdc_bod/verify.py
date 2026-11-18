@@ -138,12 +138,17 @@ def protub():
     vsp.SetParmVal( p, "NLOC", "Design", 3.0 )
     vsp.Update()
     near( vsp.GetParmVal( p, "PHIPRO_2", "Design" ), 120.0, 1e-9, "PHIPRO is evenly spaced from NLOC" )
-    # A block with no offset reaches below the mold line.
+    # A block with no offset stands on the top line, and buried reaches below the mold line.
     bf.renew()
     p = pf.protub( 5, defaults = True )
     lo, hi = extent( p, nu = 41, nw = 161 )
-    near( lo[ 2 ], np.sqrt( 36.0 - 1.0 ) - 0.1 * 1.5, 1e-6, "A block with OPROT zero goes under the mold line by a tenth of its height" )
+    near( lo[ 2 ], 6.0, 1e-6, "A block with OPROT zero stands on the body's top line" )
     near( hi[ 2 ], 7.5, 1e-6, "A block is HPROT above the mold line" )
+    vsp.SetParmVal( p, "BuryRoot", "Design", 1.0 )
+    vsp.Update()
+    lo, hi = extent( p, nu = 41, nw = 161 )
+    near( lo[ 2 ], np.sqrt( 36.0 - 1.0 ) - 0.1 * 1.5, 1e-6, "A buried block goes under the mold line by a tenth of its height" )
+    near( hi[ 2 ], 7.5, 1e-6, "A buried block is HPROT above the mold line" )
     # The members of a LUG and a SHOE are stacked at their offsets.
     for t in ( 3, 4 ):
         m = pf.preset_members( t )

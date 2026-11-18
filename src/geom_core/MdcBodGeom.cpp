@@ -637,3 +637,28 @@ bool MdcBodGeom::RadiusUnder( Geom* geom_ptr, double x, double phi, double & r )
     vec3d d = body->GetRoleFlipMat().xformnorm( vec3d( 0.0, sin( phi * M_PI / 180.0 ), cos( phi * M_PI / 180.0 ) ) );
     return body->Radius( p.x(), atan2( d.y(), d.z() ) * 180.0 / M_PI, r );
 }
+
+double MdcBodGeom::FallUnder( Geom* geom_ptr, double x, double phi, double rr, double half )
+{
+    // The edge's roll off phi is where the body's radius r there reaches half across: r sin( off ) = half.
+    double fall = -1.0e30;
+    for ( int side = -1; side <= 1; side += 2 )
+    {
+        double r = rr;
+        RadiusUnder( geom_ptr, x, phi, r );
+        double off = asin( std::min( half / r, 1.0 ) );
+        for ( int it = 0; it < 50; it++ )
+        {
+            RadiusUnder( geom_ptr, x, phi + side * off * 180.0 / M_PI, r );
+            double next = asin( std::min( half / r, 1.0 ) );
+            double step = next - off;
+            off = next;
+            if ( fabs( step ) < 1.0e-12 )
+            {
+                break;
+            }
+        }
+        fall = std::max( fall, rr - r * cos( off ) );
+    }
+    return fall;
+}

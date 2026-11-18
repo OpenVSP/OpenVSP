@@ -84,6 +84,12 @@ public:
     // from the body.
     static bool RadiusUnder( Geom* geom_ptr, double x, double phi, double & r );
 
+    // How far the body falls below a flat bottom rr from the axis, square to the direction phi, at x along a
+    // component in the component's frame, where the body passes under the bottom's edges, half either side of
+    // its middle: the larger of the two sides, negative where the body is above the bottom.  The body is the
+    // parent MDC_BOD or Clone of one, its radius taken in the direction of each edge, else round and rr in radius.
+    static double FallUnder( Geom* geom_ptr, double x, double phi, double rr, double half );
+
     // The largest radius of the MDC_BOD, or Clone of one, geom_ptr stands on.  False if it stands on none.
     static bool MaxRadiusOfParent( Geom* geom_ptr, double & r );
 

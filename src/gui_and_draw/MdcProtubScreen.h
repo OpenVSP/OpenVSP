@@ -39,6 +39,7 @@ protected:
     // XPROT is the XForm tab's X location.
     SliderAdjRangeInput m_XProtSlider;
     SliderAdjRangeInput m_RBodySlider;
+    ToggleButton m_BuryRootToggle;
 
     SliderAdjRangeInput m_NLocSlider;
     ToggleButton m_PhiProFlagToggle;

@@ -36,10 +36,12 @@
 // No two surfaces touch exactly.  Members of one length that meet are one surface, its section their outline;
 // where members of different lengths meet exactly, one is buried in the other half the other's height.
 //
-// A flat bottomed member whose OPROT is zero reaches down into the body, past where the mold line passes under
-// its sides and a tenth of its height further, so it meets the body all around.  A FAIRING is the top half of an
-// ellipsoid, as the DATCOM manual defines one: LPROT long and WPROT wide at its flat base, which is on the body's
-// top line, the body's radius above the axis, and HPROT high above it.  Its OPROT is zero, as DATCOM takes it.
+// A flat bottomed member whose OPROT is zero stands on the body's top line, touching the body along it, as DATCOM
+// draws it.  With BuryRoot set it reaches down into the body, past where the body passes under its sides at its
+// ends, and a tenth of its height further, so it meets the body all around on a nose, a boattail or an elliptical
+// body as well.  A FAIRING is the top half of an ellipsoid, as the DATCOM manual defines one: LPROT long and WPROT
+// wide at its flat base, which is on the body's top line, the body's radius above the axis, and HPROT high above it.
+// Its OPROT is zero, as DATCOM takes it.  With BuryRoot set its base is carried straight down into the body as far.
 class MdcProtubGeom : public XSecSurfGeom
 {
 public:
@@ -75,6 +77,7 @@ public:
     IntParm m_Preset;
     IntParm m_PType;
     Parm m_RBody;
+    BoolParm m_BuryRoot;
     IntParm m_NLoc;
     IntParm m_LocIndex;
     BoolParm m_PhiProFlag;
@@ -105,9 +108,11 @@ protected:
         double z1;
     };
 
-    // The height of a member's bottom above the axis: OPROT above the mold line r, or, on the mold line, below
-    // where the mold line passes under its sides, half its width w out, by a tenth of its height h.
-    static double Bottom( double r, double w, double h, double o );
+    // The height of a member's bottom above the axis at the roll phi: OPROT above the mold line r, or, on the
+    // mold line, the top line r, or with BuryRoot set below where the body passes under its sides, half across
+    // out, at its ends, hl either side along it, and where a round body r in radius would, by a tenth of its
+    // height h.
+    double Bottom( double r, double phi, double hl, double half, double h, double o );
 
     static double Overlap( double a0, double a1, double b0, double b1 );
 
@@ -117,28 +122,28 @@ protected:
     static void BuryIfTouching( Member & a, Member & b, double tol );
     static void Bury( Member & a, Member & b );
 
-    // Member m's box, from y0 to y1 across.
-    Member MemberBox( int m, double r, double y0, double y1 );
+    // Member m's box, from y0 to y1 across, at the roll phi.
+    Member MemberBox( int m, double r, double phi, double y0, double y1 );
 
     BareXSec* AddSection( XSecSurf* surf, int shape, double x, double y, double z, double w, double h );
     void Prism( XSecSurf* surf, int shape, double x0, double x1, double y, double z, double w, double h );
     // The top half of an ellipsoid l long and w wide at its flat base, built along x from the base at the origin:
-    // the base is its one section, which the end caps close.
-    void HalfEllipsoid( XSecSurf* surf, double l, double w );
+    // the base is its one section, which the end caps close, carried down to -depth where depth is not zero.
+    void HalfEllipsoid( XSecSurf* surf, double l, double w, double depth );
     void BoxSurf( double x, const Member & mem );
     void Extrude( double x0, double x1, const vector< double > & ys, const vector< double > & zs,
                   const vector< double > & sys, const vector< double > & szs );
     int Staircase( double x, const vector< Member > & group, double tol );
     void StairSurf( double x, double hl, const vector< double > & lo, const vector< double > & hi,
                     const vector< double > & hw );
-    int Shoe( double x, double r );
+    int Shoe( double x, double r, double phi );
     static bool Reaches( const Member & post, const Member & top, double tol );
-    int Lug( double x, double r );
-    // Adds the protuberance's surfaces on a body of radius r, at its top, and answers how many.
-    int AddSurfs( int ptype, double r );
+    int Lug( double x, double r, double phi );
+    // Adds the protuberance's surfaces on a body of radius r, at its top, for the roll phi, and answers how many.
+    int AddSurfs( int ptype, double r, double phi );
 
-    // What stands the surfaces AddSurfs built on a body of radius r up at the top of the body.
-    Matrix4d Stand( int ptype, double r );
+    // What stands the surfaces AddSurfs built on a body of radius r up at the top of the body, for the roll phi.
+    Matrix4d Stand( int ptype, double r, double phi );
 };
 
 #endif // !defined(VSP_MDC_PROTUB_GEOM__INCLUDED_)
