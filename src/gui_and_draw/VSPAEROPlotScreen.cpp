@@ -105,11 +105,11 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // layout the heights of the control layout
     int rowHeight = 20;
     int yDataSelectHeight = 11 * rowHeight;
-    int actionButtonHeight = 6 * rowHeight;          //space reserved for action buttons at the bottom
+    int actionButtonHeight = 7 * rowHeight;          //space reserved for action buttons at the bottom
     //  remaining space is used for the flow condition browser: what is left of the control layout
     //  after the y-data group, the space below it and the flow condition group, and the action
-    //  buttons, a divider and six rows
-    int convergenceActionHeight = m_ConvergenceControlLayout.GetDividerHeight() + 6 * rowHeight;
+    //  buttons, a divider and seven rows
+    int convergenceActionHeight = m_ConvergenceControlLayout.GetDividerHeight() + 7 * rowHeight;
     int flowConditionSelectHeight = m_ConvergenceControlLayout.GetH() - yDataSelectHeight - 4 * groupBorderWidth -
                                     convergenceActionHeight;
 
@@ -180,6 +180,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     convergenceActionLayout.SetButtonWidth( convergenceActionLayout.GetW() / 2 );
     convergenceActionLayout.AddButton( m_ConvergenceLinesToggle, "Lines" );
     convergenceActionLayout.AddButton( m_ConvergencePointsToggle, "Points" );
+    convergenceActionLayout.ForceNewLine();
+    convergenceActionLayout.SetSameLineFlag( false );
+    convergenceActionLayout.SetFitWidthFlag( true );
+    convergenceActionLayout.SetChoiceButtonWidth( 60 );
+    AddLegendPlacementItems( m_ConvergenceLegendChoice );
+    convergenceActionLayout.AddChoice( m_ConvergenceLegendChoice, "Legend" );
 
     // Plot layout
     int plotWidth = totalWidth - controlWidth - 2 * groupBorderWidth;
@@ -221,7 +227,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     int dataTypeHeight = 2 * m_LoadDistLayout.GetStdHeight() - 2 * groupBorderWidth;
     int timeStepHeight = m_LoadDistControlLayout.GetDividerHeight() + 2 * m_LoadDistControlLayout.GetStdHeight() +
                          m_LoadDistControlLayout.GetGapHeight();
-    int loadDistActionHeight = m_LoadDistControlLayout.GetDividerHeight() + 5 * rowHeight;
+    int loadDistActionHeight = m_LoadDistControlLayout.GetDividerHeight() + 6 * rowHeight;
     int loadDistFlowHeight = ( m_LoadDistControlLayout.GetH() - yDataSelectHeight - dataTypeHeight - 8 * groupBorderWidth -
                                ( 2 * windowBorderWidth - m_LoadDistLayout.GetStdHeight() ) - timeStepHeight -
                                loadDistActionHeight ) / 2;
@@ -326,6 +332,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     loadDistActionLayout.SetButtonWidth( loadDistActionLayout.GetW() / 2 );
     loadDistActionLayout.AddButton( m_LoadDistLinesToggle, "Lines" );
     loadDistActionLayout.AddButton( m_LoadDistPointsToggle, "Points" );
+    loadDistActionLayout.ForceNewLine();
+    loadDistActionLayout.SetSameLineFlag( false );
+    loadDistActionLayout.SetFitWidthFlag( true );
+    loadDistActionLayout.SetChoiceButtonWidth( 60 );
+    AddLegendPlacementItems( m_LoadDistLegendChoice );
+    loadDistActionLayout.AddChoice( m_LoadDistLegendChoice, "Legend" );
 
     // Plot layout
     m_LoadDistLayout.AddX( controlWidth + 2 * groupBorderWidth );
@@ -427,6 +439,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     sweepActionLayout.SetButtonWidth( sweepActionLayout.GetW() / 2 );
     sweepActionLayout.AddButton( m_SweepLinesToggle, "Lines" );
     sweepActionLayout.AddButton( m_SweepPointsToggle, "Points" );
+    sweepActionLayout.ForceNewLine();
+    sweepActionLayout.SetSameLineFlag( false );
+    sweepActionLayout.SetFitWidthFlag( true );
+    sweepActionLayout.SetChoiceButtonWidth( 60 );
+    AddLegendPlacementItems( m_SweepLegendChoice );
+    sweepActionLayout.AddChoice( m_SweepLegendChoice, "Legend" );
 
     // Plot layout
     m_SweepLayout.AddX( controlWidth + 2 * groupBorderWidth );
@@ -553,6 +571,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     CpSliceActionLayout.ForceNewLine();
     CpSliceActionLayout.AddButton( m_CpSlicePlotLinesToggle, "Plot Lines" );
     CpSliceActionLayout.AddButton( m_CpSlicePointsToggle, "Plot Points" );
+    CpSliceActionLayout.ForceNewLine();
+    CpSliceActionLayout.SetSameLineFlag( false );
+    CpSliceActionLayout.SetFitWidthFlag( true );
+    CpSliceActionLayout.SetChoiceButtonWidth( 60 );
+    AddLegendPlacementItems( m_CpSliceLegendChoice );
+    CpSliceActionLayout.AddChoice( m_CpSliceLegendChoice, "Legend" );
 
     // Plot layout
     m_CpSliceLayout.AddX( controlWidth + 2 * groupBorderWidth );
@@ -681,6 +705,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     unsteadyActionLayout.SetButtonWidth( unsteadyActionLayout.GetW() / 2 );
     unsteadyActionLayout.AddButton( m_UnsteadyLinesToggle, "Lines" );
     unsteadyActionLayout.AddButton( m_UnsteadyPointsToggle, "Points" );
+    unsteadyActionLayout.ForceNewLine();
+    unsteadyActionLayout.SetSameLineFlag( false );
+    unsteadyActionLayout.SetFitWidthFlag( true );
+    unsteadyActionLayout.SetChoiceButtonWidth( 60 );
+    AddLegendPlacementItems( m_UnsteadyLegendChoice );
+    unsteadyActionLayout.AddChoice( m_UnsteadyLegendChoice, "Legend" );
 
     // Plot layout
     m_UnsteadyLayout.AddX( controlWidth + 2 * groupBorderWidth );
@@ -928,6 +958,7 @@ void VSPAEROPlotScreen::UpdateConvergenceAutoManualAxisLimits()
 
     m_ConvergenceLinesToggle.Update( VSPAEROMgr.m_ConvergenceShowLines.GetID() );
     m_ConvergencePointsToggle.Update( VSPAEROMgr.m_ConvergenceShowPoints.GetID() );
+    m_ConvergenceLegendChoice.Update( VSPAEROMgr.m_ConvergenceLegend.GetID() );
     m_ConvergenceManualXMinToggle.Update( VSPAEROMgr.m_ConvergenceXMinIsManual.GetID() );
     m_ConvergenceManualXMaxToggle.Update( VSPAEROMgr.m_ConvergenceXMaxIsManual.GetID() );
     m_ConvergenceXMinSlider.Update( VSPAEROMgr.m_ConvergenceXMin.GetID() );
@@ -1004,6 +1035,7 @@ void VSPAEROPlotScreen::UpdateLoadDistAutoManualAxisLimits()
 
     m_LoadDistLinesToggle.Update( VSPAEROMgr.m_LoadDistShowLines.GetID() );
     m_LoadDistPointsToggle.Update( VSPAEROMgr.m_LoadDistShowPoints.GetID() );
+    m_LoadDistLegendChoice.Update( VSPAEROMgr.m_LoadDistLegend.GetID() );
     m_LoadDistManualXMinToggle.Update( VSPAEROMgr.m_LoadDistXMinIsManual.GetID() );
     m_LoadDistManualXMaxToggle.Update( VSPAEROMgr.m_LoadDistXMaxIsManual.GetID() );
     m_LoadDistXMinSlider.Update( VSPAEROMgr.m_LoadDistXMin.GetID() );
@@ -1080,6 +1112,7 @@ void VSPAEROPlotScreen::UpdateSweepAutoManualAxisLimits()
 
     m_SweepLinesToggle.Update( VSPAEROMgr.m_SweepShowLines.GetID() );
     m_SweepPointsToggle.Update( VSPAEROMgr.m_SweepShowPoints.GetID() );
+    m_SweepLegendChoice.Update( VSPAEROMgr.m_SweepLegend.GetID() );
     m_SweepManualXMinToggle.Update( VSPAEROMgr.m_SweepXMinIsManual.GetID() );
     m_SweepManualXMaxToggle.Update( VSPAEROMgr.m_SweepXMaxIsManual.GetID() );
     m_SweepXMinSlider.Update( VSPAEROMgr.m_SweepXMin.GetID() );
@@ -1230,6 +1263,7 @@ void VSPAEROPlotScreen::UpdateCpSliceAutoManualAxisLimits()
     m_CpSliceFlipYToggle.Update( VSPAEROMgr.m_CpSliceYAxisFlipFlag.GetID() );
     m_CpSlicePlotLinesToggle.Update( VSPAEROMgr.m_CpSlicePlotLinesFlag.GetID() );
     m_CpSlicePointsToggle.Update( VSPAEROMgr.m_CpSliceShowPoints.GetID() );
+    m_CpSliceLegendChoice.Update( VSPAEROMgr.m_CpSliceLegend.GetID() );
 }
 
 void VSPAEROPlotScreen::UpdateUnsteadyAutoManualAxisLimits()
@@ -1238,6 +1272,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyAutoManualAxisLimits()
 
     m_UnsteadyLinesToggle.Update( VSPAEROMgr.m_UnsteadyShowLines.GetID() );
     m_UnsteadyPointsToggle.Update( VSPAEROMgr.m_UnsteadyShowPoints.GetID() );
+    m_UnsteadyLegendChoice.Update( VSPAEROMgr.m_UnsteadyLegend.GetID() );
     m_UnsteadyManualXMinToggle.Update( VSPAEROMgr.m_UnsteadyXMinIsManual.GetID() );
     m_UnsteadyManualXMaxToggle.Update( VSPAEROMgr.m_UnsteadyXMaxIsManual.GetID() );
     m_UnsteadyXMinSlider.Update( VSPAEROMgr.m_UnsteadyXMin.GetID() );
@@ -2206,6 +2241,7 @@ void VSPAEROPlotScreen::RedrawConvergencePlot()
     m_ConvergencePlotCanvas->ClearSeriesPoints();
 
     m_ConvergencePlotCanvas->ClearLegend();
+    m_ConvergencePlotCanvas->SetLegendPlacement( VSPAEROMgr.m_ConvergenceLegend() );
 
     // Get selected y data names
     vector <string> yDataSetNames;
@@ -2243,6 +2279,7 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
     m_LoadDistPlotCanvas->ClearSeriesPoints();
 
     m_LoadDistPlotCanvas->ClearLegend();
+    m_LoadDistPlotCanvas->SetLegendPlacement( VSPAEROMgr.m_LoadDistLegend() );
 
     // Get selected y data names
     vector <string> yDataSetNames;
@@ -2312,6 +2349,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     }
 
     m_SweepPlotCanvas->ClearLegend();
+    m_SweepPlotCanvas->SetLegendPlacement( VSPAEROMgr.m_SweepLegend() );
 
     //Redraw plot if data is available and selected
     bool expandOnly = false;
@@ -2428,6 +2466,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
     m_CpSlicePlotCanvas->ClearSeriesPoints();
 
     m_CpSlicePlotCanvas->ClearLegend();
+    m_CpSlicePlotCanvas->SetLegendPlacement( VSPAEROMgr.m_CpSliceLegend() );
 
     //Redraw plot if data is available and selected
     bool expandOnly = false;
@@ -2549,6 +2588,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
     m_UnsteadyPlotCanvas->ClearSeriesPoints();
 
     m_UnsteadyPlotCanvas->ClearLegend();
+    m_UnsteadyPlotCanvas->SetLegendPlacement( VSPAEROMgr.m_UnsteadyLegend() );
 
     // Get selected y data names
     vector <string> yDataSetNames;

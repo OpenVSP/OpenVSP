@@ -254,6 +254,16 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_UnsteadyShowLines.SetDescript( "Flag to plot lines in the Unsteady plot" );
     m_UnsteadyShowPoints.Init( "UnsteadyShowPoints", groupname, this, true, false, true );
     m_UnsteadyShowPoints.SetDescript( "Flag to plot points in the Unsteady plot" );
+    m_ConvergenceLegend.Init( "ConvergenceLegend", groupname, this, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_OFF );
+    m_ConvergenceLegend.SetDescript( "Legend placement in the Convergence plot" );
+    m_LoadDistLegend.Init( "LoadDistLegend", groupname, this, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_OFF );
+    m_LoadDistLegend.SetDescript( "Legend placement in the Load Distribution plot" );
+    m_SweepLegend.Init( "SweepLegend", groupname, this, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_OFF );
+    m_SweepLegend.SetDescript( "Legend placement in the Sweep plot" );
+    m_CpSliceLegend.Init( "CpSliceLegend", groupname, this, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_OFF );
+    m_CpSliceLegend.SetDescript( "Legend placement in the Cp Slice plot" );
+    m_UnsteadyLegend.Init( "UnsteadyLegend", groupname, this, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_OFF );
+    m_UnsteadyLegend.SetDescript( "Legend placement in the Unsteady plot" );
 
     m_UnsteadyXMinIsManual.Init( "m_UnsteadyXMinIsManual", groupname, this, 0, 0, 1 );
     m_UnsteadyXMaxIsManual.Init( "m_UnsteadyXMaxIsManual", groupname, this, 0, 0, 1 );

@@ -561,6 +561,12 @@ void ResultsPlotCanvas::ClearLegend()
     redraw();
 }
 
+void ResultsPlotCanvas::SetLegendPlacement( int placement )
+{
+    m_LegendPlacement = placement;
+    redraw();
+}
+
 void ResultsPlotCanvas::AddLegendEntry( const string & text, Fl_Color c, bool show_line, int linestyle, int marker )
 {
     ResultsLegendEntry e;

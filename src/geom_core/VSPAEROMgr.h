@@ -540,6 +540,12 @@ public:
     BoolParm m_UnsteadyShowLines;
     BoolParm m_UnsteadyShowPoints;
 
+    IntParm m_ConvergenceLegend;
+    IntParm m_LoadDistLegend;
+    IntParm m_SweepLegend;
+    IntParm m_CpSliceLegend;
+    IntParm m_UnsteadyLegend;
+
     BoolParm m_UnsteadyXMinIsManual;
     BoolParm m_UnsteadyXMaxIsManual;
     BoolParm m_UnsteadyYMinIsManual;

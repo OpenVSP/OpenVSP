@@ -76,6 +76,7 @@ public:
 
     // Legend entries one at a time, in the placement the canvas has; a marker of CA_NO_POINT draws no point.
     void ClearLegend();
+    void SetLegendPlacement( int placement );
     void AddLegendEntry( const string & text, Fl_Color c, bool show_line = true, int linestyle = FL_SOLID, int marker = CA_NO_POINT );
 
     // The points under the legend's corner choice: x and y in data units per series, and each

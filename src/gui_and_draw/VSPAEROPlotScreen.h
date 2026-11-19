@@ -113,6 +113,7 @@ protected:
     ToggleButton m_ConvergenceYDataResidualToggle;
     ToggleButton m_ConvergenceLinesToggle;
     ToggleButton m_ConvergencePointsToggle;
+    Choice m_ConvergenceLegendChoice;
     VspBrowser* m_ConvergenceYDataBrowser;
     VspBrowser* m_ConvergenceFlowConditionBrowser;
     vector< string > m_ConvergenceFlowConditionSelectedResultIDs;
@@ -151,6 +152,7 @@ protected:
 
     ToggleButton m_LoadDistLinesToggle;
     ToggleButton m_LoadDistPointsToggle;
+    Choice m_LoadDistLegendChoice;
     ToggleButton m_LoadDistManualXMinToggle;
     ToggleButton m_LoadDistManualXMaxToggle;
     ToggleButton m_LoadDistManualYMinToggle;
@@ -195,6 +197,7 @@ protected:
 
     ToggleButton m_SweepLinesToggle;
     ToggleButton m_SweepPointsToggle;
+    Choice m_SweepLegendChoice;
     ToggleButton m_SweepManualXMinToggle;
     ToggleButton m_SweepManualXMaxToggle;
     ToggleButton m_SweepManualYMinToggle;
@@ -246,6 +249,7 @@ protected:
     ToggleButton m_CpSliceFlipYToggle;
     ToggleButton m_CpSlicePlotLinesToggle;
     ToggleButton m_CpSlicePointsToggle;
+    Choice m_CpSliceLegendChoice;
 
 
     void UpdateCpSliceCaseBrowser();
@@ -290,6 +294,7 @@ protected:
 
     ToggleButton m_UnsteadyLinesToggle;
     ToggleButton m_UnsteadyPointsToggle;
+    Choice m_UnsteadyLegendChoice;
     ToggleButton m_UnsteadyManualXMinToggle;
     ToggleButton m_UnsteadyManualXMaxToggle;
     ToggleButton m_UnsteadyManualYMinToggle;
