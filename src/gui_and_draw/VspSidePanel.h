@@ -3,7 +3,8 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// VspSidePanel.h: the Geom Browser's place at the right of the 3D view, over it, with a tab that brings it back
+// VspSidePanel.h: the Geom Browser's place at the right of the 3D view, over it or beside it, with a tab that brings it
+// back
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -16,9 +17,9 @@
 
 class VspSideTab;
 
-// A place inside the main window along the 3D view's right edge, over the view and its full height, that holds
-// screens' windows and shows one at a time, in either window mode.  A close button at the right of the screen's title
-// hides it, and a tab at the top of the view's right edge, also over the view, brings it back.
+// A place inside the main window along the 3D view's right edge, over the view or docked beside it, its full height,
+// that holds screens' windows and shows one at a time, in either window mode.  A close button at the right of the
+// screen's title hides it, and a tab at the top of the view's right edge, also over the view, brings it back.
 class VspSidePanel : public Fl_Double_Window, public VspBodyHolder
 {
 public:
@@ -46,6 +47,9 @@ public:
     // Puts the panel along the layer's right edge, its full height and as wide as the screen's window, and the tab at
     // the top of the edge while the panel is hidden
     void Place();
+
+    // Over the 3D view, or docked beside it, the view taking the rest of the main window while the panel is shown
+    void SetDocked( bool docked );
 
     // The width the panel takes for a screen's window of this width
     static int OuterW( int body_w )
@@ -77,6 +81,7 @@ protected:
     int m_LastShown;
 
     bool m_InPlace;
+    bool m_Docked;
 };
 
 // The tab that brings the panel back: a window of its own, so it is drawn over the 3D view

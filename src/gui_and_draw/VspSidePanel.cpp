@@ -3,7 +3,8 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// VspSidePanel.cpp: the Geom Browser's place at the right of the 3D view, over it, with a tab that brings it back
+// VspSidePanel.cpp: the Geom Browser's place at the right of the 3D view, over it or beside it, with a tab that brings
+// it back
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -19,6 +20,7 @@ VspSidePanel::VspSidePanel( VspCaptiveLayer* layer ) : Fl_Double_Window( layer->
     m_Shown = -1;
     m_LastShown = -1;
     m_InPlace = false;
+    m_Docked = false;
 
     box( FL_UP_BOX );
     end();
@@ -256,11 +258,12 @@ void VspSidePanel::Place()
     {
         i = 0;
     }
+    int pw = 0;
     if ( i >= 0 )
     {
         // The full height of the view, the screen's window as wide as it is
         Fl_Window* body = m_Screens[i]->GetFlWindow();
-        int pw = OuterW( body->w() );
+        pw = OuterW( body->w() );
         resize( lx + lw - pw, ly, pw, lh );
         int bh = lh - 2 * EDGE;
         if ( body->x() != EDGE || body->y() != EDGE || body->h() != bh )
@@ -268,6 +271,16 @@ void VspSidePanel::Place()
             body->resize( EDGE, EDGE, body->w(), bh );
         }
         m_CloseButtons[i]->resize( body->w() - CLOSE_W - 2, 2, CLOSE_W, CLOSE_W );
+    }
+
+    // Docked and shown, the panel takes its width from the view
+    if ( m_Docked && m_Shown >= 0 )
+    {
+        m_Layer->SetViewRight( pw );
+    }
+    else
+    {
+        m_Layer->SetViewRight( 0 );
     }
 
     // The tab, at the top of the view's right edge, is there while the panel is hidden
@@ -283,6 +296,12 @@ void VspSidePanel::Place()
     }
 
     m_InPlace = false;
+}
+
+void VspSidePanel::SetDocked( bool docked )
+{
+    m_Docked = docked;
+    Place();
 }
 
 void VspSidePanel::BodyResized()

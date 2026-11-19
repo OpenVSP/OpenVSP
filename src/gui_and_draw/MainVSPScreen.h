@@ -41,6 +41,13 @@ enum ToolbarSize
     TOOLBAR_LARGE
 };
 
+// Where the Geom Browser's panel is, over the 3D view or beside it.
+enum BrowserPlace
+{
+    BROWSER_FLOATING,
+    BROWSER_DOCKED
+};
+
 #define GL_WINDOW_DX 0
 #define GL_WINDOW_DY 25
 
@@ -132,6 +139,10 @@ public:
     // The toolbar's size, a ToolbarSize, kept in the preferences.
     void SetToolbarSize( int size );
     int GetToolbarSize();
+
+    // Where the Geom Browser's panel is, a BrowserPlace, kept in the preferences.
+    void SetBrowserPlace( int place );
+    int GetBrowserPlace();
 
     void EnableStopGUIMenuItem();
     void DisableStopGUIMenuItem();
@@ -275,6 +286,7 @@ protected:
     std::vector < int > m_ToolActions;
     int m_ToolbarSize;
     int m_ShownToolbarSize;     // The size Window > Toolbar shows it at again.
+    int m_BrowserPlace;
     int m_ToolW;
     int m_ToolIcon;
     Fl_SVG_Image * m_DeviceIconOn;

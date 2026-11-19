@@ -36,9 +36,12 @@ class VspCaptiveLayer : public Fl_Group
 public:
     VspCaptiveLayer( int x, int y, int w, int h );
 
-    // Puts the 3D view, of the layer's size, under the layer's windows, so the pointer over none of them is over the
-    // view
+    // Puts the 3D view, of the layer's size less the strip kept at its right, under the layer's windows, so the pointer
+    // over none of them is over the view
     void SetView( Fl_Window* view );
+
+    // Keeps a strip this wide along the layer's right edge clear of the 3D view, which takes the rest
+    void SetViewRight( int w );
 
     void resize( int x, int y, int w, int h ) override;
     int handle( int event ) override;
@@ -57,6 +60,7 @@ public:
 
 private:
     Fl_Window* m_View;
+    int m_ViewRight;
 };
 
 // A window inside the main window that holds a screen's window, with a title bar to move it by, a close button and

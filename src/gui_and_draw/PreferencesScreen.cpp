@@ -174,6 +174,7 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_FCTypeAtShow = vsp::FC_OPENVSP;
     m_ToolbarAtShow = TOOLBAR_MEDIUM;
     m_WindowModeAtShow = vsp::WINDOW_MODE_FREE;
+    m_BrowserPlaceAtShow = BROWSER_FLOATING;
     m_ModeChanging = false;
 
     //==== General ====//
@@ -209,6 +210,12 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_WindowModeChoice.UpdateItems();
     m_GenLayout.AddChoice( m_WindowModeChoice, "Screens" );
     m_WindowModeChoice.GetFlChoice()->tooltip( "Each screen a window of its own, or inside the main window over the 3D view." );
+
+    m_BrowserPlaceChoice.AddItem( "Floating", BROWSER_FLOATING );
+    m_BrowserPlaceChoice.AddItem( "Docked", BROWSER_DOCKED );
+    m_BrowserPlaceChoice.UpdateItems();
+    m_GenLayout.AddChoice( m_BrowserPlaceChoice, "Geom Browser" );
+    m_BrowserPlaceChoice.GetFlChoice()->tooltip( "The Geom Browser over the right of the 3D view, or beside it, the view narrower while the browser is shown." );
 
     //==== 3D View ====//
     Fl_Group * view_tab = AddTab( "3D View" );
@@ -562,11 +569,13 @@ void PreferencesScreen::Show()
         m_NavAtShow.Load();
         m_ToolbarAtShow = GetToolbarSize();
         m_WindowModeAtShow = m_ScreenMgr->GetWindowMode();
+        m_BrowserPlaceAtShow = GetBrowserPlace();
     }
 
     m_FCTypeChoice.SetVal( GetFCType() );
     m_ToolbarChoice.SetVal( GetToolbarSize() );
     m_WindowModeChoice.SetVal( m_ScreenMgr->GetWindowMode() );
+    m_BrowserPlaceChoice.SetVal( GetBrowserPlace() );
 
     m_Nav.Load();
     ShowNav();
@@ -1203,6 +1212,10 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SetWindowMode( m_WindowModeChoice.GetVal() );
     }
+    else if ( device == &m_BrowserPlaceChoice )
+    {
+        SetBrowserPlace( m_BrowserPlaceChoice.GetVal() );
+    }
     else if ( device == &m_DefaultsButton )
     {
         SetFCType( vsp::FC_OPENVSP );
@@ -1211,6 +1224,8 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
         m_ToolbarChoice.SetVal( TOOLBAR_MEDIUM );
         SetWindowMode( vsp::WINDOW_MODE_FREE );
         m_WindowModeChoice.SetVal( vsp::WINDOW_MODE_FREE );
+        SetBrowserPlace( BROWSER_FLOATING );
+        m_BrowserPlaceChoice.SetVal( BROWSER_FLOATING );
         m_Nav = VSPGUI::NavSettings();
         ShowNav();
         ApplyNav();
@@ -1223,6 +1238,8 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
         m_ToolbarChoice.SetVal( m_ToolbarAtShow );
         SetWindowMode( m_WindowModeAtShow );
         m_WindowModeChoice.SetVal( m_WindowModeAtShow );
+        SetBrowserPlace( m_BrowserPlaceAtShow );
+        m_BrowserPlaceChoice.SetVal( m_BrowserPlaceAtShow );
         m_Nav = m_NavAtShow;
         ShowNav();
         ApplyNav();
@@ -1272,6 +1289,25 @@ void PreferencesScreen::SetToolbarSize( int size )
     if ( main )
     {
         main->SetToolbarSize( size );
+    }
+}
+
+int PreferencesScreen::GetBrowserPlace()
+{
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( main )
+    {
+        return main->GetBrowserPlace();
+    }
+    return BROWSER_FLOATING;
+}
+
+void PreferencesScreen::SetBrowserPlace( int place )
+{
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( main )
+    {
+        main->SetBrowserPlace( place );
     }
 }
 

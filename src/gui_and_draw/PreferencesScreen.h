@@ -47,6 +47,10 @@ public:
     int GetToolbarSize();
     void SetToolbarSize( int size );
 
+    // Where the Geom Browser's panel is, a BrowserPlace.
+    int GetBrowserPlace();
+    void SetBrowserPlace( int place );
+
     // Keeps the window mode, a vsp::WINDOW_MODE, in the preferences and shows the screens that way
     void SetWindowMode( int mode );
 
@@ -92,6 +96,7 @@ protected:
     int m_FCTypeAtShow;
     int m_ToolbarAtShow;
     int m_WindowModeAtShow;
+    int m_BrowserPlaceAtShow;
 
     // True while the screens move to another window mode, which shows this window again.
     bool m_ModeChanging;
@@ -104,6 +109,7 @@ protected:
     Choice m_FCTypeChoice;
     Choice m_ToolbarChoice;
     Choice m_WindowModeChoice;
+    Choice m_BrowserPlaceChoice;
 
     // 3D View tab.
     GroupLayout m_ViewLayout;

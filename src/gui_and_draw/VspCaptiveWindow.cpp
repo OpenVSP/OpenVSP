@@ -25,6 +25,7 @@ static Fl_Widget_Tracker* s_Clicked = nullptr;
 VspCaptiveLayer::VspCaptiveLayer( int x, int y, int w, int h ) : Fl_Group( x, y, w, h )
 {
     m_View = nullptr;
+    m_ViewRight = 0;
     box( FL_NO_BOX );
     end();
 }
@@ -35,12 +36,30 @@ void VspCaptiveLayer::SetView( Fl_Window* view )
     insert( *view, 0 );
 }
 
+void VspCaptiveLayer::SetViewRight( int w )
+{
+    if ( w < 0 )
+    {
+        w = 0;
+    }
+    if ( w == m_ViewRight )
+    {
+        return;
+    }
+    m_ViewRight = w;
+    if ( m_View )
+    {
+        m_View->resize( x(), y(), this->w() - m_ViewRight, h() );
+        m_View->redraw();
+    }
+}
+
 void VspCaptiveLayer::resize( int x, int y, int w, int h )
 {
     Fl_Widget::resize( x, y, w, h );
     if ( m_View )
     {
-        m_View->resize( x, y, w, h );
+        m_View->resize( x, y, w - m_ViewRight, h );
     }
     for ( int i = 0; i < children(); i++ )
     {

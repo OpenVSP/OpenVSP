@@ -350,6 +350,14 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_CaptiveLayer = new VspCaptiveLayer( m_GlWin->x(), m_GlWin->y(), m_GlWin->w(), m_GlWin->h() );
     m_SidePanel = new VspSidePanel( m_CaptiveLayer );
     Fl_Group::current( cur );
+
+    // The Geom Browser's panel, where it was last put.
+    app.get( "Geom_Browser_Place", m_BrowserPlace, BROWSER_DOCKED );
+    if ( m_BrowserPlace != BROWSER_FLOATING )
+    {
+        m_BrowserPlace = BROWSER_DOCKED;
+    }
+    m_SidePanel->SetDocked( m_BrowserPlace == BROWSER_DOCKED );
     m_GenLayout.GetGroup()->add( m_CaptiveLayer );
     m_CaptiveLayer->SetView( m_GlWin );
     m_GenLayout.GetGroup()->resizable( m_CaptiveLayer );
@@ -767,6 +775,26 @@ void MainVSPScreen::SetToolbarSize( int size )
 int MainVSPScreen::GetToolbarSize()
 {
     return m_ToolbarSize;
+}
+
+void MainVSPScreen::SetBrowserPlace( int place )
+{
+    if ( place != BROWSER_DOCKED )
+    {
+        place = BROWSER_FLOATING;
+    }
+    m_BrowserPlace = place;
+    m_SidePanel->SetDocked( place == BROWSER_DOCKED );
+    m_FLTK_Window->redraw();
+
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    Fl_Preferences app( prefs, "Application" );
+    app.set( "Geom_Browser_Place", place );
+}
+
+int MainVSPScreen::GetBrowserPlace()
+{
+    return m_BrowserPlace;
 }
 
 // An SVG icon sized for a bottom strip button.  It lives as long as the program.

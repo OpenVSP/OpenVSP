@@ -27,9 +27,13 @@ Alt for Alt or Option.
 
 ## Windows
 
-The Geom Browser sits in a panel along the right edge of the 3D view, over the view and its full height.  The button at
-the right of its title hides it, and the small tab left at the right edge of the view, Model > Geometry or the
+The Geom Browser sits in a panel along the right edge of the 3D view, its full height.  The button at the right of its
+title hides it, and the small tab left at the right edge of the view, Model > Geometry or the
 toolbar's Geometry browser button brings it back.
+
+File > Preferences > General > Windows > Geom Browser sets where the panel goes.  Docked, the default, puts it beside
+the view: the view narrows to make room while the browser is shown and widens again when it is hidden.  Floating puts
+it over the 3D view instead.  A change takes effect at once and is kept for the next start.
 
 File > Preferences > General > Windows > Screens sets how the other screens are shown.  With Free Windows, the
 default, each is a window of its own.  With Captive Windows, each is a window inside the main window, over the 3D view:
