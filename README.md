@@ -76,7 +76,7 @@
    - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
    language for C++.  Used for user-defined components.
 
-   - [Clipper2](http://www.angusj.com/clipper2/Docs/Overview.htm) - An open
+   - [Clipper2](https://github.com/PolyClipping/Clipper2) - An open
    source library for clipping and offsetting 2D lines and polygons.
 
    - [CMinpack](http://devernay.free.fr/hacks/cminpack/) - C/C++ port of
