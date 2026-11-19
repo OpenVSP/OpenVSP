@@ -344,6 +344,9 @@ void GeomEngine::UpdateEngine()
     m_UnextendedMainBBox.Reset();
     m_MainSurfVec[0].GetBoundingBox( m_UnextendedMainBBox );
 
+    // The rows of a section the engine cuts short stay where the whole section's are.
+    m_MainSurfVec[0].SetTrimmedUTess( m_EngineGeomIOType() != ENGINE_GEOM_NONE );
+
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
 

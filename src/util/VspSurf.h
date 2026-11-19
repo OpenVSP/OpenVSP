@@ -135,6 +135,11 @@ public:
 
     double GetUMax() const;
     double GetUMapMax() const { return m_UMapMax; };
+
+    // Whether GeomEngine trimmed the surface, so that each piece of a section takes the rows of the whole section
+    // nearest its ends, in place of rows spaced along the section.
+    void SetTrimmedUTess( bool trimmed )    { m_TrimmedUTess = trimmed; }
+
     double GetWMax() const;
 
     void ReverseUDirection();
@@ -499,6 +504,7 @@ protected:
 
     Vsp1DCurve m_UMapping;
     double m_UMapMax;
+    bool m_TrimmedUTess;
 
     double m_Lmax;
     Vsp1DCurve m_LCurve;

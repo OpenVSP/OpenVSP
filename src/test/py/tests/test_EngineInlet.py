@@ -116,6 +116,31 @@ def testEngineNegativeFlowpathTessellatesItsSectionAndCaps( typ ):
 
 
 @pytest.mark.parametrize( "typ", [ "FUSELAGE", "STACK" ] )
+def testASectionCutShortKeepsTheRowsOfTheWholeSection( typ ):
+    """An inlet whose lip is placed by U inside section 1 keeps, from the lip on, the rows the whole section has
+    past the lip, not the section's count spaced along what is left of it."""
+    gid = build_engine_body( typ )
+    u, w = vsp.GetUWTess01( gid, 0 )
+    whole = [ vsp.CompPnt01( gid, 0, uu, 0.25 ).x() for uu in u ]
+
+    set_engine( gid,
+                GeomIOType=vsp.ENGINE_GEOM_INLET,
+                GeomInType=vsp.ENGINE_GEOM_FLOWTHROUGH,
+                InletModeType=vsp.ENGINE_MODE_TO_LIP,
+                InletLipMode=vsp.ENGINE_LOC_U,
+                InletLipU=0.3 )
+
+    u, w = vsp.GetUWTess01( gid, 0 )
+    cut = [ vsp.CompPnt01( gid, 0, uu, 0.25 ).x() for uu in u ]
+    lip = cut[0]
+    end = whole[ ( sect_tess( 0 ) - 1 ) + ( sect_tess( 1 ) - 1 ) ]
+    past = [ x for x in whole if lip + 1e-6 < x <= end + 1e-9 ]
+    left = [ x for x in cut if lip + 1e-6 < x <= end + 1e-9 ]
+    assert lip < end
+    assert len( left ) == len( past )
+
+
+@pytest.mark.parametrize( "typ", [ "FUSELAGE", "STACK" ] )
 def testTurningTheEngineOffLeavesOneSurface( typ ):
     """The negative flowpath surface goes away with the engine representation."""
     gid = build_engine_body( typ )

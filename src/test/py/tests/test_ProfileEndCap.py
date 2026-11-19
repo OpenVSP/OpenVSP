@@ -333,6 +333,26 @@ def testTheTessellationRunsFromPointToPoint( typ, cap_type ):
     assert u[-1] == 1.0
 
 
+@pytest.mark.parametrize( "radius", ( 0.0, 0.3 ) )
+@pytest.mark.parametrize( "cap_type", PROFILES )
+@pytest.mark.parametrize( "typ", TYPES )
+def testACapsRowsAreEvenStepsAlongIt( typ, cap_type, radius ):
+    """However the cap's profile is split into patches, its rows are even steps of its parameter, so the rows of a
+    coarser tessellation are among those of a finer one."""
+    gid = tube( typ, 0.8 )
+    set_caps( gid, cap_type, 2.5, radius=radius )
+    rows = {}
+    for n in ( 5, 9 ):
+        vsp.SetParmVal( gid, "CapUMinTess", "EndCap", n )
+        vsp.Update()
+        u, w = vsp.GetUWTess01( gid, 0 )
+        steps = [ u[i + 1] - u[i] for i in range( n - 1 ) ]
+        assert max( steps ) - min( steps ) < 1e-12
+        rows[n] = u[:n]
+    assert all( min( abs( a - b ) for b in rows[9] ) < 1e-12 for a in rows[5] )
+    assert_no_errors()
+
+
 @pytest.mark.parametrize( "typ", TYPES )
 def testACloneOfABodyTakesItsProfileCap( typ ):
     gid = tube( typ, 0.8 )

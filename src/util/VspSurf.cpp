@@ -96,6 +96,7 @@ VspSurf::VspSurf()
     m_SkinClosedFlag = 0;
 
     m_UMapMax = -1;
+    m_TrimmedUTess = false;
 
     m_Lmax = 0;
 
@@ -136,6 +137,7 @@ void VspSurf::CopyNonSurfaceData( const VspSurf & s )
 
     m_UMapping = s.m_UMapping;
     m_UMapMax = s.m_UMapMax;
+    m_TrimmedUTess = s.m_TrimmedUTess;
 
     m_Lmax = s.m_Lmax;
     m_LCurve = s.m_LCurve;
@@ -2700,8 +2702,90 @@ void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::
 
 
     }
+    else if ( !m_TrimmedUTess )
+    {
+        // Each section's rows are spaced along the whole section, wherever the patches within it meet.
+        const int nusect = m_Surface.number_u_patches();
+
+        // The section of the original each patch maps to, and where each patch starts in u.
+        vector < int > iorigvec( nusect );
+        vector < double > upatch( nusect + 1 );
+        upatch[0] = m_Surface.get_u0();
+        for ( int isect = 0; isect < nusect; ++isect )
+        {
+            iorigvec[isect] = floor( m_UMapping.GetSegFirstPoint( isect ) );
+            upatch[isect + 1] = upatch[isect] + m_Surface.get_du( isect );
+        }
+
+        u.clear();
+        double ulast = upatch[0];
+        int isect = 0;
+        while ( isect < nusect )
+        {
+            // The patches isect to iend - 1 make up one section.
+            int iorig = iorigvec[isect];
+            int iend = isect + 1;
+            while ( iend < nusect && iorigvec[iend] == iorig )
+            {
+                iend++;
+            }
+
+            int nuu = n_default;
+            double rc = 1.0;
+            double tc = 1.0;
+            bool skip = false;
+            if ( iorig == -1 )        // Cap added by GeomEngine::UpdateEngine();
+            {
+                nuu = n_cap;
+            }
+            else if ( iorig >= 0 )    // Maps to an original section.
+            {
+                skip = GetUSkip( iorig );
+                nuu = num_u[iorig];
+                rc = GetRootCluster( iorig );
+                tc = GetTipCluster( iorig );
+            }
+
+            if ( !skip )
+            {
+                double fstart = m_UMapping.GetSegFirstPoint( isect );
+                double fend = m_UMapping.GetSegLastPoint( iend - 1 );
+                int ip = isect;
+                for ( int isecttess = 0; isecttess < nuu - 1; ++isecttess )
+                {
+                    double s = Cluster( static_cast<double>( isecttess ) / ( nuu - 1 ), rc, tc );
+                    if ( fend > fstart )
+                    {
+                        // The row's place in the section, found in the patch that holds it.
+                        double f = fstart + s * ( fend - fstart );
+                        while ( ip < iend - 1 && f >= m_UMapping.GetSegLastPoint( ip ) )
+                        {
+                            ip++;
+                        }
+                        double f0 = m_UMapping.GetSegFirstPoint( ip );
+                        double f1 = m_UMapping.GetSegLastPoint( ip );
+                        double t = 0.0;
+                        if ( f1 > f0 )
+                        {
+                            t = ( f - f0 ) / ( f1 - f0 );
+                        }
+                        u.push_back( upatch[ip] + t * ( upatch[ip + 1] - upatch[ip] ) );
+                    }
+                    else
+                    {
+                        u.push_back( upatch[isect] + s * ( upatch[iend] - upatch[isect] ) );
+                    }
+                }
+                ulast = upatch[iend];
+            }
+            isect = iend;
+        }
+        u.push_back( ulast );
+    }
     else
     {
+        // A surface GeomEngine trimmed gives each piece of a section the rows of the whole section nearest its ends,
+        // so a section cut short keeps the rows the untrimmed section has.
         const int nusect = m_Surface.number_u_patches();
 
         vector < double > umap;
