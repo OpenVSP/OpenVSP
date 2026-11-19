@@ -161,6 +161,12 @@ AF_FILE.  *Read File* reads an airfoil's coordinates in one of three formats:
 OpenVSP splits the airfoil into a mean line and a thickness distribution.  *Base T/C* is the file's thickness, and
 *T/C* scales the thickness about the mean line, so changing it keeps the camber.
 
+The points are joined by a smooth spline.  A point listed twice in a row makes a corner there: the spline is fit
+separately on either side, so the surface passes through the point with a different slope on each side.  This is how
+to give an airfoil sharp edges partway along a surface while the rest stays smooth: for a main element with a cove for
+a high lift device, list each sharp edge of the cove twice in the lower surface, and the surface turns there instead
+of rounding over.  Listing the leading edge point twice gives a sharp leading edge.
+
 ### CST
 
 CST_AIRFOIL.  A Class-Shape Transformation airfoil (Kulfan): each surface is

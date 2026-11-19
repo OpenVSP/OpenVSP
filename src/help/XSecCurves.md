@@ -174,7 +174,9 @@ Give them centered on the origin and symmetric about the vertical centerline: Op
 points nearest that line, and the left-hand point to be twice as far down the list as the bottom.  The points are
 normalized by their extent, which becomes the section's Width and Height; changing those then stretches the shape.  The
 curve passes through every point, as a smooth spline whose parameter follows the arc length between the bottom, side and
-top.
+top.  A point listed twice in a row makes a corner there: the spline is fit separately on either side, so the section
+passes through the point with a different slope on each side.  Listing the first point twice puts the corner at the
+start, where the curve closes.
 
 ## Edit Curve
 
@@ -199,6 +201,18 @@ with Width and Height, is the better start.
 Converting to Cubic Bezier keeps the shape exactly, adding the tangent points that reproduce it, and keeps the corner
 radii.  Converting a Bezier to Linear or Spline keeps only its points on the curve, and Linear and Spline pass through
 the same points in different ways, so those conversions change the shape between the points.
+
+A Spline or Linear point repeated with the same $U$, $X$ and $Y$ makes a corner: the Spline is fit separately on either
+side of it, so the curve passes through the point with a different slope on each side.  *G0* on a point makes one:
+when the next point has the same $X$ and $Y$, whatever its $U$, it is tied to the point; when the point before does,
+the point is tied to that one instead; otherwise a copy of the point is put after it and tied to it.  A tied point's
+row is grayed out, and the two keep one $U$, $X$ and $Y$: dragging either in the view, changing the first one's $U$,
+$X$ or $Y$, or setting the tied one's through the API, moves both.  Switching G0 off leaves the two points where they are, still a corner, but each then moves
+alone.  Two points moved together by hand make a corner too, untied; two points at the same $U$ but in different
+places are joined by a straight step.  *Delete Selected* on the tied point takes the corner out.  On a closed curve,
+G0 on the first point makes a corner where the curve closes; the last point is the first, so it has no G0.  With
+left/right symmetry, G0 on a right-side point gives both sides the corner.  The API sets G0 like any other Parm, or
+makes an untied corner with a point repeated in the data given to `SetEditXSecPnts`.
 
 ### Points and Size
 

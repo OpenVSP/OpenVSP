@@ -563,6 +563,27 @@ point. PCHIP passes through every point, but its shape between them is
 hard to steer; it is the type a BEM import gives (see <a
 href="#bem-files">BEM Files</a>). <em>Convert to</em> Approximate Cubic
 Bezier refits a single curve as a cubic Bezier with fewer points.</p>
+<p>A point listed twice in a row, at the same
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r/R</annotation></semantics></math>
+and value, makes a corner in a PCHIP or Linear curve. The spline is fit
+separately on either side of it, so the curve passes through the point
+with a different slope on each side. <em>G0</em> on an interior point
+makes one: when the next point is at the same
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r/R</annotation></semantics></math>
+and value, it is tied to the point; when the point before is, the point
+is tied to that one instead; otherwise a copy of the point is put after
+it and tied to it. A tied point's sliders are grayed out, and it moves
+with its point: dragging either in the plot, changing the first one's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r/R</annotation></semantics></math>
+or value, or setting the tied one's through the API, moves both.
+Switching G0 off leaves the two points where they are, still a corner,
+but each then moves alone. A point can be slid onto its neighbor's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r/R</annotation></semantics></math>;
+given the same value too, the two make a corner, untied, and with
+different values the curve steps there. Deleting the tied point with
+<em>Del</em> takes the corner out. The API sets G0 like any other Parm,
+or makes an untied corner with a point repeated in the data given to
+<code>SetPCurve</code>.</p>
 <table>
 <thead>
 <tr>

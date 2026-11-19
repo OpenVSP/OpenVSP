@@ -233,6 +233,17 @@ handles set the slope at each point.  PCHIP passes through every point, but its 
 steer; it is the type a BEM import gives (see [BEM Files](#bem-files)).  *Convert to* Approximate Cubic Bezier refits
 a single curve as a cubic Bezier with fewer points.
 
+A point listed twice in a row, at the same $r/R$ and value, makes a corner in a PCHIP or Linear curve.  The spline is
+fit separately on either side of it, so the curve passes through the point with a different slope on each side.
+*G0* on an interior point makes one: when the next point is at the same $r/R$ and value, it is tied to the point;
+when the point before is, the point is tied to that one instead; otherwise a copy of the point is put after it and
+tied to it.  A tied point's sliders are grayed out, and it moves with its point: dragging either in the plot, changing
+the first one's $r/R$ or value, or setting the tied one's through the API, moves both.  Switching G0 off leaves the two points where they are,
+still a corner, but each then moves alone.  A point can be slid onto its neighbor's $r/R$; given the same value too,
+the two make a corner, untied, and with different values the curve steps there.  Deleting the tied point with *Del*
+takes the corner out.  The API sets G0 like any other Parm, or makes an untied corner with a point repeated in the
+data given to `SetPCurve`.
+
 | Curve      | Units     | Meaning                                                                                     |
 |:-----------|:----------|:--------------------------------------------------------------------------------------------|
 | Chord      | $c/R$     | Local chord.                                                                                |

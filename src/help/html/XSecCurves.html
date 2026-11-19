@@ -373,7 +373,11 @@ twice as far down the list as the bottom. The points are normalized by
 their extent, which becomes the section's Width and Height; changing
 those then stretches the shape. The curve passes through every point, as
 a smooth spline whose parameter follows the arc length between the
-bottom, side and top.</p>
+bottom, side and top. A point listed twice in a row makes a corner
+there: the spline is fit separately on either side, so the section
+passes through the point with a different slope on each side. Listing
+the first point twice puts the corner at the start, where the curve
+closes.</p>
 <h2 id="edit-curve">Edit Curve</h2>
 <p>An Edit Curve is a section drawn by hand, point by point, in the
 <em>Edit Curve</em> window that <em>Edit Curve</em> opens. It is for
@@ -402,6 +406,43 @@ tangent points that reproduce it, and keeps the corner radii. Converting
 a Bezier to Linear or Spline keeps only its points on the curve, and
 Linear and Spline pass through the same points in different ways, so
 those conversions change the shape between the points.</p>
+<p>A Spline or Linear point repeated with the same
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>U</mi><annotation encoding="application/x-tex">U</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+makes a corner: the Spline is fit separately on either side of it, so
+the curve passes through the point with a different slope on each side.
+<em>G0</em> on a point makes one: when the next point has the same
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+whatever its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>U</mi><annotation encoding="application/x-tex">U</annotation></semantics></math>,
+it is tied to the point; when the point before does, the point is tied
+to that one instead; otherwise a copy of the point is put after it and
+tied to it. A tied point's row is grayed out, and the two keep one
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>U</mi><annotation encoding="application/x-tex">U</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>:
+dragging either in the view, changing the first one's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>U</mi><annotation encoding="application/x-tex">U</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+or setting the tied one's through the API, moves both. Switching G0 off
+leaves the two points where they are, still a corner, but each then
+moves alone. Two points moved together by hand make a corner too,
+untied; two points at the same
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>U</mi><annotation encoding="application/x-tex">U</annotation></semantics></math>
+but in different places are joined by a straight step. <em>Delete
+Selected</em> on the tied point takes the corner out. On a closed curve,
+G0 on the first point makes a corner where the curve closes; the last
+point is the first, so it has no G0. With left/right symmetry, G0 on a
+right-side point gives both sides the corner. The API sets G0 like any
+other Parm, or makes an untied corner with a point repeated in the data
+given to <code>SetEditXSecPnts</code>.</p>
 <h3 id="points-and-size">Points and Size</h3>
 <p>The points are given as fractions of the section's Width and Height,
 so the Scale XSec controls stretch the curve rather than move its
