@@ -736,6 +736,10 @@ void ManageGeomScreen::GeomBrowserCallback()
         selVec = GetSelectedBrowserItems();
         if ( selVec == m_SelVec )
         {
+            if ( m_GeomBrowser->GetCBReason() == TREE_CALLBACK_SELECT && Fl::event_clicks() == 0 )
+            {
+                SetNeedsShowHideGeoms();
+            }
             return;
         }
         m_SelVec = selVec;
