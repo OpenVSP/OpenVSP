@@ -214,6 +214,9 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     m_PlotLayout.SetSameLineFlag( false );
     m_PlotLayout.SetFitWidthFlag( true );
 
+    AddLegendPlacementItems( m_LegendChoice );
+    m_PlotLayout.AddChoice( m_LegendChoice, "Legend:" );
+
     //==== Plot Area, Title Only ====//
     Fl_Group* plottitle_group = new Fl_Group( 310, 25, 465, 490 );
     // plottitle_group->box( Fl_Boxtype::FL_BORDER_BOX );
@@ -347,6 +350,7 @@ bool WaveDragScreen::Update()
         m_PlaneToggle.Update( WaveDragMgr.m_PlaneFlag.GetID() );
 
         m_PointToggle.Update( WaveDragMgr.m_PointFlag.GetID() );
+        m_LegendChoice.Update( WaveDragMgr.m_Legend.GetID() );
 
         m_AreaGroup.Update( WaveDragMgr.m_AreaPlotType.GetID() );
 
@@ -770,6 +774,7 @@ void WaveDragScreen::RedrawPlot()
     m_canvas->ClearSeriesPoints();
 
     m_canvas->ClearLegend();
+    m_canvas->SetLegendPlacement( WaveDragMgr.m_Legend() );
 
     int itheta = WaveDragMgr.m_ThetaIndex() - 1;
     double theta_deg = 0.0;

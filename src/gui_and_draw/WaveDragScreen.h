@@ -116,6 +116,7 @@ protected:
     ToggleRadioGroup m_AreaGroup;
 
     ToggleButton m_PointToggle;
+    Choice m_LegendChoice;
 
 
     //==== Canvas ====//

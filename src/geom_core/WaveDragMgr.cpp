@@ -62,6 +62,8 @@ WaveDragSingleton::WaveDragSingleton() : ParmContainer()
     m_AreaPlotType.SetDescript( "Area distribution plot type" );
 
     m_PointFlag.Init( "PointPlotFlag", "WaveDrag", this, true, 0, 1 );
+    m_Legend.Init( "Legend", "WaveDrag", this, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_BEST, vsp::RESULTS_LEGEND_OFF );
+    m_Legend.SetDescript( "Legend placement in the area plot" );
 
     m_lastmeshgeomID = string();
     m_Symm = true;

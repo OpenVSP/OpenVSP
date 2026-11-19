@@ -98,6 +98,7 @@ public:
     IntParm m_IdealBodyType;
     IntParm m_AreaPlotType;
     BoolParm m_PointFlag;
+    IntParm m_Legend;
 
     // Tool
     string m_lastmeshgeomID;
