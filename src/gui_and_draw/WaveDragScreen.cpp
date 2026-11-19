@@ -214,13 +214,6 @@ WaveDragScreen::WaveDragScreen( ScreenMgr* mgr ) : TabScreen( mgr, 310 + 470, 45
     m_PlotLayout.SetSameLineFlag( false );
     m_PlotLayout.SetFitWidthFlag( true );
 
-    m_PlotLayout.AddYGap();
-    m_PlotLayout.AddDividerBox( "Legend" );
-
-    m_LegendGroup = m_PlotLayout.AddFlScroll( m_PlotLayout.GetRemainY() );
-    m_LegendGroup->type( Fl_Scroll::VERTICAL_ALWAYS );
-    m_LegendLayout.SetGroupAndScreen( m_LegendGroup, this );
-
     //==== Plot Area, Title Only ====//
     Fl_Group* plottitle_group = new Fl_Group( 310, 25, 465, 490 );
     // plottitle_group->box( Fl_Boxtype::FL_BORDER_BOX );
@@ -776,10 +769,7 @@ void WaveDragScreen::RedrawPlot()
     m_canvas->clear();
     m_canvas->ClearSeriesPoints();
 
-    m_LegendGroup->clear();
-    m_LegendLayout.SetGroup( m_LegendGroup );
-    m_LegendLayout.InitWidthHeightVals();
-    m_LegendLayout.SetButtonWidth( m_LegendLayout.GetW() * 0.65 );
+    m_canvas->ClearLegend();
 
     int itheta = WaveDragMgr.m_ThetaIndex() - 1;
     double theta_deg = 0.0;
@@ -912,7 +902,7 @@ void WaveDragScreen::RedrawPlot()
             AddPointLine( r.m_XFit, r.m_FitAreaFlow, 2, total_color, 0, 1, total_dash );
             m_canvas->AddSeriesPoints( r.m_XFit, r.m_FitAreaFlow );
 
-            m_LegendLayout.AddLegendEntry( prefix + "Total", total_color, true, total_dash, total_legend_marker );
+            m_canvas->AddLegendEntry( prefix + "Total", total_color, true, total_dash, total_legend_marker );
             m_canvas->NameNewSeries( prefix + "Total" );
 
             if ( points )
@@ -924,7 +914,7 @@ void WaveDragScreen::RedrawPlot()
 
         if ( plot_type == WaveDragSingleton::AREA_COMPONENTS )
         {
-            m_LegendLayout.AddLegendEntry( prefix + "Total", total_color, true, total_dash, total_legend_marker );
+            m_canvas->AddLegendEntry( prefix + "Total", total_color, true, total_dash, total_legend_marker );
         }
 
         for ( int icomp = 0; icomp < ( int ) r.m_CompNames.size(); icomp++ )
@@ -951,7 +941,7 @@ void WaveDragScreen::RedrawPlot()
             {
                 legend_marker = marker;
             }
-            m_LegendLayout.AddLegendEntry( prefix + r.m_CompNames[icomp], c, true, dash, legend_marker );
+            m_canvas->AddLegendEntry( prefix + r.m_CompNames[icomp], c, true, dash, legend_marker );
             m_canvas->NameNewSeries( prefix + r.m_CompNames[icomp] );
 
             if ( points )
@@ -1019,7 +1009,7 @@ void WaveDragScreen::RedrawPlot()
             }
         }
 
-        m_LegendLayout.AddLegendEntry( last_prefix + body, FL_BLUE );
+        m_canvas->AddLegendEntry( last_prefix + body, FL_BLUE );
         AddPointLine( last.m_XFit, S_ideal, 2, FL_BLUE );
         m_canvas->AddSeriesPoints( last.m_XFit, S_ideal );
         m_canvas->NameNewSeries( last_prefix + body );

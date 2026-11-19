@@ -117,8 +117,6 @@ protected:
 
     ToggleButton m_PointToggle;
 
-    GroupLayout m_LegendLayout;
-    Fl_Scroll* m_LegendGroup;
 
     //==== Canvas ====//
     GroupLayout m_JustPlotLayout;
