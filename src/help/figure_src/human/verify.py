@@ -61,7 +61,21 @@ def main():
     c0, c1, p0, p1 = moved( { "ForearmRt": 30 } )
     check( p1[ 1 ] < p0[ 1 ] and p1[ 0 ] > p0[ 0 ], "Forearm + turns the thumb, at the front, in and back" )
     c0, c1, p0, p1 = moved( { "WristRt": 30 } )
-    check( c1[ 1 ] > c0[ 1 ], "Wrist + bends the fingers outward, away from the thigh" )
+    check( c1[ 1 ] < c0[ 1 ], "Wrist + bends the fingers in toward the thigh, the palm side: flexion" )
+    c0, c1, p0, p1 = moved( { "WristDevRt": 35 } )
+    check( p1[ 0 ] > p0[ 0 ] + 0.05, "Wrist Deviation + swings the fingertips back, toward the little finger: ulnar" )
+    c0, c1, p0, p1 = moved( { "WristDevLt": 35 } )
+    check( p0[ 1 ] < 0 and p1[ 0 ] > p0[ 0 ] + 0.05, "Wrist Deviation + on the left swings its fingertips back too" )
+    c0, c1, p0, p1 = moved( { "WristDevRt": -20 } )
+    check( p1[ 0 ] < p0[ 0 ] - 0.03, "Wrist Deviation - swings the fingertips forward, toward the thumb: radial" )
+    c0, c1, p0, p1 = moved( { "HipIERt": 30 }, { "HipFERt": 90, "KneeRt": 90 } )
+    check( c1[ 1 ] > c0[ 1 ], "Hip IE + swings a seated lower leg outward: the thigh turns inward" )
+    c0, c1, p0, p1 = moved( { "TorsoTwist": 30 } )
+    check( p0[ 1 ] > 0.1 and p1[ 0 ] > p0[ 0 ], "Twist + turns the chest to the right: the right shoulder goes back" )
+    c0, c1, p0, p1 = moved( { "TorsoBend": 20 } )
+    check( c1[ 1 ] > c0[ 1 ] and c1[ 2 ] < c0[ 2 ], "Side Bend + bends the upper body to the person's right" )
+    c0, c1, p0, p1 = moved( { "HeadTilt": 30 } )
+    check( c1[ 1 ] > c0[ 1 ], "Tilt + tilts the head to the person's right" )
     c0, c1, p0, p1 = moved( { "HipABADRt": 20 } )
     check( c1[ 1 ] > c0[ 1 ], "Hip AB/AD + swings the leg out to the side" )
     c0, c1, p0, p1 = moved( { "HipFERt": 30 } )
@@ -133,6 +147,50 @@ def main():
     vsp.Update()
     check( abs( vsp.GetParmVal( h, "Stature", "Anthropometric" ) - 1.619 ) < 1e-3,
            "switching to female after the unit gives the female 50th percentile, 1619 mm" )
+
+    # The shoulder is measured from the vertical: AB/AD 90 with every other angle zero holds the arm level, out to the
+    # side; FE 90 holds it level, forward.
+    for parm, axis, what in ( ( "ShoulderABADRt", 1, "out to the side" ), ( "ShoulderFERt", 0, "forward" ) ):
+        base = { "ShoulderABADRt": 0.0, "ElbowRt": 0.0 }
+        _, G = hf.human( base )
+        merged = dict( base )
+        merged[ parm ] = 90.0
+        _, T = hf.human( merged )
+        G = G.reshape( -1, 3 )
+        T = T.reshape( -1, 3 )
+        d = np.linalg.norm( T - G, axis = 1 )
+        A = T[ d > 0.5 * d.max() ]
+        u = np.linalg.svd( A - A.mean( 0 ) )[ 2 ][ 0 ]
+        check( abs( u[ 2 ] ) < np.sin( np.radians( 12 ) ) and abs( u[ axis ] ) > 0.95,
+               parm + " 90 holds the straight arm level, " + what + " (direction %s)" % np.round( u, 2 ) )
+
+    # The presets: every angle inside its Parm's range, and Standing is the new human's pose.
+    table = hf.presets()
+    vsp.VSPRenew()
+    h = vsp.AddGeom( "HUMAN" )
+    vsp.Update()
+    bad = []
+    for name, ( sym, pose ) in table.items():
+        for k, v in pose.items():
+            p = vsp.FindParm( h, k, "Pose" )
+            if v < vsp.GetParmLowerLimit( p ) - 1e-9 or v > vsp.GetParmUpperLimit( p ) + 1e-9:
+                bad.append( "%s %s %g" % ( name, k, v ) )
+    check( not bad, "every preset angle is inside its Parm's range " + ", ".join( bad ) )
+    # SetHumanPresetPose poses each preset as the table says, R/L Sym included.
+    bad = []
+    for name, ( sym, pose ) in table.items():
+        vsp.SetHumanPresetPose( h, getattr( vsp, "HUMAN_PRESET_" + name ) )
+        vsp.Update()
+        if vsp.GetParmVal( h, "RLSym", "Pose" ) != float( sym ):
+            bad.append( name + " RLSym" )
+        bad += [ name + " " + k for k, v in pose.items() if abs( vsp.GetParmVal( h, k, "Pose" ) - v ) > 1e-12 ]
+    check( not bad, "SetHumanPresetPose sets every preset's angles and R/L Sym " + ", ".join( bad ) )
+    vsp.VSPRenew()
+    h = vsp.AddGeom( "HUMAN" )
+    vsp.Update()
+    sym, pose = table[ "STANDING" ]
+    check( all( abs( vsp.GetParmVal( h, k, "Pose" ) - v ) < 1e-12 for k, v in pose.items() ),
+           "a new human is in the Standing preset" )
 
     print( "\n%d failed" % len( FAIL ) )
 

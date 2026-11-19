@@ -130,9 +130,11 @@ crew member, sized from population statistics and posed joint by joint.
 Its shape comes from a statistical model of adult body scans, so a few
 numbers -- sex, stature, body mass index, age and sitting height -- give
 a complete, realistic body. A skeleton inside the body then bends it
-into any pose from standing to seated. The result is a closed triangle
-mesh with a mass, a volume and a design eye point, for checking fit,
-reach, visibility and mass properties.</p>
+into any pose from standing to seated, and seventeen preset postures,
+most of them from published measurements, give a start. The result is a
+closed triangle mesh, or a set of closed surfaces, with a mass, a volume
+and a design eye point, for checking fit, reach, visibility and mass
+properties.</p>
 <table>
 <thead>
 <tr>
@@ -145,6 +147,11 @@ reach, visibility and mass properties.</p>
 <td style="text-align: left;"><a href="#quick-start">Quick
 Start</a></td>
 <td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#representation">Representation</a></td>
+<td style="text-align: left;">Anthropometric</td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="#units">Units</a></td>
@@ -160,7 +167,17 @@ Axes</a></td>
 <td style="text-align: left;"></td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#pose">Pose</a></td>
+<td style="text-align: left;"><a href="#presets">Presets</a></td>
+<td style="text-align: left;">Pose</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#joint-angles">Joint
+Angles</a></td>
+<td style="text-align: left;">Pose</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#how-the-body-follows">How the
+Body Follows</a></td>
 <td style="text-align: left;">Pose</td>
 </tr>
 <tr>
@@ -202,16 +219,51 @@ the location of the waist, not the feet.</li>
 <li>Choose <em>Gender</em>, then set <em>Length Unit</em> and <em>Mass
 Unit</em> to the units of the model.</li>
 <li>Set the size, as for a standing person.</li>
-<li>On the Pose tab choose <em>Preset</em> SITTING and click
-<em>Set</em>, then adjust the joints to fit the seat.</li>
-<li>Place it with the XForm tab, by the waist joint (Figure 2). Attach a
-Super Cone Auxiliary to it to show the field of view (see <a
+<li>On the Pose tab choose a seated <em>Preset</em> (SEATED ERECT,
+PASSENGER, DRIVER, PILOT, ...) and click <em>Set</em>, then adjust the
+joints to fit the seat.</li>
+<li>Place it with the XForm tab, by the waist joint (Figure 3), and
+pitch it with <em>YRot</em> for a reclined seat. Attach a Super Cone
+Auxiliary to it to show the field of view (see <a
 href="#design-eye">Design Eye</a>).</li>
 </ol>
+<h2 id="representation">Representation</h2>
+<p><em>Shape</em> chooses what the human is made of.</p>
+<ul>
+<li>MESH, the default, is the triangle mesh of the body model
+itself.</li>
+<li>SURFACE is twenty overlapping closed surfaces: trunk, head and neck,
+and on each side an arm, a palm, a thumb, four fingers, a leg and a foot
+(Figure 1). Each part runs on inside its neighbour, so their union is
+the closed body; CompGeom and CFD Mesh find where they cross, as they do
+for a wing on a fuselage. The surfaces are smooth everywhere but at the
+closed ends of each part. They follow the mesh to within about half a
+millimeter typically and a few millimeters nearly everywhere; the
+largest differences are where the posed body presses into itself, as at
+the groin when seated. The toes are joined, so the foot's surface
+bridges the gaps between them. The eyes are fixed points of the head's
+surface.</li>
+</ul>
+<p><img src="images/Human_surface.png" title="Figure 1. The surfaces"
+alt="Figure 1. The surfaces" /></p>
+<p><em>Figure 1. A human as SURFACE, each part in its own color: the
+trunk, the head and neck, and on each side an arm, a palm, a thumb, four
+fingers, a leg and a foot.</em></p>
+<p>Both are built from the same body size and the same skeleton, and
+pose together, through the same tetrahedral mesh (see <a
+href="#how-the-body-follows">How the Body Follows</a>). The Volume and
+the density from Auto Density are the mesh's in either case; the union
+of the surfaces holds the same volume to within a fraction of a percent
+(0.2% for the default human). Use SURFACE where a surface is needed (see
+<a href="#the-human-in-analyses">The Human in Analyses</a>) or for
+smooth exports such as STEP and IGES; use MESH otherwise.</p>
+<p>In SURFACE, <em>Num_U</em> and <em>Num_W</em> on the Gen tab are the
+number of points along and around each patch of the surfaces, 3 by
+default.</p>
 <h2 id="units">Units</h2>
 <p><em>Length Unit</em> and <em>Mass Unit</em> say what units the human
 is built in. They are not display units: the body is built at its
-stature in the length unit, so a 1.76 m man is 1.76 model units tall
+stature in the length unit, so a 1.756 m man is 1.756 model units tall
 with Length Unit M and 5.76 with Length Unit FT. Set them to the units
 the rest of the model uses. The default is FT and LBM.</p>
 <p>Changing the length unit keeps the person the same size in the real
@@ -220,12 +272,18 @@ new unit. Changing the mass unit restates the mass.</p>
 <p>The XForm tab's <em>Scale</em> has no effect on a human; its size is
 set by the stature and the length unit alone.</p>
 <h2 id="body-size">Body Size</h2>
-<p>The body shape is the statistical model from Human Shapes
-(humanshape.org, by Prof. Matthew P. Reed of the University of Michigan
-Transportation Research Institute), used with permission [1]. Its inputs
-are stature, body mass index, sitting height ratio and age; every point
-of the body follows from them. Between them, the controls on the
-Anthropometric tab describe most of the variation among adults.</p>
+<p>The body shape is the statistical body shape model of Human Shapes
+(humanshape.org), by Matthew P. Reed of the University of Michigan
+Transportation Research Institute (UMTRI), used with permission [1, 2].
+The model was fitted to laser scans of several hundred adults by
+principal component analysis, as UMTRI's body shape models are [3], and
+predicts the whole body, skin and joint centers, from a few
+anthropometric inputs: stature, body mass index, the ratio of sitting
+height to stature, and age. Every point of the body is a linear function
+of those inputs and of the product of BMI and age, so a change in any of
+them moves the body smoothly. Between them, the controls on the
+Anthropometric tab describe most of the variation in body shape among
+adults.</p>
 <table>
 <thead>
 <tr>
@@ -313,9 +371,9 @@ Volume.</td>
 </table>
 <h3 id="stature-and-bmi">Stature and BMI</h3>
 <p>Stature and BMI each have a value and a percentile; set either and
-the other follows. The percentiles come from the United States NHANES
-survey of adults aged 20 and over, 2011-2014, separately for men and
-women [2]:</p>
+the other follows. The percentiles come from the United States National
+Health and Nutrition Examination Survey (NHANES) of adults aged 20 and
+over, 2011-2014, separately for men and women [4]:</p>
 <table>
 <thead>
 <tr>
@@ -350,9 +408,17 @@ women [2]:</p>
 </tr>
 </tbody>
 </table>
-<p>Switching <em>Gender</em> keeps the percentiles, so a 95th percentile
-man becomes a 95th percentile woman, and shorter. The limits on
-<em>Stature</em> are the 5th and 95th percentile of the chosen sex.</p>
+<p>Between the tabulated percentiles (5, 10, 15, 25, 50, 75, 85, 90 and
+95) the value is interpolated smoothly. Switching <em>Gender</em> keeps
+the percentiles, so a 95th percentile man becomes a 95th percentile
+woman, and shorter. The limits on <em>Stature</em> are the 5th and 95th
+percentile of the chosen sex.</p>
+<p>These are percentiles of the general adult population. A population
+chosen for an occupation differs: military aircrew, for example, are
+selected for size and are leaner. For such a population set
+<em>Stature</em> and <em>Mass</em> (or <em>BMI</em>) from its own
+survey, such as ANSUR II for the U.S. Army [5]; the percentile controls
+then report where that person falls among the general population.</p>
 <p>Mass, BMI and stature are tied together by</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">I</mi></mrow><mo>=</mo><mfrac><mi>m</mi><msup><mi>h</mi><mn>2</mn></msup></mfrac></mrow><annotation encoding="application/x-tex">
 \mathrm{BMI} = \frac{m}{h^2}
@@ -374,8 +440,14 @@ known to differ.</p>
 <p><em>Volume</em> is the volume of the closed body as posed, in the
 length unit cubed. With <em>Auto Density</em> on, the human's density on
 the Mass tab is set to <em>Mass</em> / <em>Volume</em>, so the mass
-properties of the model carry the person's mass at the right place. Turn
-it off to set a density by hand.</p>
+properties of the model carry the person's mass at the right place,
+whatever the pose. Turn it off to set a density by hand.</p>
+<p>The volume changes with the pose, because the flesh at a deeply bent
+joint is compressed: seated, the default human's volume is 6-7% less
+than standing, and squatting up to 11% less (see <a
+href="#how-the-body-follows">How the Body Follows</a>). With <em>Auto
+Density</em> on the mass stays the person's and the density rises to
+match.</p>
 <h2 id="origin-and-axes">Origin and Axes</h2>
 <p>The human faces
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>,
@@ -385,81 +457,206 @@ up and the person's right side toward
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>,
 the way a pilot sits in an aircraft whose nose points along
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>
-(Figure 1). The origin is the waist joint, and it stays there whatever
+(Figure 2). The origin is the waist joint, and it stays there whatever
 the pose: the legs hang from it standing and fold in front of it seated
-(Figure 2). Place a seated occupant by the waist joint, not by the seat
+(Figure 3). Place a seated occupant by the waist joint, not by the seat
 or the feet.</p>
-<p><img src="images/Human_axes.png" title="Figure 1. Human axes"
-alt="Figure 1. Human axes" /></p>
-<p><em>Figure 1. A new human, its origin at the waist joint, and its
+<p><img src="images/Human_axes.png" title="Figure 2. Human axes"
+alt="Figure 2. Human axes" /></p>
+<p><em>Figure 2. A new human, its origin at the waist joint, and its
 axes. The person faces
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>;
 the right hand is toward
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>.</em></p>
 <p><img src="images/Human_seated.png"
-title="Figure 2. Standing and seated"
-alt="Figure 2. Standing and seated" /></p>
-<p><em>Figure 2. The default human standing, as it is made, and in the
+title="Figure 3. Standing and seated"
+alt="Figure 3. Standing and seated" /></p>
+<p><em>Figure 3. The default human standing, as it is made, and in the
 Sitting preset. The origin is the same point of the body in
 both.</em></p>
-<h2 id="pose">Pose</h2>
-<p>The pose bends the body at the joints of its skeleton. The skin
-follows the bones smoothly, so a bent elbow or hip deforms the flesh
-around it rather than hinging a rigid part. The skin is bound to the
-skeleton by the Pinocchio automatic rigging method [3].</p>
-<h3 id="presets">Presets</h3>
-<p><em>Preset</em> and <em>Set</em> at the top of the Pose tab put the
-human into a standard pose. Set replaces every joint angle and turns
-<em>R/L Sym</em> on; choose the preset first and then adjust.</p>
+<h2 id="presets">Presets</h2>
+<p>The pose bends the body at the joints of its skeleton.
+<em>Preset</em> and <em>Set</em> at the top of the Pose tab put the
+human into a standard posture (Figures 4-5): Set replaces every joint
+angle and turns <em>R/L Sym</em> on or off as the posture needs. Choose
+the preset first and then adjust. In a script,
+<code>SetHumanPresetPose</code> does the same, with the enum in the
+table below (see <a href="#scripting">Scripting</a>). A new human
+stands, in the Standing preset.</p>
+<p>The postures are taken from published measurements where there are
+any; the others are drawn to match a named posture and are marked
+illustrative. A preset sets the joints only. Lying, crawling or reclined
+postures are made by pitching the whole body on the XForm tab:
+<em>YRot</em> -90 pitches the body face down, as for crawling, and a
+positive <em>YRot</em> reclines it.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Joint</th>
-<th style="text-align: left;">Standing</th>
-<th style="text-align: left;">Sitting</th>
+<th style="text-align: left;">Preset</th>
+<th style="text-align: left;">Enum</th>
+<th style="text-align: left;">Posture</th>
+<th style="text-align: left;">Source</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Elbow</td>
-<td style="text-align: left;">15</td>
-<td style="text-align: left;">80</td>
+<td style="text-align: left;">STANDING</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_STANDING</code></td>
+<td style="text-align: left;">Standing relaxed, arms hanging; the
+default pose</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr>
-<td style="text-align: left;">Shoulder IE</td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">45</td>
+<td style="text-align: left;">SITTING</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_SITTING</code></td>
+<td style="text-align: left;">Seated, hands resting on the thighs</td>
+<td style="text-align: left;">illustrative</td>
 </tr>
 <tr>
-<td style="text-align: left;">Hip AB/AD</td>
-<td style="text-align: left;">0.5</td>
-<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">SEATED ERECT</td>
+<td
+style="text-align: left;"><code>HUMAN_PRESET_SEATED_ERECT</code></td>
+<td style="text-align: left;">The anthropometric seated posture: thighs
+level, forearms level</td>
+<td style="text-align: left;">[5]</td>
 </tr>
 <tr>
-<td style="text-align: left;">Hip FE</td>
-<td style="text-align: left;">2.5</td>
-<td style="text-align: left;">80</td>
+<td style="text-align: left;">PASSENGER</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_PASSENGER</code></td>
+<td style="text-align: left;">Relaxed car passenger</td>
+<td style="text-align: left;">[6]</td>
 </tr>
 <tr>
-<td style="text-align: left;">Knee</td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">80</td>
+<td style="text-align: left;">DRIVER</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_DRIVER</code></td>
+<td style="text-align: left;">Car driver, hands on the wheel</td>
+<td style="text-align: left;">[7]</td>
 </tr>
 <tr>
-<td style="text-align: left;">All other joints</td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">0</td>
+<td style="text-align: left;">PILOT</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_PILOT</code></td>
+<td style="text-align: left;">Pilot, right hand on a center stick, left
+on a throttle; R/L Sym off</td>
+<td style="text-align: left;">illustrative</td>
+</tr>
+<tr>
+<td style="text-align: left;">RECUMBENT</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_RECUMBENT</code></td>
+<td style="text-align: left;">Recumbent crew seat, as for the Orion
+capsule</td>
+<td style="text-align: left;">[8]</td>
+</tr>
+<tr>
+<td style="text-align: left;">NBP SKYLAB</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_NBP_SKYLAB</code></td>
+<td style="text-align: left;">Neutral body posture in weightlessness,
+measured on Skylab</td>
+<td style="text-align: left;">[9, 10]</td>
+</tr>
+<tr>
+<td style="text-align: left;">NBP ISS</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_NBP_ISS</code></td>
+<td style="text-align: left;">Neutral body posture measured on the
+International Space Station</td>
+<td style="text-align: left;">[11]</td>
+</tr>
+<tr>
+<td style="text-align: left;">KNEELING</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_KNEELING</code></td>
+<td style="text-align: left;">Upright on both knees</td>
+<td style="text-align: left;">[12], illustrative</td>
+</tr>
+<tr>
+<td style="text-align: left;">KNEELING ONE KNEE</td>
+<td
+style="text-align: left;"><code>HUMAN_PRESET_KNEELING_ONE_KNEE</code></td>
+<td style="text-align: left;">On the left knee, right foot forward; R/L
+Sym off</td>
+<td style="text-align: left;">[13], illustrative</td>
+</tr>
+<tr>
+<td style="text-align: left;">SQUATTING</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_SQUATTING</code></td>
+<td style="text-align: left;">Squatting, heels down</td>
+<td style="text-align: left;">[12], illustrative</td>
+</tr>
+<tr>
+<td style="text-align: left;">CRAWLING</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_CRAWLING</code></td>
+<td style="text-align: left;">Hands and knees, for a body pitched
+forward 90 degrees</td>
+<td style="text-align: left;">[12], illustrative</td>
+</tr>
+<tr>
+<td style="text-align: left;">FORWARD REACH</td>
+<td
+style="text-align: left;"><code>HUMAN_PRESET_FORWARD_REACH</code></td>
+<td style="text-align: left;">Right arm stretched forward, palm down;
+R/L Sym off</td>
+<td style="text-align: left;">[5]</td>
+</tr>
+<tr>
+<td style="text-align: left;">OVERHEAD REACH</td>
+<td
+style="text-align: left;"><code>HUMAN_PRESET_OVERHEAD_REACH</code></td>
+<td style="text-align: left;">Right arm straight up; R/L Sym off</td>
+<td style="text-align: left;">[5]</td>
+</tr>
+<tr>
+<td style="text-align: left;">SPAN</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_SPAN</code></td>
+<td style="text-align: left;">Both arms stretched out to the sides,
+palms forward</td>
+<td style="text-align: left;">[5]</td>
+</tr>
+<tr>
+<td style="text-align: left;">WALKING</td>
+<td style="text-align: left;"><code>HUMAN_PRESET_WALKING</code></td>
+<td style="text-align: left;">Right heel strike; R/L Sym off</td>
+<td style="text-align: left;">illustrative</td>
 </tr>
 </tbody>
 </table>
-<p>A new human stands, in the Standing preset.</p>
-<h3 id="joint-angles">Joint angles</h3>
+<p>The two neutral body postures take the published joint angles, but
+for the rotation of the upper arms (Shoulder IE 30), which is set to
+match the published figure of the posture. A neutral body posture is the
+posture the body relaxes into in weightlessness; it is the reference for
+workstation heights and reach on a spacecraft.</p>
+<p><img src="images/Human_presets_seated.png"
+title="Figure 4. Seated presets" alt="Figure 4. Seated presets" /></p>
+<p><em>Figure 4. The seated and weightless presets, as Set leaves them.
+RECUMBENT is meant to be reclined on the XForm tab with the
+seat.</em></p>
+<p><img src="images/Human_presets_other.png"
+title="Figure 5. Other presets" alt="Figure 5. Other presets" /></p>
+<p><em>Figure 5. The standing, kneeling, squatting, crawling and
+reaching presets, as Set leaves them; CRAWLING is pitched forward 90
+degrees on the XForm tab.</em></p>
+<h2 id="joint-angles">Joint Angles</h2>
 <p>Every angle is in degrees. The names are the anatomical ones: AB/AD
 is abduction (away from the body's centerline) and adduction, FE is
-flexion and extension, IE is internal and external rotation.
-<em>Elbow</em> is the angle between the upper arm and the forearm, zero
-for a straight arm; the other angles are zero in a natural standing
-posture. Figures 3-5 show positive angles on the larger joints.</p>
+flexion and extension, IE is internal and external rotation. The Pose
+tab holds them in groups: Torso and Head, then Limbs, where each arm and
+leg joint is there twice, in a Right Arm and Left Arm column and a Right
+Leg and Left Leg column, Parms ending in <code>Rt</code> and
+<code>Lt</code>; the labels of the right column name each row for both
+(Figure 6).</p>
+<p><img src="images/Human_pose_tab.png" title="Figure 6. The Pose tab"
+alt="Figure 6. The Pose tab" /></p>
+<p><em>Figure 6. The Pose tab of a new human: the preset, the method,
+the torso and head, and the limbs. ARAP's settings are greyed while the
+method is FAST, and the left side while R/L Sym is on.</em></p>
+<p>The left angles mean the same motions as the right: a positive
+Shoulder AB/AD raises either arm out to its own side, and the left side
+posed as the right is the mirror image of it. With <em>R/L Sym</em> on,
+the toggle on the Limbs divider and the default, the left side copies
+the right and its controls are greyed; turn it off to pose the sides
+apart.</p>
+<p>The ranges broadly follow the normal ranges of motion of adults
+measured clinically [14], widened where a preset posture needs it. A
+pose inside the ranges can still put one part of the body through
+another (see <a href="#collisions">Collisions</a>).</p>
+<h3 id="torso-and-head">Torso and Head</h3>
 <table>
 <thead>
 <tr>
@@ -488,10 +685,26 @@ of the back.</td>
 waist.</td>
 </tr>
 <tr>
+<td style="text-align: left;">Twist</td>
+<td style="text-align: left;"><code>TorsoTwist</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-45 - 45</td>
+<td style="text-align: left;">turns the chest toward the person's right,
+the pelvis held.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Side Bend</td>
+<td style="text-align: left;"><code>TorsoBend</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-30 - 30</td>
+<td style="text-align: left;">bends the upper body toward the person's
+right.</td>
+</tr>
+<tr>
 <td style="text-align: left;">Nod</td>
 <td style="text-align: left;"><code>Nod</code></td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">-40 - 50</td>
+<td style="text-align: left;">-60 - 50</td>
 <td style="text-align: left;">tips the head forward, chin down.</td>
 </tr>
 <tr>
@@ -503,10 +716,49 @@ waist.</td>
 right.</td>
 </tr>
 <tr>
+<td style="text-align: left;">Tilt</td>
+<td style="text-align: left;"><code>HeadTilt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-40 - 40</td>
+<td style="text-align: left;">tilts the head toward the person's right
+shoulder.</td>
+</tr>
+</tbody>
+</table>
+<p>Back and Waist both bend the upper body forward; Back bends it
+higher, at the middle of the back, and Waist at the waist joint (Figure
+7). Side Bend is shared equally between the same two places. Twist turns
+the chest about the spine, spread along its length so the trunk twists
+smoothly rather than at one joint (Figure 8). In all of them the legs
+and the origin stay where they are. The head turns at the base of the
+neck, and the neck bends smoothly with it.</p>
+<p><img src="images/Human_pose_body.png"
+title="Figure 7. Back, waist and nod"
+alt="Figure 7. Back, waist and nod" /></p>
+<p><em>Figure 7. Back, Waist and Nod at 30. The tint shows the part that
+moved, as it was standing.</em></p>
+<p><img src="images/Human_pose_torso.png"
+title="Figure 8. Twist, side bend and the head"
+alt="Figure 8. Twist, side bend and the head" /></p>
+<p><em>Figure 8. Twist and Rotate seen from above; Side Bend and Tilt
+seen from in front of the person.</em></p>
+<h3 id="arms">Arms</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Range</th>
+<th style="text-align: left;">A positive angle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
 <td style="text-align: left;">Shoulder AB/AD</td>
 <td style="text-align: left;"><code>ShoulderABADRt</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">-40 - 170</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">-20 - 180</td>
 <td style="text-align: left;">raises the arm out to the side
 (abduction).</td>
 </tr>
@@ -514,7 +766,7 @@ right.</td>
 <td style="text-align: left;">Shoulder FE</td>
 <td style="text-align: left;"><code>ShoulderFERt</code></td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">-30 - 180</td>
+<td style="text-align: left;">-60 - 180</td>
 <td style="text-align: left;">swings the arm forward and up
 (flexion).</td>
 </tr>
@@ -522,9 +774,9 @@ right.</td>
 <td style="text-align: left;">Shoulder IE</td>
 <td style="text-align: left;"><code>ShoulderIERt</code></td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">-30 - 100</td>
-<td style="text-align: left;">turns the arm inward about its length
-(internal rotation).</td>
+<td style="text-align: left;">-90 - 90</td>
+<td style="text-align: left;">turns the upper arm inward about its
+length (internal rotation).</td>
 </tr>
 <tr>
 <td style="text-align: left;">Elbow</td>
@@ -538,22 +790,87 @@ right.</td>
 <td style="text-align: left;"><code>ForearmRt</code></td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">-90 - 90</td>
-<td style="text-align: left;">turns the thumb in toward the body
+<td style="text-align: left;">turns the palm toward the body and back
 (pronation).</td>
 </tr>
 <tr>
-<td style="text-align: left;">Wrist</td>
+<td style="text-align: left;">Wrist FE</td>
 <td style="text-align: left;"><code>WristRt</code></td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">-90 - 90</td>
-<td style="text-align: left;">bends the hand toward its back
-(extension).</td>
+<td style="text-align: left;">-90 - 80</td>
+<td style="text-align: left;">bends the hand toward the palm
+(flexion).</td>
 </tr>
+<tr>
+<td style="text-align: left;">Wrist Deviation</td>
+<td style="text-align: left;"><code>WristDevRt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-20 - 35</td>
+<td style="text-align: left;">bends the hand toward the little finger
+(ulnar deviation).</td>
+</tr>
+</tbody>
+</table>
+<p>The shoulder angles are measured from the arm hanging straight down,
+so with every other angle zero, Shoulder AB/AD 90 holds the arm straight
+out to the side and Shoulder FE 90 straight forward, whatever the body's
+size (Figure 9). The default arm hangs 20 degrees out from the body, as
+the body model's arms do. Shoulder AB/AD and FE together swing the arm
+by one rotation, along the shortest arc from hanging, toward a direction
+between the side and the front: AB/AD 45 with FE 45 raises the arm about
+64 degrees, midway between the two planes. So neither angle loses its
+meaning anywhere in its range, including with the arm straight forward
+or straight up. Shoulder IE then turns the upper arm about its own
+length, and the forearm and hand with it. It is easiest to see with the
+elbow bent: internal rotation swings the forearm in across the body, as
+in Figure 9.</p>
+<p>Raising an arm also moves the shoulder, as a real shoulder girdle
+does. The clavicle and shoulder blade turn in proportion to the arm's
+elevation from hanging, following the shoulder rhythm of the upper
+extremity model of Holzbaur, Murray and Delp [15], which they took from
+the measurements of de Groot and Brand [16]. The shoulder joint rises
+and moves back and in toward the neck as the arm goes up, and the top of
+the shoulder rises with it. The rhythm follows the arm's elevation only,
+so lowering the arm returns the shoulder to its place.</p>
+<p><em>Elbow</em> is the angle between the upper arm and the forearm,
+zero for a straight arm. The elbow bends the forearm forward in the
+plane of the upper arm, keeping the slight outward angle of the rest
+forearm (the carrying angle). <em>Forearm</em> turns the forearm and
+hand about the forearm's length; at zero the palm faces the thigh. It
+turns the palm down when the elbow is bent 90 degrees, and toward the
+back when the arm hangs. <em>Wrist FE</em> bends the hand at the wrist
+toward the palm (flexion) or toward its back (extension). <em>Wrist
+Deviation</em> then swings it sideways in the plane of the palm, toward
+the little finger (ulnar deviation) or the thumb (radial deviation):
+with the palm against the thigh, a positive angle swings the fingertips
+back. The signs follow the joint coordinate system recommended by the
+International Society of Biomechanics (ISB) [17]: flexion, ulnar
+deviation and pronation are positive.</p>
+<p><img src="images/Human_pose_arm.png" title="Figure 9. Arm"
+alt="Figure 9. Arm" /></p>
+<p><em>Figure 9. Positive shoulder, elbow, forearm and wrist angles.
+Shoulder AB/AD, Forearm and Wrist FE are seen from in front of the
+person and move the right arm; Shoulder FE, Elbow and Wrist Deviation
+are seen from the person's left and move the left arm; Shoulder IE is
+seen from above and moves the right arm, its elbow at 90. The tint shows
+the arm as it was.</em></p>
+<h3 id="legs">Legs</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Range</th>
+<th style="text-align: left;">A positive angle</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align: left;">Hip AB/AD</td>
 <td style="text-align: left;"><code>HipABADRt</code></td>
 <td style="text-align: left;">0.5</td>
-<td style="text-align: left;">-45 - 45</td>
+<td style="text-align: left;">-30 - 45</td>
 <td style="text-align: left;">swings the leg out to the side
 (abduction).</td>
 </tr>
@@ -561,8 +878,16 @@ right.</td>
 <td style="text-align: left;">Hip FE</td>
 <td style="text-align: left;"><code>HipFERt</code></td>
 <td style="text-align: left;">2.5</td>
-<td style="text-align: left;">-15 - 130</td>
+<td style="text-align: left;">-30 - 130</td>
 <td style="text-align: left;">swings the leg forward (flexion).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hip IE</td>
+<td style="text-align: left;"><code>HipIERt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-45 - 45</td>
+<td style="text-align: left;">turns the thigh inward about its length
+(internal rotation).</td>
 </tr>
 <tr>
 <td style="text-align: left;">Knee</td>
@@ -576,49 +901,92 @@ right.</td>
 <td style="text-align: left;">Ankle</td>
 <td style="text-align: left;"><code>AnkleRt</code></td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">-15 - 15</td>
+<td style="text-align: left;">-50 - 35</td>
 <td style="text-align: left;">raises the toes (dorsiflexion).</td>
 </tr>
 </tbody>
 </table>
-<p>The limb joints are on the Pose tab twice, under Right Side and Left
-Side (Parms ending in <code>Rt</code> and <code>Lt</code>). The left
-angles mean the same motions as the right: a positive Shoulder AB/AD
-raises either arm out to its own side. With <em>R/L Sym</em> on, the
-default, the left side copies the right and its controls are greyed;
-turn it off to pose the sides apart.</p>
-<p>Back and Waist both bend the upper body forward; Back bends it
-higher, at the middle of the back, and Waist at the waist joint (Figure
-3). In both the legs and the origin stay where they are.</p>
-<p><img src="images/Human_pose_body.png"
-title="Figure 3. Back, waist and head"
-alt="Figure 3. Back, waist and head" /></p>
-<p><em>Figure 3. Back, Waist and Nod at 30, seen from the person's left.
-The tint shows the part that moved, as it was standing.</em></p>
-<p><img src="images/Human_pose_arm.png" title="Figure 4. Arm"
-alt="Figure 4. Arm" /></p>
-<p><em>Figure 4. Positive shoulder and elbow angles. Shoulder AB/AD is
-seen from in front of the person and moves the right arm; Shoulder FE
-and Elbow are seen from the left and move the left arm; Shoulder IE is
-seen from above and moves the right arm, its elbow at 90. The tint shows
-the arm as it was.</em></p>
-<p>Shoulder IE is easiest to see with the elbow bent: internal rotation
-swings the forearm in across the body, as in Figure 4. With the arm
-hanging straight it only turns the arm about its own length. Likewise
-Forearm turns the palm down when the elbow is bent 90 degrees, and
-toward the back when the arm hangs; the palm faces the thigh at
-zero.</p>
-<p><img src="images/Human_pose_leg.png" title="Figure 5. Leg"
-alt="Figure 5. Leg" /></p>
-<p><em>Figure 5. Positive hip and knee angles. Hip AB/AD is seen from in
-front of the person and moves the right leg; Hip FE and Knee are seen
-from the left and move the left leg.</em></p>
+<p>The hip follows the order of the ISB joint coordinate system for the
+hip [18]: the leg first swings forward by Hip FE, then out by Hip AB/AD
+from wherever Hip FE left it, and then turns about its length by Hip IE.
+So in a seated pose Hip AB/AD spreads the knees by its own angle, and
+Hip IE swings the lower legs: internal rotation of the thigh swings the
+foot outward (Figure 10).</p>
+<p><img src="images/Human_pose_leg.png" title="Figure 10. Leg"
+alt="Figure 10. Leg" /></p>
+<p><em>Figure 10. Positive hip, knee and ankle angles. Hip AB/AD and Hip
+IE are seen from in front of the person and move the right leg; Hip FE,
+Knee and Ankle are seen from the person's left and move the left
+leg.</em></p>
+<h3 id="collisions">Collisions</h3>
 <p>The skeleton does not check for collisions, so a pose can put an arm
 through the body or a leg through the other; check a demanding pose by
-eye.</p>
+eye. Where body parts press together, as the belly on the thighs when
+seated or the calf on the thigh when squatting, the skin of the two
+overlaps rather than flattening against each other.</p>
+<p>Files saved by earlier versions of OpenVSP keep their joint angles,
+which now mean the motions described here: the shoulder and hip angles
+are measured from the vertical and combined as above, and wrist flexion
+is positive. A pose saved by an earlier version may need adjusting.</p>
+<h2 id="how-the-body-follows">How the Body Follows</h2>
+<p>The skin follows the bones smoothly, so a bent elbow or hip deforms
+the flesh around it rather than hinging a rigid part. To do so the body
+is filled with a tetrahedral mesh: about 37,000 tetrahedra on a 40 mm
+lattice inside the skin, with the skin's vertices and points along each
+bone among their corners. The mesh is built once, for every body of both
+sexes, and is mirror symmetric, so a symmetric pose gives a symmetric
+body. Its corners move with the body size, as the skin does.</p>
+<p>To pose the body the points along each bone are moved with their
+bone, and the rest of the tetrahedral mesh is deformed to follow them. A
+bone that twists, such as the upper arm, the forearm, the thigh, the
+spine and the neck, spreads its twist along its length. The skin and, in
+SURFACE, the surfaces' control points ride in the tetrahedra that hold
+them, so the mesh and the surfaces are posed alike.</p>
+<p><em>Method</em> chooses how the tetrahedral mesh is deformed; the
+settings of the other method are greyed.</p>
+<ul>
+<li>FAST, the default, is Fast Automatic Skinning Transformations [19].
+Each point of the mesh blends the movements of the bones with weights
+that fall off smoothly through the body, bounded biharmonic weights
+[20], and with extra weights whose movements FAST solves for so the
+deformation stays as close to rigid as it can. <em>FAST It.</em> is the
+number of iterations, 30 by default. It is fast enough to pose while
+dragging a slider: a few milliseconds per pose for the default
+human.</li>
+<li>ARAP is volumetric as-rigid-as-possible deformation [21, 22]. The
+points on the bones are held where their bones put them, and every other
+point of the mesh moves freely, so that each tetrahedron turns as nearly
+rigidly as it can. It iterates until no point of the skin moves more
+than <em>ARAP Tol</em> (in millimeters, 0.2 by default) over ten
+iterations, or until <em>ARAP It.</em> iterations (100 by default). It
+takes about a tenth of a second per pose for the default human, some
+thirty times FAST's time.</li>
+</ul>
+<p>The two agree in moderate poses. ARAP keeps the body's volume better
+in deep flexion: squatting, the default human loses about 4% of its
+volume with ARAP and 11% with FAST; reaching overhead, under 1% with
+ARAP and nearly 4% with FAST. Use FAST while posing, and ARAP for a
+final pose that is deeply bent, or where the volume and mass
+distribution matter.</p>
+<p>Both methods are iterative, and their result is an approximation that
+depends on how many iterations they run. ARAP's tolerance measures how
+far the skin moves over ten iterations, not how far it is from the shape
+ARAP would settle on, so in an extreme pose ARAP can stop while still
+changing slowly. At the default settings the seated human stops within
+about 5 mm of the shape ARAP settles on, but the crawling one stops more
+than 150 mm from it across the belly, and one with both arms overhead
+about 90 mm from it at the upper back. Raising <em>ARAP It.</em> or
+lowering <em>ARAP Tol</em> brings ARAP closer to its settled shape, at a
+cost in time, and in some poses it does not settle at all. Neither
+method keeps the skin from passing through itself where the body folds
+deeply (the groin when seated, the armpit with the arms raised), and
+with both arms overhead the base of the neck narrows somewhat. The
+results are repeatable: the same body, pose and settings give the same
+shape, whatever pose came before.</p>
+<p>Both are computed with libigl [23].</p>
 <h2 id="design-eye">Design Eye</h2>
 <p>The human carries a <em>design eye</em> point between the eyes
-(Figure 1), which moves and turns with the head. Two things use it:</p>
+(Figure 2), which moves and turns with the head. Two things use it:</p>
 <ul>
 <li>A Super Cone <a href="Auxiliary.html">Auxiliary</a> component whose
 parent is a human is placed at the design eye and turned with the head,
@@ -631,26 +999,45 @@ and looks from the design eye.</li>
 attached Super Cone follows the eye as the human is posed or
 resized.</p>
 <h2 id="the-human-in-analyses">The Human in Analyses</h2>
-<p>A human is a closed triangle mesh, the same in every analysis.
-CompGeom, Mass Properties, the slicing analyses, interference checks and
-the mesh exports all use it, and VSPAERO takes it as one component. Its
-mesh is fixed by the model: the Gen tab's tessellation controls do not
-apply.</p>
-<p>It is not a surface, so it has no sub-surfaces, its degenerate
-geometry is empty, and it takes no part where a surface is needed: CFD
-Mesh, FEA Mesh, Fit Model, or as the boundary or direction of a
-projection. Symmetry and Flip on the XForm tab work as for any
-component; see <a href="XFormTab.html#symmetry">Symmetry</a> and <a
+<p>As a MESH, a human is a closed triangle mesh, the same in every
+analysis. CompGeom, Mass Properties, the slicing analyses, interference
+checks and the mesh exports all use it, and VSPAERO takes it as one
+component. Its mesh is fixed by the model: the Gen tab's tessellation
+controls do not apply. It is not a surface, so it has no sub-surfaces,
+its degenerate geometry is empty, and it takes no part where a surface
+is needed: CFD Mesh, FEA Mesh, Fit Model, or as the boundary or
+direction of a projection.</p>
+<p>As a SURFACE, a human is like any component made of surfaces:
+CompGeom, Mass Properties and CFD Mesh work on the union of its parts,
+the exports include STEP and IGES, its degenerate geometry has one entry
+per part, and VSPAERO takes each part as a component. The screens that
+choose a component for a projection, Fit Model or an FEA fixed point
+still leave humans out.</p>
+<p>Symmetry and Flip on the XForm tab work as for any component; see <a
+href="XFormTab.html#symmetry">Symmetry</a> and <a
 href="XFormTab.html#flip">Flip</a>.</p>
 <h2 id="scripting">Scripting</h2>
-<p>A human has no functions of its own in the API: it is built and posed
-through its Parms, in the groups <code>Anthropometric</code> and
-<code>Pose</code>, with the names in the tables above. The <em>Set</em>
-button is not in the API; to pose a human as a preset, set the joint
-angles from the preset table. <code>ShowSkelFlag</code> in the
-<code>Anthropometric</code> group draws the skeleton with the feature
-lines, unposed in black and posed in blue; it has no control on the
-screen.</p>
+<p>A human is built and posed through its Parms, in the groups
+<code>Anthropometric</code> and <code>Pose</code>, with the names in the
+tables above; one function, <code>SetHumanPresetPose</code>, puts it in
+a preset. <em>Shape</em> is <code>Representation</code> in the
+<code>Design</code> group, <code>HUMAN_REP_MESH</code> or
+<code>HUMAN_REP_SURF</code>; the surfaces are in the order torso, head,
+then each right part followed by its left one (arm, palm, thumb, the
+fingers from the index, leg, foot). <em>Method</em> is
+<code>PoseMethod</code> in the <code>Pose</code> group,
+<code>HUMAN_POSE_ARAP</code> or <code>HUMAN_POSE_FAST</code>, with
+<code>FASTIter</code>, <code>ARAPMaxIter</code> and
+<code>ARAPTol</code>. <em>R/L Sym</em> is <code>RLSym</code>.</p>
+<p><code>SetHumanPresetPose</code> poses a human in a preset, as
+<em>Set</em> does: it sets <code>RLSym</code> and every pose angle, and
+keeps the method, its settings and the body's size. The preset is one of
+the enums in the preset table above (<code>HUMAN_PRESET_POSE</code>).
+Call <code>Update</code> afterward. Each angle can then be adjusted with
+<code>SetParmVal</code>, as on the Pose tab. <code>ShowSkelFlag</code>
+in the <code>Anthropometric</code> group draws the skeleton with the
+feature lines, unposed in black and posed in blue; it has no control on
+the screen.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openvsp <span class="im">as</span> vsp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -658,25 +1045,115 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( h, <span class="st">&quot;LenUnit&quot;</span>, <span class="st">&quot;Anthropometric&quot;</span>, vsp.LEN_M )</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( h, <span class="st">&quot;Stature_pct&quot;</span>, <span class="st">&quot;Anthropometric&quot;</span>, <span class="fl">0.95</span> )</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Seated, as the Sitting preset</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, val <span class="kw">in</span> ( ( <span class="st">&quot;ElbowRt&quot;</span>, <span class="dv">80</span> ), ( <span class="st">&quot;ShoulderIERt&quot;</span>, <span class="dv">45</span> ), ( <span class="st">&quot;HipFERt&quot;</span>, <span class="dv">80</span> ), ( <span class="st">&quot;KneeRt&quot;</span>, <span class="dv">80</span> ) ):</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    vsp.SetParmVal( h, name, <span class="st">&quot;Pose&quot;</span>, val )</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Seated as a driver, the head turned 20 degrees to the left</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>vsp.SetHumanPresetPose( h, vsp.HUMAN_PRESET_DRIVER )</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( h, <span class="st">&quot;RotateHead&quot;</span>, <span class="st">&quot;Pose&quot;</span>, <span class="op">-</span><span class="fl">20.0</span> )</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>vsp.Update()</span></code></pre></div>
+<p>The same in AngelScript:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>string h <span class="op">=</span> AddGeom<span class="op">(</span> <span class="st">&quot;HUMAN&quot;</span> <span class="op">);</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>SetParmVal<span class="op">(</span> h<span class="op">,</span> <span class="st">&quot;LenUnit&quot;</span><span class="op">,</span> <span class="st">&quot;Anthropometric&quot;</span><span class="op">,</span> LEN_M <span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>SetParmVal<span class="op">(</span> h<span class="op">,</span> <span class="st">&quot;Stature_pct&quot;</span><span class="op">,</span> <span class="st">&quot;Anthropometric&quot;</span><span class="op">,</span> <span class="fl">0.95</span> <span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Seated as a driver, the head turned 20 degrees to the left</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>SetHumanPresetPose<span class="op">(</span> h<span class="op">,</span> HUMAN_PRESET_DRIVER <span class="op">);</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>SetParmVal<span class="op">(</span> h<span class="op">,</span> <span class="st">&quot;RotateHead&quot;</span><span class="op">,</span> <span class="st">&quot;Pose&quot;</span><span class="op">,</span> <span class="op">-</span><span class="fl">20.0</span> <span class="op">);</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>Update<span class="op">();</span></span></code></pre></div>
 <h2 id="references">References</h2>
 <ol type="1">
-<li>Reed, M. P., Human Shapes, University of Michigan Transportation
+<li>Reed, M. P., "Human Shapes," University of Michigan Transportation
 Research Institute. <a
 href="http://humanshape.org/">http://humanshape.org/</a></li>
+<li>Reed, M. P., Raschke, U., Tirumali, R. and Parkinson, M. B.,
+"Developing and Implementing Parametric Human Body Shape Models in
+Ergonomics Software," Digital Human Modeling Symposium, 2014.</li>
+<li>Park, B.-K. and Reed, M. P., "Parametric Body Shape Model of
+Standing Children Aged 3-11 Years," Ergonomics, Vol. 58, No. 10, 2015,
+pp. 1714-1725. doi:10.1080/00140139.2015.1033480</li>
 <li>Fryar, C. D., Gu, Q., Ogden, C. L. and Flegal, K. M.,
 "Anthropometric Reference Data for Children and Adults: United States,
-2011-2014," Vital and Health Statistics, Series 3, Number 39, National
-Center for Health Statistics, 2016. Tables 9 and 11 (stature) and 14 and
-15 (body mass index).</li>
-<li>Baran, I. and Popovic, J., "Automatic Rigging and Animation of 3D
-Characters," ACM Transactions on Graphics, Vol. 26, No. 3 (SIGGRAPH
-2007), 2007. The Pinocchio library: <a
-href="https://github.com/elrond79/Pinocchio">https://github.com/elrond79/Pinocchio</a></li>
+2011-2014," Vital and Health Statistics, Series 3, No. 39, National
+Center for Health Statistics, DHHS Publication No. 2016-1604, 2016.
+Tables 9 and 11 (stature) and 14 and 15 (body mass index).</li>
+<li>Gordon, C. C., Blackwell, C. L., Bradtmiller, B., Parham, J. L.,
+Barrientos, P., Paquette, S. P., Corner, B. D., Carson, J. M., Venezia,
+J. C., Rockwell, B. M., Mucher, M. and Kristensen, S., "2012
+Anthropometric Survey of U.S. Army Personnel: Methods and Summary
+Statistics," Technical Report NATICK/TR-15/007, U.S. Army Natick Soldier
+Research, Development and Engineering Center, 2014. DTIC ADA611869.</li>
+<li>Reed, M. P., "Survey of Auto Seat Design Recommendations for
+Improved Comfort," University of Michigan Transportation Research
+Institute, 2000. Table 12.</li>
+<li>Reed, M. P., Manary, M. A., Flannagan, C. A. C. and Schneider, L.
+W., "Comparison of Methods for Predicting Automobile Driver Posture,"
+SAE Technical Paper 2000-01-2180, 2000. Table 2.
+doi:10.4271/2000-01-2180</li>
+<li>Blackledge, C., Margerum, S., Ferrer, M., Morency, R. and Rajulu,
+S., "Modeling the Impact of Space Suit Components and Anthropometry on
+the Center of Mass of a Seated Crewmember," International Conference on
+Applied Human Factors and Ergonomics (AHFE), Miami, 2010. NASA NTRS
+20100008465. Table 1.</li>
+<li>NASA, "Man-Systems Integration Standards," NASA-STD-3000, Volume I,
+Revision B, 1995. Figure 3.3.4.3-1.</li>
+<li>Mount, F. E., Whitmore, M. and Stealey, S. L., "Evaluation of
+Neutral Body Posture on Shuttle Mission STS-57 (SPACEHAB-1),"
+NASA/TM-2003-104805, NASA Johnson Space Center, 2003. Table 1.</li>
+<li>Kim, K. H., Young, K. S. and Rajulu, S. L., "Neutral Body Posture in
+Spaceflight," Proceedings of the Human Factors and Ergonomics Society
+Annual Meeting, Vol. 63, No. 1, 2019, pp. 992-996.
+doi:10.1177/1071181319631129</li>
+<li>U.S. Department of Defense, "Department of Defense Design Criteria
+Standard: Human Engineering," MIL-STD-1472H, 2020.</li>
+<li>Moore, S. M., Pollard, J. P., Porter, W. L., Gallagher, S. and
+Mayton, A. G., "Demands on the Knee During Kneeling and Squatting
+Activities Common to Low-Seam Mining," Report of Investigations 9681,
+DHHS (NIOSH) Publication No. 2011-176, National Institute for
+Occupational Safety and Health, 2011.</li>
+<li>Soucie, J. M., Wang, C., Forsyth, A., Funk, S., Denny, M., Roach, K.
+E., Boone, D. and the Hemophilia Treatment Center Network, "Range of
+Motion Measurements: Reference Values and a Database for Comparison
+Studies," Haemophilia, Vol. 17, No. 3, 2011, pp. 500-507.
+doi:10.1111/j.1365-2516.2010.02399.x</li>
+<li>Holzbaur, K. R. S., Murray, W. M. and Delp, S. L., "A Model of the
+Upper Extremity for Simulating Musculoskeletal Surgery and Analyzing
+Neuromuscular Control," Annals of Biomedical Engineering, Vol. 33, No.
+6, 2005, pp. 829-840. doi:10.1007/s10439-005-3320-7</li>
+<li>de Groot, J. H. and Brand, R., "A Three-Dimensional Regression Model
+of the Shoulder Rhythm," Clinical Biomechanics, Vol. 16, No. 9, 2001,
+pp. 735-743. doi:10.1016/S0268-0033(01)00065-1</li>
+<li>Wu, G., van der Helm, F. C. T., Veeger, H. E. J., Makhsous, M., Van
+Roy, P., Anglin, C., Nagels, J., Karduna, A. R., McQuade, K., Wang, X.,
+Werner, F. W. and Buchholz, B., "ISB Recommendation on Definitions of
+Joint Coordinate Systems of Various Joints for the Reporting of Human
+Joint Motion -- Part II: Shoulder, Elbow, Wrist and Hand," Journal of
+Biomechanics, Vol. 38, No. 5, 2005, pp. 981-992.
+doi:10.1016/j.jbiomech.2004.05.042</li>
+<li>Wu, G., Siegler, S., Allard, P., Kirtley, C., Leardini, A.,
+Rosenbaum, D., Whittle, M., D'Lima, D. D., Cristofolini, L., Witte, H.,
+Schmid, O. and Stokes, I., "ISB Recommendation on Definitions of Joint
+Coordinate System of Various Joints for the Reporting of Human Joint
+Motion -- Part I: Ankle, Hip, and Spine," Journal of Biomechanics, Vol.
+35, No. 4, 2002, pp. 543-548. doi:10.1016/S0021-9290(01)00222-6</li>
+<li>Jacobson, A., Baran, I., Kavan, L., Popovic, J. and Sorkine, O.,
+"Fast Automatic Skinning Transformations," ACM Transactions on Graphics,
+Vol. 31, No. 4 (SIGGRAPH 2012), Article 77, 2012.
+doi:10.1145/2185520.2185573</li>
+<li>Jacobson, A., Baran, I., Popovic, J. and Sorkine, O., "Bounded
+Biharmonic Weights for Real-Time Deformation," ACM Transactions on
+Graphics, Vol. 30, No. 4 (SIGGRAPH 2011), Article 78, 2011.
+doi:10.1145/2010324.1964973</li>
+<li>Sorkine, O. and Alexa, M., "As-Rigid-As-Possible Surface Modeling,"
+Proceedings of the Eurographics Symposium on Geometry Processing, 2007,
+pp. 109-116. doi:10.2312/SGP/SGP07/109-116</li>
+<li>Chao, I., Pinkall, U., Sanan, P. and Schroeder, P., "A Simple
+Geometric Model for Elastic Deformations," ACM Transactions on Graphics,
+Vol. 29, No. 4 (SIGGRAPH 2010), Article 38, 2010.
+doi:10.1145/1778765.1778775</li>
+<li>Jacobson, A., Panozzo, D., et al., "libigl: A Simple C++ Geometry
+Processing Library," 2018. <a
+href="https://libigl.github.io/">https://libigl.github.io/</a></li>
 </ol>
 </body>
 </html>

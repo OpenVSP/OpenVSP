@@ -17,9 +17,12 @@ html/Human.html is refreshed too.
 Files
 -----
 
-human_figs.py   The figures.  Each human is VSP's own, read back through an STL export, in meters.
+shots.py        The Pose tab screenshot (Human_pose_tab.png), by ../screenshots/snap.py: set VSP_SNAP_EXE.
+human_figs.py   The figures.  Each human is VSP's own, read back through an STL export (the surfaces through
+                CompVecPnt01), in meters.  The presets are read from the table in src/geom_core/HumanGeom.cpp.
 verify.py       Checks the page's statements against the openvsp module: which way the human faces, the sign of
-                every joint angle, units, scale, the sex switch, and the design eye.
+                every joint angle, units, scale, the sex switch, the design eye, the shoulder measured from the vertical,
+                and every preset inside its Parms' ranges.
 
 The drawing helpers are ../propeller/meshfig.py: triangles read back from VSP, painted with depth sorting, crease
 lines, and the 2D axis key, built on figlib.py there (the fixed orthographic projection, figlib.fit, and the one width

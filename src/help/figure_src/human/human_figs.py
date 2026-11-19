@@ -2,11 +2,12 @@
 
     <build>/venv/bin/python human_figs.py [names...]      # writes ../../images/Human_*.png
 
-The human is VSP's own, read back through an STL export.  Lengths are in meters (Length Unit M).  3D views are
-from about (-1, -1, 1) with Z up; 2D views keep the model frame and carry an axis key.
+The human is VSP's own, read back through an STL export (the surfaces through CompVecPnt01).  Lengths are in meters
+(Length Unit M).  3D views are from about (-1, -1, 1) with Z up; 2D views keep the model frame and carry an axis key.
 """
 
 import os
+import re
 import sys
 
 HERE = os.path.dirname( os.path.abspath( __file__ ) )
@@ -20,19 +21,66 @@ from meshfig import fl, vsp, COL
 GHOST = "#6FA8DC"
 POSED = "#C8CCD2"
 
+# The order of the preset table in HumanGeom.cpp: the trunk, then each side's limb joints.
+TRUNK = [ "Back", "Waist", "TorsoTwist", "TorsoBend", "Nod", "RotateHead", "HeadTilt" ]
+SIDE = [ "Wrist", "WristDev", "Forearm", "Elbow", "ShoulderABAD", "ShoulderFE", "ShoulderIE", "HipABAD", "HipFE", "HipIE", "Knee",
+         "Ankle" ]
 
-def human( pose = None, sym = False ):
+
+def presets():
+    """The preset poses, read from HumanGeom.cpp's table: name -> ( R/L Sym, { Pose Parm: angle } )."""
+    src = os.path.join( HERE, "..", "..", "..", "geom_core", "HumanGeom.cpp" )
+    with open( src ) as f:
+        text = f.read()
+    body = text[ text.index( "human_preset_poses[" ): ]
+    body = body[ body.index( "{" ) + 1: body.index( "};" ) ]
+    out = {}
+    for name, entry in re.findall( r"//\s*([A-Z_]+)\s*\n(.*?)(?=//|\Z)", body, re.S ):
+        sym = "true" in entry.split( "," )[ 0 ]
+        vals = [ float( v ) for v in re.findall( r"-?\d+\.\d*|-?\d+", entry ) ]
+        assert len( vals ) == len( TRUNK ) + 2 * len( SIDE ), "the preset table's layout changed: " + name
+        pose = dict( zip( TRUNK, vals[ :len( TRUNK ) ] ) )
+        for s, suffix in enumerate( ( "Rt", "Lt" ) ):
+            row = vals[ len( TRUNK ) + s * len( SIDE ): len( TRUNK ) + ( s + 1 ) * len( SIDE ) ]
+            pose.update( { j + suffix: v for j, v in zip( SIDE, row ) } )
+        out[ name ] = ( sym, pose )
+    assert len( out ) == 17, "expected seventeen presets, found %d" % len( out )
+    return out
+
+
+def human( pose = None, sym = False, rep = None, pitch = 0.0 ):
     """A default human in meters, R/L Sym off unless sym, posed by pose (a dict of Pose Parms); its ID and triangles."""
     vsp.VSPRenew()
     h = vsp.AddGeom( "HUMAN" )
     vsp.SetParmVal( h, "LenUnit", "Anthropometric", vsp.LEN_M )
+    if rep is not None:
+        vsp.SetParmVal( h, "Representation", "Design", rep )
     # Updated once with R/L Sym on, as a new human is, so the left side starts as a copy of the right.
     vsp.Update()
     vsp.SetParmVal( h, "RLSym", "Pose", 1.0 if sym else 0.0 )
     for k, v in ( pose or {} ).items():
         vsp.SetParmVal( h, k, "Pose", v )
+    vsp.SetParmVal( h, "Y_Rel_Rotation", "XForm", pitch )
     vsp.Update()
+    if rep == vsp.HUMAN_REP_SURF:
+        return h, None
     return h, mf.geom_tris( h )
+
+
+def surf_tris( h, i, nu = 41, nw = 41 ):
+    """Surface i of a Geom, sampled on an nu by nw grid of (u, w): the triangles of that grid."""
+    u = np.linspace( 0.0, 1.0, nu )
+    w = np.linspace( 0.0, 1.0, nw )
+    U, W = np.meshgrid( u, w, indexing = "ij" )
+    pts = vsp.CompVecPnt01( h, i, list( U.ravel() ), list( W.ravel() ) )
+    P = np.array( [ [ p.x(), p.y(), p.z() ] for p in pts ] ).reshape( nu, nw, 3 )
+    a = P[ :-1, :-1 ]
+    b = P[ 1:, :-1 ]
+    c = P[ 1:, 1: ]
+    d = P[ :-1, 1: ]
+    T = np.concatenate( [ np.stack( [ a, b, c ], 2 ).reshape( -1, 3, 3 ),
+                          np.stack( [ a, c, d ], 2 ).reshape( -1, 3, 3 ) ] )
+    return mf.clean( T )
 
 
 def design_eye( h ):
@@ -66,6 +114,27 @@ def fig_axes():
     rh = P[ np.argmax( P[ :, 1 ] ) ]
     c.text( rh, "right hand", dx = -6, dy = -4, ha = "right", va = "top" )
     mf.save( fig, "Human_axes", [ [ c ] ], hmax = 4.8 )
+
+
+# The surfaces' parts, in their order: torso, head, then each right part and its left one.
+PARTS = [ "torso", "head" ] + [ p for p in ( "arm", "palm", "thumb", "finger", "finger", "finger", "finger", "leg",
+                                             "foot" ) for _ in ( 0, 1 ) ]
+PART_COL = { "torso": "#C8CCD2", "head": "#E3C9A8", "arm": "#9FC5E8", "palm": "#B6D7A8", "thumb": "#F9CB9C",
+             "finger": "#D5A6BD", "leg": "#B4A7D6", "foot": "#FFE599" }
+
+
+def fig_surface():
+    """The SURFACE representation: its twenty parts, each in its own color."""
+    h, _ = human( sym = True, rep = vsp.HUMAN_REP_SURF )
+    n = vsp.GetNumMainSurfs( h )
+    assert n == len( PARTS ), "expected %d surfaces, found %d" % ( len( PARTS ), n )
+    fig, c = mf.new( mf.ISO )
+    for i in range( n ):
+        k = 31
+        if PARTS[ i ] in ( "torso", "head", "arm", "leg" ):
+            k = 101
+        mf.tris( c, surf_tris( h, i, k, k ), PART_COL[ PARTS[ i ] ] )
+    mf.save( fig, "Human_surface", [ [ c ] ], hmax = 4.8 )
 
 
 def pose_panels( fig, specs ):
@@ -112,15 +181,29 @@ def fig_body():
     mf.save( fig, "Human_pose_body", [ cans ], hmax = 4.8 )
 
 
+def fig_torso():
+    fig = new_fig()
+    cans = pose_panels( fig, [
+        ( mf.TOP, "top", { "TorsoTwist": 30 }, {}, "Twist 30" ),
+        ( mf.TOP, "top", { "RotateHead": 45 }, {}, "Rotate 45" ),
+        ( mf.UPSTREAM, "upstream", { "TorsoBend": 20 }, {}, "Side Bend 20" ),
+        ( mf.UPSTREAM, "upstream", { "HeadTilt": 30 }, {}, "Tilt 30" ),
+    ] )
+    mf.save( fig, "Human_pose_torso", [ cans[ :2 ], cans[ 2: ] ], hmax = 9.0 )
+
+
 def fig_arm():
     fig = new_fig()
     cans = pose_panels( fig, [
-        ( mf.UPSTREAM, "upstream", { "ShoulderABADRt": 45 }, {}, "Shoulder AB/AD 45" ),
-        ( mf.FRONT, "front", { "ShoulderFELt": 45 }, {}, "Shoulder FE 45" ),
+        ( mf.UPSTREAM, "upstream", { "ShoulderABADRt": 90 }, {}, "Shoulder AB/AD 90" ),
+        ( mf.FRONT, "front", { "ShoulderFELt": 90 }, {}, "Shoulder FE 90" ),
         ( mf.FRONT, "front", { "ElbowLt": 90 }, {}, "Elbow 90" ),
         ( mf.TOP, "top", { "ShoulderIERt": 45 }, { "ElbowRt": 90 }, "Shoulder IE 45, Elbow 90" ),
+        ( mf.UPSTREAM, "upstream", { "ForearmRt": 60 }, { "ElbowRt": 90 }, "Forearm 60, Elbow 90" ),
+        ( mf.UPSTREAM, "upstream", { "WristRt": 45 }, {}, "Wrist FE 45" ),
+        ( mf.FRONT, "front", { "WristDevLt": 35 }, {}, "Wrist Deviation 35" ),
     ] )
-    mf.save( fig, "Human_pose_arm", [ cans[ :3 ], cans[ 3: ] ], hmax = 9.0 )
+    mf.save( fig, "Human_pose_arm", [ cans[ :3 ], cans[ 3:6 ], cans[ 6: ] ], hmax = 13.0 )
 
 
 def fig_leg():
@@ -129,28 +212,22 @@ def fig_leg():
         ( mf.UPSTREAM, "upstream", { "HipABADRt": 30 }, {}, "Hip AB/AD 30" ),
         ( mf.FRONT, "front", { "HipFELt": 60 }, {}, "Hip FE 60" ),
         ( mf.FRONT, "front", { "KneeLt": 60 }, {}, "Knee 60" ),
+        ( mf.UPSTREAM, "upstream", { "HipIERt": 30 }, { "HipFERt": 90, "KneeRt": 90 },
+          "Hip IE 30, Hip FE 90, Knee 90" ),
+        ( mf.FRONT, "front", { "AnkleLt": 20 }, {}, "Ankle 20" ),
     ] )
-    mf.save( fig, "Human_pose_leg", [ cans ], hmax = 4.8 )
-
-
-# The Sitting preset, as the Pose tab's Set puts it: every other joint at zero, R/L Sym on.
-SITTING = { "ElbowRt": 80, "ShoulderIERt": 45, "HipABADRt": 0.5, "HipFERt": 80, "KneeRt": 80 }
+    mf.save( fig, "Human_pose_leg", [ cans[ :3 ], cans[ 3: ] ], hmax = 9.0 )
 
 
 def fig_seated():
     """The human standing and in the Sitting preset, from the side, each with its origin."""
     fig = new_fig()
     cans = []
-    for pose, label in ( ( {}, "Standing" ), ( SITTING, "Sitting" ) ):
-        h, T = human( pose, sym = True )
-        if pose:
-            # R/L Sym poses the left side as the right.
-            for k, v in pose.items():
-                assert vsp.GetParmVal( h, k.replace( "Rt", "Lt" ), "Pose" ) == v
-        else:
-            assert vsp.GetParmVal( h, "KneeRt", "Pose" ) == 0.0 and vsp.GetParmVal( h, "HipFERt", "Pose" ) == 2.5
+    for name, label in ( ( "STANDING", "Standing" ), ( "SITTING", "Sitting" ) ):
+        sym, pose = presets()[ name ]
+        h, T = human( pose, sym = sym )
         P = T.reshape( -1, 3 )
-        if pose:
+        if name == "SITTING":
             # Seated, the thighs reach forward of the origin (toward -X) and the feet hang below it.
             assert P[ :, 0 ].min() < -0.4 and P[ :, 2 ].min() < -0.4
         c = mf.panel( fig, mf.FRONT )
@@ -172,7 +249,42 @@ def fig_seated():
     mf.save( fig, "Human_seated", [ cans ], hmax = 4.8 )
 
 
-FIGS = { "axes": fig_axes, "seated": fig_seated, "body": fig_body, "arm": fig_arm, "leg": fig_leg }
+def preset_gallery( name, rows ):
+    """The presets named in rows, each as Set puts it, in one 3D view at one scale."""
+    table = presets()
+    fig = new_fig()
+    grid = []
+    for row in rows:
+        cans = []
+        for p in row:
+            sym, pose = table[ p ]
+            # Crawling is drawn as it is meant to be used, pitched forward 90 degrees on the XForm tab.
+            pitch = 0.0
+            if p == "CRAWLING":
+                pitch = -90.0
+            _, T = human( pose, sym = sym, pitch = pitch )
+            c = mf.panel( fig, mf.ISO )
+            mf.tris( c, T, POSED )
+            c.flush()
+            cans.append( ( c, p.replace( "_", " " ) ) )
+        grid.append( cans )
+    for cans in grid:
+        for c, label in cans:
+            lo, hi = c.limits()
+            c.ax.annotate( label, xy = ( 0.5 * ( lo[0] + hi[0] ), lo[1] ), xytext = ( 0, -6 ),
+                           textcoords = "offset points", ha = "center", va = "top", fontsize = fl.FS )
+    mf.save( fig, name, [ [ c for c, _ in cans ] for cans in grid ], hmax = 9.0 )
+
+
+def fig_presets():
+    preset_gallery( "Human_presets_seated", [ [ "SITTING", "SEATED_ERECT", "PASSENGER", "DRIVER" ],
+                                               [ "PILOT", "RECUMBENT", "NBP_SKYLAB", "NBP_ISS" ] ] )
+    preset_gallery( "Human_presets_other", [ [ "STANDING", "KNEELING", "KNEELING_ONE_KNEE", "SQUATTING", "CRAWLING" ],
+                                              [ "FORWARD_REACH", "OVERHEAD_REACH", "SPAN", "WALKING" ] ] )
+
+
+FIGS = { "axes": fig_axes, "seated": fig_seated, "surface": fig_surface, "presets": fig_presets, "body": fig_body,
+         "torso": fig_torso, "arm": fig_arm, "leg": fig_leg }
 
 if __name__ == "__main__":
     mf.style()
