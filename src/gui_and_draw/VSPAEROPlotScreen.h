@@ -53,7 +53,6 @@ protected:
     bool m_DefaultViewPending;
     bool m_SelectDefaultData;
     std::map < Fl_Browser*, vector < string > > m_ListedRowKeys;  // Key of each row a browser lists
-    double m_PercentLegendColor;
 
     //==== Utility functions ====//
     //  plotting helpers
@@ -108,8 +107,6 @@ protected:
     ResultsPlotCanvas* m_ConvergencePlotCanvas;
     PlotLimitParms m_ConvergenceLimits;
 
-    GroupLayout m_ConvergenceLegendLayout;
-    Fl_Scroll* m_ConvergenceLegendGroup;
     int m_ConvergenceNLines;
     int m_ConvergenceiPlot;
 
@@ -145,8 +142,6 @@ protected:
     ResultsPlotCanvas* m_LoadDistPlotCanvas;
     PlotLimitParms m_LoadDistLimits;
 
-    GroupLayout m_LoadDistLegendLayout;
-    Fl_Scroll* m_LoadDistLegendGroup;
     int m_LoadDistNLines;
     int m_LoadDistiPlot;
 
@@ -191,9 +186,6 @@ protected:
     ResultsPlotCanvas* m_SweepPlotCanvas;
     PlotLimitParms m_SweepLimits;
 
-    GroupLayout m_SweepLegendLayout;
-    Fl_Scroll* m_SweepLegendGroup;
-
     VspBrowser* m_SweepXDataBrowser;
     VspBrowser* m_SweepYDataBrowser;
     VspBrowser* m_SweepFlowConditionBrowser;
@@ -224,9 +216,6 @@ protected:
     GroupLayout m_CpSlicePlotLayout;
     ResultsPlotCanvas* m_CpSlicePlotCanvas;
     PlotLimitParms m_CpSliceLimits;
-
-    GroupLayout m_CpSliceLegendLayout;
-    Fl_Scroll* m_CpSliceLegendGroup;
 
     VspBrowser* m_CpSliceCutBrowser;
     vector < Choice* > m_CpSlicePosTypeChoiceVec;
@@ -289,8 +278,6 @@ protected:
     ResultsPlotCanvas* m_UnsteadyPlotCanvas;
     PlotLimitParms m_UnsteadyLimits;
 
-    GroupLayout m_UnsteadyLegendLayout;
-    Fl_Scroll* m_UnsteadyLegendGroup;
     int m_UnsteadyNLines;
     int m_UnsteadyiPlot;
 
