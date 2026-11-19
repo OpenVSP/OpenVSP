@@ -38,26 +38,28 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
     m_PresetChoice.AddItem( "Generic Rocket Fins", vsp::MDC_FIN_PRESET_GENERIC_ROCKET_FINS );
     m_PresetChoice.AddItem( "Generic Rocket Strakes", vsp::MDC_FIN_PRESET_GENERIC_ROCKET_STRAKES );
     m_PresetChoice.UpdateItems();
-    m_FinSetLayout.AddChoice( m_SecTypChoice, "SECTYP" );
-    m_SecTypChoice.AddItem( "HEX" );
-    m_SecTypChoice.AddItem( "NACA" );
-    m_SecTypChoice.AddItem( "ARC" );
-    m_SecTypChoice.AddItem( "USER" );
-    m_SecTypChoice.UpdateItems();
-    m_FinSetLayout.AddSlider( m_NPanelSlider, "NPANEL", 10, "%5.0f" );
-    m_FinSetLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
-    m_FinSetLayout.AddButton( m_BuryRootToggle, "Bury Root" );
-    m_FinSetLayout.AddChoice( m_BuryRootTypeChoice, "Extension" );
-    m_BuryRootTypeChoice.AddItem( "Straight", MdcFinGeom::BURY_STRAIGHT );
-    m_BuryRootTypeChoice.AddItem( "Extrapolate", MdcFinGeom::BURY_EXTRAPOLATE );
-    m_BuryRootTypeChoice.UpdateItems();
 
     m_FinSetLayout.AddYGap();
     m_FinSetLayout.AddDividerBox( "Panels" );
+    m_FinSetLayout.AddSlider( m_NPanelSlider, "NPANEL", 10, "%5.0f" );
     m_FinSetLayout.AddButton( m_PhiFFlagToggle, "PHIF given" );
     m_FinSetLayout.AddIndexSelector( m_PanelSelector );
     m_FinSetLayout.AddSlider( m_PhiFSlider, "PHIF", 360.0, "%7.3f" );
     m_FinSetLayout.AddSlider( m_GamSlider, "GAM", 90.0, "%7.3f" );
+
+    m_FinSetLayout.AddYGap();
+    m_FinSetLayout.AddDividerBox( "Root" );
+    m_FinSetLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
+    // The extension of a buried root, beside the toggle that buries it.
+    int half_w = m_FinSetLayout.GetW() / 2;
+    m_FinSetLayout.SetSameLineFlag( true );
+    m_FinSetLayout.AddButton( m_BuryRootToggle, "Bury Root", half_w );
+    m_FinSetLayout.AddChoice( m_BuryRootTypeChoice, "Extension", half_w );
+    m_FinSetLayout.ForceNewLine();
+    m_FinSetLayout.SetSameLineFlag( false );
+    m_BuryRootTypeChoice.AddItem( "Straight", MdcFinGeom::BURY_STRAIGHT );
+    m_BuryRootTypeChoice.AddItem( "Extrapolate", MdcFinGeom::BURY_EXTRAPOLATE );
+    m_BuryRootTypeChoice.UpdateItems();
 
     //==== Planform ====//
     Fl_Group* planform_tab = AddTab( "Planform" );
@@ -69,19 +71,37 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
     m_PlanformLayout.AddDividerBox( "Span Stations" );
     m_PlanformLayout.AddSlider( m_NSpanSlider, "NSPAN", 10, "%5.0f" );
     m_PlanformLayout.AddIndexSelector( m_StationSelector );
+
+    // The segment from the station before, which sets this station's leading edge by its sweep or is set by it.
+    m_PlanformLayout.AddYGap();
+    m_PlanformLayout.AddDividerBox( "Segment from Previous Station" );
+    m_PlanformLayout.AddSlider( m_SectTessUSlider, "Num_U", 20, "%5.0f" );
+    int label_w = m_PlanformLayout.GetButtonWidth();
+    int toggle_w = ( m_PlanformLayout.GetW() - label_w ) / 2;
+    m_PlanformLayout.SetSameLineFlag( true );
+    m_PlanformLayout.AddLabel( "LE By", label_w );
+    m_PlanformLayout.SetFitWidthFlag( false );
+    m_PlanformLayout.SetButtonWidth( toggle_w );
+    m_PlanformLayout.AddButton( m_LEBySweepToggle, "SWEEP" );
+    m_PlanformLayout.AddButton( m_LEByXLEToggle, "XLE" );
+    m_PlanformLayout.SetButtonWidth( label_w );
+    m_PlanformLayout.SetFitWidthFlag( true );
+    m_PlanformLayout.ForceNewLine();
+    m_PlanformLayout.SetSameLineFlag( false );
+    m_LEByGroup.Init( this );
+    m_LEByGroup.AddButton( m_LEBySweepToggle.GetFlButton() ); // False first.
+    m_LEByGroup.AddButton( m_LEByXLEToggle.GetFlButton() );
+    m_PlanformLayout.AddSlider( m_SweepSlider, "SWEEP", 90.0, "%7.3f" );
+    m_PlanformLayout.AddSlider( m_StaSlider, "STA", 1.0, "%7.3f" );
+
+    m_PlanformLayout.AddYGap();
+    m_PlanformLayout.AddDividerBox( "Station" );
     m_PlanformLayout.AddSlider( m_SSpanSlider, "SSPAN", 10, "%7.3f" );
     m_PlanformLayout.AddSlider( m_ChordSlider, "CHORD", 10, "%7.3f" );
     m_PlanformLayout.AddSlider( m_XLESlider, "XLE", 10, "%7.3f" );
-    m_PlanformLayout.AddButton( m_XLEFlagToggle, "XLE of next given" );
-    m_PlanformLayout.AddSlider( m_SweepSlider, "SWEEP", 90.0, "%7.3f" );
-    m_PlanformLayout.AddSlider( m_StaSlider, "STA", 1.0, "%7.3f" );
-    m_PlanformLayout.AddSlider( m_SectTessUSlider, "Num_U", 20, "%5.0f" );
-    m_PlanformLayout.AddSlider( m_LERSlider, "LER", 1.0, "%7.3f" );
-    m_PlanformLayout.AddChoice( m_LERTypeChoice, "LER Type" );
-    m_LERTypeChoice.AddItem( "Sharp" );
-    m_LERTypeChoice.AddItem( "Keep Crest" );
-    m_LERTypeChoice.AddItem( "Keep Angle" );
-    m_LERTypeChoice.UpdateItems();
+
+    m_PlanformLayout.AddYGap();
+    m_PlanformLayout.AddDividerBox( "Flap" );
     m_PlanformLayout.AddSlider( m_CFOCSlider, "CFOC", 1.0, "%7.3f" );
 
     //==== Section ====//
@@ -89,6 +109,15 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
     Fl_Group* section_group = AddSubGroup( section_tab, 5 );
     m_SectionLayout.SetGroupAndScreen( section_group, this );
     m_SectionLayout.SetChoiceButtonWidth( m_SectionLayout.GetButtonWidth() );
+
+    m_SectionLayout.AddYGap();
+    m_SectionLayout.AddDividerBox( "Section" );
+    m_SectionLayout.AddChoice( m_SecTypChoice, "SECTYP" );
+    m_SecTypChoice.AddItem( "HEX" );
+    m_SecTypChoice.AddItem( "NACA" );
+    m_SecTypChoice.AddItem( "ARC" );
+    m_SecTypChoice.AddItem( "USER" );
+    m_SecTypChoice.UpdateItems();
 
     m_SectionLayout.AddYGap();
     m_SectionLayout.AddDividerBox( "HEX and ARC" );
@@ -100,6 +129,12 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
     m_LMaxLSlider.Init( m_SectionLayout, this, "LMAXL", 1.0 );
     m_SectionLayout.AddSlider( m_LFlatUSlider, "LFLATU", 1.0, "%7.3f" );
     m_LFlatLSlider.Init( m_SectionLayout, this, "LFLATL", 1.0 );
+    m_SectionLayout.AddSlider( m_LERSlider, "LER", 1.0, "%7.3f" );
+    m_SectionLayout.AddChoice( m_LERTypeChoice, "LER Type" );
+    m_LERTypeChoice.AddItem( "Sharp" );
+    m_LERTypeChoice.AddItem( "Keep Crest" );
+    m_LERTypeChoice.AddItem( "Keep Angle" );
+    m_LERTypeChoice.UpdateItems();
 
     m_SectionLayout.AddYGap();
     m_SectionLayout.AddDividerBox( "NACA" );
@@ -162,7 +197,6 @@ bool MdcFinScreen::Update()
 
     //==== Fin Set ====//
     m_PresetChoice.Update( fin->m_Preset.GetID() );
-    m_SecTypChoice.Update( fin->m_SecTyp.GetID() );
     m_NPanelSlider.Update( fin->m_NPanel.GetID() );
     m_RBodySlider.Update( fin->m_RBody.GetID() );
 
@@ -201,27 +235,30 @@ bool MdcFinScreen::Update()
     {
         m_XLESlider.Update( XSecSurfGeom::ParmIDAt( fin->m_XLE, i - 1 ) );
     }
-    m_LERSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_LER, i ) );
-    m_LERTypeChoice.Update( fin->m_LERType.GetID() );
     m_CFOCSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_CFOC, i ) );
 
-    // The last station starts no segment, so it has no segment inputs.
-    m_SweepSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_Sweep, i ) );
-    m_StaSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_Sta, i ) );
-    m_SectTessUSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_SectTessU, i ) );
-    m_XLEFlagToggle.Update( XSecSurfGeom::ParmIDAt( fin->m_XLEFlag, i ) );
+    // The segment that ends at the station; the first station ends none, so it has no segment inputs.
+    int iseg = i - 1;
+    m_SectTessUSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_SectTessU, iseg ) );
+    m_LEByGroup.Update( XSecSurfGeom::ParmIDAt( fin->m_XLEFlag, iseg ) );
+    m_SweepSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_Sweep, iseg ) );
+    m_StaSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_Sta, iseg ) );
 
-    // SWEEP where the segment gives XLE, and XLE where the segment before it gives it, shape nothing.
-    if ( i < ( int )fin->m_XLEFlag.size() && fin->m_XLEFlag[i]->Get() )
+    // Of SWEEP and XLE, the one that follows from the other shows its value but is greyed.
+    if ( iseg >= 0 && iseg < ( int )fin->m_XLEFlag.size() )
     {
-        m_SweepSlider.Deactivate();
-    }
-    if ( i > 0 && i - 1 < ( int )fin->m_XLEFlag.size() && !fin->m_XLEFlag[i - 1]->Get() )
-    {
-        m_XLESlider.Deactivate();
+        if ( fin->m_XLEFlag[iseg]->Get() )
+        {
+            m_SweepSlider.Deactivate();
+        }
+        else
+        {
+            m_XLESlider.Deactivate();
+        }
     }
 
     //==== Section ====//
+    m_SecTypChoice.Update( fin->m_SecTyp.GetID() );
     m_SectionStationSelector.Update( fin->m_Station.GetID() );
     m_ZUpperSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_ZUpper, i ) );
     m_ZLowerSlider.Update( fin->m_ZLowerRelFlag.GetID(), XSecSurfGeom::ParmIDAt( fin->m_ZLowerRatio, i ),
@@ -232,6 +269,8 @@ bool MdcFinScreen::Update()
     m_LFlatUSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_LFlatU, i ) );
     m_LFlatLSlider.Update( fin->m_LFlatLRelFlag.GetID(), XSecSurfGeom::ParmIDAt( fin->m_LFlatLRatio, i ),
                            XSecSurfGeom::ParmIDAt( fin->m_LFlatL, i ), fin->m_LFlatLRelFlag() );
+    m_LERSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_LER, i ) );
+    m_LERTypeChoice.Update( fin->m_LERType.GetID() );
 
     m_NacaSerChoice.Update( fin->m_NacaSer.GetID() );
     m_NacaDesSlider.Update( fin->m_NacaDes.GetID() );

@@ -146,9 +146,10 @@ nowhere wider than that, so it is a little narrower than the inlet, and it ends 
 *XINLT*, each at its angle *PHI*.  An angle is measured clockwise from the top looking forward, so 90 degrees is to the
 right, as the roll angles of the [MDC_PROTUB](MdcProtub.md) and [MDC_FIN](MdcFin.md) components are (Figure 6).  Unless
 *PHI given* is on, the inlets are evenly spaced around the body, the first at the top, and the angles are set from
-*NIN*; the PHI slider shows them but is greyed.  With *PHI given* on, each angle is set by hand.  The Inlet selector
-chooses which one the slider shows.  An angle that has not been set is zero.  *INTYPE* only orients the inlet; the angle
-puts it on the body, so a side-mounted inlet is at a *PHI* of 90 or 270 degrees, and a top-mounted one at 0.
+*NIN*; the PHI slider shows them but is greyed.  With *PHI given* on, each angle is set by hand.  The selector below
+*PHI given* chooses which one the slider shows.  An angle that has not been set is zero.  *INTYPE* only orients the
+inlet; the angle puts it on the body, so a side-mounted inlet is at a *PHI* of 90 or 270 degrees, and a top-mounted one
+at 0.
 
 ![Figure 6. Roll angles](images/MdcInlet_phi.png "Figure 6. Roll angles")
 
@@ -164,18 +165,18 @@ inlets, made and deleted as *NIN* changes, at the next update.
 |:----------|:-------------------------|:------------------------|:-----------------------------------------------------------------------|
 | Preset    | `Preset`                 | Default                 | The shape Set gives: Default or Generic Rocket.                        |
 | INTYPE    | `INTYPE`                 | 2DTOP                   | 2DTOP, 2DSIDE or AXI.                                                  |
-| XINLT     | `X_Rel_Location` (XForm) | 4                       | Station of the inlet's leading edge along $X$.                         |
-| RBODY     | `RBODY`                  | 0.5                     | The body's radius under the inlet: a parent MDC_BOD's, else an input.  Not an input of DATCOM's namelist. |
 | COVER     | `COVER`                  | off                     | Plug the inlet flush with its face.                                    |
 | RAMP      | `RAMP`                   | 15                      | Angle of the ramp, degrees, 0.1 to 89.                                 |
+| XINLT     | `X_Rel_Location` (XForm) | 4                       | Station of the inlet's leading edge along $X$.                         |
+| NIN       | `NIN`                    | 1                       | Number of inlets, 1 to 20.                                             |
+| PHI given | `PHIFlag`                | off                     | Give the angles, rather than space them evenly from the top.           |
+| (selector) | `INLET`                | 1                       | Which inlet the PHI slider shows.                                      |
+| PHI       | `PHI_1` to `PHI_n`       | 0                       | Roll angle of an inlet, clockwise from the top looking forward.        |
+| RBODY     | `RBODY`                  | 0.5                     | The body's radius under the inlet: a parent MDC_BOD's, else an input.  Not an input of DATCOM's namelist. |
 | HDIV      | `HDIV`                   | 0.1                     | Height of the inner face above the mold line; zero for conformal, negative for semi-submerged. |
 | Bury Root | `BuryRoot`               | off                     | Carry a conformal inlet's inner face, or the diverter's bottom, into the body, rather than touch it as DATCOM draws it.  Not an input of DATCOM's namelist. |
 | XDIV      | `XDIV`                   | 0.5                     | Distance from the leading edge to the start of the diverter.           |
 | LDIV      | `LDIV`                   | 2                       | Length of the diverter.                                                |
-| NIN       | `NIN`                    | 1                       | Number of inlets, 1 to 20.                                             |
-| PHI given | `PHIFlag`                | off                     | Give the angles, rather than space them evenly from the top.           |
-| Inlet     | `INLET`                  | 1                       | Which inlet the PHI slider shows.                                      |
-| PHI       | `PHI_1` to `PHI_n`       | 0                       | Roll angle of an inlet, clockwise from the top looking forward.        |
 | X(i)      | `X2` to `X5`             | 0.5, 0.6, 2.5, 3        | Position of station $i$ from the leading edge.                         |
 | H(i)      | `H2` to `H5`             | 0.4, 0.45, 0.45, 0.3    | Height of the inlet at station $i$.                                    |
 | W(i)      | `W1` to `W5`             | 0.5, 0.6, 0.6, 0.6, 0.5 | Width, or diameter, of the inlet at station $i$.                       |

@@ -83,13 +83,13 @@ href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
 described on their own pages.</p>
 <ul>
 <li>The Fin Set tab sets the <a href="#panels">panels</a>, their number,
-roll angles and dihedral, and the section type.</li>
+roll angles and dihedral.</li>
 <li>The Fin Set tab's <a href="#presets">preset</a> gives a shape to
 start from.</li>
 <li>The Planform tab sets the <a href="#planform">planform</a> at its
 span stations, and the <a href="#flaps">flaps</a>.</li>
-<li>The Section tab sets the <a href="#sections">sections</a>: <a
-href="#hex-and-arc-sections">HEX and ARC</a>, <a
+<li>The Section tab sets the type of <a href="#sections">section</a> and
+its dimensions: <a href="#hex-and-arc-sections">HEX and ARC</a>, <a
 href="#naca-sections">NACA</a> and <a
 href="#user-sections">USER</a>.</li>
 <li><a href="#convert-to-wing">Convert to Wing</a> is a button at the
@@ -107,8 +107,8 @@ choose them as the Preset and press Set.</li>
 <li>On the Planform tab, set <em>NSPAN</em>, the number of span
 stations, and at each station its <em>SSPAN</em>, <em>CHORD</em> and
 <em>XLE</em>, or its <em>SWEEP</em>.</li>
-<li>On the Fin Set tab, choose the section type <em>SECTYP</em>, and on
-the Section tab give its dimensions.</li>
+<li>On the Section tab, choose the section type <em>SECTYP</em> and give
+its dimensions.</li>
 <li>If the panels are not evenly spaced around the body, turn on
 <em>PHIF given</em> and give each its roll angle.</li>
 </ol>
@@ -173,8 +173,9 @@ right (Figure 2). Unless <em>PHIF given</em> is on, the panels are
 evenly spaced around the body, the first at the top, and the angles are
 set from <em>NPANEL</em>; four panels are the cross of top, right,
 bottom and left. The PHIF slider shows them but is greyed. With <em>PHIF
-given</em> on, each angle is set by hand. The Panel selector chooses
-which panel's angle and dihedral the sliders show.</p>
+given</em> on, each angle is set by hand. The selector below <em>PHIF
+given</em> chooses which panel's angle and dihedral the sliders
+show.</p>
 <p>A panel's dihedral, <em>GAM</em>, turns it further about its root,
 positive in the direction in which PHIF increases, so the tip of a panel
 on the right goes down. A panel with no dihedral is in a plane through
@@ -197,9 +198,12 @@ for panels at the sides, and toward
 at the top and bottom. This is as DATCOM has it.</p>
 <h2 id="planform">Planform</h2>
 <p>The planform is given at up to ten span stations, <em>NSPAN</em> of
-them, and is straight between them (Figure 3). The Station selector
-chooses the station the sliders show; it is the same selector on the
-Planform and Section tabs.</p>
+them, and is straight between them (Figure 3). The selector below
+<em>NSPAN</em> chooses the station the sliders show, with the segment
+from the station before it, which ends there; it is the same selector on
+the Planform and Section tabs. Station k shows its segment's inputs
+numbered as DATCOM numbers the segment, from its inboard station:
+station 2 shows <em>SWEEP_1</em>.</p>
 <ul>
 <li><em>SSPAN</em> is the position of the station across the span, in
 the plane of the panel. Where <em>SSPAN_1</em> is zero, the stations are
@@ -215,15 +219,15 @@ from the origin as DATCOM measures it: it is the X location of the XForm
 tab, shown again as station 1's <em>XLE</em>. A later station's is
 measured from the root's leading edge, so the planform moves with the
 fin set.</li>
-<li><em>SWEEP</em> is the sweepback angle of the segment from a station
-to the next, measured from a line across the span, at the chord station
+<li><em>SWEEP</em> is the sweepback angle of the segment that ends at
+the station, measured from a line across the span, at the chord station
 <em>STA</em> of the segment: <em>STA</em> of 0 is at the leading edge, 1
 is at the trailing edge, and <em>STA</em> of 0.5 is at the midchord
-(Figure 4). It sets where the next station's leading edge is. The last
-station has no segment after it, so it has no <em>SWEEP</em> or
-<em>STA</em>.</li>
+(Figure 4). It sets where the station's leading edge is. The first
+station has no segment before it, so it has no <em>SWEEP</em>,
+<em>STA</em> or <em>Num_U</em>.</li>
 <li><em>Num_U</em> is the number of rows along the span of the segment
-from the station to the next. It takes the place of the Gen tab's Num_U,
+that ends at the station. It takes the place of the Gen tab's Num_U,
 which is greyed; Num_W, the rows around the sections, stays there. A
 segment is straight across its span, so its two end rows give its shape
 exactly, and more rows only make a finer mesh, for an analysis that
@@ -235,13 +239,14 @@ alt="Figure 3. Planform" /></p>
 <p><em>Figure 3. A panel of three stations. The leading edge of station
 2 is set by SWEEP_1 and station 3's is given.</em></p>
 <p>Each segment's leading edge is set one of two ways, by its sweep or
-by the position of its outboard station. By default it is the sweep, and
-the next station's <em>XLE</em> follows it: the sliders show what it
-works out to. Turn on <em>XLE of next given</em> at a station, and the
-next station's <em>XLE</em> is the input instead, and the <em>SWEEP</em>
-follows from it. The input that follows is greyed. The default
-<em>STA</em> of 1 and <em>SWEEP</em> of 0 make a panel with an unswept
-trailing edge, whatever its taper, as the default fin has.</p>
+by the position of its outboard station, and <em>LE By</em> chooses
+which. By default it is <em>SWEEP</em>, and the station's <em>XLE</em>
+follows it. With <em>XLE</em>, the station's <em>XLE</em> is the input
+and the segment's <em>SWEEP</em> follows from it. The input that follows
+shows what it works out to and is greyed, so changing the choice leaves
+the planform as it is. The default <em>STA</em> of 1 and <em>SWEEP</em>
+of 0 make a panel with an unswept trailing edge, whatever its taper, as
+the default fin has.</p>
 <p><img src="images/MdcFin_sta.png"
 title="Figure 4. Where sweep is measured"
 alt="Figure 4. Where sweep is measured" /></p>
@@ -252,9 +257,6 @@ on is blue.</em></p>
 with an unswept trailing edge, <em>SWEEP</em> 0 and <em>STA</em> 1, and
 the leading edge follows from the chords. The planform of a small fin is
 sensitive to its sweep angle.</p>
-<p><em>LER</em> is the radius of the leading edge at each station, for
-HEX and ARC sections, and is zero by default: a sharp leading edge. It
-is described under <a href="#hex-and-arc-sections">Sections</a>.</p>
 <h3 id="flaps">Flaps</h3>
 <p><em>CFOC</em> is the ratio of flap chord to fin chord at each
 station, and makes plain trailing edge flaps (Figure 5). A flap is made
@@ -459,17 +461,44 @@ in the <em>Design</em> group.</p>
 <tbody>
 <tr>
 <td style="text-align: left;">Fin Set</td>
-<td style="text-align: left;">SECTYP</td>
-<td style="text-align: left;"><code>SECTYP</code></td>
-<td style="text-align: left;">HEX</td>
-<td style="text-align: left;">HEX, NACA, ARC or USER.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Fin Set</td>
 <td style="text-align: left;">NPANEL</td>
 <td style="text-align: left;"><code>NPANEL</code></td>
 <td style="text-align: left;">4</td>
 <td style="text-align: left;">Number of panels, 1 to 8.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fin Set</td>
+<td style="text-align: left;">PHIF given</td>
+<td style="text-align: left;"><code>PHIFFlag</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Give the roll angles, rather than space
+the panels evenly from the top.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fin Set</td>
+<td style="text-align: left;">(selector)</td>
+<td style="text-align: left;"><code>PANEL</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Which panel the PHIF and GAM sliders
+show.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fin Set</td>
+<td style="text-align: left;">PHIF</td>
+<td style="text-align: left;"><code>PHIF_1</code> to
+<code>PHIF_n</code></td>
+<td style="text-align: left;">0, 90, 180, 270, ...</td>
+<td style="text-align: left;">Roll angle of a panel, clockwise from the
+top looking forward.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fin Set</td>
+<td style="text-align: left;">GAM</td>
+<td style="text-align: left;"><code>GAM_1</code> to
+<code>GAM_n</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Dihedral of a panel, positive in the
+direction of increasing PHIF.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Fin Set</td>
@@ -499,40 +528,6 @@ Straight, the root section unswept, or Extrapolate, the first segment's
 planform carried on. Not an input of DATCOM's namelist.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Fin Set</td>
-<td style="text-align: left;">PHIF given</td>
-<td style="text-align: left;"><code>PHIFFlag</code></td>
-<td style="text-align: left;">off</td>
-<td style="text-align: left;">Give the roll angles, rather than space
-the panels evenly from the top.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Fin Set</td>
-<td style="text-align: left;">Panel</td>
-<td style="text-align: left;"><code>PANEL</code></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">Which panel the PHIF and GAM sliders
-show.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Fin Set</td>
-<td style="text-align: left;">PHIF</td>
-<td style="text-align: left;"><code>PHIF_1</code> to
-<code>PHIF_n</code></td>
-<td style="text-align: left;">0, 90, 180, 270, ...</td>
-<td style="text-align: left;">Roll angle of a panel, clockwise from the
-top looking forward.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Fin Set</td>
-<td style="text-align: left;">GAM</td>
-<td style="text-align: left;"><code>GAM_1</code> to
-<code>GAM_n</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Dihedral of a panel, positive in the
-direction of increasing PHIF.</td>
-</tr>
-<tr>
 <td style="text-align: left;">Planform</td>
 <td style="text-align: left;">NSPAN</td>
 <td style="text-align: left;"><code>NSPAN</code></td>
@@ -541,11 +536,46 @@ direction of increasing PHIF.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Planform</td>
-<td style="text-align: left;">Station</td>
+<td style="text-align: left;">(selector)</td>
 <td style="text-align: left;"><code>STATION</code></td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">Which station the Planform and Section
 sliders show.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planform</td>
+<td style="text-align: left;">Num_U</td>
+<td style="text-align: left;"><code>SectTess_U_1</code> to
+<code>SectTess_U_n-1</code> (Shape)</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Rows along the span of the segment ending
+at the station.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planform</td>
+<td style="text-align: left;">LE By</td>
+<td style="text-align: left;"><code>XLEFlag_1</code> to
+<code>XLEFlag_n-1</code></td>
+<td style="text-align: left;">SWEEP</td>
+<td style="text-align: left;">Whether the segment's SWEEP or the
+station's XLE sets its leading edge; the other follows.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planform</td>
+<td style="text-align: left;">SWEEP</td>
+<td style="text-align: left;"><code>SWEEP_1</code> to
+<code>SWEEP_n-1</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Sweepback angle of the segment.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planform</td>
+<td style="text-align: left;">STA</td>
+<td style="text-align: left;"><code>STA_1</code> to
+<code>STA_n-1</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Chord station of the segment where the
+sweep is measured, 0 to 1.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Planform</td>
@@ -583,63 +613,19 @@ leading edge.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Planform</td>
-<td style="text-align: left;">XLE of next given</td>
-<td style="text-align: left;"><code>XLEFlag_1</code> to
-<code>XLEFlag_n-1</code></td>
-<td style="text-align: left;">off</td>
-<td style="text-align: left;">The next station's XLE is the input, and
-SWEEP follows.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Planform</td>
-<td style="text-align: left;">SWEEP</td>
-<td style="text-align: left;"><code>SWEEP_1</code> to
-<code>SWEEP_n-1</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Sweepback angle of the segment.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Planform</td>
-<td style="text-align: left;">STA</td>
-<td style="text-align: left;"><code>STA_1</code> to
-<code>STA_n-1</code></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">Chord station of the segment where the
-sweep is measured, 0 to 1.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Planform</td>
-<td style="text-align: left;">Num_U</td>
-<td style="text-align: left;"><code>SectTess_U_1</code> to
-<code>SectTess_U_n-1</code> (Shape)</td>
-<td style="text-align: left;">5</td>
-<td style="text-align: left;">Rows along the span of the segment.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Planform</td>
-<td style="text-align: left;">LER</td>
-<td style="text-align: left;"><code>LER_1</code> to
-<code>LER_n</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Leading edge radius of a HEX or ARC
-section.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Planform</td>
-<td style="text-align: left;">LER Type</td>
-<td style="text-align: left;"><code>LERType</code></td>
-<td style="text-align: left;">Sharp</td>
-<td style="text-align: left;">Sharp, Keep Crest or Keep Angle: what is
-drawn for LER (not a FINSET input).</td>
-</tr>
-<tr>
-<td style="text-align: left;">Planform</td>
 <td style="text-align: left;">CFOC</td>
 <td style="text-align: left;"><code>CFOC_1</code> to
 <code>CFOC_n</code></td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">Flap chord to fin chord ratio; 1 at the
 first station is an all moving fin.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Section</td>
+<td style="text-align: left;">SECTYP</td>
+<td style="text-align: left;"><code>SECTYP</code></td>
+<td style="text-align: left;">HEX</td>
+<td style="text-align: left;">HEX, NACA, ARC or USER.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Section</td>
@@ -694,6 +680,23 @@ flat.</td>
 <td style="text-align: left;">LFLATU</td>
 <td style="text-align: left;">Chord fraction of the lower surface's
 flat.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Section</td>
+<td style="text-align: left;">LER</td>
+<td style="text-align: left;"><code>LER_1</code> to
+<code>LER_n</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Leading edge radius of a HEX or ARC
+section.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Section</td>
+<td style="text-align: left;">LER Type</td>
+<td style="text-align: left;"><code>LERType</code></td>
+<td style="text-align: left;">Sharp</td>
+<td style="text-align: left;">Sharp, Keep Crest or Keep Angle: what is
+drawn for LER (not a FINSET input).</td>
 </tr>
 <tr>
 <td style="text-align: left;">Section</td>

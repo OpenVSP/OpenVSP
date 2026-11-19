@@ -38,10 +38,17 @@ MdcInletScreen::MdcInletScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "M
     m_InTypeChoice.AddItem( "2DSIDE", MdcInletGeom::SIDE2D );
     m_InTypeChoice.AddItem( "AXI", MdcInletGeom::AXI );
     m_InTypeChoice.UpdateItems();
-    m_DesignLayout.AddSlider( m_XInltSlider, "XINLT", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
     m_DesignLayout.AddButton( m_CoverToggle, "COVER" );
     m_DesignLayout.AddSlider( m_RampSlider, "RAMP", 10, "%7.3f" );
+
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Placement" );
+    m_DesignLayout.AddSlider( m_XInltSlider, "XINLT", 10, "%7.3f" );
+    m_DesignLayout.AddSlider( m_NInSlider, "NIN", 20, "%5.0f" );
+    m_DesignLayout.AddButton( m_PhiFlagToggle, "PHI given" );
+    m_DesignLayout.AddIndexSelector( m_InletSelector );
+    m_DesignLayout.AddSlider( m_PhiSlider, "PHI", 360.0, "%7.3f" );
+    m_DesignLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Diverter" );
@@ -49,13 +56,6 @@ MdcInletScreen::MdcInletScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "M
     m_DesignLayout.AddButton( m_BuryRootToggle, "Bury Root" );
     m_DesignLayout.AddSlider( m_XDivSlider, "XDIV", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_LDivSlider, "LDIV", 10, "%7.3f" );
-
-    m_DesignLayout.AddYGap();
-    m_DesignLayout.AddDividerBox( "Inlets" );
-    m_DesignLayout.AddSlider( m_NInSlider, "NIN", 20, "%5.0f" );
-    m_DesignLayout.AddButton( m_PhiFlagToggle, "PHI given" );
-    m_DesignLayout.AddIndexSelector( m_InletSelector );
-    m_DesignLayout.AddSlider( m_PhiSlider, "PHI", 360.0, "%7.3f" );
 
     for ( int i = 1; i <= MdcInletGeom::NUM_STN; i++ )
     {

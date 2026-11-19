@@ -54,8 +54,8 @@ The MDC_PROTUB has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XF
 A LUG or SHOE is built of members, each a box.  Member 1 is the base plate of both.  Member 2 is a SHOE's web or a
 LUG's first post, member 3 is a SHOE's top plate or the LUG's second post, and member 4 is a LUG's top plate.  The
 posts of a LUG stand at the ends of the top plate, across the body, so the top plate's *WPROT* sets how far apart they
-are (Figure 2).  The other types have one member.  The Design tab has a block of sizes for each member, and greys those
-the type does not have.
+are (Figure 2).  The other types have one member.  The Design tab has a block of sizes for each member, headed with
+its part in the type, such as Member 2: First Post, and greys those the type does not have.
 
 ![Figure 2. Members of a LUG and a SHOE](images/MdcProtub_members.png "Figure 2. Members of a LUG and a SHOE")
 
@@ -148,8 +148,8 @@ surfaces touch exactly, so the surfaces intersect cleanly where the model is mes
 station *XPROT*, each at its angle *PHIPRO*.  An angle is measured clockwise from the top looking forward, so 90
 degrees is to the right (Figure 4).  Unless *PHIPRO given* is on, the protuberances are evenly spaced around the body,
 the first at the top, and the angles are set from *NLOC*; the PHIPRO slider shows them but is greyed.  With *PHIPRO
-given* on, each angle is set by hand.  The Protuberance counter chooses which one the slider shows.  An angle that has
-not been set is zero, so that a protuberance added by raising *NLOC* is at the top until it is moved.
+given* on, each angle is set by hand.  The selector below *PHIPRO given* chooses which one the slider shows.  An angle
+that has not been set is zero, so that a protuberance added by raising *NLOC* is at the top until it is moved.
 
 ![Figure 4. Roll angles](images/MdcProtub_phi.png "Figure 4. Roll angles")
 
@@ -170,12 +170,12 @@ deleted as *NLOC* and *PTYPE* change, at the next update.
 | Preset       | `Preset`                 | Default | The shape Set gives: Default, a type, or a Small, Medium or Large Lug. |
 | PTYPE        | `PTYPE`                  | VCYL    | VCYL, HCYL, LUG, SHOE, BLOCK or FAIRING.                 |
 | XPROT        | `X_Rel_Location` (XForm) | 5       | Station of the center of the protuberance along $X$.     |
-| RBODY        | `RBODY`                  | 0.5     | The body's radius under the protuberance: a parent MDC_BOD's, else an input.  Not an input of DATCOM's namelist. |
-| Bury Root    | `BuryRoot`               | off     | Reach a member on the body down into it, rather than touch the body's top line as DATCOM draws it.  Not an input of DATCOM's namelist. |
 | NLOC         | `NLOC`                   | 1       | Number of protuberances, 1 to 20.                        |
 | PHIPRO given | `PHIPROFlag`             | off     | Give the angles, rather than space them evenly from the top. |
-| Protuberance | `LocIndex`               | 1       | Which protuberance the PHIPRO slider shows.              |
+| (selector)   | `LocIndex`               | 1       | Which protuberance the PHIPRO slider shows.              |
 | PHIPRO       | `PHIPRO_1` to `PHIPRO_n` | 0       | Roll angle of a protuberance, clockwise from the top looking forward. |
+| RBODY        | `RBODY`                  | 0.5     | The body's radius under the protuberance: a parent MDC_BOD's, else an input.  Not an input of DATCOM's namelist. |
+| Bury Root    | `BuryRoot`               | off     | Reach a member on the body down into it, rather than touch the body's top line as DATCOM draws it.  Not an input of DATCOM's namelist. |
 | LPROT        | `LPROT_1` to `LPROT_m`   | 0.5     | Length of the member, along the body.                    |
 | WPROT        | `WPROT_1` to `WPROT_m`   | 0.25    | Width of the member, across the body.                    |
 | HPROT        | `HPROT_1` to `HPROT_m`   | 0.1     | Height of the member, out from the body.                 |

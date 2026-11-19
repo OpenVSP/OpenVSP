@@ -45,6 +45,7 @@ MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_B
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Nose" );
+    m_DesignLayout.AddSlider( m_NoseTessUSlider, "Num_U", 20, "%5.0f" );
     m_DesignLayout.AddChoice( m_TNoseChoice, "TNOSE" );
     m_TNoseChoice.AddItem( "CONE" );
     m_TNoseChoice.AddItem( "OGIVE" );
@@ -53,40 +54,44 @@ MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_B
     m_TNoseChoice.AddItem( "KARMAN" );
     m_TNoseChoice.UpdateItems();
     m_DesignLayout.AddSlider( m_PowerSlider, "POWER", 10, "%7.3f" );
+    m_DesignLayout.AddSlider( m_SlpNosSlider, "SLPNOS", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_LNoseSlider, "LNOSE", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_DNoseSlider, "DNOSE", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_WNoseSlider, "WNOSE", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ENoseSlider, "ENOSE", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_BNoseSlider, "BNOSE", 10, "%7.3f" );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.AddSlider( m_BNoseSlider, "BNOSE", 10, "%7.3f", m_DesignLayout.GetButtonWidth() );
+    m_DesignLayout.SetFitWidthFlag( false );
     m_DesignLayout.AddButton( m_TruncToggle, "TRUNC" );
-    m_DesignLayout.AddSlider( m_SlpNosSlider, "SLPNOS", 10, "%7.3f" );
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.SetSameLineFlag( false );
+    m_DesignLayout.SetFitWidthFlag( true );
     m_DesignLayout.AddSlider( m_ZTipSlider, "ZTIP", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ZNoseSlider, "ZNOSE", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_NoseTessUSlider, "Num_U", 20, "%5.0f" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Centerbody" );
+    m_DesignLayout.AddSlider( m_CentrTessUSlider, "Num_U", 20, "%5.0f" );
     m_DesignLayout.AddSlider( m_LCentrSlider, "LCENTR", 10, "%7.3f" );
     m_DesignLayout.AddButton( m_CentrDefaultToggle, "Nose's size (DCENTR = DNOSE)" );
     m_DesignLayout.AddSlider( m_DCentrSlider, "DCENTR", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_WCentrSlider, "WCENTR", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ECentrSlider, "ECENTR", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ZCentrSlider, "ZCENTR", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_CentrTessUSlider, "Num_U", 20, "%5.0f" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Aft Body" );
+    m_DesignLayout.AddSlider( m_AftTessUSlider, "Num_U", 20, "%5.0f" );
     m_DesignLayout.AddChoice( m_TAftChoice, "TAFT" );
     m_TAftChoice.AddItem( "CONE" );
     m_TAftChoice.AddItem( "OGIVE" );
     m_TAftChoice.UpdateItems();
+    m_DesignLayout.AddSlider( m_SlpTalSlider, "SLPTAL", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_LAftSlider, "LAFT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_DAftSlider, "DAFT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_WAftSlider, "WAFT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_EAftSlider, "EAFT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ZAftSlider, "ZAFT", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_SlpTalSlider, "SLPTAL", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_AftTessUSlider, "Num_U", 20, "%5.0f" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Base" );

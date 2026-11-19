@@ -135,7 +135,8 @@ is a SHOE's top plate or the LUG's second post, and member 4 is a LUG's
 top plate. The posts of a LUG stand at the ends of the top plate, across
 the body, so the top plate's <em>WPROT</em> sets how far apart they are
 (Figure 2). The other types have one member. The Design tab has a block
-of sizes for each member, and greys those the type does not have.</p>
+of sizes for each member, headed with its part in the type, such as
+Member 2: First Post, and greys those the type does not have.</p>
 <p><img src="images/MdcProtub_members.png"
 title="Figure 2. Members of a LUG and a SHOE"
 alt="Figure 2. Members of a LUG and a SHOE" /></p>
@@ -444,10 +445,10 @@ clockwise from the top looking forward, so 90 degrees is to the right
 (Figure 4). Unless <em>PHIPRO given</em> is on, the protuberances are
 evenly spaced around the body, the first at the top, and the angles are
 set from <em>NLOC</em>; the PHIPRO slider shows them but is greyed. With
-<em>PHIPRO given</em> on, each angle is set by hand. The Protuberance
-counter chooses which one the slider shows. An angle that has not been
-set is zero, so that a protuberance added by raising <em>NLOC</em> is at
-the top until it is moved.</p>
+<em>PHIPRO given</em> on, each angle is set by hand. The selector below
+<em>PHIPRO given</em> chooses which one the slider shows. An angle that
+has not been set is zero, so that a protuberance added by raising
+<em>NLOC</em> is at the top until it is moved.</p>
 <p><img src="images/MdcProtub_phi.png" title="Figure 4. Roll angles"
 alt="Figure 4. Roll angles" /></p>
 <p><em>Figure 4. Three protuberances of a set, at PHIPRO 0, 90 and 225,
@@ -497,6 +498,34 @@ along
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</td>
 </tr>
 <tr>
+<td style="text-align: left;">NLOC</td>
+<td style="text-align: left;"><code>NLOC</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Number of protuberances, 1 to 20.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHIPRO given</td>
+<td style="text-align: left;"><code>PHIPROFlag</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Give the angles, rather than space them
+evenly from the top.</td>
+</tr>
+<tr>
+<td style="text-align: left;">(selector)</td>
+<td style="text-align: left;"><code>LocIndex</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Which protuberance the PHIPRO slider
+shows.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHIPRO</td>
+<td style="text-align: left;"><code>PHIPRO_1</code> to
+<code>PHIPRO_n</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Roll angle of a protuberance, clockwise
+from the top looking forward.</td>
+</tr>
+<tr>
 <td style="text-align: left;">RBODY</td>
 <td style="text-align: left;"><code>RBODY</code></td>
 <td style="text-align: left;">0.5</td>
@@ -511,34 +540,6 @@ namelist.</td>
 <td style="text-align: left;">Reach a member on the body down into it,
 rather than touch the body's top line as DATCOM draws it. Not an input
 of DATCOM's namelist.</td>
-</tr>
-<tr>
-<td style="text-align: left;">NLOC</td>
-<td style="text-align: left;"><code>NLOC</code></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">Number of protuberances, 1 to 20.</td>
-</tr>
-<tr>
-<td style="text-align: left;">PHIPRO given</td>
-<td style="text-align: left;"><code>PHIPROFlag</code></td>
-<td style="text-align: left;">off</td>
-<td style="text-align: left;">Give the angles, rather than space them
-evenly from the top.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Protuberance</td>
-<td style="text-align: left;"><code>LocIndex</code></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">Which protuberance the PHIPRO slider
-shows.</td>
-</tr>
-<tr>
-<td style="text-align: left;">PHIPRO</td>
-<td style="text-align: left;"><code>PHIPRO_1</code> to
-<code>PHIPRO_n</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Roll angle of a protuberance, clockwise
-from the top looking forward.</td>
 </tr>
 <tr>
 <td style="text-align: left;">LPROT</td>

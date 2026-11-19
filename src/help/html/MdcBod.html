@@ -288,7 +288,7 @@ alt="Figure 7. Camber" /></p>
 heights ZTIP, ZNOSE, ZCENTR and ZAFT.</em></p>
 <h2 id="tessellation">Tessellation</h2>
 <p>The rows along the body are set part by part, by the Num_U slider at
-the end of the Nose, Centerbody and Aft Body sections; the Gen tab's
+the top of the Nose, Centerbody and Aft Body sections; the Gen tab's
 Num_U is greyed, and its Num_W sets the rows around the body as for any
 component. The nose's Num_U also sets the rows across a flat base, and
 the aft body's those across a nozzle exit. A part that is absent has its
@@ -354,6 +354,14 @@ elliptical sections.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Num_U</td>
+<td style="text-align: left;"><code>NoseTess_U</code> (Shape)</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">Rows along the nose, and across a flat
+base.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
 <td style="text-align: left;">TNOSE</td>
 <td style="text-align: left;"><code>TNOSE</code></td>
 <td style="text-align: left;">OGIVE</td>
@@ -365,6 +373,14 @@ elliptical sections.</td>
 <td style="text-align: left;"><code>POWER</code></td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">Exponent of a power law nose.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">SLPNOS</td>
+<td style="text-align: left;"><code>SLPNOS</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Slope of an ogive nose at its base; zero
+is tangent.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Nose</td>
@@ -413,14 +429,6 @@ it.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Nose</td>
-<td style="text-align: left;">SLPNOS</td>
-<td style="text-align: left;"><code>SLPNOS</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Slope of an ogive nose at its base; zero
-is tangent.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Nose</td>
 <td style="text-align: left;">ZTIP</td>
 <td style="text-align: left;"><code>ZTIP</code></td>
 <td style="text-align: left;">0</td>
@@ -434,12 +442,11 @@ is tangent.</td>
 <td style="text-align: left;">Camber at the nose base.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Centerbody</td>
 <td style="text-align: left;">Num_U</td>
-<td style="text-align: left;"><code>NoseTess_U</code> (Shape)</td>
+<td style="text-align: left;"><code>CentrTess_U</code> (Shape)</td>
 <td style="text-align: left;">9</td>
-<td style="text-align: left;">Rows along the nose, and across a flat
-base.</td>
+<td style="text-align: left;">Rows along the centerbody.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Centerbody</td>
@@ -486,11 +493,12 @@ the nose's.</td>
 <td style="text-align: left;">Camber at its aft end.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">Aft Body</td>
 <td style="text-align: left;">Num_U</td>
-<td style="text-align: left;"><code>CentrTess_U</code> (Shape)</td>
+<td style="text-align: left;"><code>AftTess_U</code> (Shape)</td>
 <td style="text-align: left;">9</td>
-<td style="text-align: left;">Rows along the centerbody.</td>
+<td style="text-align: left;">Rows along the aft body, and across a
+nozzle exit.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Aft Body</td>
@@ -498,6 +506,14 @@ the nose's.</td>
 <td style="text-align: left;"><code>TAFT</code></td>
 <td style="text-align: left;">CONE</td>
 <td style="text-align: left;">CONE or OGIVE.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">SLPTAL</td>
+<td style="text-align: left;"><code>SLPTAL</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Slope of an ogive aft body at its larger
+end; zero is tangent.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Aft Body</td>
@@ -534,22 +550,6 @@ the nose's.</td>
 <td style="text-align: left;"><code>ZAFT</code></td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">Camber at the base.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Aft Body</td>
-<td style="text-align: left;">SLPTAL</td>
-<td style="text-align: left;"><code>SLPTAL</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Slope of an ogive aft body at its larger
-end; zero is tangent.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Aft Body</td>
-<td style="text-align: left;">Num_U</td>
-<td style="text-align: left;"><code>AftTess_U</code> (Shape)</td>
-<td style="text-align: left;">9</td>
-<td style="text-align: left;">Rows along the aft body, and across a
-nozzle exit.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Base</td>

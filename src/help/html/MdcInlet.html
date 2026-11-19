@@ -251,10 +251,11 @@ href="MdcFin.html">MDC_FIN</a> components are (Figure 6). Unless <em>PHI
 given</em> is on, the inlets are evenly spaced around the body, the
 first at the top, and the angles are set from <em>NIN</em>; the PHI
 slider shows them but is greyed. With <em>PHI given</em> on, each angle
-is set by hand. The Inlet selector chooses which one the slider shows.
-An angle that has not been set is zero. <em>INTYPE</em> only orients the
-inlet; the angle puts it on the body, so a side-mounted inlet is at a
-<em>PHI</em> of 90 or 270 degrees, and a top-mounted one at 0.</p>
+is set by hand. The selector below <em>PHI given</em> chooses which one
+the slider shows. An angle that has not been set is zero.
+<em>INTYPE</em> only orients the inlet; the angle puts it on the body,
+so a side-mounted inlet is at a <em>PHI</em> of 90 or 270 degrees, and a
+top-mounted one at 0.</p>
 <p><img src="images/MdcInlet_phi.png" title="Figure 6. Roll angles"
 alt="Figure 6. Roll angles" /></p>
 <p><em>Figure 6. Three axisymmetric inlets of a set evenly spaced, from
@@ -289,20 +290,6 @@ Rocket.</td>
 <td style="text-align: left;">2DTOP, 2DSIDE or AXI.</td>
 </tr>
 <tr>
-<td style="text-align: left;">XINLT</td>
-<td style="text-align: left;"><code>X_Rel_Location</code> (XForm)</td>
-<td style="text-align: left;">4</td>
-<td style="text-align: left;">Station of the inlet's leading edge along
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</td>
-</tr>
-<tr>
-<td style="text-align: left;">RBODY</td>
-<td style="text-align: left;"><code>RBODY</code></td>
-<td style="text-align: left;">0.5</td>
-<td style="text-align: left;">The body's radius under the inlet: a
-parent MDC_BOD's, else an input. Not an input of DATCOM's namelist.</td>
-</tr>
-<tr>
 <td style="text-align: left;">COVER</td>
 <td style="text-align: left;"><code>COVER</code></td>
 <td style="text-align: left;">off</td>
@@ -314,6 +301,47 @@ parent MDC_BOD's, else an input. Not an input of DATCOM's namelist.</td>
 <td style="text-align: left;">15</td>
 <td style="text-align: left;">Angle of the ramp, degrees, 0.1 to
 89.</td>
+</tr>
+<tr>
+<td style="text-align: left;">XINLT</td>
+<td style="text-align: left;"><code>X_Rel_Location</code> (XForm)</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Station of the inlet's leading edge along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">NIN</td>
+<td style="text-align: left;"><code>NIN</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Number of inlets, 1 to 20.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHI given</td>
+<td style="text-align: left;"><code>PHIFlag</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Give the angles, rather than space them
+evenly from the top.</td>
+</tr>
+<tr>
+<td style="text-align: left;">(selector)</td>
+<td style="text-align: left;"><code>INLET</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Which inlet the PHI slider shows.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHI</td>
+<td style="text-align: left;"><code>PHI_1</code> to
+<code>PHI_n</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Roll angle of an inlet, clockwise from the
+top looking forward.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RBODY</td>
+<td style="text-align: left;"><code>RBODY</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">The body's radius under the inlet: a
+parent MDC_BOD's, else an input. Not an input of DATCOM's namelist.</td>
 </tr>
 <tr>
 <td style="text-align: left;">HDIV</td>
@@ -342,33 +370,6 @@ start of the diverter.</td>
 <td style="text-align: left;"><code>LDIV</code></td>
 <td style="text-align: left;">2</td>
 <td style="text-align: left;">Length of the diverter.</td>
-</tr>
-<tr>
-<td style="text-align: left;">NIN</td>
-<td style="text-align: left;"><code>NIN</code></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">Number of inlets, 1 to 20.</td>
-</tr>
-<tr>
-<td style="text-align: left;">PHI given</td>
-<td style="text-align: left;"><code>PHIFlag</code></td>
-<td style="text-align: left;">off</td>
-<td style="text-align: left;">Give the angles, rather than space them
-evenly from the top.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Inlet</td>
-<td style="text-align: left;"><code>INLET</code></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">Which inlet the PHI slider shows.</td>
-</tr>
-<tr>
-<td style="text-align: left;">PHI</td>
-<td style="text-align: left;"><code>PHI_1</code> to
-<code>PHI_n</code></td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">Roll angle of an inlet, clockwise from the
-top looking forward.</td>
 </tr>
 <tr>
 <td style="text-align: left;">X(i)</td>

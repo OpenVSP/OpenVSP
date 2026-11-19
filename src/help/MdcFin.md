@@ -17,11 +17,11 @@ to [Wings](Wing.md), when the fins need the controls of a wing (see [Convert to 
 The MDC_FIN has three tabs of its own: Fin Set, Planform and Section.  The [Gen](GenTab.md), [XForm](XFormTab.md),
 [Mass](MassTab.md) and [Sub](SubTab.md) tabs are described on their own pages.
 
-- The Fin Set tab sets the [panels](#panels), their number, roll angles and dihedral, and the section type.
+- The Fin Set tab sets the [panels](#panels), their number, roll angles and dihedral.
 - The Fin Set tab's [preset](#presets) gives a shape to start from.
 - The Planform tab sets the [planform](#planform) at its span stations, and the [flaps](#flaps).
-- The Section tab sets the [sections](#sections): [HEX and ARC](#hex-and-arc-sections), [NACA](#naca-sections) and
-  [USER](#user-sections).
+- The Section tab sets the type of [section](#sections) and its dimensions: [HEX and ARC](#hex-and-arc-sections),
+  [NACA](#naca-sections) and [USER](#user-sections).
 - [Convert to Wing](#convert-to-wing) is a button at the top of the Fin Set tab.
 
 ## Quick Start
@@ -33,7 +33,7 @@ The MDC_FIN has three tabs of its own: Fin Set, Planform and Section.  The [Gen]
 2. On the Fin Set tab, set *NPANEL*, the number of panels.
 3. On the Planform tab, set *NSPAN*, the number of span stations, and at each station its *SSPAN*, *CHORD* and *XLE*,
    or its *SWEEP*.
-4. On the Fin Set tab, choose the section type *SECTYP*, and on the Section tab give its dimensions.
+4. On the Section tab, choose the section type *SECTYP* and give its dimensions.
 5. If the panels are not evenly spaced around the body, turn on *PHIF given* and give each its roll angle.
 
 ![Figure 1. A fin set](images/MdcFin_overview.png "Figure 1. A fin set")
@@ -81,8 +81,8 @@ unless *Bury Root* is on.
 Each panel is rolled around the body to its angle *PHIF*, measured clockwise from the top looking forward, so 90
 degrees is to the right (Figure 2).  Unless *PHIF given* is on, the panels are evenly spaced around the body, the first
 at the top, and the angles are set from *NPANEL*; four panels are the cross of top, right, bottom and left.  The PHIF
-slider shows them but is greyed.  With *PHIF given* on, each angle is set by hand.  The Panel selector chooses which
-panel's angle and dihedral the sliders show.
+slider shows them but is greyed.  With *PHIF given* on, each angle is set by hand.  The selector below
+*PHIF given* chooses which panel's angle and dihedral the sliders show.
 
 A panel's dihedral, *GAM*, turns it further about its root, positive in the direction in which PHIF increases, so
 the tip of a panel on the right goes down.  A panel with no dihedral is in a plane through the axis.  On a body that is
@@ -99,8 +99,10 @@ toward $+Z$ for panels at the sides, and toward $+Y$ at the top and bottom.  Thi
 
 ## Planform
 
-The planform is given at up to ten span stations, *NSPAN* of them, and is straight between them (Figure 3).  The Station
-selector chooses the station the sliders show; it is the same selector on the Planform and Section tabs.
+The planform is given at up to ten span stations, *NSPAN* of them, and is straight between them (Figure 3).  The
+selector below *NSPAN* chooses the station the sliders show, with the segment from the station before it, which ends
+there; it is the same selector on the Planform and Section tabs.  Station k shows its segment's inputs numbered as
+DATCOM numbers the segment, from its inboard station: station 2 shows *SWEEP_1*.
 
 - *SSPAN* is the position of the station across the span, in the plane of the panel.  Where *SSPAN_1* is zero, the
   stations are measured from the root, which is on the body.  Where it is not, they are measured from the
@@ -109,11 +111,11 @@ selector chooses the station the sliders show; it is the same selector on the Pl
 - *XLE* is the position of the chord's leading edge along the body.  The root's is the station of the fin set, along
   $X$ from the origin as DATCOM measures it: it is the X location of the XForm tab, shown again as station 1's
   *XLE*.  A later station's is measured from the root's leading edge, so the planform moves with the fin set.
-- *SWEEP* is the sweepback angle of the segment from a station to the next, measured from a line across the span, at
+- *SWEEP* is the sweepback angle of the segment that ends at the station, measured from a line across the span, at
   the chord station *STA* of the segment: *STA* of 0 is at the leading edge, 1 is at the trailing edge, and *STA* of
-  0.5 is at the midchord (Figure 4).  It sets where the next station's leading edge is.  The last station has no
-  segment after it, so it has no *SWEEP* or *STA*.
-- *Num_U* is the number of rows along the span of the segment from the station to the next.  It takes the place of
+  0.5 is at the midchord (Figure 4).  It sets where the station's leading edge is.  The first station has no segment
+  before it, so it has no *SWEEP*, *STA* or *Num_U*.
+- *Num_U* is the number of rows along the span of the segment that ends at the station.  It takes the place of
   the Gen tab's Num_U, which is greyed; Num_W, the rows around the sections, stays there.  A segment is straight
   across its span, so its two end rows give its shape exactly, and more rows only make a finer mesh, for an analysis
   that takes its panels from it.  A buried root's segment has its two end rows.
@@ -122,11 +124,11 @@ selector chooses the station the sliders show; it is the same selector on the Pl
 
 *Figure 3. A panel of three stations.  The leading edge of station 2 is set by SWEEP_1 and station 3's is given.*
 
-Each segment's leading edge is set one of two ways, by its sweep or by the position of its outboard station.  By
-default it is the sweep, and the next station's *XLE* follows it: the sliders show what it works out to.  Turn on *XLE
-of next given* at a station, and the next station's *XLE* is the input instead, and the *SWEEP* follows from it.  The
-input that follows is greyed.  The default *STA* of 1 and *SWEEP* of 0 make a panel with an unswept trailing edge,
-whatever its taper, as the default fin has.
+Each segment's leading edge is set one of two ways, by its sweep or by the position of its outboard station, and *LE
+By* chooses which.  By default it is *SWEEP*, and the station's *XLE* follows it.  With *XLE*, the station's *XLE* is
+the input and the segment's *SWEEP* follows from it.  The input that follows shows what it works out to and is greyed,
+so changing the choice leaves the planform as it is.  The default *STA* of 1 and *SWEEP* of 0 make a panel with an
+unswept trailing edge, whatever its taper, as the default fin has.
 
 ![Figure 4. Where sweep is measured](images/MdcFin_sta.png "Figure 4. Where sweep is measured")
 
@@ -135,9 +137,6 @@ sweep is measured on is blue.*
 
 Give the sweep of the edge whose sweep is known exactly: for a panel with an unswept trailing edge, *SWEEP* 0 and *STA*
 1, and the leading edge follows from the chords.  The planform of a small fin is sensitive to its sweep angle.
-
-*LER* is the radius of the leading edge at each station, for HEX and ARC sections, and is zero by default: a sharp
-leading edge.  It is described under [Sections](#hex-and-arc-sections).
 
 ### Flaps
 
@@ -256,34 +255,34 @@ is in the *Shape* group.  All the other parms are in the *Design* group.
 
 | Tab      | Control           | Parm                         | Default              | Meaning                                                     |
 |:---------|:------------------|:-----------------------------|:---------------------|:------------------------------------------------------------|
-| Fin Set  | SECTYP            | `SECTYP`                     | HEX                  | HEX, NACA, ARC or USER.                                     |
 | Fin Set  | NPANEL            | `NPANEL`                     | 4                    | Number of panels, 1 to 8.                                   |
+| Fin Set  | PHIF given        | `PHIFFlag`                   | off                  | Give the roll angles, rather than space the panels evenly from the top. |
+| Fin Set  | (selector)        | `PANEL`                      | 1                    | Which panel the PHIF and GAM sliders show.                  |
+| Fin Set  | PHIF              | `PHIF_1` to `PHIF_n`         | 0, 90, 180, 270, ... | Roll angle of a panel, clockwise from the top looking forward. |
+| Fin Set  | GAM               | `GAM_1` to `GAM_n`           | 0                    | Dihedral of a panel, positive in the direction of increasing PHIF. |
 | Fin Set  | RBODY             | `RBODY`                      | 0.5                  | Distance of the middle of the root chord from the axis, where SSPAN_1 is zero: a parent MDC_BOD's radius, else an input.  Not an input of DATCOM's namelist. |
 | Fin Set  | Bury Root         | `BuryRoot`                   | off                  | Carry a root on the body into it, rather than leave it flat on the body as DATCOM draws it.  Not an input of DATCOM's namelist. |
 | Fin Set  | Extension         | `BuryRootType`               | Straight             | How a buried root goes into the body: Straight, the root section unswept, or Extrapolate, the first segment's planform carried on.  Not an input of DATCOM's namelist. |
-| Fin Set  | PHIF given        | `PHIFFlag`                   | off                  | Give the roll angles, rather than space the panels evenly from the top. |
-| Fin Set  | Panel             | `PANEL`                      | 1                    | Which panel the PHIF and GAM sliders show.                  |
-| Fin Set  | PHIF              | `PHIF_1` to `PHIF_n`         | 0, 90, 180, 270, ... | Roll angle of a panel, clockwise from the top looking forward. |
-| Fin Set  | GAM               | `GAM_1` to `GAM_n`           | 0                    | Dihedral of a panel, positive in the direction of increasing PHIF. |
 | Planform | NSPAN             | `NSPAN`                      | 2                    | Number of span stations, 2 to 10.                           |
-| Planform | Station           | `STATION`                    | 1                    | Which station the Planform and Section sliders show.        |
+| Planform | (selector)        | `STATION`                    | 1                    | Which station the Planform and Section sliders show.        |
+| Planform | Num_U             | `SectTess_U_1` to `SectTess_U_n-1` (Shape) | 5      | Rows along the span of the segment ending at the station.   |
+| Planform | LE By             | `XLEFlag_1` to `XLEFlag_n-1` | SWEEP                | Whether the segment's SWEEP or the station's XLE sets its leading edge; the other follows. |
+| Planform | SWEEP             | `SWEEP_1` to `SWEEP_n-1`     | 0                    | Sweepback angle of the segment.                             |
+| Planform | STA               | `STA_1` to `STA_n-1`         | 1                    | Chord station of the segment where the sweep is measured, 0 to 1. |
 | Planform | SSPAN             | `SSPAN_1` to `SSPAN_n`       | 0, 1, 2, ...         | Position across the span, from the root where SSPAN_1 is zero. |
 | Planform | CHORD             | `CHORD_1` to `CHORD_n`       | 1.5, 0.75, 0.5, ...  | Chord.                                                      |
 | Planform | XLE               | `X_Rel_Location` (XForm)     | 8                    | Root's leading edge position along the body, at station 1.  |
 | Planform | XLE               | `XLE_2` to `XLE_n`           | 0.75, 1.5, ...       | Leading edge position from the root's leading edge.         |
-| Planform | XLE of next given | `XLEFlag_1` to `XLEFlag_n-1` | off                  | The next station's XLE is the input, and SWEEP follows.     |
-| Planform | SWEEP             | `SWEEP_1` to `SWEEP_n-1`     | 0                    | Sweepback angle of the segment.                             |
-| Planform | STA               | `STA_1` to `STA_n-1`         | 1                    | Chord station of the segment where the sweep is measured, 0 to 1. |
-| Planform | Num_U             | `SectTess_U_1` to `SectTess_U_n-1` (Shape) | 5      | Rows along the span of the segment.                         |
-| Planform | LER               | `LER_1` to `LER_n`           | 0                    | Leading edge radius of a HEX or ARC section.                |
-| Planform | LER Type          | `LERType`                    | Sharp                | Sharp, Keep Crest or Keep Angle: what is drawn for LER (not a FINSET input). |
 | Planform | CFOC              | `CFOC_1` to `CFOC_n`         | 1                    | Flap chord to fin chord ratio; 1 at the first station is an all moving fin. |
+| Section  | SECTYP            | `SECTYP`                     | HEX                  | HEX, NACA, ARC or USER.                                     |
 | Section  | ZUPPER            | `ZUPPER_1` to `ZUPPER_n`     | 0.025                | Height of the upper surface above the chord line, over the chord. |
 | Section  | ZLOWER            | `ZLOWER_1` to `ZLOWER_n`     | ZUPPER               | Height of the lower surface below the chord line.           |
 | Section  | LMAXU             | `LMAXU_1` to `LMAXU_n`       | 0.5                  | Chord fraction to the upper surface's maximum thickness.    |
 | Section  | LMAXL             | `LMAXL_1` to `LMAXL_n`       | LMAXU                | Chord fraction to the lower surface's maximum thickness.    |
 | Section  | LFLATU            | `LFLATU_1` to `LFLATU_n`     | 0                    | Chord fraction of the upper surface's flat.                 |
 | Section  | LFLATL            | `LFLATL_1` to `LFLATL_n`     | LFLATU               | Chord fraction of the lower surface's flat.                 |
+| Section  | LER               | `LER_1` to `LER_n`           | 0                    | Leading edge radius of a HEX or ARC section.                |
+| Section  | LER Type          | `LERType`                    | Sharp                | Sharp, Keep Crest or Keep Angle: what is drawn for LER (not a FINSET input). |
 | Section  | NACASER           | `NACASER`                    | 4 Digit              | The NACA series.                                            |
 | Section  | NACADES           | `NACADES`                    | 12                   | The designation as a number, or the thickness of a supersonic section. |
 | Section  | NACAMOD           | `NACAMOD`                    | 63                   | The modified series' two digits.                            |

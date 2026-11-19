@@ -51,6 +51,9 @@ protected:
     SliderAdjRangeInput m_WProtSlider[MdcProtubGeom::MAX_MEM];
     SliderAdjRangeInput m_HProtSlider[MdcProtubGeom::MAX_MEM];
     SliderAdjRangeInput m_OProtSlider[MdcProtubGeom::MAX_MEM];
+
+    // Each member's header, named for its part in the type.
+    Fl_Box* m_MemberDivider[MdcProtubGeom::MAX_MEM];
 };
 
 #endif // !defined(PROTUB_SCREEN__INCLUDED_)

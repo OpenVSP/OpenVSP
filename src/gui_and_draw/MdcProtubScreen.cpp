@@ -52,24 +52,23 @@ MdcProtubScreen::MdcProtubScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_PTypeChoice.AddItem( "BLOCK", MdcProtubGeom::BLOCK );
     m_PTypeChoice.AddItem( "FAIRING", MdcProtubGeom::FAIRING );
     m_PTypeChoice.UpdateItems();
-    m_DesignLayout.AddSlider( m_XProtSlider, "XPROT", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
-    m_DesignLayout.AddButton( m_BuryRootToggle, "Bury Root" );
 
-    // PHIPRO of the protuberance the counter shows.
     m_DesignLayout.AddYGap();
-    m_DesignLayout.AddDividerBox( "Locations" );
+    m_DesignLayout.AddDividerBox( "Placement" );
+    m_DesignLayout.AddSlider( m_XProtSlider, "XPROT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_NLocSlider, "NLOC", 20, "%5.0f" );
     m_DesignLayout.AddButton( m_PhiProFlagToggle, "PHIPRO given" );
     m_DesignLayout.AddIndexSelector( m_LocIndexSelector );
+    // PHIPRO of the protuberance the counter shows.
     m_DesignLayout.AddSlider( m_PhiProSlider, "PHIPRO", 180.0, "%7.3f" );
+    m_DesignLayout.AddSlider( m_RBodySlider, "RBODY", 10, "%7.3f" );
+    m_DesignLayout.AddButton( m_BuryRootToggle, "Bury Root" );
 
-    // Member 1 is a LUG's or SHOE's base plate, 2 a SHOE's web or a LUG's first post, 3 a SHOE's top plate or
-    // a LUG's second post, and 4 a LUG's top plate.
+    // Each member's header names its part in the type; see MemberRole.
     for ( int m = 0; m < MdcProtubGeom::MAX_MEM; m++ )
     {
         m_DesignLayout.AddYGap();
-        m_DesignLayout.AddDividerBox( "Member " + to_string( m + 1 ) );
+        m_MemberDivider[m] = m_DesignLayout.AddDividerBox( "Member " + to_string( m + 1 ) );
         m_DesignLayout.AddSlider( m_LProtSlider[m], "LPROT", 10, "%7.3f" );
         m_DesignLayout.AddSlider( m_WProtSlider[m], "WPROT", 10, "%7.3f" );
         m_DesignLayout.AddSlider( m_HProtSlider[m], "HPROT", 10, "%7.3f" );
@@ -84,6 +83,60 @@ void MdcProtubScreen::Show()
     {
         m_FLTK_Window->show();
     }
+}
+
+// The part member m plays in a protuberance of type ptype, or empty where the type has no such member.
+static string MemberRole( int ptype, int m )
+{
+    if ( ptype == MdcProtubGeom::LUG )
+    {
+        if ( m == 0 )
+        {
+            return "Base Plate";
+        }
+        else if ( m == 1 )
+        {
+            return "First Post";
+        }
+        else if ( m == 2 )
+        {
+            return "Second Post";
+        }
+        return "Top Plate";
+    }
+    if ( ptype == MdcProtubGeom::SHOE )
+    {
+        if ( m == 0 )
+        {
+            return "Base Plate";
+        }
+        else if ( m == 1 )
+        {
+            return "Web";
+        }
+        else if ( m == 2 )
+        {
+            return "Top Plate";
+        }
+        return string();
+    }
+    if ( m > 0 )
+    {
+        return string();
+    }
+    if ( ptype == MdcProtubGeom::VCYL )
+    {
+        return "Vertical Cylinder";
+    }
+    else if ( ptype == MdcProtubGeom::HCYL )
+    {
+        return "Horizontal Cylinder";
+    }
+    else if ( ptype == MdcProtubGeom::BLOCK )
+    {
+        return "Block";
+    }
+    return "Fairing";
 }
 
 //==== Update Screen ====//
@@ -128,6 +181,14 @@ bool MdcProtubScreen::Update()
         m_WProtSlider[m].Update( XSecSurfGeom::ParmIDAt( protub->m_WProt, m ) );
         m_HProtSlider[m].Update( XSecSurfGeom::ParmIDAt( protub->m_HProt, m ) );
         m_OProtSlider[m].Update( XSecSurfGeom::ParmIDAt( protub->m_OProt, m ) );
+
+        string header = "Member " + to_string( m + 1 );
+        string role = MemberRole( ptype, m );
+        if ( !role.empty() )
+        {
+            header += ": " + role;
+        }
+        m_MemberDivider[m]->copy_label( header.c_str() );
 
         if ( ptype == MdcProtubGeom::FAIRING )
         {

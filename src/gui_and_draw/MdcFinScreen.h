@@ -53,10 +53,13 @@ protected:
     SliderAdjRangeInput m_SSpanSlider;
     SliderAdjRangeInput m_ChordSlider;
     SliderAdjRangeInput m_XLESlider;
-    ToggleButton m_XLEFlagToggle;
+    // The segment that ends at the station: its leading edge set by its SWEEP or by the station's XLE.
+    SliderAdjRangeInput m_SectTessUSlider;
+    ToggleRadioGroup m_LEByGroup;
+    ToggleButton m_LEBySweepToggle;
+    ToggleButton m_LEByXLEToggle;
     SliderAdjRangeInput m_SweepSlider;
     SliderAdjRangeInput m_StaSlider;
-    SliderAdjRangeInput m_SectTessUSlider;
     SliderAdjRangeInput m_LERSlider;
     Choice m_LERTypeChoice;
     SliderAdjRangeInput m_CFOCSlider;

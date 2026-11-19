@@ -172,7 +172,7 @@ body is absent its camber is greyed.
 
 ## Tessellation
 
-The rows along the body are set part by part, by the Num_U slider at the end of the Nose, Centerbody and Aft Body
+The rows along the body are set part by part, by the Num_U slider at the top of the Nose, Centerbody and Aft Body
 sections; the Gen tab's Num_U is greyed, and its Num_W sets the rows around the body as for any component.  The nose's
 Num_U also sets the rows across a flat base, and the aft body's those across a nozzle exit.  A part that is absent
 has its Num_U greyed.
@@ -202,33 +202,33 @@ in the *Shape* group.  The first column gives the Design tab's section.
 | Body       | Preset      | `Preset`                 | Default | The shape Set gives: Default or Generic Rocket.                |
 | Body       | NAMELIST    | `NAMELIST`               | AXIBOD  | AXIBOD, circular sections, or ELLBOD, elliptical sections.     |
 | Body       | XO          | `X_Rel_Location` (XForm) | 0       | Position of the nose tip along $X$.                            |
+| Nose       | Num_U       | `NoseTess_U` (Shape)     | 9       | Rows along the nose, and across a flat base.                   |
 | Nose       | TNOSE       | `TNOSE`                  | OGIVE   | CONE, OGIVE, POWER, HAACK or KARMAN.                           |
 | Nose       | POWER       | `POWER`                  | 1       | Exponent of a power law nose.                                  |
+| Nose       | SLPNOS      | `SLPNOS`                 | 0       | Slope of an ogive nose at its base; zero is tangent.           |
 | Nose       | LNOSE       | `LNOSE`                  | 3       | Length of the nose.                                            |
 | Nose       | DNOSE       | `DNOSE`                  | 1       | Diameter at the nose base (AXIBOD).                            |
 | Nose       | WNOSE       | `WNOSE`                  | 1       | Width at the nose base (ELLBOD).                               |
 | Nose       | ENOSE       | `ENOSE`                  | 1       | Height over width at the nose base (ELLBOD).                   |
 | Nose       | BNOSE       | `BNOSE`                  | 0       | Radius of the blunting sphere or of the truncated face.        |
 | Nose       | TRUNC       | `TRUNC`                  | off     | Truncate the nose rather than blunt it.                        |
-| Nose       | SLPNOS      | `SLPNOS`                 | 0       | Slope of an ogive nose at its base; zero is tangent.           |
 | Nose       | ZTIP        | `ZTIP`                   | 0       | Camber at the nose tip.                                        |
 | Nose       | ZNOSE       | `ZNOSE`                  | 0       | Camber at the nose base.                                       |
-| Nose       | Num_U       | `NoseTess_U` (Shape)     | 9       | Rows along the nose, and across a flat base.                   |
+| Centerbody | Num_U       | `CentrTess_U` (Shape)    | 9       | Rows along the centerbody.                                     |
 | Centerbody | LCENTR      | `LCENTR`                 | 7       | Length of the centerbody.                                      |
 | Centerbody | Nose's size | `CENTRDefault`           | on      | The centerbody's size at its aft end is the nose's.            |
 | Centerbody | DCENTR      | `DCENTR`                 | 1       | Diameter at its aft end (AXIBOD).                              |
 | Centerbody | WCENTR      | `WCENTR`                 | 1       | Width at its aft end (ELLBOD).                                 |
 | Centerbody | ECENTR      | `ECENTR`                 | 1       | Height over width at its aft end (ELLBOD).                     |
 | Centerbody | ZCENTR      | `ZCENTR`                 | 0       | Camber at its aft end.                                         |
-| Centerbody | Num_U       | `CentrTess_U` (Shape)    | 9       | Rows along the centerbody.                                     |
+| Aft Body   | Num_U       | `AftTess_U` (Shape)      | 9       | Rows along the aft body, and across a nozzle exit.             |
 | Aft Body   | TAFT        | `TAFT`                   | CONE    | CONE or OGIVE.                                                 |
+| Aft Body   | SLPTAL      | `SLPTAL`                 | 0       | Slope of an ogive aft body at its larger end; zero is tangent. |
 | Aft Body   | LAFT        | `LAFT`                   | 0       | Length of the aft body.                                        |
 | Aft Body   | DAFT        | `DAFT`                   | 0.8     | Diameter at the base (AXIBOD).                                 |
 | Aft Body   | WAFT        | `WAFT`                   | 0.8     | Width at the base (ELLBOD).                                    |
 | Aft Body   | EAFT        | `EAFT`                   | 1       | Height over width at the base (ELLBOD).                        |
 | Aft Body   | ZAFT        | `ZAFT`                   | 0       | Camber at the base.                                            |
-| Aft Body   | SLPTAL      | `SLPTAL`                 | 0       | Slope of an ogive aft body at its larger end; zero is tangent. |
-| Aft Body   | Num_U       | `AftTess_U` (Shape)      | 9       | Rows along the aft body, and across a nozzle exit.             |
 | Base       | DEXIT       | `DEXIT`                  | 0       | Diameter of the nozzle exit, drawn as a cone into the base.    |
 
 ## References
