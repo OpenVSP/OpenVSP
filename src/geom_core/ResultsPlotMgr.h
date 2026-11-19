@@ -191,6 +191,13 @@ public:
 
     void AddLinkableContainers( vector < string > & linkable_container_vec );
 
+    // Write a plot, its curves and style but no Results, to a file of its own; false when it cannot be written.
+    bool WritePlotFile( int index, const string & file_name );
+
+    // Add the plot a plot file holds, as the plot after the others, and make it current; null when the file
+    // holds none.
+    ResultsPlot* ReadPlotFile( const string & file_name );
+
     ResultsPlot* AddPlot();
     ResultsPlot* CopyPlot( int index );
     void DeletePlot( int index );

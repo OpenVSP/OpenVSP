@@ -8,8 +8,10 @@
 
 #include "ResultsPlotMgr.h"
 
+#include "IDMgr.h"
 #include "ParmMgr.h"
 #include "ResultsMgr.h"
+#include "Vehicle.h"
 #include "XmlUtil.h"
 
 #include <algorithm>
@@ -960,6 +962,70 @@ void ResultsPlotMgrSingleton::AddLinkableContainers( vector < string > & linkabl
     {
         m_Plots[i]->AddLinkableContainers( linkable_container_vec );
     }
+}
+
+bool ResultsPlotMgrSingleton::WritePlotFile( int index, const string & file_name )
+{
+    ResultsPlot* plot = GetPlot( index );
+    if ( !plot )
+    {
+        return false;
+    }
+
+    xmlDocPtr doc = xmlNewDoc( ( const xmlChar * )"1.0" );
+
+    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_ResultsPlot" );
+    xmlDocSetRootElement( doc, root );
+    XmlUtil::AddIntNode( root, "Version", CURRENT_FILE_VER );
+
+    plot->EncodeXml( root );
+
+    int err = xmlSaveFormatFile( file_name.c_str(), doc, 1 );
+    xmlFreeDoc( doc );
+
+    return err != -1;
+}
+
+ResultsPlot* ResultsPlotMgrSingleton::ReadPlotFile( const string & file_name )
+{
+    LIBXML_TEST_VERSION
+    xmlKeepBlanksDefault( 0 );
+
+    xmlDocPtr doc = xmlReadFile( file_name.c_str(), nullptr, 0 );
+    if ( !doc )
+    {
+        return nullptr;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement( doc );
+    xmlNodePtr plot_node = nullptr;
+    if ( root && !xmlStrcmp( root->name, ( const xmlChar * )"Vsp_ResultsPlot" ) )
+    {
+        plot_node = XmlUtil::GetNode( root, "ResultsPlot", 0 );
+    }
+    if ( !plot_node )
+    {
+        xmlFreeDoc( doc );
+        return nullptr;
+    }
+
+    // IDs the model already uses are issued afresh, so one file can be read into a model again and again.
+    string lastreset = IDMgr.ResetRemapID();
+    IDMgr.PreRegisterIDs( root );
+
+    ResultsPlot* plot = new ResultsPlot();
+    plot->DecodeXml( plot_node );
+
+    IDMgr.ResetRemapID( lastreset );
+    xmlFreeDoc( doc );
+
+    if ( NameUsed( plot->GetName() ) )
+    {
+        plot->SetName( UniqueName( plot->GetName() ) );
+    }
+    m_Plots.push_back( plot );
+    m_CurrIndex = ( int ) m_Plots.size() - 1;
+    return plot;
 }
 
 bool ResultsPlotMgrSingleton::NameUsed( const string & name ) const
