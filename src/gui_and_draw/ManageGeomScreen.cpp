@@ -1006,6 +1006,26 @@ void ManageGeomScreen::EditName( const string &name )
     }
 }
 
+ParmContainer* ManageGeomScreen::GetRenameableSelection()
+{
+    if ( m_SelVec.size() != 1 )
+    {
+        return nullptr;
+    }
+    if ( m_SelVec[0] == m_VehiclePtr->GetID() )
+    {
+        return m_VehiclePtr;
+    }
+
+    // Re-check: the name may have become automatic while the popup was open.
+    Geom* g = m_VehiclePtr->FindGeom( m_SelVec[0] );
+    if ( g && g->NameIsAutomatic() )
+    {
+        return nullptr;
+    }
+    return g;
+}
+
 
 //==== Create Screens ====//
 void ManageGeomScreen::CreateScreens()
@@ -1114,27 +1134,7 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
         // first apply rename via popup input if applicable
         if ( m_GeomBrowser->GetCBReason() == TREE_CALLBACK_POPUP_ENTER )
         {
-            ParmContainer* pc = nullptr;
-            TreeIconItem* t = nullptr;
-
-            if ( m_SelVec.size() == 1 )
-            {
-                if ( m_SelVec[0] == m_VehiclePtr->GetID() )
-                {
-                    pc = m_VehiclePtr;
-                }
-                else
-                {
-                    pc = m_VehiclePtr->FindGeom( m_SelVec[0] );
-                }
-            }
-
-            // Re-check: the name may have become automatic while the popup was open.
-            Geom* g = dynamic_cast< Geom* >( pc );
-            if ( g && g->NameIsAutomatic() )
-            {
-                pc = nullptr;
-            }
+            ParmContainer* pc = GetRenameableSelection();
 
             if ( pc )
             {
@@ -1157,26 +1157,7 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
         // and finally open up new popup callback if needed
         if ( m_GeomBrowser->GetCBReason() == TREE_CALLBACK_POPUP_OPEN )
         {
-            ParmContainer* pc = nullptr;
-            TreeIconItem* t = nullptr;
-
-            if ( m_SelVec.size() == 1 )
-            {
-                if ( m_SelVec[0] == m_VehiclePtr->GetID() )
-                {
-                    pc = m_VehiclePtr;
-                }
-                else
-                {
-                    pc = m_VehiclePtr->FindGeom( m_SelVec[0] );
-                }
-            }
-
-            Geom* g = dynamic_cast< Geom* >( pc );
-            if ( g && g->NameIsAutomatic() )
-            {
-                pc = nullptr;
-            }
+            ParmContainer* pc = GetRenameableSelection();
 
             if ( pc )
             {

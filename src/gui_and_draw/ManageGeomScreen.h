@@ -194,6 +194,7 @@ protected:
     void LoadDisplayChoice();
     void UpdateDrawType();
     void GeomBrowserCallback();
+    ParmContainer* GetRenameableSelection();
     void SelectGeomBrowser( const string &geom_id = "NONE" );
     void NoShowActiveGeoms( bool flag );
     void SelectAll();
