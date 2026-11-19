@@ -545,6 +545,25 @@ void ResultsPlotCanvas::SetLegend( const vector < ResultsLegendEntry > & entries
     redraw();
 }
 
+void ResultsPlotCanvas::ClearLegend()
+{
+    m_Legend.clear();
+    redraw();
+}
+
+void ResultsPlotCanvas::AddLegendEntry( const string & text, Fl_Color c, bool show_line, int linestyle, int marker )
+{
+    ResultsLegendEntry e;
+    e.m_Text = text;
+    e.m_Color = c;
+    e.m_LineStyle = linestyle;
+    e.m_Marker = marker;
+    e.m_ShowLine = show_line;
+    e.m_ShowPoint = marker != CA_NO_POINT;
+    m_Legend.push_back( e );
+    redraw();
+}
+
 void ResultsPlotCanvas::SetSeriesPoints( const vector < vector < double > > & x, const vector < vector < double > > & y, const vector < string > & names,
                                          const vector < vector < int > > & index )
 {
