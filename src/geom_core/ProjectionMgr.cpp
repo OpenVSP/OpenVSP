@@ -821,6 +821,7 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const v
 
     Clipper2Lib::Paths64 solution;
     Union( utargetvec, solution );
+    RemoveSpikes( solution );
 
     vector < bool > isHole;
     AreaReport( res, "Area", "Projected area.", solution, scale, isHole, true );
@@ -1086,6 +1087,7 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
     Clipper2Lib::Paths64 solution;
 
     Union( solvec, solution );
+    RemoveSpikes( solution );
 
     AreaReport( res, "Area", "Bounded projected area.", solution, scale, isHole, true );
 
@@ -1647,6 +1649,61 @@ void ProjectionMgrSingleton::ClosePaths( Clipper2Lib::Paths64 & pths )
             pths[i].push_back( pths[i][0] );
         }
     }
+}
+
+// Drop each repeated vertex and each spike tip, where the outline turns back along the edge it came in on.
+// Paths left with fewer than three vertices are dropped.
+void ProjectionMgrSingleton::RemoveSpikes( Clipper2Lib::Paths64 & pths )
+{
+    // A billionth of the 1e15 the grid spans
+    const double eps = 1.0e6;
+
+    Clipper2Lib::Paths64 clean;
+    for ( int i = 0; i < pths.size(); i++ )
+    {
+        Clipper2Lib::Path64 p = pths[i];
+
+        bool changed = true;
+        while ( changed && p.size() >= 3 )
+        {
+            changed = false;
+            int j = 0;
+            while ( j < p.size() && p.size() >= 3 )
+            {
+                int n = p.size();
+                const Clipper2Lib::Point64 &a = p[ ( j + n - 1 ) % n ];
+                const Clipper2Lib::Point64 &b = p[ j ];
+                const Clipper2Lib::Point64 &c = p[ ( j + 1 ) % n ];
+
+                double ux = static_cast < double > ( b.x - a.x );
+                double uy = static_cast < double > ( b.y - a.y );
+                double vx = static_cast < double > ( c.x - b.x );
+                double vy = static_cast < double > ( c.y - b.y );
+
+                double lu = sqrt( ux * ux + uy * uy );
+                double lv = sqrt( vx * vx + vy * vy );
+                double cross = ux * vy - uy * vx;
+                double dot = ux * vx + uy * vy;
+
+                // The shorter edge's far end lies on the longer edge's line, behind its turn
+                if ( lu == 0 || ( dot < 0 && std::abs( cross ) <= eps * std::max( lu, lv ) ) )
+                {
+                    p.erase( p.begin() + j );
+                    changed = true;
+                }
+                else
+                {
+                    j++;
+                }
+            }
+        }
+
+        if ( p.size() >= 3 )
+        {
+            clean.push_back( p );
+        }
+    }
+    pths = clean;
 }
 
 void ProjectionMgrSingleton::Union( Clipper2Lib::Paths64 & pths, Clipper2Lib::Paths64 & sol )

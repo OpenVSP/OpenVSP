@@ -117,6 +117,7 @@ protected:
     virtual double BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip, bool translate_to_max = true );
 
     virtual void ClosePaths( Clipper2Lib::Paths64 & pths );
+    virtual void RemoveSpikes( Clipper2Lib::Paths64 & pths );
 
     virtual void Union( Clipper2Lib::Paths64 & pths, Clipper2Lib::Paths64 & sol );
     virtual void Union( vector < Clipper2Lib::Paths64 > & pthsvec,  Clipper2Lib::Paths64 & sol );
