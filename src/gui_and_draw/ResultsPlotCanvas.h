@@ -189,6 +189,9 @@ public:
 // A ResultsPlotCanvas::LimitsCB for data that is a PlotLimitParms: new limits are set by hand, reset makes them automatic.
 void SetPlotLimitParms( void* data, double xmin, double xmax, double ymin, double ymax, bool reset );
 
+// Add the legend placements, RESULTS_PLOT_LEGEND values, to a choice.
+void AddLegendPlacementItems( Choice & choice );
+
 // A pixel position as an int, held within a range that drawing and int casts can take.
 int ResultsPixel( double p );
 

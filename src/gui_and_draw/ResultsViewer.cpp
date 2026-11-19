@@ -812,12 +812,7 @@ void ResultsViewer::BuildPlotTab( Fl_Group* tab )
     m_PlotControlLayout.SetSameLineFlag( false );
     m_PlotControlLayout.SetFitWidthFlag( true );
 
-    m_LegendChoice.AddItem( "Best", vsp::RESULTS_LEGEND_BEST );
-    m_LegendChoice.AddItem( "Upper Right", vsp::RESULTS_LEGEND_UPPER_RIGHT );
-    m_LegendChoice.AddItem( "Upper Left", vsp::RESULTS_LEGEND_UPPER_LEFT );
-    m_LegendChoice.AddItem( "Lower Left", vsp::RESULTS_LEGEND_LOWER_LEFT );
-    m_LegendChoice.AddItem( "Lower Right", vsp::RESULTS_LEGEND_LOWER_RIGHT );
-    m_LegendChoice.AddItem( "Off", vsp::RESULTS_LEGEND_OFF );
+    AddLegendPlacementItems( m_LegendChoice );
     m_PlotControlLayout.AddChoice( m_LegendChoice, "Legend" );
     m_PlotControlLayout.AddYGap();
 

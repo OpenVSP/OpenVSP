@@ -500,6 +500,16 @@ bool UsableAxisLimits( double amin, double amax, bool log_axis )
     return amax - amin > 1e-12 * scale;
 }
 
+void AddLegendPlacementItems( Choice & choice )
+{
+    choice.AddItem( "Best", vsp::RESULTS_LEGEND_BEST );
+    choice.AddItem( "Upper Right", vsp::RESULTS_LEGEND_UPPER_RIGHT );
+    choice.AddItem( "Upper Left", vsp::RESULTS_LEGEND_UPPER_LEFT );
+    choice.AddItem( "Lower Left", vsp::RESULTS_LEGEND_LOWER_LEFT );
+    choice.AddItem( "Lower Right", vsp::RESULTS_LEGEND_LOWER_RIGHT );
+    choice.AddItem( "Off", vsp::RESULTS_LEGEND_OFF );
+}
+
 int ResultsPixel( double p )
 {
     if ( !( p > -1e6 ) )
