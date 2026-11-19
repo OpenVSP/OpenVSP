@@ -166,7 +166,13 @@ bool ManageGeomScreen::Update()
     if ( m_NeedsShowHideGeoms )
     {
         m_NeedsShowHideGeoms = false;
+        bool restore_focus = Fl::focus() == m_GeomBrowser;
         ShowHideGeomScreens();
+        if ( restore_focus )
+        {
+            m_FLTK_Window->show();
+            m_GeomBrowser->take_focus();
+        }
     }
 
     if ( IsShown() )
@@ -1072,12 +1078,6 @@ void ManageGeomScreen::ShowHideGeomScreens()
         {
             m_GeomScreenVec[ i ]->Hide();
         }
-    }
-
-    //==== Re-show ManageGeomScreen to refocus events for hotkey detection ====//
-    if ( IsShown() )
-    {
-        Show();
     }
 }
 
