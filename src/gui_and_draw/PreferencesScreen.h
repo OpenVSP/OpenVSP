@@ -85,6 +85,9 @@ protected:
     // Save m_Nav and use it in the main window now.
     void ApplyNav();
 
+    // Show and use the preferences as they are stored, as after loading a preferences file.
+    void ApplyStored();
+
     // Shows the screens as the window mode kept in the preferences says
     static void StaticWindowModeCB( void* data );
 
@@ -169,6 +172,8 @@ protected:
 
     // Bottom of the window.
     GroupLayout m_BottomLayout;
+    TriggerButton m_SaveButton;
+    TriggerButton m_LoadButton;
     TriggerButton m_DefaultsButton;
     TriggerButton m_RevertButton;
     TriggerButton m_CloseButton;

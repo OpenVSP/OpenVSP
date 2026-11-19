@@ -17,6 +17,7 @@ obvious use, including where a Parm can be dragged and dropped.
 | [3D View preferences](#3d-view-preferences) | File > Preferences > 3D View |
 | [Mouse button preferences](#mouse-button-preferences) | File > Preferences > Mouse Buttons |
 | [Schemes](#schemes) | File > Preferences |
+| [Saving and loading preferences](#saving-and-loading-preferences) | File > Preferences |
 | [Parm controls](#parm-controls) | every slider and value box |
 | [Dragging and dropping Parms](#dragging-and-dropping-parms) | link, design variable and preset windows |
 | [Plots](#plots) | results plots, the blade curve plot and the Edit Curve view |
@@ -299,6 +300,13 @@ zoom drags go by distance, and on macOS Cmd works wherever Ctrl does.
 
 The schemes leave the Rotatrix settings alone.  Changing anything after choosing a scheme makes it Custom; choosing
 the scheme again puts all of its settings back.
+
+## Saving and loading preferences
+
+Save... at the bottom of the Preferences writes every preference to a file (*.vspprefs), and Load... reads one back
+and puts it into use at once; Revert undoes a load.  The file is the same text on Windows, macOS and Linux, so it can
+be loaded on another computer.  It includes the file chooser's favorite directories.  Any preference that OpenVSP
+reads only as it starts takes effect the next time it starts.
 
 ## Parm controls
 

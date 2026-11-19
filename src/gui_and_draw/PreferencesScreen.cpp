@@ -9,8 +9,12 @@
 
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
+#include <fstream>
 
 #include <FL/Fl_Box.H>
+#include <FL/fl_ask.H>
+#include <FL/filename.H>
 
 #include "PreferencesScreen.h"
 #include "MainVSPScreen.h"
@@ -163,6 +167,65 @@ public:
     VSPGUI::NavPress m_Press;
     bool m_HasPress;
 };
+
+//==== Preferences File ====//
+
+// A preferences file is a copy of FLTK's own, which is text the same on every platform and holds
+// every preference, including ones added later.
+
+// The first line of FLTK's preferences file.
+static const char * PREFS_HEADER = "; FLTK preferences file format 1.0";
+
+// The path of the preferences file, written out first so it holds every change.
+static string PrefsFileName()
+{
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    prefs.flush();
+
+    char buf[ FL_PATH_MAX ];
+    buf[0] = '\0';
+    prefs.filename( buf, sizeof( buf ) );
+    return string( buf );
+}
+
+// Copy the preferences file to fname.  False if it was not written.
+static bool SavePrefsFile( const string & fname )
+{
+    std::error_code ec;
+    std::filesystem::copy_file( PrefsFileName(), fname, std::filesystem::copy_options::overwrite_existing, ec );
+    return !ec;
+}
+
+// Copy fname over the preferences file if it is one.  Returns why it was not, or an empty string.
+static string LoadPrefsFile( const string & fname )
+{
+    std::ifstream in( fname );
+    string line;
+    if ( !in || !std::getline( in, line ) )
+    {
+        return "could not be read";
+    }
+    in.close();
+
+    if ( !line.empty() && line.back() == '\r' )
+    {
+        line.pop_back();
+    }
+    if ( line != PREFS_HEADER )
+    {
+        return "is not a preferences file";
+    }
+
+    std::filesystem::path dest = PrefsFileName();
+    std::error_code ec;
+    std::filesystem::create_directories( dest.parent_path(), ec );
+    std::filesystem::copy_file( fname, dest, std::filesystem::copy_options::overwrite_existing, ec );
+    if ( ec )
+    {
+        return "could not be copied to the preferences";
+    }
+    return string();
+}
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -525,8 +588,12 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_BottomLayout.SetSameLineFlag( true );
     m_BottomLayout.SetFitWidthFlag( false );
 
-    int gap = ( m_BottomLayout.GetW() - 3 * m_BottomLayout.GetButtonWidth() ) / 4;
+    int gap = ( m_BottomLayout.GetW() - 5 * m_BottomLayout.GetButtonWidth() ) / 6;
 
+    m_BottomLayout.AddX( gap );
+    m_BottomLayout.AddButton( m_SaveButton, "Save..." );
+    m_BottomLayout.AddX( gap );
+    m_BottomLayout.AddButton( m_LoadButton, "Load..." );
     m_BottomLayout.AddX( gap );
     m_BottomLayout.AddButton( m_DefaultsButton, "Defaults" );
     m_BottomLayout.AddX( gap );
@@ -534,6 +601,8 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_BottomLayout.AddX( gap );
     m_BottomLayout.AddButton( m_CloseButton, "Close" );
 
+    m_SaveButton.GetFlButton()->tooltip( "Save the preferences to a file, to load on this or another computer." );
+    m_LoadButton.GetFlButton()->tooltip( "Load preferences saved to a file.  Revert undoes it." );
     m_DefaultsButton.GetFlButton()->tooltip( "Set every preference to OpenVSP's default.  Revert undoes it." );
     m_RevertButton.GetFlButton()->tooltip( "Changes take effect and are kept as they are made.  Revert puts back the preferences as they were when this window opened." );
 
@@ -1216,6 +1285,30 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SetBrowserPlace( m_BrowserPlaceChoice.GetVal() );
     }
+    else if ( device == &m_SaveButton )
+    {
+        string fname = m_ScreenMgr->FileChooser( "Save Preferences", "*.vspprefs", vsp::SAVE );
+        if ( !fname.empty() && !SavePrefsFile( fname ) )
+        {
+            fl_alert( "Preferences not written to %s", fname.c_str() );
+        }
+    }
+    else if ( device == &m_LoadButton )
+    {
+        string fname = m_ScreenMgr->FileChooser( "Load Preferences", "*.vspprefs" );
+        if ( !fname.empty() )
+        {
+            string err = LoadPrefsFile( fname );
+            if ( !err.empty() )
+            {
+                fl_alert( "%s %s.  No preferences were changed.", fname.c_str(), err.c_str() );
+            }
+            else
+            {
+                ApplyStored();
+            }
+        }
+    }
     else if ( device == &m_DefaultsButton )
     {
         SetFCType( vsp::FC_OPENVSP );
@@ -1339,6 +1432,33 @@ void PreferencesScreen::ApplyNav()
     {
         main->SetNavSettings( m_Nav );
     }
+}
+
+void PreferencesScreen::ApplyStored()
+{
+    m_FCTypeChoice.SetVal( GetFCType() );
+
+    int size = TOOLBAR_MEDIUM;
+    int place = BROWSER_FLOATING;
+    {
+        Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+        Fl_Preferences app( prefs, "Application" );
+        app.get( "Toolbar_Size", size, TOOLBAR_MEDIUM );
+        app.get( "Geom_Browser_Place", place, BROWSER_FLOATING );
+    }
+    SetToolbarSize( size );
+    m_ToolbarChoice.SetVal( GetToolbarSize() );
+
+    SetBrowserPlace( place );
+    m_BrowserPlaceChoice.SetVal( GetBrowserPlace() );
+
+    int mode = ScreenMgr::GetWindowModePref();
+    SetWindowMode( mode );
+    m_WindowModeChoice.SetVal( mode );
+
+    m_Nav.Load();
+    ShowNav();
+    ApplyNav();
 }
 
 void PreferencesScreen::ApplyScheme( int scheme )
