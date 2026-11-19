@@ -173,3 +173,68 @@ def testNewResultsAreChosen():
     assert list( vsp.GetResultsCurveResultIDs( curve ) ) == [ newer ] + made
     assert list( vsp.GetResultsCurveChosenIDs( curve ) ) == [ newer ] + made
     assert pop_errors() == []
+
+
+def testAPlotFileCarriesThePlotToAnotherModel():
+    """A plot file holds the plot without Results; read into a new model the plot is the same and plots its Results."""
+    vsp.VSPRenew()
+    vsp.DeleteAllResults()
+    plot = make_plot()
+    before = describe( plot )
+
+    written = os.path.join( tempfile.mkdtemp(), "lift.vspplot" )
+    vsp.WriteResultsPlotFile( plot, written )
+
+    vsp.VSPRenew()
+    vsp.AddGeom( "POD" )
+    read = vsp.ReadResultsPlotFile( written )
+    assert list( vsp.GetAllResultsPlotIDs() ) == [ read ]
+    assert vsp.GetActiveResultsPlot() == read
+    assert vsp.GetContainerName( read ) == "Lift"
+    assert describe( read ) == before
+
+    # No Results of the curves' kinds yet; then some are made, and the second curve plots the run before the newest.
+    second = vsp.GetResultsCurveIDs( read )[1]
+    assert list( vsp.GetResultsCurveResultIDs( second ) ) == []
+    vsp.WriteTestResults()
+    assert list( vsp.GetResultsCurveResultIDs( second ) ) == list( vsp.FindResultsIDs( "Test_Results" ) )[:1]
+    assert pop_errors() == []
+
+
+def testAPlotFileReadTwiceGivesTwoPlots():
+    """Reading a file into the model it came from collides every ID; each plot read gets new ones and a free name."""
+    vsp.VSPRenew()
+    plot = make_plot()
+    before = describe( plot )
+
+    written = os.path.join( tempfile.mkdtemp(), "lift.vspplot" )
+    vsp.WriteResultsPlotFile( plot, written )
+    first = vsp.ReadResultsPlotFile( written )
+    second = vsp.ReadResultsPlotFile( written )
+
+    plots = list( vsp.GetAllResultsPlotIDs() )
+    assert plots == [ plot, first, second ]
+    assert [ vsp.GetContainerName( p ) for p in plots ] == [ "Lift", "Lift 1", "Lift 2" ]
+    assert describe( first ) == before
+    assert describe( second ) == before
+
+    curves = [ c for p in plots for c in vsp.GetResultsCurveIDs( p ) ]
+    assert len( set( curves ) ) == 6
+    assert pop_errors() == []
+
+
+def testOnlyAPlotFileGivesAPlot():
+    vsp.VSPRenew()
+    plot = make_plot()
+    folder = tempfile.mkdtemp()
+
+    model = os.path.join( folder, "plot.vsp3" )
+    vsp.WriteVSPFile( model )
+    assert vsp.ReadResultsPlotFile( model ) == ""
+    assert vsp.ReadResultsPlotFile( os.path.join( folder, "missing.vspplot" ) ) == ""
+    assert len( pop_errors() ) == 2
+
+    vsp.WriteResultsPlotFile( "NOTAPLOT", os.path.join( folder, "none.vspplot" ) )
+    assert len( pop_errors() ) == 1
+    assert not os.path.exists( os.path.join( folder, "none.vspplot" ) )
+    assert list( vsp.GetAllResultsPlotIDs() ) == [ plot ]

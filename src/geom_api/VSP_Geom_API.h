@@ -11365,6 +11365,84 @@ extern void DeleteAllResultsPlots();
     \ingroup ResultsPlot
 */
 /*!
+    Write a Results plot to a file of its own: its name, axes, style and curves, without any Results.  The curves
+    name kinds of Result and variables, not particular Results, so ReadResultsPlotFile can bring the plot into
+    another model, where it plots that model's Results of the same kinds.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    SetContainerName( plot_id, "Drag Polar" );
+    SetParmVal( FindParm( plot_id, "YLog", "ResultsPlot" ), 1.0 );
+
+    WriteResultsPlotFile( plot_id, "DragPolar.vspplot" );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    SetContainerName( plot_id, "Drag Polar" )
+    SetParmVal( FindParm( plot_id, "YLog", "ResultsPlot" ), 1.0 )
+
+    WriteResultsPlotFile( plot_id, "DragPolar.vspplot" )
+    \endcode
+    \endPythonOnly
+    \sa ReadResultsPlotFile
+    \param [in] plot_id string Results plot ID
+    \param [in] file_name string File name, by convention ending in .vspplot
+*/
+
+extern void WriteResultsPlotFile( const std::string & plot_id, const std::string & file_name );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
+    Add the Results plot a file written by WriteResultsPlotFile holds.  The plot goes after the others and becomes the
+    active plot; a name already taken gets a number added.  Its curves plot the Results of the kinds they name that
+    the model has, and stay empty until it has some.
+    \forcpponly
+    \code{.cpp}
+    string plot_id = AddResultsPlot();
+    SetContainerName( plot_id, "Drag Polar" );
+    SetParmVal( FindParm( plot_id, "YLog", "ResultsPlot" ), 1.0 );
+    WriteResultsPlotFile( plot_id, "DragPolar.vspplot" );
+
+    VSPRenew();
+
+    string read_id = ReadResultsPlotFile( "DragPolar.vspplot" );
+
+    if ( GetActiveResultsPlot() != read_id )                  { Print( "ERROR: ReadResultsPlotFile" ); __failure++; }
+    if ( GetContainerName( read_id ) != "Drag Polar" )        { Print( "ERROR: ReadResultsPlotFile lost the name" ); __failure++; }
+    if ( GetParmVal( FindParm( read_id, "YLog", "ResultsPlot" ) ) != 1.0 )  { Print( "ERROR: ReadResultsPlotFile lost a Parm" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    plot_id = AddResultsPlot()
+    SetContainerName( plot_id, "Drag Polar" )
+    SetParmVal( FindParm( plot_id, "YLog", "ResultsPlot" ), 1.0 )
+    WriteResultsPlotFile( plot_id, "DragPolar.vspplot" )
+
+    VSPRenew()
+
+    read_id = ReadResultsPlotFile( "DragPolar.vspplot" )
+
+    assert GetActiveResultsPlot() == read_id, "ReadResultsPlotFile"
+    assert GetContainerName( read_id ) == "Drag Polar", "ReadResultsPlotFile lost the name"
+    assert GetParmVal( FindParm( read_id, "YLog", "ResultsPlot" ) ) == 1.0, "ReadResultsPlotFile lost a Parm"
+    \endcode
+    \endPythonOnly
+    \sa WriteResultsPlotFile
+    \param [in] file_name string File name
+    \return string ID of the new plot
+*/
+
+extern std::string ReadResultsPlotFile( const std::string & file_name );
+
+/*!
+    \ingroup ResultsPlot
+*/
+/*!
     Get the IDs of every Results plot, in the order the Results viewer lists them.
     \forcpponly
     \code{.cpp}

@@ -5197,6 +5197,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteAllResultsPlots()", asFUNCTION( vsp::DeleteAllResultsPlots ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void WriteResultsPlotFile( const string & in plot_id, const string & in file_name )", asFUNCTION( vsp::WriteResultsPlotFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string ReadResultsPlotFile( const string & in file_name )", asFUNCTION( vsp::ReadResultsPlotFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "array<string>@+ GetAllResultsPlotIDs()", asMETHOD( ScriptMgrSingleton, GetAllResultsPlotIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 

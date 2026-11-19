@@ -3785,6 +3785,37 @@ void DeleteAllResultsPlots()
     ErrorMgr.NoError();
 }
 
+void WriteResultsPlotFile( const std::string & plot_id, const std::string & file_name )
+{
+    int index = ResultsPlotMgr.FindPlotIndex( plot_id );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "WriteResultsPlotFile::Can't Find Results Plot " + plot_id );
+        return;
+    }
+
+    if ( !ResultsPlotMgr.WritePlotFile( index, file_name ) )
+    {
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteResultsPlotFile::Failure Writing File " + file_name );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+std::string ReadResultsPlotFile( const std::string & file_name )
+{
+    ResultsPlot* plot = ResultsPlotMgr.ReadPlotFile( file_name );
+    if ( !plot )
+    {
+        ErrorMgr.AddError( VSP_FILE_READ_FAILURE, "ReadResultsPlotFile::No Results Plot Read From " + file_name );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return plot->GetID();
+}
+
 std::vector < std::string > GetAllResultsPlotIDs()
 {
     std::vector < std::string > ids;
