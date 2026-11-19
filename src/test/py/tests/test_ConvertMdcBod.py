@@ -188,6 +188,33 @@ def testBodyConvertsOnlyAMdcBod():
     assert len( pop_errors() ) == 1
 
 
+TESS_BODIES = [
+    ( "default", dict( **AFT ), ( 9, 9, 9 ) ),
+    ( "by part", dict( **AFT ), ( 5, 13, 4 ) ),
+    ( "karman nose past the old cap limit", dict( TNOSE=4, **AFT ), ( 60, 3, 6 ) ),
+    ( "nozzle exit", dict( DEXIT=0.5, **AFT ), ( 17, 3, 6 ) ),
+    ( "nose alone", dict( LCENTR=0.0 ), ( 7, 3, 3 ) ),
+]
+
+
+@pytest.mark.parametrize( "name,parms,tess", TESS_BODIES, ids=[ n for n, _, _ in TESS_BODIES ] )
+def testStackTakesTheBodysRowsByPart( name, parms, tess ):
+    vsp.VSPRenew()
+    mid = new( "MDC_BOD", **parms )
+    put( mid, "Shape", NoseTess_U=tess[0], CentrTess_U=tess[1], AftTess_U=tess[2] )
+    sid = vsp.ConvertMdcBodToStack( mid, False )
+    vsp.Update()
+
+    # The Stack's caps take the nose's rows, and its rows are the body's, row for row.
+    assert vsp.GetParmVal( vsp.FindParm( sid, "CapUMinTess", "EndCap" ) ) == tess[0]
+    ub, _ = vsp.GetUWTess01( mid, 0 )
+    us, _ = vsp.GetUWTess01( sid, 0 )
+    assert len( ub ) == len( us )
+    for a, b in zip( ub, us ):
+        for w in ( 0.0, 0.3 ):
+            assert ( vsp.CompPnt01( mid, 0, a, w ) - vsp.CompPnt01( sid, 0, b, w ) ).mag() < 1e-9
+
+
 def testStackFromABodySavesAndReadsBack():
     vsp.VSPRenew()
     mid = new( "MDC_BOD", **AFT, **CAMBER )

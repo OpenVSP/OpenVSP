@@ -107,6 +107,9 @@ public:
     // Sizes the station and segment Parms to NSPAN and the panel Parms to NPANEL.
     void SizeParms();
 
+    // The rows across U of a buried root's segment, which is ruled, so its ends alone give it exactly.
+    static constexpr int BURIED_TESS_U = 2;
+
     IntParm m_Preset;
     IntParm m_SecTyp;
     IntParm m_LERType;
@@ -130,6 +133,9 @@ public:
     vector< Parm* > m_Sweep;
     vector< Parm* > m_Sta;
     vector< BoolParm* > m_XLEFlag;
+
+    // The rows across U of the segment station k starts, at index k - 1.
+    vector< IntParm* > m_SectTessU;
 
     vector< Parm* > m_ZUpper;
     vector< Parm* > m_ZLower;
@@ -159,6 +165,9 @@ public:
 
 protected:
     virtual void UpdateSurf();
+
+    virtual bool GetTessUVec( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                              vector< int > &tessvec ) const;
 
     // The shape as the fin set was made, the default preset.
     vector< PresetValue > m_DefaultValues;

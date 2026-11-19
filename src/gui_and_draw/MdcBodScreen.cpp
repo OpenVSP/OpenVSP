@@ -62,6 +62,7 @@ MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_B
     m_DesignLayout.AddSlider( m_SlpNosSlider, "SLPNOS", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ZTipSlider, "ZTIP", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ZNoseSlider, "ZNOSE", 10, "%7.3f" );
+    m_DesignLayout.AddSlider( m_NoseTessUSlider, "Num_U", 20, "%5.0f" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Centerbody" );
@@ -71,6 +72,7 @@ MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_B
     m_DesignLayout.AddSlider( m_WCentrSlider, "WCENTR", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ECentrSlider, "ECENTR", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ZCentrSlider, "ZCENTR", 10, "%7.3f" );
+    m_DesignLayout.AddSlider( m_CentrTessUSlider, "Num_U", 20, "%5.0f" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Aft Body" );
@@ -84,6 +86,7 @@ MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_B
     m_DesignLayout.AddSlider( m_EAftSlider, "EAFT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_ZAftSlider, "ZAFT", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_SlpTalSlider, "SLPTAL", 10, "%7.3f" );
+    m_DesignLayout.AddSlider( m_AftTessUSlider, "Num_U", 20, "%5.0f" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Base" );
@@ -113,6 +116,9 @@ bool MdcBodScreen::Update()
 
     GeomScreen::Update();
 
+    // The rows along the body are set by part.
+    m_NumUSlider.Deactivate();
+
     MdcBodGeom* body = dynamic_cast< MdcBodGeom* >( geom_ptr );
     assert( body );
 
@@ -131,6 +137,7 @@ bool MdcBodScreen::Update()
     m_SlpNosSlider.Update( body->m_SlpNos.GetID() );
     m_ZTipSlider.Update( body->m_ZTip.GetID() );
     m_ZNoseSlider.Update( body->m_ZNose.GetID() );
+    m_NoseTessUSlider.Update( body->m_NoseTessU.GetID() );
 
     m_LCentrSlider.Update( body->m_LCentr.GetID() );
     m_CentrDefaultToggle.Update( body->m_CentrDefault.GetID() );
@@ -138,6 +145,7 @@ bool MdcBodScreen::Update()
     m_WCentrSlider.Update( body->m_WCentr.GetID() );
     m_ECentrSlider.Update( body->m_ECentr.GetID() );
     m_ZCentrSlider.Update( body->m_ZCentr.GetID() );
+    m_CentrTessUSlider.Update( body->m_CentrTessU.GetID() );
 
     m_TAftChoice.Update( body->m_TAft.GetID() );
     m_LAftSlider.Update( body->m_LAft.GetID() );
@@ -146,6 +154,7 @@ bool MdcBodScreen::Update()
     m_EAftSlider.Update( body->m_EAft.GetID() );
     m_ZAftSlider.Update( body->m_ZAft.GetID() );
     m_SlpTalSlider.Update( body->m_SlpTal.GetID() );
+    m_AftTessUSlider.Update( body->m_AftTessU.GetID() );
     m_DExitSlider.Update( body->m_DExit.GetID() );
 
     // Deactivate the inputs that shape nothing: the other namelist's sizes, a centerbody size that takes the nose's,
@@ -194,6 +203,7 @@ bool MdcBodScreen::Update()
         m_WCentrSlider.Deactivate();
         m_ECentrSlider.Deactivate();
         m_ZCentrSlider.Deactivate();
+        m_CentrTessUSlider.Deactivate();
     }
 
     if ( !aft )
@@ -214,6 +224,13 @@ bool MdcBodScreen::Update()
     if ( !centr && !aft )
     {
         m_DExitSlider.Deactivate();
+    }
+
+    // The aft body's rows are a nozzle's as well.
+    bool nozzle = ( centr || aft ) && body->m_DExit() > 0.0;
+    if ( !aft && !nozzle )
+    {
+        m_AftTessUSlider.Deactivate();
     }
 
     return true;

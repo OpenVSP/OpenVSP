@@ -81,6 +81,13 @@ MdcBodGeom::MdcBodGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_DExit.Init( "DEXIT", "Design", this, 0.0, 0.0, 1.0e12 );
     m_DExit.SetDescript( "Nozzle exit diameter, drawn as a cone into the base DEXIT / 4 deep" );
 
+    m_NoseTessU.Init( "NoseTess_U", "Shape", this, 9, 2, 1000 );
+    m_NoseTessU.SetDescript( "Number of rows along the nose, and across a flat base" );
+    m_CentrTessU.Init( "CentrTess_U", "Shape", this, 9, 2, 1000 );
+    m_CentrTessU.SetDescript( "Number of rows along the centerbody" );
+    m_AftTessU.Init( "AftTess_U", "Shape", this, 9, 2, 1000 );
+    m_AftTessU.SetDescript( "Number of rows along the aft body, and across a nozzle exit" );
+
     m_Preset.Init( "Preset", "Design", this, vsp::MDC_BOD_PRESET_DEFAULT, vsp::MDC_BOD_PRESET_DEFAULT, vsp::NUM_MDC_BOD_PRESET - 1 );
     m_Preset.SetDescript( "Preset shape Set gives the body: as new, or a generic rocket's" );
     GetPresetValues( { "Design", "EndCap" }, { "Preset" }, m_DefaultValues );
@@ -328,6 +335,7 @@ void MdcBodGeom::UpdateSurf()
     vector< double > hs;
     vector< int > shapes;    // The shape of the section ahead of each station after the first.
     vector< double > slps;
+    m_SectPart.clear();
 
     vector< double > cx = { 0.0, lnose };
     vector< double > cz = { m_ZTip(), m_ZNose() };
@@ -345,6 +353,7 @@ void MdcBodGeom::UpdateSurf()
         hs.push_back( 0.5 * scentr * ecentr );
         shapes.push_back( CONE );
         slps.push_back( 0.0 );
+        m_SectPart.push_back( CENTR_PART );
         cx.push_back( x );
         cz.push_back( m_ZCentr() );
     }
@@ -357,6 +366,7 @@ void MdcBodGeom::UpdateSurf()
         hs.push_back( 0.5 * saft * eaft );
         shapes.push_back( taft );
         slps.push_back( slptal );
+        m_SectPart.push_back( AFT_PART );
         cx.push_back( x );
         cz.push_back( m_ZAft() );
     }
@@ -370,6 +380,7 @@ void MdcBodGeom::UpdateSurf()
         hs.push_back( 0.0 );
         shapes.push_back( CONE );
         slps.push_back( 0.0 );
+        m_SectPart.push_back( NOSE_PART );
     }
 
     BeginXSecSurfs();
@@ -401,8 +412,10 @@ void MdcBodGeom::UpdateSurf()
         if ( dexit < 2.0 * rbase - Tol( rbase ) )
         {
             AppendCircleXSec( xsec_surf, vec3d( xs[last], 0.0, 0.0 ), dexit );
+            m_SectPart.push_back( AFT_PART );
         }
         AppendPointXSec( xsec_surf, vec3d( xs[last] - 0.25 * dexit, 0.0, 0.0 ) );
+        m_SectPart.push_back( AFT_PART );
     }
 
     for ( int i = 0; i < ( int )shapes.size(); i++ )
@@ -466,6 +479,60 @@ void MdcBodGeom::UpdateSurf()
     m_CamberX = cx;
     m_CamberZ = cz;
     m_MainSurfVec[0].SetCamber( xsec_surf->GetGlobalXForm().xform( vec3d() ), cx, cz );
+}
+
+int MdcBodGeom::SectTessU( int isect ) const
+{
+    int part = CENTR_PART;
+    if ( isect >= 0 && isect < ( int )m_SectPart.size() )
+    {
+        part = m_SectPart[isect];
+    }
+    if ( part == NOSE_PART )
+    {
+        return m_NoseTessU();
+    }
+    if ( part == AFT_PART )
+    {
+        return m_AftTessU();
+    }
+    return m_CentrTessU();
+}
+
+// The nose cap, each section by its part, and a base cap, which a Stack tessellates as it does its nose cap.
+bool MdcBodGeom::GetTessUVec( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                              vector< int > &tessvec ) const
+{
+    tessvec.clear();
+    if ( m_CapUMinOption() != NO_END_CAP && capUMinSuccess )
+    {
+        tessvec.push_back( m_NoseTessU() );
+    }
+    for ( int i = 0; i < ( int )m_SectPart.size(); i++ )
+    {
+        tessvec.push_back( SectTessU( i ) );
+    }
+    if ( m_CapUMaxOption() != NO_END_CAP && capUMaxSuccess )
+    {
+        tessvec.push_back( m_NoseTessU() );
+    }
+    return true;
+}
+
+//==== Decode Data From XML Data Struct ====//
+xmlNodePtr MdcBodGeom::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr n = XSecSurfGeom::DecodeXml( node );
+
+    // A body saved before it had rows by part takes Tess_U for each.
+    if ( DesignValue( node, "NoseTess_U", -1.0, "Shape" ) < 0.0 )
+    {
+        m_NoseTessU.Set( m_TessU() );
+        m_CentrTessU.Set( m_TessU() );
+        m_AftTessU.Set( m_TessU() );
+    }
+
+    return n;
 }
 
 void MdcBodGeom::GetCamber( vector< double > & x, vector< double > & z ) const

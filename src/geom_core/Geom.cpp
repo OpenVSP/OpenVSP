@@ -1790,7 +1790,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinScaledFlag.Init( "CapUMinScaledFlag", "EndCap", this, false, false, true );
     m_CapUMinScaledFlag.SetDescript( "Flag to build an end cap's rows as the end scaled, as DATCOM builds a nose" );
 
-    m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
+    m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 1000);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
 
     m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);

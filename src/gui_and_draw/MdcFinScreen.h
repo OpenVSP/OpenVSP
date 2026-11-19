@@ -56,6 +56,7 @@ protected:
     ToggleButton m_XLEFlagToggle;
     SliderAdjRangeInput m_SweepSlider;
     SliderAdjRangeInput m_StaSlider;
+    SliderAdjRangeInput m_SectTessUSlider;
     SliderAdjRangeInput m_LERSlider;
     Choice m_LERTypeChoice;
     SliderAdjRangeInput m_CFOCSlider;

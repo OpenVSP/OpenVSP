@@ -98,6 +98,11 @@ public:
 
     virtual void UpdateEndCaps();
 
+    // The rows across U of the section from cross section isect to the next, by the part of the body it is in.
+    int SectTessU( int isect ) const;
+
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     IntParm m_Preset;
     IntParm m_Namelist;
 
@@ -130,8 +135,21 @@ public:
     Parm m_SlpTal;
     Parm m_DExit;
 
+    // Rows across U of the nose, its base and a base cap, of the centerbody, and of the aft body and a nozzle.
+    IntParm m_NoseTessU;
+    IntParm m_CentrTessU;
+    IntParm m_AftTessU;
+
 protected:
     virtual void UpdateSurf();
+
+    virtual bool GetTessUVec( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                              vector< int > &tessvec ) const;
+
+    // The part of the body each section, from a cross section to the next, is in: NOSE_PART, CENTR_PART or
+    // AFT_PART.
+    enum { NOSE_PART, CENTR_PART, AFT_PART };
+    vector< int > m_SectPart;
 
     // The shape as the body was made, the default preset.
     vector< PresetValue > m_DefaultValues;

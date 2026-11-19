@@ -64,6 +64,16 @@ public:
     virtual void SetDirtyFlags( Parm* parm_ptr );
     virtual void SetParentID( const string &id );
 
+    // Rows across U of a component that sets them by part of its surface; any other takes Tess_U everywhere.
+    virtual void GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                            vector< double > &utess, vector< double > &vtess, const int & n_ref = 0 ) const;
+    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                                  vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                                  vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const;
+    virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                                       vector< vector< vector< vec3d > > > &pnts,
+                                       vector< vector< vector< vec3d > > > &norms ) const;
+
     // The ID of parms[i], or empty where there is none.
     template < class T >
     static string ParmIDAt( const vector< T* > & parms, int i )
@@ -122,6 +132,11 @@ protected:
     // Each of the first nsurf surfaces, rolled to each of the n rolls after pre has placed it.  Each surface's
     // copies are made before it is itself moved, so each starts from the surface as built.
     void RollSurfs( int nsurf, int n, const vector< Parm* > & phi, const Matrix4d & pre );
+
+    // The rows across U of each unit of the surface's U, a cap or a section, in order, from its first end: false
+    // where the component takes Tess_U everywhere.
+    virtual bool GetTessUVec( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                              vector< int > &tessvec ) const    { return false; }
 
     // The values of this Geom's Parms in groups, but those named in skip.
     void GetPresetValues( const vector< string > & groups, const vector< string > & skip,

@@ -50,6 +50,7 @@ protected:
     SliderAdjRangeInput m_SlpNosSlider;
     SliderAdjRangeInput m_ZTipSlider;
     SliderAdjRangeInput m_ZNoseSlider;
+    SliderAdjRangeInput m_NoseTessUSlider;
 
     SliderAdjRangeInput m_LCentrSlider;
     ToggleButton m_CentrDefaultToggle;
@@ -57,6 +58,7 @@ protected:
     SliderAdjRangeInput m_WCentrSlider;
     SliderAdjRangeInput m_ECentrSlider;
     SliderAdjRangeInput m_ZCentrSlider;
+    SliderAdjRangeInput m_CentrTessUSlider;
 
     Choice m_TAftChoice;
     SliderAdjRangeInput m_LAftSlider;
@@ -65,6 +67,7 @@ protected:
     SliderAdjRangeInput m_EAftSlider;
     SliderAdjRangeInput m_ZAftSlider;
     SliderAdjRangeInput m_SlpTalSlider;
+    SliderAdjRangeInput m_AftTessUSlider;
 
     SliderAdjRangeInput m_DExitSlider;
 };

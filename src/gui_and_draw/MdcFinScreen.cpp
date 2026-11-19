@@ -75,6 +75,7 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
     m_PlanformLayout.AddButton( m_XLEFlagToggle, "XLE of next given" );
     m_PlanformLayout.AddSlider( m_SweepSlider, "SWEEP", 90.0, "%7.3f" );
     m_PlanformLayout.AddSlider( m_StaSlider, "STA", 1.0, "%7.3f" );
+    m_PlanformLayout.AddSlider( m_SectTessUSlider, "Num_U", 20, "%5.0f" );
     m_PlanformLayout.AddSlider( m_LERSlider, "LER", 1.0, "%7.3f" );
     m_PlanformLayout.AddChoice( m_LERTypeChoice, "LER Type" );
     m_LERTypeChoice.AddItem( "Sharp" );
@@ -148,6 +149,9 @@ bool MdcFinScreen::Update()
 
     GeomScreen::Update();
 
+    // The rows along the span are set by segment.
+    m_NumUSlider.Deactivate();
+
     MdcFinGeom* fin = dynamic_cast< MdcFinGeom* >( geom_ptr );
     assert( fin );
 
@@ -204,6 +208,7 @@ bool MdcFinScreen::Update()
     // The last station starts no segment, so it has no segment inputs.
     m_SweepSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_Sweep, i ) );
     m_StaSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_Sta, i ) );
+    m_SectTessUSlider.Update( XSecSurfGeom::ParmIDAt( fin->m_SectTessU, i ) );
     m_XLEFlagToggle.Update( XSecSurfGeom::ParmIDAt( fin->m_XLEFlag, i ) );
 
     // SWEEP where the segment gives XLE, and XLE where the segment before it gives it, shape nothing.

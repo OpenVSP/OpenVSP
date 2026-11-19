@@ -282,6 +282,34 @@ def testFinSetConvertsOnlyAFinSet():
     assert len( pop_errors() ) == 1
 
 
+TESS_FINS = [
+    ( "one segment", dict(), False, ( 5, ) ),
+    ( "two segments", dict( NSPAN=3, SSPAN_3=2.5, CHORD_3=0.4, SWEEP_2=30.0 ), False, ( 12, 3 ) ),
+    ( "buried root", dict(), True, ( 6, ) ),
+    ( "buried root extrapolated", dict( NSPAN=3, SSPAN_3=2.5, CHORD_3=0.4, BuryRootType=1 ), True, ( 9, 2 ) ),
+]
+
+
+@pytest.mark.parametrize( "name,parms,bury,tess", TESS_FINS, ids=[ n for n, _, _, _ in TESS_FINS ] )
+def testWingTakesTheFinSetsRowsBySegment( name, parms, bury, tess ):
+    vsp.VSPRenew()
+    parent = ""
+    if bury:
+        parent = new( "MDC_BOD" )
+    fid = new( "MDC_FIN", parent, NPANEL=1, BuryRoot=int( bury ), **parms )
+    put( fid, "Shape", **{ "SectTess_U_%d" % ( k + 1 ): t for k, t in enumerate( tess ) } )
+    wid = vsp.ConvertMdcFinToWing( fid, False )[0]
+    vsp.Update()
+
+    # A Wing runs around its sections the other way.
+    uf, _ = vsp.GetUWTess01( fid, 0 )
+    uw, _ = vsp.GetUWTess01( wid, 0 )
+    assert len( uf ) == len( uw )
+    for a, b in zip( uf, uw ):
+        for w in ( 0.1, 0.3, 0.6 ):
+            assert ( vsp.CompPnt01( fid, 0, a, w ) - vsp.CompPnt01( wid, 0, b, 1.0 - w ) ).mag() < 1e-9
+
+
 def testWingsFromAFinSetSaveAndReadBack():
     vsp.VSPRenew()
     fid = new( "MDC_FIN", SECTYP=1 )

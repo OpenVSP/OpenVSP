@@ -7,6 +7,7 @@
 
 import math
 import os
+import re
 import tempfile
 
 import openvsp as vsp
@@ -86,6 +87,37 @@ def roundtrip( gid ):
     vsp.VSPRenew()
     drop_errors()
     vsp.ReadVSPFile( path )
+    ids = vsp.FindGeoms()
+    assert len( ids ) == 1
+    return ids[0]
+
+
+def set_shape( gid, **parms ):
+    for name, val in parms.items():
+        pid = vsp.FindParm( gid, name, "Shape" )
+        assert pid, "no Parm " + name
+        vsp.SetParmVal( pid, val )
+    vsp.Update()
+
+
+def row_points( gid, w=0.0 ):
+    u, _ = vsp.GetUWTess01( gid, 0 )
+    return [ vsp.CompPnt01( gid, 0, uu, w ) for uu in u ]
+
+
+def read_without( gid, names, tess_u ):
+    """The model saved, then read back from a copy without the Shape Parms names and with Tess_U at tess_u, as a file
+    saved before they were added."""
+    path = os.path.join( tempfile.mkdtemp(), "datcom.vsp3" )
+    vsp.WriteVSPFile( path, vsp.SET_ALL )
+    text = open( path ).read()
+    text = re.sub( r'\s*<(' + '|'.join( names ) + r') [^>]*/>', '', text )
+    text = re.sub( r'<Tess_U Value="[^"]*"', '<Tess_U Value="%d"' % tess_u, text )
+    open( path, 'w' ).write( text )
+    vsp.VSPRenew()
+    drop_errors()
+    vsp.ReadVSPFile( path )
+    vsp.Update()
     ids = vsp.FindGeoms()
     assert len( ids ) == 1
     return ids[0]
@@ -193,6 +225,38 @@ def testBodyNozzleIsAConeInTheBaseAQuarterOfDexitDeep( dexit, ring ):
     ring_pts = [ vsp.CompPnt01( gid, 0, 1.0 - i / 400.0, 0.1 ) for i in range( 1, 200 ) ]
     on_ring = [ p for p in ring_pts if abs( p.x() - 37.5 ) < 1e-9 and 0.5 * d + 1e-6 < math.hypot( p.y(), p.z() ) ]
     assert bool( on_ring ) == ring
+
+
+@pytest.mark.parametrize( "nose,centr,aft", [ ( 9, 9, 9 ), ( 5, 13, 4 ), ( 21, 3, 7 ) ] )
+def testBodyRowsAlongEachPartAreItsOwn( nose, centr, aft ):
+    gid = new( "MDC_BOD", LAFT=2.0 )
+    set_shape( gid, NoseTess_U=nose, CentrTess_U=centr, AftTess_U=aft )
+    xs = [ p.x() for p in row_points( gid ) ]
+    lnose = get( gid, "LNOSE" )
+    lcentr = get( gid, "LCENTR" )
+    end = lnose + lcentr + 2.0
+    tol = 1e-9
+
+    # The nose's rows before its base, the centerbody's from end to end, the aft body's between, and those across
+    # the flat base, which takes the nose's, with the aft body's last.
+    assert sum( 1 for x in xs if x < lnose - tol ) == nose - 1
+    assert sum( 1 for x in xs if lnose - tol <= x <= lnose + lcentr + tol ) == centr
+    assert sum( 1 for x in xs if lnose + lcentr + tol < x < end - tol ) == aft - 2
+    assert sum( 1 for x in xs if x >= end - tol ) == nose
+
+
+def testBodyNozzleTakesTheAftBodysRows():
+    gid = new( "MDC_BOD", LAFT=2.0, DEXIT=0.5 )
+    set_shape( gid, NoseTess_U=5, CentrTess_U=6, AftTess_U=4 )
+    # The nose, the centerbody, the aft body, the flat ring and the cone in to the exit's point.
+    assert len( row_points( gid ) ) == 4 + 5 + 3 * 3 + 1
+
+
+def testBodySavedBeforeItsRowsByPartTakesTessU():
+    gid = new( "MDC_BOD", LAFT=2.0 )
+    back = read_without( gid, [ "NoseTess_U", "CentrTess_U", "AftTess_U" ], 15 )
+    for name in ( "NoseTess_U", "CentrTess_U", "AftTess_U" ):
+        assert vsp.GetParmVal( vsp.FindParm( back, name, "Shape" ) ) == 15
 
 
 def testBodyScaleScalesItsLengths():
@@ -720,6 +784,34 @@ def testFinRootOffTheBodyIsNotBuried():
     gid = new( "MDC_FIN", NPANEL=1, SSPAN_1=1.0, SSPAN_2=2.0, BuryRoot=1 )
     zlo, zhi = extent( gid, 2 )
     assert zlo == pytest.approx( 1.0, abs=1e-9 )
+
+
+def testFinSetRowsAlongEachSegmentAreItsOwn():
+    gid = new( "MDC_FIN", NSPAN=3, NPANEL=1, SSPAN_3=2.0, CHORD_3=0.4 )
+    set_shape( gid, SectTess_U_1=7, SectTess_U_2=4 )
+    # The panel stands up from RBODY, its stations SSPAN above it.
+    root = get( gid, "RBODY" )
+    zs = [ p.z() for p in row_points( gid, 0.25 ) ]
+    tol = 1e-9
+    assert sum( 1 for z in zs if root + tol < z < root + 1.0 - tol ) == 7 - 2
+    assert sum( 1 for z in zs if root + 1.0 + tol < z < root + 2.0 - tol ) == 4 - 2
+
+
+def testFinSetBuriedRootAddsOneRow():
+    body = new( "MDC_BOD" )
+    fin = vsp.AddGeom( "MDC_FIN", body )
+    put( fin, NPANEL=1 )
+    set_shape( fin, SectTess_U_1=6 )
+    flat = len( row_points( fin ) )
+    put( fin, BuryRoot=1 )
+    assert len( row_points( fin ) ) == flat + 1
+
+
+def testFinSetSavedBeforeItsRowsBySegmentTakesTessU():
+    gid = new( "MDC_FIN", NSPAN=3, NPANEL=1 )
+    back = read_without( gid, [ "SectTess_U_1", "SectTess_U_2" ], 11 )
+    for name in ( "SectTess_U_1", "SectTess_U_2" ):
+        assert vsp.GetParmVal( vsp.FindParm( back, name, "Shape" ) ) == 11
 
 
 def testBuriedFinFlapStaysOnItsSegment():

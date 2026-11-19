@@ -2828,6 +2828,13 @@ static WingGeom* MakeFinWing( Vehicle* veh, MdcFinGeom* fin, const vector< FinSt
             ws->m_Sweep.Set( sweep );
             ws->m_Dihedral.Set( 0.0 );
             ws->m_Twist.Set( 0.0 );
+
+            int tess = MdcFinGeom::BURIED_TESS_U;
+            if ( k >= buried )
+            {
+                tess = fin->m_SectTessU[k - buried]->Get();
+            }
+            ws->m_SectTessU.Set( tess );
         }
     }
 
@@ -3251,6 +3258,9 @@ string Vehicle::ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_fl
 
     //==== The Geom's own Parms ====//
     stack->CopyMatchingVals( body );
+
+    // A Stack's caps both take the cap tessellation, as the MDC_BOD's nose and base take the nose's.
+    stack->m_CapUMinTess.Set( body->m_NoseTessU() );
     stack->Update();
 
     //==== The cross sections, placed where the MDC_BOD put them, on its camber ====//
@@ -3293,7 +3303,8 @@ string Vehicle::ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_fl
         sxs->m_YRotateAbs = 0.0;
         sxs->m_ZRotateAbs = 0.0;
 
-        sxs->m_SectTessU = body->m_TessU();
+        // Each section's rows are those of the part of the body it ends.
+        sxs->m_SectTessU = body->SectTessU( std::max( i - 1, 0 ) );
     }
 
     stack->Update();

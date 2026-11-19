@@ -90,6 +90,7 @@ href="#secant-ogives">ogive slope</a>;</li>
 body</a>;</li>
 <li><a href="#elliptical-bodies">elliptical bodies</a> and <a
 href="#camber">camber</a>;</li>
+<li>the <a href="#tessellation">tessellation</a> of each part;</li>
 <li><a href="#convert-to-stack">conversion to a Stack</a>.</li>
 </ul>
 <h2 id="quick-start">Quick Start</h2>
@@ -285,6 +286,18 @@ its camber is greyed.</p>
 alt="Figure 7. Camber" /></p>
 <p><em>Figure 7. A cambered body: the centerline passes through the
 heights ZTIP, ZNOSE, ZCENTR and ZAFT.</em></p>
+<h2 id="tessellation">Tessellation</h2>
+<p>The rows along the body are set part by part, by the Num_U slider at
+the end of the Nose, Centerbody and Aft Body sections; the Gen tab's
+Num_U is greyed, and its Num_W sets the rows around the body as for any
+component. The nose's Num_U also sets the rows across a flat base, and
+the aft body's those across a nozzle exit. A part that is absent has its
+Num_U greyed.</p>
+<p>Put the rows where the body curves. A curved nose needs the most, and
+more still where it is blunted. The centerbody and a cone aft body are
+straight along their length, so their two end rows give their shape
+exactly, and more rows only make a finer mesh for an analysis that wants
+one.</p>
 <h2 id="convert-to-stack">Convert to Stack</h2>
 <p>The Convert to Stack button at the top of the Design tab makes the
 equivalent <a href="FuselageStack.html">Stack</a>, a Stack of the same
@@ -295,11 +308,14 @@ the Stack. A Stack has the controls of a general body, so convert when
 the body needs sections an MDC_BOD does not have. Where the body is
 cambered across an ogive aft body, the Stack is a small distance from it
 that grows with the camber, about 0.005 of the diameter for camber of a
-fifth of it. The API call <code>ConvertMdcBodToStack</code> does the
-same.</p>
+fifth of it. Each of the Stack's sections takes the rows of the part it
+is in, and its cap tessellation, which a Stack uses at both ends, is the
+nose's, so the Stack is tessellated as the MDC_BOD is. The API call
+<code>ConvertMdcBodToStack</code> does the same.</p>
 <h2 id="parameters">Parameters</h2>
 <p>The parms are in the <em>Design</em> group but for <em>XO</em>, which
-is the XForm tab's X location. The first column gives the Design tab's
+is the XForm tab's X location, and the three Num_U, which are in the
+<em>Shape</em> group. The first column gives the Design tab's
 section.</p>
 <table>
 <thead>
@@ -418,6 +434,14 @@ is tangent.</td>
 <td style="text-align: left;">Camber at the nose base.</td>
 </tr>
 <tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Num_U</td>
+<td style="text-align: left;"><code>NoseTess_U</code> (Shape)</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">Rows along the nose, and across a flat
+base.</td>
+</tr>
+<tr>
 <td style="text-align: left;">Centerbody</td>
 <td style="text-align: left;">LCENTR</td>
 <td style="text-align: left;"><code>LCENTR</code></td>
@@ -460,6 +484,13 @@ the nose's.</td>
 <td style="text-align: left;"><code>ZCENTR</code></td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">Camber at its aft end.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">Num_U</td>
+<td style="text-align: left;"><code>CentrTess_U</code> (Shape)</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">Rows along the centerbody.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Aft Body</td>
@@ -511,6 +542,14 @@ the nose's.</td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">Slope of an ogive aft body at its larger
 end; zero is tangent.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">Num_U</td>
+<td style="text-align: left;"><code>AftTess_U</code> (Shape)</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">Rows along the aft body, and across a
+nozzle exit.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Base</td>

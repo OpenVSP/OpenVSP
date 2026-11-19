@@ -20,6 +20,7 @@ The MDC_BOD has one tab of its own, Design.  The [Gen](GenTab.md), [XForm](XForm
 - the [nose](#nose), its shape, [bluntness](#bluntness-and-truncation) and [ogive slope](#secant-ogives);
 - the [centerbody and aft body](#centerbody-and-aft-body);
 - [elliptical bodies](#elliptical-bodies) and [camber](#camber);
+- the [tessellation](#tessellation) of each part;
 - [conversion to a Stack](#convert-to-stack).
 
 ## Quick Start
@@ -169,6 +170,17 @@ body is absent its camber is greyed.
 
 *Figure 7. A cambered body: the centerline passes through the heights ZTIP, ZNOSE, ZCENTR and ZAFT.*
 
+## Tessellation
+
+The rows along the body are set part by part, by the Num_U slider at the end of the Nose, Centerbody and Aft Body
+sections; the Gen tab's Num_U is greyed, and its Num_W sets the rows around the body as for any component.  The nose's
+Num_U also sets the rows across a flat base, and the aft body's those across a nozzle exit.  A part that is absent
+has its Num_U greyed.
+
+Put the rows where the body curves.  A curved nose needs the most, and more still where it is blunted.  The
+centerbody and a cone aft body are straight along their length, so their two end rows give their shape exactly, and
+more rows only make a finer mesh for an analysis that wants one.
+
 ## Convert to Stack
 
 The Convert to Stack button at the top of the Design tab makes the equivalent [Stack](FuselageStack.md), a Stack of
@@ -176,13 +188,14 @@ the same body.  It asks whether to replace the MDC_BOD or add a Stack
 beside it.  Replace swaps the MDC_BOD for the Stack, which takes its place in the model, and cannot be undone; Add
 leaves the MDC_BOD as it is and adds the Stack.  A Stack has the controls of a general body, so convert when the body
 needs sections an MDC_BOD does not have.  Where the body is cambered across an ogive aft body, the Stack is a small
-distance from it that grows with the camber, about 0.005 of the diameter for camber of a fifth of it.  The API call
-`ConvertMdcBodToStack` does the same.
+distance from it that grows with the camber, about 0.005 of the diameter for camber of a fifth of it.  Each of the
+Stack's sections takes the rows of the part it is in, and its cap tessellation, which a Stack uses at both ends, is
+the nose's, so the Stack is tessellated as the MDC_BOD is.  The API call `ConvertMdcBodToStack` does the same.
 
 ## Parameters
 
-The parms are in the *Design* group but for *XO*, which is the XForm tab's X location.  The first column gives the
-Design tab's section.
+The parms are in the *Design* group but for *XO*, which is the XForm tab's X location, and the three Num_U, which are
+in the *Shape* group.  The first column gives the Design tab's section.
 
 | Section    | Control     | Parm                     | Default | Meaning                                                        |
 |:-----------|:------------|:-------------------------|:--------|:---------------------------------------------------------------|
@@ -200,12 +213,14 @@ Design tab's section.
 | Nose       | SLPNOS      | `SLPNOS`                 | 0       | Slope of an ogive nose at its base; zero is tangent.           |
 | Nose       | ZTIP        | `ZTIP`                   | 0       | Camber at the nose tip.                                        |
 | Nose       | ZNOSE       | `ZNOSE`                  | 0       | Camber at the nose base.                                       |
+| Nose       | Num_U       | `NoseTess_U` (Shape)     | 9       | Rows along the nose, and across a flat base.                   |
 | Centerbody | LCENTR      | `LCENTR`                 | 7       | Length of the centerbody.                                      |
 | Centerbody | Nose's size | `CENTRDefault`           | on      | The centerbody's size at its aft end is the nose's.            |
 | Centerbody | DCENTR      | `DCENTR`                 | 1       | Diameter at its aft end (AXIBOD).                              |
 | Centerbody | WCENTR      | `WCENTR`                 | 1       | Width at its aft end (ELLBOD).                                 |
 | Centerbody | ECENTR      | `ECENTR`                 | 1       | Height over width at its aft end (ELLBOD).                     |
 | Centerbody | ZCENTR      | `ZCENTR`                 | 0       | Camber at its aft end.                                         |
+| Centerbody | Num_U       | `CentrTess_U` (Shape)    | 9       | Rows along the centerbody.                                     |
 | Aft Body   | TAFT        | `TAFT`                   | CONE    | CONE or OGIVE.                                                 |
 | Aft Body   | LAFT        | `LAFT`                   | 0       | Length of the aft body.                                        |
 | Aft Body   | DAFT        | `DAFT`                   | 0.8     | Diameter at the base (AXIBOD).                                 |
@@ -213,6 +228,7 @@ Design tab's section.
 | Aft Body   | EAFT        | `EAFT`                   | 1       | Height over width at the base (ELLBOD).                        |
 | Aft Body   | ZAFT        | `ZAFT`                   | 0       | Camber at the base.                                            |
 | Aft Body   | SLPTAL      | `SLPTAL`                 | 0       | Slope of an ogive aft body at its larger end; zero is tangent. |
+| Aft Body   | Num_U       | `AftTess_U` (Shape)      | 9       | Rows along the aft body, and across a nozzle exit.             |
 | Base       | DEXIT       | `DEXIT`                  | 0       | Diameter of the nozzle exit, drawn as a cone into the base.    |
 
 ## References

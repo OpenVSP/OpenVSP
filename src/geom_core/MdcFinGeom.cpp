@@ -125,6 +125,7 @@ MdcFinGeom::~MdcFinGeom()
     DeleteParms( m_Sweep );
     DeleteParms( m_Sta );
     DeleteParms( m_XLEFlag );
+    DeleteParms( m_SectTessU );
     DeleteParms( m_ZUpper );
     DeleteParms( m_ZLower );
     DeleteParms( m_ZLowerRatio );
@@ -169,6 +170,8 @@ void MdcFinGeom::SizeParms()
                  "leading edge and 1 trailing" );
     ResizeParms( m_XLEFlag, nspan - 1, vsp::PARM_BOOL_TYPE, "XLEFlag", false, false, true, "Flag to give XLE of the "
                  "station after the segment and have SWEEP follow it" );
+    ResizeParms( m_SectTessU, nspan - 1, vsp::PARM_INT_TYPE, "SectTess_U", 5, 2, 1000, "Number of rows along the "
+                 "span of the segment from the station to the next", 1, "Shape" );
 
     ResizeParms( m_ZUpper, nspan, d, "ZUPPER", 0.025, 0.0, 1.0, "Height of the upper surface above the chord line "
                  "to chord ratio at the station" );
@@ -442,7 +445,40 @@ xmlNodePtr MdcFinGeom::DecodeXml( xmlNodePtr & node )
     }
     Geom::DecodeXml( node );
 
+    // A fin set saved before it had rows by segment takes Tess_U for each.
+    if ( DesignValue( node, "SectTess_U_1", -1.0, "Shape" ) < 0.0 )
+    {
+        for ( int k = 0; k < ( int )m_SectTessU.size(); k++ )
+        {
+            m_SectTessU[k]->Set( m_TessU() );
+        }
+    }
+
     return fin_node;
+}
+
+// A cap, a buried root's segment, each segment by its own, and a cap, as a Wing tessellates them.
+bool MdcFinGeom::GetTessUVec( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                              vector< int > &tessvec ) const
+{
+    tessvec.clear();
+    if ( m_CapUMinOption() != NO_END_CAP && capUMinSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+    if ( m_RootDepth > 0.0 )
+    {
+        tessvec.push_back( BURIED_TESS_U );
+    }
+    for ( int k = 0; k < ( int )m_SectTessU.size(); k++ )
+    {
+        tessvec.push_back( m_SectTessU[k]->Get() );
+    }
+    if ( m_CapUMaxOption() != NO_END_CAP && capUMaxSuccess )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+    return true;
 }
 
 void MdcFinGeom::SetWedge( Wedge* wedge, double c, double zu, double zl, double mu, double ml, double fu, double fl )

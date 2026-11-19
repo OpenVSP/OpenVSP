@@ -113,6 +113,10 @@ selector chooses the station the sliders show; it is the same selector on the Pl
   the chord station *STA* of the segment: *STA* of 0 is at the leading edge, 1 is at the trailing edge, and *STA* of
   0.5 is at the midchord (Figure 4).  It sets where the next station's leading edge is.  The last station has no
   segment after it, so it has no *SWEEP* or *STA*.
+- *Num_U* is the number of rows along the span of the segment from the station to the next.  It takes the place of
+  the Gen tab's Num_U, which is greyed; Num_W, the rows around the sections, stays there.  A segment is straight
+  across its span, so its two end rows give its shape exactly, and more rows only make a finer mesh, for an analysis
+  that takes its panels from it.  A buried root's segment has its two end rows.
 
 ![Figure 3. Planform](images/MdcFin_planform.png "Figure 3. Planform")
 
@@ -234,8 +238,9 @@ where that panel lies.  They have the same chords, spans, sweeps and sections, a
 surfaces.  It asks whether to replace the MDC_FIN or add them beside it.  Replace swaps the MDC_FIN for the Wing and
 its Clones, which take its place in the model, and cannot be undone; Add leaves the MDC_FIN as it is.  Convert when
 the fins need what a Wing has, such as a different section at each station.  A Wing's sweep stops at 89 degrees
-and a zero root chord is not a Wing's, so a fin set with either is a little off.  The API call
-`ConvertMdcFinToWing` does the same.
+and a zero root chord is not a Wing's, so a fin set with either is a little off.  Each of the Wing's segments takes
+the rows of the fin set's segment, so the Wing is tessellated as the fin set is.  The API call `ConvertMdcFinToWing`
+does the same.
 
 A buried root becomes the Wing's first segment, from the buried section to the root, swept along the line through
 their leading edges.  Its depth is the one at the time of conversion; the Wing does not follow later changes to the
@@ -246,8 +251,8 @@ body.
 A fin set has one of each station input for each of its *NSPAN* stations, numbered from 1, as `SSPAN_1` to `SSPAN_n`; a
 segment's, `SWEEP_1` to `SWEEP_n-1`, are numbered by the station it starts from.  A panel's, `PHIF_1` to `PHIF_n` for
 *NPANEL* panels, are numbered by the panel.  They are made and deleted as *NSPAN* and *NPANEL* change, at the next
-update.  *XLE* is from station 2 on, `XLE_2` to `XLE_n`: the root's leading edge is the XForm tab's X location.  All
-the other parms are in the *Design* group.
+update.  *XLE* is from station 2 on, `XLE_2` to `XLE_n`: the root's leading edge is the XForm tab's X location.  Num_U
+is in the *Shape* group.  All the other parms are in the *Design* group.
 
 | Tab      | Control           | Parm                         | Default              | Meaning                                                     |
 |:---------|:------------------|:-----------------------------|:---------------------|:------------------------------------------------------------|
@@ -269,6 +274,7 @@ the other parms are in the *Design* group.
 | Planform | XLE of next given | `XLEFlag_1` to `XLEFlag_n-1` | off                  | The next station's XLE is the input, and SWEEP follows.     |
 | Planform | SWEEP             | `SWEEP_1` to `SWEEP_n-1`     | 0                    | Sweepback angle of the segment.                             |
 | Planform | STA               | `STA_1` to `STA_n-1`         | 1                    | Chord station of the segment where the sweep is measured, 0 to 1. |
+| Planform | Num_U             | `SectTess_U_1` to `SectTess_U_n-1` (Shape) | 5      | Rows along the span of the segment.                         |
 | Planform | LER               | `LER_1` to `LER_n`           | 0                    | Leading edge radius of a HEX or ARC section.                |
 | Planform | LER Type          | `LERType`                    | Sharp                | Sharp, Keep Crest or Keep Angle: what is drawn for LER (not a FINSET input). |
 | Planform | CFOC              | `CFOC_1` to `CFOC_n`         | 1                    | Flap chord to fin chord ratio; 1 at the first station is an all moving fin. |

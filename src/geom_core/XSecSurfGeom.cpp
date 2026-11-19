@@ -310,6 +310,52 @@ int XSecSurfGeom::SetNextXSec( XSecSurf* xsec_surf, int index )
     return was;
 }
 
+// The rows across U of each unit of the surface's U, where the component gives them and they are one to a unit.
+static bool UnitTess( const VspSurf &surf, const vector< int > &tessvec )
+{
+    return !tessvec.empty() && ( int )tessvec.size() == ( int )std::lround( surf.GetUMax() );
+}
+
+void XSecSurfGeom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                              vector< double > &utess, vector< double > &vtess, const int & n_ref ) const
+{
+    vector< int > tessvec;
+    if ( GetTessUVec( surf, capUMinSuccess, capUMaxSuccess, tessvec ) && UnitTess( surf, tessvec ) )
+    {
+        vector< int > umerge;
+        surf.GetUWTess( utess, vtess, tessvec, m_TessW(), m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
+        return;
+    }
+    Geom::GetUWTess( surf, capUMinSuccess, capUMaxSuccess, degen, utess, vtess, n_ref );
+}
+
+void XSecSurfGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                                    vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                                    vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
+{
+    vector< int > tessvec;
+    if ( GetTessUVec( surf, capUMinSuccess, capUMaxSuccess, tessvec ) && UnitTess( surf, tessvec ) )
+    {
+        vector< int > umerge;
+        surf.Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge, n_ref );
+        return;
+    }
+    Geom::UpdateTesselate( surf, capUMinSuccess, capUMaxSuccess, degen, pnts, norms, uw_pnts, n_ref );
+}
+
+void XSecSurfGeom::UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                                         vector< vector< vector< vec3d > > > &pnts,
+                                         vector< vector< vector< vec3d > > > &norms ) const
+{
+    vector< int > tessvec;
+    if ( GetTessUVec( surf, capUMinSuccess, capUMaxSuccess, tessvec ) && UnitTess( surf, tessvec ) )
+    {
+        surf.SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
+        return;
+    }
+    Geom::UpdateSplitTesselate( surf, capUMinSuccess, capUMaxSuccess, pnts, norms );
+}
+
 void XSecSurfGeom::NeedTessW( int n )
 {
     int a = m_TessMult;

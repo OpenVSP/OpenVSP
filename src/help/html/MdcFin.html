@@ -222,6 +222,13 @@ is at the trailing edge, and <em>STA</em> of 0.5 is at the midchord
 (Figure 4). It sets where the next station's leading edge is. The last
 station has no segment after it, so it has no <em>SWEEP</em> or
 <em>STA</em>.</li>
+<li><em>Num_U</em> is the number of rows along the span of the segment
+from the station to the next. It takes the place of the Gen tab's Num_U,
+which is greyed; Num_W, the rows around the sections, stays there. A
+segment is straight across its span, so its two end rows give its shape
+exactly, and more rows only make a finer mesh, for an analysis that
+takes its panels from it. A buried root's segment has its two end
+rows.</li>
 </ul>
 <p><img src="images/MdcFin_planform.png" title="Figure 3. Planform"
 alt="Figure 3. Planform" /></p>
@@ -420,8 +427,9 @@ take its place in the model, and cannot be undone; Add leaves the
 MDC_FIN as it is. Convert when the fins need what a Wing has, such as a
 different section at each station. A Wing's sweep stops at 89 degrees
 and a zero root chord is not a Wing's, so a fin set with either is a
-little off. The API call <code>ConvertMdcFinToWing</code> does the
-same.</p>
+little off. Each of the Wing's segments takes the rows of the fin set's
+segment, so the Wing is tessellated as the fin set is. The API call
+<code>ConvertMdcFinToWing</code> does the same.</p>
 <p>A buried root becomes the Wing's first segment, from the buried
 section to the root, swept along the line through their leading edges.
 Its depth is the one at the time of conversion; the Wing does not follow
@@ -436,7 +444,8 @@ panels, are numbered by the panel. They are made and deleted as
 <em>NSPAN</em> and <em>NPANEL</em> change, at the next update.
 <em>XLE</em> is from station 2 on, <code>XLE_2</code> to
 <code>XLE_n</code>: the root's leading edge is the XForm tab's X
-location. All the other parms are in the <em>Design</em> group.</p>
+location. Num_U is in the <em>Shape</em> group. All the other parms are
+in the <em>Design</em> group.</p>
 <table>
 <thead>
 <tr>
@@ -597,6 +606,14 @@ SWEEP follows.</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">Chord station of the segment where the
 sweep is measured, 0 to 1.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planform</td>
+<td style="text-align: left;">Num_U</td>
+<td style="text-align: left;"><code>SectTess_U_1</code> to
+<code>SectTess_U_n-1</code> (Shape)</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Rows along the span of the segment.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Planform</td>
