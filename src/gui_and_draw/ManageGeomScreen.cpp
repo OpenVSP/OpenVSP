@@ -853,9 +853,7 @@ void ManageGeomScreen::GeomBrowserCallback()
 
     m_VehiclePtr->SetActiveGeomVec( selGeomVec );
 
-    // ROB comment: these may automatically happen anyways; try and cut these?
     SetNeedsShowHideGeoms();
-    LoadActiveGeomOutput();
 }
 
 //==== Show/NoShow Active Geoms and Children ====//
