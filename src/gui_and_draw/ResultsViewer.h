@@ -118,6 +118,8 @@ protected:
     TriggerButton m_AddPlotButton;
     TriggerButton m_CopyPlotButton;
     TriggerButton m_DeletePlotButton;
+    TriggerButton m_SavePlotFileButton;
+    TriggerButton m_LoadPlotFileButton;
 
     VspBrowser* m_CurveBrowser;
     TriggerButton m_AddCurveButton;

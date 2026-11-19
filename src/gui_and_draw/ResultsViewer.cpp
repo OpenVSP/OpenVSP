@@ -495,6 +495,22 @@ void ResultsViewer::GuiDeviceCallBack( GuiDevice* device )
     {
         ResultsPlotMgr.DeletePlot( ResultsPlotMgr.GetCurrIndex() );
     }
+    else if ( device == &m_SavePlotFileButton )
+    {
+        string fname = m_ScreenMgr->FileChooser( "Save Results Plot", "*.vspplot", vsp::SAVE );
+        if ( !fname.empty() && !ResultsPlotMgr.WritePlotFile( ResultsPlotMgr.GetCurrIndex(), fname ) )
+        {
+            m_ScreenMgr->Alert( "The plot was not written to " + fname );
+        }
+    }
+    else if ( device == &m_LoadPlotFileButton )
+    {
+        string fname = m_ScreenMgr->FileChooser( "Load Results Plot", "*.vspplot" );
+        if ( !fname.empty() && !ResultsPlotMgr.ReadPlotFile( fname ) )
+        {
+            m_ScreenMgr->Alert( fname + " holds no Results plot" );
+        }
+    }
     else if ( device == &m_AutoScaleButton )
     {
         LimitsCallBack( 0, 0, 0, 0, true );
@@ -731,8 +747,8 @@ void ResultsViewer::BuildPlotTab( Fl_Group* tab )
     Fl_Group* area_group = m_PlotAreaLayout.GetGroup();
 
     //==== Plots of the model ====//
-    int choice_w = 220;
-    int plot_button_w = 60;
+    int choice_w = 180;
+    int plot_button_w = 55;
     m_PlotAreaLayout.SetSameLineFlag( true );
     m_PlotAreaLayout.SetFitWidthFlag( false );
     m_PlotAreaLayout.SetChoiceButtonWidth( 40 );
@@ -740,13 +756,15 @@ void ResultsViewer::BuildPlotTab( Fl_Group* tab )
     m_PlotAreaLayout.AddChoice( m_PlotChoice, "Plot" );
     m_PlotAreaLayout.AddX( gap );
     m_PlotAreaLayout.SetButtonWidth( 45 );
-    m_PlotAreaLayout.SetInputWidth( m_PlotAreaLayout.GetW() - 40 - choice_w - 45 - 3 * plot_button_w - 2 * gap );
+    m_PlotAreaLayout.SetInputWidth( m_PlotAreaLayout.GetW() - 40 - choice_w - 45 - 5 * plot_button_w - 2 * gap );
     m_PlotAreaLayout.AddInput( m_PlotNameInput, "Name" );
     m_PlotAreaLayout.AddX( gap );
     m_PlotAreaLayout.SetButtonWidth( plot_button_w );
     m_PlotAreaLayout.AddButton( m_AddPlotButton, "Add" );
     m_PlotAreaLayout.AddButton( m_CopyPlotButton, "Copy" );
     m_PlotAreaLayout.AddButton( m_DeletePlotButton, "Delete" );
+    m_PlotAreaLayout.AddButton( m_SavePlotFileButton, "Save..." );
+    m_PlotAreaLayout.AddButton( m_LoadPlotFileButton, "Load..." );
     m_PlotAreaLayout.ForceNewLine();
     m_PlotAreaLayout.SetSameLineFlag( false );
     m_PlotAreaLayout.SetFitWidthFlag( true );
@@ -845,6 +863,7 @@ void ResultsViewer::UpdatePlotTab()
         m_PlotNameInput.Deactivate();
         m_CopyPlotButton.Deactivate();
         m_DeletePlotButton.Deactivate();
+        m_SavePlotFileButton.Deactivate();
         m_CurveBrowser->clear();
         m_PlotResultsBrowser->clear();
         m_PlotYBrowser->clear();
@@ -856,6 +875,7 @@ void ResultsViewer::UpdatePlotTab()
         m_PlotNameInput.Activate();
         m_CopyPlotButton.Activate();
         m_DeletePlotButton.Activate();
+        m_SavePlotFileButton.Activate();
 
         plot->Update();
         UpdateCurveBrowser( plot );
