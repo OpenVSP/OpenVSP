@@ -59831,7 +59831,7 @@ extern void AddAdvLink( const std::string & name );
     \ingroup AdvancedLink
 */
 /*!
-    Add an input variable to an advanced link
+    Add an input variable to an advanced link.  A Parm may be used only once in a link, as an input or an output.
     \forcpponly
     \code{.cpp}
 
@@ -59911,7 +59911,7 @@ extern void AddAdvLinkInput( int index, const std::string & parm_id, const std::
     \ingroup AdvancedLink
 */
 /*!
-    Add an output variable to an advanced link
+    Add an output variable to an advanced link.  A Parm may be used only once in a link, as an input or an output.
     \forcpponly
     \code{.cpp}
 

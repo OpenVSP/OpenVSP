@@ -664,7 +664,11 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
 
             if ( veh && edit_link )
             {
-                if ( veh->m_AdvLinkGenDefName() )
+                if ( edit_link->DuplicateVarParm( ParmID ) )
+                {
+                    m_ScreenMgr->Alert( "Parm is already a variable of this link" );
+                }
+                else if ( veh->m_AdvLinkGenDefName() )
                 {
                     Parm *p = ParmMgr.FindParm( ParmID );
                     if ( p )
@@ -764,7 +768,11 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             string ParmID( m_ParmPicker.GetParmChoice() );
 
-            if ( veh->m_AdvLinkGenDefName() )
+            if ( edit_link->DuplicateVarParm( ParmID ) )
+            {
+                m_ScreenMgr->Alert( "Parm is already a variable of this link" );
+            }
+            else if ( veh->m_AdvLinkGenDefName() )
             {
                 Parm *p = ParmMgr.FindParm( ParmID );
                 if ( p )

@@ -20822,6 +20822,12 @@ void AddAdvLinkInput( int index, const std::string & parm_id, const std::string 
         return;
     }
 
+    if ( adv_link->DuplicateVarParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddAdvLinkInput::Parm " + parm_id + " is already a variable of this advanced link" );
+        return;
+    }
+
     adv_link->AddVar( parm_id, var_name, true );
 
     ErrorMgr.NoError();
@@ -20847,6 +20853,12 @@ void AddAdvLinkOutput( int index, const std::string & parm_id, const std::string
     if ( !ParmMgr.FindParm( parm_id ) )
     {
         ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddAdvLinkOutput::Can't Find Parm " + parm_id );
+        return;
+    }
+
+    if ( adv_link->DuplicateVarParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddAdvLinkOutput::Parm " + parm_id + " is already a variable of this advanced link" );
         return;
     }
 

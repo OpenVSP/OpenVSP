@@ -131,6 +131,21 @@ bool AdvLink::DuplicateVarName( const string & name )
     return false;
 }
 
+bool AdvLink::DuplicateVarParm( const string & parm_id )
+{
+    for ( int i = 0 ; i < (int)m_InputVars.size() ; i++ )
+    {
+        if ( m_InputVars[i].m_ParmID == parm_id )
+            return true;
+    }
+    for ( int i = 0 ; i < (int)m_OutputVars.size() ; i++ )
+    {
+        if ( m_OutputVars[i].m_ParmID == parm_id )
+            return true;
+    }
+    return false;
+}
+
 string AdvLink::MakeVarNameUnique( const string & name )
 {
     string base_name = name;
