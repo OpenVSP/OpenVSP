@@ -710,6 +710,7 @@ void ManageGeomScreen::GeomBrowserCallback()
                     if ( tree_items[i]->CheckParent( tree_item ) )
                     {
                         m_GeomBrowser->select_only( tree_item, false );
+                        break;
                     }
                 }
             }
@@ -752,16 +753,7 @@ void ManageGeomScreen::GeomBrowserCallback()
     }
     else // if icon event happens, append the associated tree item to the selection vector
     {
-        bool has_item = false;
-        for ( int i = 0; i < m_SelVec.size(); i++ )
-        {
-            if ( m_SelVec[i] == icon_event_id )
-            {
-                has_item = true;
-            }
-        }
-
-        if ( !has_item )
+        if ( !vector_contains_val( m_SelVec, icon_event_id ) )
         {
             // if the icon event item not in current selection vector, then select that item only
             TreeIconItem* sel_item = nullptr;
@@ -777,7 +769,6 @@ void ManageGeomScreen::GeomBrowserCallback()
         }
     }
     selVec = m_SelVec;
-
 
     if ( selVec.size() == 1 && selVec[0] == m_VehiclePtr->GetID() )
     {
