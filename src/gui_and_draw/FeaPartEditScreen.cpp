@@ -1266,6 +1266,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickFracUpSlider, "Up Frac", 1, "%7.5f" );
     m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickLocSlider, "Thick X", 1, "%7.5f" );
     m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_FeaSSXSCBiconvexLERadius.Build( m_FeaSSXSCBiconvexGroup );
     m_FeaSSXSCBiconvexGroup.AddButton( m_FeaSSXSCBiconvexCircleArcToggle, "Circular Arcs" );
 
     //==== Wedge AF ====//
@@ -1273,14 +1274,21 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeChordSlider, "Chord", 10, "%7.3f" );
     m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickChordSlider, "T/C", 1, "%7.5f" );
     m_FeaSSXSCWedgeGroup.AddYGap();
-    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.SetSameLineFlag( true );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickLocSlider, "Thick X", 1, "%7.5f", m_FeaSSXSCWedgeGroup.GetW() * 0.5 );
     m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeFlatUpSlider, "Flat Up", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.ForceNewLine();
+    m_FeaSSXSCWedgeGroup.SetSameLineFlag( false );
     m_FeaSSXSCWedgeGroup.AddYGap();
     m_FeaSSXSCWedgeGroup.AddButton( m_FeaSSXSCWedgeSymmThickButton, "Symm Thickness" );
-    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.SetSameLineFlag( true );
+    m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeThickLocLowSlider, "Thick X Low", 1, "%7.5f", m_FeaSSXSCWedgeGroup.GetW() * 0.5 );
     m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeFlatLowSlider, "Flat Low", 1, "%7.5f" );
+    m_FeaSSXSCWedgeGroup.ForceNewLine();
+    m_FeaSSXSCWedgeGroup.SetSameLineFlag( false );
     m_FeaSSXSCWedgeGroup.AddYGap();
     m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeZCamberSlider, "Camber", 1, "%7.5f" );
+    m_FeaSSXSCWedgeLERadius.Build( m_FeaSSXSCWedgeGroup );
     m_FeaSSXSCWedgeGroup.AddYGap();
     m_FeaSSXSCWedgeGroup.SetSameLineFlag( true );
     m_FeaSSXSCWedgeGroup.AddSlider( m_FeaSSXSCWedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f", m_FeaSSXSCWedgeGroup.GetW() * 0.5 );
@@ -2692,6 +2700,8 @@ bool FeaPartEditScreen::Update()
                                 m_FeaSSXSCBiconvexThickFracUpSlider.Update( bi_xs->m_ThickFracUp.GetID() );
                                 m_FeaSSXSCBiconvexThickLocSlider.Update( bi_xs->m_ThickLoc.GetID() );
                                 m_FeaSSXSCBiconvexThickLocLowSlider.Update( bi_xs->m_ThickLocLow.GetID() );
+                                m_FeaSSXSCBiconvexLERadius.Update( bi_xs->m_LERadius.GetID(),
+                                                                   bi_xs->m_LERadiusType.GetID() );
                                 m_FeaSSXSCBiconvexCircleArcToggle.Update( bi_xs->m_UseCircleArc.GetID() );
                             }
                             else if ( xsc->GetType() == vsp::XS_WEDGE )
@@ -2704,6 +2714,8 @@ bool FeaPartEditScreen::Update()
                                 m_FeaSSXSCWedgeThickChordSlider.Update( we_xs->m_ThickChord.GetID() );
                                 m_FeaSSXSCWedgeThickLocSlider.Update( we_xs->m_ThickLoc.GetID() );
                                 m_FeaSSXSCWedgeZCamberSlider.Update( we_xs->m_ZCamber.GetID() );
+                                m_FeaSSXSCWedgeLERadius.Update( we_xs->m_LERadius.GetID(),
+                                                                we_xs->m_LERadiusType.GetID() );
                                 m_FeaSSXSCWedgeSymmThickButton.Update( we_xs->m_SymmThick.GetID() );
                                 m_FeaSSXSCWedgeThickLocLowSlider.Update( we_xs->m_ThickLocLow.GetID() );
                                 m_FeaSSXSCWedgeFlatUpSlider.Update( we_xs->m_FlatUp.GetID() );

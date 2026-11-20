@@ -860,6 +860,13 @@ Biconvex::Biconvex( ) : Airfoil( )
 
     m_UseCircleArc.Init( "UseCircleArc", m_GroupName, this, false, 0, 1 );
     m_UseCircleArc.SetDescript( "Flag to build each side from circular arcs rather than parabolas." );
+
+    m_LERadius.Init( "LERadius", m_GroupName, this, 0.0, 0.0, 0.5 );
+    m_LERadius.SetDescript( "Leading edge radius divided by chord." );
+
+    m_LERadiusType.Init( "LERadiusType", m_GroupName, this, vsp::LE_RADIUS_KEEP_CREST, vsp::LE_RADIUS_KEEP_CREST,
+                         vsp::NUM_LE_RADIUS_TYPE - 1 );
+    m_LERadiusType.SetDescript( "What the section keeps when its leading edge is rounded." );
 }
 
 void Airfoil::Arc( vector< vec3d > & cp, vector< double > & dt, const vec3d & c, double r, double th0, double sweep )
@@ -907,6 +914,64 @@ static double ArcSweep( double th0, double th1, double sgn )
         sweep -= sgn * 2.0 * M_PI;
     }
     return sweep;
+}
+
+bool Airfoil::NoseSweep( double r, const vec3d & t, bool upper, double & sweep )
+{
+    double sgn = 1.0;
+    if ( upper )
+    {
+        sgn = -1.0;
+    }
+    sweep = ArcSweep( M_PI, atan2( t.y(), t.x() - r ), sgn );
+    return std::abs( sweep ) > 1.0e-9 && std::abs( sweep ) < 0.5 * M_PI;
+}
+
+bool Airfoil::NoseArc( vector< vec3d > & cp, vector< double > & dt, double r, const vec3d & t, bool upper )
+{
+    double sweep = 0.0;
+    if ( !NoseSweep( r, t, upper, sweep ) )
+    {
+        return false;
+    }
+    Arc( cp, dt, vec3d( r, 0.0, 0.0 ), r, M_PI, sweep );
+    return true;
+}
+
+// Scales the segments' lengths to shares of a side's parameter length 2.
+static void SideShares( vector< double > & dt )
+{
+    double total = 0.0;
+    for ( int i = 0; i < ( int )dt.size(); i++ )
+    {
+        total += dt[i];
+    }
+    for ( int i = 0; i < ( int )dt.size(); i++ )
+    {
+        dt[i] = 2.0 * dt[i] / total;
+    }
+}
+
+// Appends the quadratic Bezier a, b, c to cp as a cubic, and its length, from a polyline of it, to dt.
+static void AppendQuad( vector< vec3d > & cp, vector< double > & dt, const vec3d & a, const vec3d & b, const vec3d & c )
+{
+    double len = 0.0;
+    vec3d prev = a;
+    for ( int j = 1; j <= 32; j++ )
+    {
+        double t = j / 32.0;
+        vec3d p = a * ( ( 1.0 - t ) * ( 1.0 - t ) ) + b * ( 2.0 * t * ( 1.0 - t ) ) + c * ( t * t );
+        len += dist( p, prev );
+        prev = p;
+    }
+    if ( cp.empty() )
+    {
+        cp.push_back( a );
+    }
+    cp.push_back( a + ( b - a ) * ( 2.0 / 3.0 ) );
+    cp.push_back( c + ( b - c ) * ( 2.0 / 3.0 ) );
+    cp.push_back( c );
+    dt.push_back( len );
 }
 
 void Biconvex::CircleSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm )
@@ -1041,6 +1106,235 @@ void Biconvex::Side( vector< vec3d > & cp, vector< double > & dt, double h, doub
     }
 }
 
+bool Biconvex::CircleRoundSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm, double r, int type )
+{
+    cp.clear();
+    dt.clear();
+
+    double ah = std::abs( h );
+    if ( ah <= r )
+    {
+        return false;
+    }
+
+    // As in CircleSide: centers below the peak above the chord line, turning clockwise; the reverse below.
+    double sgn = -1.0;
+    double thpeak = 0.5 * M_PI;
+    bool upper = true;
+    if ( h < 0.0 )
+    {
+        sgn = 1.0;
+        thpeak = -0.5 * M_PI;
+        upper = false;
+    }
+
+    // The forward arc, level at the peak ( xp, h ), touches the nose circle about n, which lies inside it, so its
+    // center is R - r from n.  Keeping the crest, xp stays and R grows; keeping the angle, R stays and the arc slides
+    // forward.
+    vec3d n( r, 0.0, 0.0 );
+    double xp = xm;
+    double rf = 0.0;
+    if ( type == vsp::LE_RADIUS_KEEP_ANGLE )
+    {
+        rf = ( xm * xm + h * h ) / ( 2.0 * ah );
+        double q = ( rf - r ) * ( rf - r ) - ( ah - rf ) * ( ah - rf );
+        if ( q < 0.0 )
+        {
+            return false;
+        }
+        xp = r + sqrt( q );
+    }
+    else
+    {
+        rf = ( ( xm - r ) * ( xm - r ) + h * h - r * r ) / ( 2.0 * ( ah - r ) );
+    }
+    if ( rf <= r || xp >= 1.0 )
+    {
+        return false;
+    }
+
+    vec3d cf( xp, h + sgn * rf, 0.0 );
+    vec3d d = n - cf;
+    if ( d.mag() < 1.0e-12 )
+    {
+        return false;
+    }
+    vec3d t = cf + d * ( rf / d.mag() );
+    if ( t.x() >= xp )
+    {
+        return false;
+    }
+
+    if ( !NoseArc( cp, dt, r, t, upper ) )
+    {
+        return false;
+    }
+
+    double th0 = atan2( t.y() - cf.y(), t.x() - cf.x() );
+    Arc( cp, dt, cf, rf, th0, ArcSweep( th0, thpeak, sgn ) );
+
+    double run = 1.0 - xp;
+    double rb = ( run * run + h * h ) / ( 2.0 * ah );
+    vec3d cb( xp, h + sgn * rb, 0.0 );
+    double th1 = atan2( -cb.y(), 1.0 - cb.x() );
+    Arc( cp, dt, cb, rb, thpeak, ArcSweep( thpeak, th1, sgn ) );
+
+    SideShares( dt );
+    return true;
+}
+
+// For a parabola level at its peak h high, reaching the chord line a run L ahead of it: where the curve r inside it,
+// toward the chord line, crosses the chord line.  v is how far ahead of the peak the parabola's point is, and dx how
+// far the crossing is behind the peak's chord fraction ( negative when it is ahead ).  False if it does not cross.
+static bool ParabolaInside( double h, double L, double r, double & v, double & dx )
+{
+    double ah = std::abs( h );
+    double lo = 0.0;
+    double hi = L;
+    for ( int i = 0; i < 60; i++ )
+    {
+        double mid = 0.5 * ( lo + hi );
+        double w = 2.0 * ah * mid / ( L * L );
+        double g = ah * ( 1.0 - mid * mid / ( L * L ) ) - r / sqrt( 1.0 + w * w );
+        if ( g > 0.0 )
+        {
+            lo = mid;
+        }
+        else
+        {
+            hi = mid;
+        }
+    }
+    v = 0.5 * ( lo + hi );
+    if ( v <= 0.0 || v >= L )
+    {
+        return false;
+    }
+    double w = 2.0 * ah * v / ( L * L );
+    dx = -v + r * w / sqrt( 1.0 + w * w );
+    return true;
+}
+
+bool Biconvex::ParabolaRoundSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm, double r,
+                                  int type )
+{
+    cp.clear();
+    dt.clear();
+
+    if ( std::abs( h ) <= r || xm <= 0.0 )
+    {
+        return false;
+    }
+
+    // The forward parabola touches the nose circle where the curve r inside it crosses the chord line at the
+    // circle's center, x = r.  Keeping the crest, its run L grows until that is so; keeping the angle, it keeps the
+    // run xm and slides forward.
+    double v = 0.0;
+    double dx = 0.0;
+    double xp = xm;
+    double L = xm;
+    if ( type == vsp::LE_RADIUS_KEEP_ANGLE )
+    {
+        if ( !ParabolaInside( h, L, r, v, dx ) )
+        {
+            return false;
+        }
+        xp = r - dx;
+    }
+    else
+    {
+        if ( !ParabolaInside( h, L, r, v, dx ) || xm + dx < r )
+        {
+            return false;
+        }
+        double lo = xm;
+        double hi = 2.0 * xm;
+        int ngrow = 0;
+        while ( ParabolaInside( h, hi, r, v, dx ) && xm + dx > r && ngrow < 40 )
+        {
+            lo = hi;
+            hi *= 2.0;
+            ngrow++;
+        }
+        for ( int i = 0; i < 60; i++ )
+        {
+            double mid = 0.5 * ( lo + hi );
+            if ( ParabolaInside( h, mid, r, v, dx ) && xm + dx > r )
+            {
+                lo = mid;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+        L = 0.5 * ( lo + hi );
+        if ( !ParabolaInside( h, L, r, v, dx ) )
+        {
+            return false;
+        }
+    }
+    if ( xp >= 1.0 )
+    {
+        return false;
+    }
+
+    vec3d t( xp - v, h * ( 1.0 - v * v / ( L * L ) ), 0.0 );
+    if ( !NoseArc( cp, dt, r, t, h > 0.0 ) )
+    {
+        return false;
+    }
+
+    // A piece of a parabola is a parabola: its control point is halfway along in x, level with the peak.
+    AppendQuad( cp, dt, t, vec3d( 0.5 * ( t.x() + xp ), h, 0.0 ), vec3d( xp, h, 0.0 ) );
+    AppendQuad( cp, dt, vec3d( xp, h, 0.0 ), vec3d( 0.5 * ( 1.0 + xp ), h, 0.0 ), vec3d( 1.0, 0.0, 0.0 ) );
+
+    SideShares( dt );
+    return true;
+}
+
+bool Biconvex::RoundSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm, double r, int type ) const
+{
+    if ( m_UseCircleArc() )
+    {
+        return CircleRoundSide( cp, dt, h, xm, r, type );
+    }
+    return ParabolaRoundSide( cp, dt, h, xm, r, type );
+}
+
+double Biconvex::MaxLERadius() const
+{
+    double hup = m_ThickFracUp() * m_ThickChord();
+    double hlow = ( m_ThickFracUp() - 1.0 ) * m_ThickChord();
+    int type = m_LERadiusType();
+    vector< vec3d > cp;
+    vector< double > dt;
+
+    // No side can be rounded to more than its height, and usually it can be rounded to just short of it.
+    double lo = 0.0;
+    double hi = std::min( std::abs( hup ), std::abs( hlow ) );
+    double nearly = hi * ( 1.0 - 1.0e-9 );
+    if ( RoundSide( cp, dt, hup, m_ThickLoc(), nearly, type ) &&
+         RoundSide( cp, dt, hlow, m_ThickLocLow(), nearly, type ) )
+    {
+        return nearly;
+    }
+    for ( int i = 0; i < 50; i++ )
+    {
+        double mid = 0.5 * ( lo + hi );
+        if ( RoundSide( cp, dt, hup, m_ThickLoc(), mid, type ) &&
+             RoundSide( cp, dt, hlow, m_ThickLocLow(), mid, type ) )
+        {
+            lo = mid;
+        }
+        else
+        {
+            hi = mid;
+        }
+    }
+    return lo;
+}
+
 //==== Update ====//
 void Biconvex::UpdateCurve( bool updateParms )
 {
@@ -1048,8 +1342,18 @@ void Biconvex::UpdateCurve( bool updateParms )
     vector< double > udt;
     vector< vec3d > lcp;
     vector< double > ldt;
-    Side( ucp, udt, m_ThickFracUp() * m_ThickChord(), m_ThickLoc() );
-    Side( lcp, ldt, ( m_ThickFracUp() - 1.0 ) * m_ThickChord(), m_ThickLocLow() );
+    double hup = m_ThickFracUp() * m_ThickChord();
+    double hlow = ( m_ThickFracUp() - 1.0 ) * m_ThickChord();
+
+    m_LERadius.SetUpperLimit( MaxLERadius() );
+    double r = m_LERadius();
+    int type = m_LERadiusType();
+    if ( r <= 0.0 || !RoundSide( ucp, udt, hup, m_ThickLoc(), r, type ) ||
+         !RoundSide( lcp, ldt, hlow, m_ThickLocLow(), r, type ) )
+    {
+        Side( ucp, udt, hup, m_ThickLoc() );
+        Side( lcp, ldt, hlow, m_ThickLocLow() );
+    }
 
     // The lower side from the trailing edge to the leading edge, then the upper side back.
     std::reverse( lcp.begin(), lcp.end() );
@@ -1088,6 +1392,7 @@ void Biconvex::Interp( XSecCurve *start, XSecCurve *end, double frac )
         INTERP_PARM( s, e, frac, m_ThickFracUp );
         INTERP_PARM( s, e, frac, m_ThickLoc );
         INTERP_PARM( s, e, frac, m_ThickLocLow );
+        INTERP_PARM( s, e, frac, m_LERadius );
         m_UseCircleArc = s->m_UseCircleArc();
     }
     XSecCurve::Interp( start, end, frac );
@@ -1125,6 +1430,193 @@ Wedge::Wedge( ) : Airfoil( )
 
     m_SymmThick.Init( "SymmThick", m_GroupName, this, true, 0, 1 );
     m_SymmThick.SetDescript( "Flag to set symmetrical thickness distribution parameters." );
+
+    m_LERadius.Init( "LERadius", m_GroupName, this, 0.0, 0.0, 0.5 );
+    m_LERadius.SetDescript( "Leading edge radius divided by chord." );
+
+    m_LERadiusType.Init( "LERadiusType", m_GroupName, this, vsp::LE_RADIUS_KEEP_CREST, vsp::LE_RADIUS_KEEP_CREST,
+                         vsp::NUM_LE_RADIUS_TYPE - 1 );
+    m_LERadiusType.SetDescript( "What the section keeps when its leading edge is rounded." );
+}
+
+bool Wedge::NoseLine( double r, int type, const vec3d & crest, bool upper, vec3d & t, vec3d & newcrest )
+{
+    vec3d n( r, 0.0, 0.0 );
+    if ( type == vsp::LE_RADIUS_KEEP_ANGLE )
+    {
+        // The side keeps the direction from the leading edge to the crest, moved out to touch the circle; the crest
+        // is where it reaches the crest's height.
+        double len = crest.mag();
+        if ( len < 1.0e-12 )
+        {
+            return false;
+        }
+        vec3d dir = crest / len;
+        if ( std::abs( dir.y() ) < 1.0e-12 )
+        {
+            return false;
+        }
+        vec3d out( dir.y(), -dir.x(), 0.0 );
+        if ( upper )
+        {
+            out = vec3d( -dir.y(), dir.x(), 0.0 );
+        }
+        t = n + out * r;
+        double along = ( crest.y() - t.y() ) / dir.y();
+        if ( along <= 0.0 )
+        {
+            return false;
+        }
+        newcrest = t + dir * along;
+    }
+    else
+    {
+        // The side runs from the crest to the circle, touching it.
+        vec3d d = crest - n;
+        double len = d.mag();
+        if ( len <= r * ( 1.0 + 1.0e-12 ) )
+        {
+            return false;
+        }
+        double th = atan2( d.y(), d.x() );
+        double turn = acos( r / len );
+        if ( upper )
+        {
+            th += turn;
+        }
+        else
+        {
+            th -= turn;
+        }
+        t = n + vec3d( r * cos( th ), r * sin( th ), 0.0 );
+        newcrest = crest;
+    }
+
+    double sweep = 0.0;
+    return t.x() < newcrest.x() && newcrest.x() < 1.0 && NoseSweep( r, t, upper, sweep );
+}
+
+double Wedge::MaxLERadius( const vec3d & crestup, const vec3d & crestlow ) const
+{
+    int type = m_LERadiusType();
+    vec3d t;
+    vec3d c;
+
+    // No nose is wider than the chord.
+    double lo = 0.0;
+    double hi = 0.5;
+    if ( NoseLine( hi, type, crestup, true, t, c ) && NoseLine( hi, type, crestlow, false, t, c ) )
+    {
+        return hi;
+    }
+    for ( int i = 0; i < 50; i++ )
+    {
+        double mid = 0.5 * ( lo + hi );
+        if ( NoseLine( mid, type, crestup, true, t, c ) && NoseLine( mid, type, crestlow, false, t, c ) )
+        {
+            lo = mid;
+        }
+        else
+        {
+            hi = mid;
+        }
+    }
+    return lo;
+}
+
+// Appends to cp a line from its last point to p as a cubic, and to uend its parameter there.
+static void AppendLine( vector< vec3d > & cp, vector< double > & uend, const vec3d & p, double u )
+{
+    vec3d a = cp.back();
+    cp.push_back( a + ( p - a ) / 3.0 );
+    cp.push_back( a + ( p - a ) * ( 2.0 / 3.0 ) );
+    cp.push_back( p );
+    uend.push_back( u );
+}
+
+// Appends to cp the cubic segments of acp, which start at cp's last point, and to uend their parameters, from u0 to u1
+// in shares of their lengths adt.
+static void AppendSegments( vector< vec3d > & cp, vector< double > & uend, const vector< vec3d > & acp,
+                            const vector< double > & adt, double u0, double u1 )
+{
+    double total = 0.0;
+    for ( int i = 0; i < ( int )adt.size(); i++ )
+    {
+        total += adt[i];
+    }
+    double sofar = 0.0;
+    for ( int i = 0; i < ( int )adt.size(); i++ )
+    {
+        cp.push_back( acp[3 * i + 1] );
+        cp.push_back( acp[3 * i + 2] );
+        cp.push_back( acp[3 * i + 3] );
+        sofar += adt[i];
+        uend.push_back( u0 + ( u1 - u0 ) * sofar / total );
+    }
+}
+
+void Wedge::RoundedCurve( double r, const vec3d & clow, const vec3d & tlow, const vec3d & cup, const vec3d & tup,
+                          bool flatlow, bool flatup )
+{
+    // The nose from the leading edge to each side, the lower one turned to run toward the leading edge.
+    vector< vec3d > lowarc;
+    vector< double > lowdt;
+    NoseArc( lowarc, lowdt, r, tlow, false );
+    std::reverse( lowarc.begin(), lowarc.end() );
+    std::reverse( lowdt.begin(), lowdt.end() );
+    vector< vec3d > uparc;
+    vector< double > updt;
+    NoseArc( uparc, updt, r, tup, true );
+
+    double lowlen = 0.0;
+    for ( int i = 0; i < ( int )lowdt.size(); i++ )
+    {
+        lowlen += lowdt[i];
+    }
+    double uplen = 0.0;
+    for ( int i = 0; i < ( int )updt.size(); i++ )
+    {
+        uplen += updt[i];
+    }
+
+    // The corners keep their U; each side's run from its crest to the leading edge is shared by line and arc length.
+    double ucl = m_UForeLow() * 4.0;
+    double ucu = m_UForeUp() * 4.0;
+    double linelow = dist( clow, tlow );
+    double lineup = dist( cup, tup );
+    double utlow = ucl + ( 2.0 - ucl ) * linelow / ( linelow + lowlen );
+    double utup = 2.0 + ( ucu - 2.0 ) * uplen / ( uplen + lineup );
+
+    vector< vec3d > cp;
+    vector< double > uend;
+    cp.push_back( vec3d( 1, 0, 0 ) );
+    if ( flatlow )
+    {
+        AppendLine( cp, uend, vec3d( clow.x() + m_FlatLow(), clow.y(), 0 ), ( m_UForeLow() - m_DuLow() ) * 4.0 );
+    }
+    AppendLine( cp, uend, clow, ucl );
+    AppendLine( cp, uend, tlow, utlow );
+    AppendSegments( cp, uend, lowarc, lowdt, utlow, 2.0 );
+    AppendSegments( cp, uend, uparc, updt, 2.0, utup );
+    AppendLine( cp, uend, cup, ucu );
+    if ( flatup )
+    {
+        AppendLine( cp, uend, vec3d( cup.x() + m_FlatUp(), cup.y(), 0 ), ( m_UForeUp() + m_DuUp() ) * 4.0 );
+    }
+    AppendLine( cp, uend, vec3d( 1, 0, 0 ), 4.0 );
+
+    // A parameter for every control point; only those at the segments' ends are used.
+    vector< double > param( cp.size(), 0.0 );
+    double u0 = 0.0;
+    for ( int i = 0; i < ( int )uend.size(); i++ )
+    {
+        for ( int j = 1; j <= 3; j++ )
+        {
+            param[3 * i + j] = u0 + ( uend[i] - u0 ) * j / 3.0;
+        }
+        u0 = uend[i];
+    }
+    m_Curve.SetCubicControlPoints( cp, param );
 }
 
 //==== Update ====//
@@ -1158,6 +1650,22 @@ void Wedge::UpdateCurve( bool updateParms )
     {
         flatup = true;
         npt++;
+    }
+
+    vec3d crestup( m_ThickLoc(), halfthick + m_ZCamber(), 0 );
+    vec3d crestlow( m_ThickLocLow(), -halfthick + m_ZCamber(), 0 );
+    m_LERadius.SetUpperLimit( MaxLERadius( crestup, crestlow ) );
+    double r = m_LERadius();
+    int type = m_LERadiusType();
+    vec3d tup;
+    vec3d cup;
+    vec3d tlow;
+    vec3d clow;
+    if ( r > 0.0 && NoseLine( r, type, crestup, true, tup, cup ) && NoseLine( r, type, crestlow, false, tlow, clow ) )
+    {
+        RoundedCurve( r, clow, tlow, cup, tup, flatlow, flatup );
+        Airfoil::UpdateCurve( updateParms );
+        return;
     }
 
     vector<vec3d> pt( npt );
@@ -1224,6 +1732,7 @@ void Wedge::Interp( XSecCurve *start, XSecCurve *end, double frac )
         INTERP_PARM( s, e, frac, m_DuUp );
         INTERP_PARM( s, e, frac, m_UForeLow );
         INTERP_PARM( s, e, frac, m_DuLow );
+        INTERP_PARM( s, e, frac, m_LERadius );
     }
     XSecCurve::Interp( start, end, frac );
 }

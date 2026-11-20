@@ -308,11 +308,13 @@ protected:
     SliderAdjRangeInput m_BiconvexThickLocSlider;
     SliderAdjRangeInput m_BiconvexThickLocLowSlider;
     ToggleButton m_BiconvexCircleArcToggle;
+    LERadiusGUI m_BiconvexLERadius;
 
     GroupLayout m_WedgeGroup;
     SliderAdjRangeInput m_WedgeChordSlider;
     SliderAdjRangeInput m_WedgeThickChordSlider;
     SliderAdjRangeInput m_WedgeZCamberSlider;
+    LERadiusGUI m_WedgeLERadius;
     ToggleButton m_WedgeSymmThickButton;
     SliderAdjRangeInput m_WedgeThickLocSlider;
     SliderAdjRangeInput m_WedgeThickLocLowSlider;

@@ -92,6 +92,13 @@ protected:
     // positive, as cubic Bezier segments of at most a quarter turn, and to dt each one's length.
     static void Arc( vector< vec3d > & cp, vector< double > & dt, const vec3d & c, double r, double th0, double sweep );
 
+    // A rounded leading edge is the circle of radius r about ( r, 0 ), so its front is the leading edge at the origin.
+    // NoseSweep is the turn about that circle from its front to the point t on it, clockwise for an upper side and
+    // counterclockwise for a lower; false unless it is less than a quarter turn, so the side still climbs from the
+    // circle to its crest.  NoseArc appends that arc as Arc does.
+    static bool NoseSweep( double r, const vec3d & t, bool upper, double & sweep );
+    static bool NoseArc( vector< vec3d > & cp, vector< double > & dt, double r, const vec3d & t, bool upper );
+
     VspCurve m_OrigCurve;
 };
 
@@ -306,6 +313,10 @@ public:
     // Whether each side is built from circular arcs rather than parabolas.
     BoolParm m_UseCircleArc;
 
+    // The leading edge radius over the chord, and what the section keeps when it is rounded, an LE_RADIUS_TYPE.
+    Parm m_LERadius;
+    IntParm m_LERadiusType;
+
 protected:
 
     // A side of height h at the chord fraction xm, from the leading edge to the trailing edge: a curve up to xm,
@@ -318,6 +329,19 @@ protected:
 
     // The side of Side from circular arcs, each on a circle centered under the peak.
     static void CircleSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm );
+
+    // The side of Side with the leading edge rounded to radius r, keeping what type says; false where it cannot be.
+    bool RoundSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm, double r, int type ) const;
+
+    // RoundSide from circular arcs: the forward arc is level at its peak and touches the nose circle inside it.
+    static bool CircleRoundSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm, double r, int type );
+
+    // RoundSide from parabolas: the forward parabola is level at its peak and touches the nose circle inside it.
+    static bool ParabolaRoundSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm, double r,
+                                   int type );
+
+    // The largest radius both sides can be rounded to.
+    double MaxLERadius() const;
 
 };
 
@@ -349,8 +373,23 @@ public:
 
     BoolParm m_SymmThick;
 
+    // The leading edge radius over the chord, and what the section keeps when it is rounded, an LE_RADIUS_TYPE.
+    Parm m_LERadius;
+    IntParm m_LERadiusType;
+
 protected:
 
+    // A side's line from the nose circle of radius r to its crest: t where it touches the circle, and the crest, which
+    // moves forward when the line keeps its angle.  False where it cannot be built.
+    static bool NoseLine( double r, int type, const vec3d & crest, bool upper, vec3d & t, vec3d & newcrest );
+
+    // The largest radius both sides can be rounded to.
+    double MaxLERadius( const vec3d & crestup, const vec3d & crestlow ) const;
+
+    // The section with its leading edge rounded to radius r: each side's line from its crest to where it touches the
+    // nose circle, tlow and tup, the circle between them through the leading edge at the origin, and the flats.
+    void RoundedCurve( double r, const vec3d & clow, const vec3d & tlow, const vec3d & cup, const vec3d & tup,
+                       bool flatlow, bool flatup );
 
 
 };

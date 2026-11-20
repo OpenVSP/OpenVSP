@@ -1216,6 +1216,15 @@ enum LEN_UNITS { LEN_MM,	/*!< Millimeter  */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for what a Biconvex or Wedge airfoil keeps when its leading edge is rounded. */
+enum LE_RADIUS_TYPE { LE_RADIUS_KEEP_CREST,	/*!< Keep the thickest points; the forward surfaces are refit to meet the nose circle */
+                      LE_RADIUS_KEEP_ANGLE,	/*!< Keep the forward surfaces' shape; they slide forward and the thickest points with them */
+                      NUM_LE_RADIUS_TYPE	/*!< Number of leading edge radius types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that describes units for mass. */
 enum MASS_UNIT { MASS_UNIT_G = 0,	/*!< Gram */
                  MASS_UNIT_KG,	/*!< Kilogram */

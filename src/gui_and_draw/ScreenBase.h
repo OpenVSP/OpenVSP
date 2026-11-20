@@ -391,6 +391,19 @@ protected:
     EndCapTypeGroup m_SearsHaackGroup;
 };
 
+//==== Leading Edge Radius GUI ====//
+// The leading edge radius of an airfoil that can be rounded, and below it what the section keeps when it is.
+class LERadiusGUI
+{
+public:
+    void Build( GroupLayout& layout );
+    void Update( const string& radius_id, const string& type_id );
+
+protected:
+    SliderAdjRangeInput m_RadiusSlider;
+    Choice m_KeepChoice;
+};
+
 //==== Geom Screen ====//
 class GeomScreen : public TabScreen
 {
@@ -702,11 +715,13 @@ public:
     SliderAdjRangeInput m_SSXSCBiconvexThickLocSlider;
     SliderAdjRangeInput m_SSXSCBiconvexThickLocLowSlider;
     ToggleButton m_SSXSCBiconvexCircleArcToggle;
+    LERadiusGUI m_SSXSCBiconvexLERadius;
 
     GroupLayout m_SSXSCWedgeGroup;
     SliderAdjRangeInput m_SSXSCWedgeChordSlider;
     SliderAdjRangeInput m_SSXSCWedgeThickChordSlider;
     SliderAdjRangeInput m_SSXSCWedgeZCamberSlider;
+    LERadiusGUI m_SSXSCWedgeLERadius;
     ToggleButton m_SSXSCWedgeSymmThickButton;
     SliderAdjRangeInput m_SSXSCWedgeThickLocSlider;
     SliderAdjRangeInput m_SSXSCWedgeThickLocLowSlider;
@@ -1062,11 +1077,13 @@ protected:
     SliderAdjRangeInput m_BiconvexThickLocSlider;
     SliderAdjRangeInput m_BiconvexThickLocLowSlider;
     ToggleButton m_BiconvexCircleArcToggle;
+    LERadiusGUI m_BiconvexLERadius;
 
     GroupLayout m_WedgeGroup;
     SliderAdjRangeInput m_WedgeChordSlider;
     SliderAdjRangeInput m_WedgeThickChordSlider;
     SliderAdjRangeInput m_WedgeZCamberSlider;
+    LERadiusGUI m_WedgeLERadius;
     ToggleButton m_WedgeSymmThickButton;
     SliderAdjRangeInput m_WedgeThickLocSlider;
     SliderAdjRangeInput m_WedgeThickLocLowSlider;

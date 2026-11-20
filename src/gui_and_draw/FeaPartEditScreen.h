@@ -461,11 +461,13 @@ private:
     SliderAdjRangeInput m_FeaSSXSCBiconvexThickLocSlider;
     SliderAdjRangeInput m_FeaSSXSCBiconvexThickLocLowSlider;
     ToggleButton m_FeaSSXSCBiconvexCircleArcToggle;
+    LERadiusGUI m_FeaSSXSCBiconvexLERadius;
 
     GroupLayout m_FeaSSXSCWedgeGroup;
     SliderAdjRangeInput m_FeaSSXSCWedgeChordSlider;
     SliderAdjRangeInput m_FeaSSXSCWedgeThickChordSlider;
     SliderAdjRangeInput m_FeaSSXSCWedgeZCamberSlider;
+    LERadiusGUI m_FeaSSXSCWedgeLERadius;
     ToggleButton m_FeaSSXSCWedgeSymmThickButton;
     SliderAdjRangeInput m_FeaSSXSCWedgeThickLocSlider;
     SliderAdjRangeInput m_FeaSSXSCWedgeThickLocLowSlider;

@@ -609,6 +609,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_BiconvexGroup.AddSlider( m_BiconvexThickFracUpSlider, "Up Frac", 1, "%7.5f" );
     m_BiconvexGroup.AddSlider( m_BiconvexThickLocSlider, "Thick X", 1, "%7.5f" );
     m_BiconvexGroup.AddSlider( m_BiconvexThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_BiconvexLERadius.Build( m_BiconvexGroup );
     m_BiconvexGroup.AddButton( m_BiconvexCircleArcToggle, "Circular Arcs" );
 
     //==== Wedge AF ====//
@@ -616,14 +617,21 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_WedgeGroup.AddSlider( m_WedgeChordSlider, "Chord", 10, "%7.3f" );
     m_WedgeGroup.AddSlider( m_WedgeThickChordSlider, "T/C", 1, "%7.5f" );
     m_WedgeGroup.AddYGap();
-    m_WedgeGroup.AddSlider( m_WedgeThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_WedgeGroup.SetSameLineFlag( true );
+    m_WedgeGroup.AddSlider( m_WedgeThickLocSlider, "Thick X", 1, "%7.5f", m_WedgeGroup.GetW() * 0.5 );
     m_WedgeGroup.AddSlider( m_WedgeFlatUpSlider, "Flat Up", 1, "%7.5f" );
+    m_WedgeGroup.ForceNewLine();
+    m_WedgeGroup.SetSameLineFlag( false );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddButton( m_WedgeSymmThickButton, "Symm Thickness" );
-    m_WedgeGroup.AddSlider( m_WedgeThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_WedgeGroup.SetSameLineFlag( true );
+    m_WedgeGroup.AddSlider( m_WedgeThickLocLowSlider, "Thick X Low", 1, "%7.5f", m_WedgeGroup.GetW() * 0.5 );
     m_WedgeGroup.AddSlider( m_WedgeFlatLowSlider, "Flat Low", 1, "%7.5f" );
+    m_WedgeGroup.ForceNewLine();
+    m_WedgeGroup.SetSameLineFlag( false );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddSlider( m_WedgeZCamberSlider, "Camber", 1, "%7.5f" );
+    m_WedgeLERadius.Build( m_WedgeGroup );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddSlider( m_WedgeUForeUpSlider, "U Fwd Up", 1, "%7.5f" );
     m_WedgeGroup.AddSlider( m_WedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f" );
@@ -1333,6 +1341,7 @@ bool AuxiliaryGeomScreen::Update()
                     m_BiconvexThickFracUpSlider.Update( bi_xs->m_ThickFracUp.GetID() );
                     m_BiconvexThickLocSlider.Update( bi_xs->m_ThickLoc.GetID() );
                     m_BiconvexThickLocLowSlider.Update( bi_xs->m_ThickLocLow.GetID() );
+                    m_BiconvexLERadius.Update( bi_xs->m_LERadius.GetID(), bi_xs->m_LERadiusType.GetID() );
                     m_BiconvexCircleArcToggle.Update( bi_xs->m_UseCircleArc.GetID() );
                 }
                 else if ( xsc->GetType() == vsp::XS_WEDGE )
@@ -1345,6 +1354,7 @@ bool AuxiliaryGeomScreen::Update()
                     m_WedgeThickChordSlider.Update( we_xs->m_ThickChord.GetID() );
                     m_WedgeThickLocSlider.Update( we_xs->m_ThickLoc.GetID() );
                     m_WedgeZCamberSlider.Update( we_xs->m_ZCamber.GetID() );
+                    m_WedgeLERadius.Update( we_xs->m_LERadius.GetID(), we_xs->m_LERadiusType.GetID() );
                     m_WedgeSymmThickButton.Update( we_xs->m_SymmThick.GetID() );
                     m_WedgeThickLocLowSlider.Update( we_xs->m_ThickLocLow.GetID() );
                     m_WedgeFlatUpSlider.Update( we_xs->m_FlatUp.GetID() );

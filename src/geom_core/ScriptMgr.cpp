@@ -2216,6 +2216,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "LE_RADIUS_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LE_RADIUS_TYPE", "LE_RADIUS_KEEP_CREST", LE_RADIUS_KEEP_CREST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LE_RADIUS_TYPE", "LE_RADIUS_KEEP_ANGLE", LE_RADIUS_KEEP_ANGLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "LE_RADIUS_TYPE", "NUM_LE_RADIUS_TYPE", NUM_LE_RADIUS_TYPE );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "MASS_UNIT" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "MASS_UNIT", "MASS_UNIT_G", MASS_UNIT_G );
