@@ -1030,6 +1030,14 @@ void Wedge::Interp( XSecCurve *start, XSecCurve *end, double frac )
     if ( s && e )
     {
         INTERP_PARM( s, e, frac, m_ThickLoc );
+        INTERP_PARM( s, e, frac, m_ThickLocLow );
+        INTERP_PARM( s, e, frac, m_FlatUp );
+        INTERP_PARM( s, e, frac, m_FlatLow );
+        INTERP_PARM( s, e, frac, m_ZCamber );
+        INTERP_PARM( s, e, frac, m_UForeUp );
+        INTERP_PARM( s, e, frac, m_DuUp );
+        INTERP_PARM( s, e, frac, m_UForeLow );
+        INTERP_PARM( s, e, frac, m_DuLow );
     }
     XSecCurve::Interp( start, end, frac );
 }
