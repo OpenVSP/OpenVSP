@@ -14,6 +14,7 @@ reshapes an airfoil's edges: it closes, trims, caps and flaps them, and shifts, 
 | [Controls Every Airfoil Has](#controls-every-airfoil-has)         | XSec, Airfoil  |
 | [Design Lift Coefficient](#design-lift-coefficient)               | XSec, Airfoil  |
 | [The Airfoil Families](#the-airfoil-families)                     | XSec, Airfoil  |
+| [Rounded Leading Edge](#rounded-leading-edge)                     | XSec, Airfoil  |
 | [The Modify Tab](#the-modify-tab)                                 | Modify         |
 | [Shift, Rotate and Scale](#shift-rotate-and-scale)                | Modify         |
 | [Closure](#closure)                                               | Modify         |
@@ -72,8 +73,8 @@ where $z_c(x)$ is the mean line.  For the 4-digit mean line $C_{l_i}$ is proport
 factor that depends on the camber position $p$: at $p = 0.4$, $C_{l_i} = 12.8\,m$.  This is how a propeller's CLi curve
 sets the camber of these families.
 
-The other families have no design lift coefficient.  Biconvex airfoils have no camber, and wedge, Karman-Trefftz, CST
-and file airfoils keep the camber their own parameters or points give them.
+The other families have no design lift coefficient.  Biconvex, wedge, Karman-Trefftz, CST and file airfoils keep the
+camber their own parameters or points give them.
 
 ## The Airfoil Families
 
@@ -121,8 +122,17 @@ the chord over which the loading is uniform.  The A forms always use $a = 0.8$. 
 
 ### Biconvex
 
-BICONVEX.  Two parabolic arcs, upper and lower, meeting in sharp edges: $z = \pm 2\,(t/c)\,x(1 - x)$.  Only *T/C*
-shapes it.  It is a common supersonic section.
+BICONVEX.  Two convex sides meeting in sharp edges.  Each rises from the leading edge to its crest, is level there,
+and falls to the trailing edge.  By default each side is two parabolas, so with both crests at half the chord the
+section is $z = \pm 2\,(t/c)\,x(1 - x)$; *Circular Arcs* makes each side two circular arcs instead, each centered
+under the crest, as in the classic circular-arc section.  It is a common supersonic section.
+
+| Control              | Meaning                                                                                  |
+|:---------------------|:-----------------------------------------------------------------------------------------|
+| Up Frac              | Fraction of the thickness above the chord line; 0.5 is symmetric, 1 a flat lower side.   |
+| Thick X, Thick X Low | Position of the upper and lower crest, as a fraction of the chord.                       |
+| LE Rad/C, Keep       | Round the leading edge; see [Rounded Leading Edge](#rounded-leading-edge).               |
+| Circular Arcs        | Build each side from circular arcs rather than parabolas.                                |
 
 ### Wedge
 
@@ -135,6 +145,7 @@ thickness, or a flat between two corners (Figure 4).
 | Flat Up, Flat Low      | Length of the flat after it, as a fraction of the chord.                                 |
 | Symm Thickness         | Use the upper surface's Thick X and Flat for the lower surface too.                      |
 | Camber                 | Raises the corners, as a fraction of the chord, leaving the edges on the chord line.     |
+| LE Rad/C, Keep         | Round the leading edge; see [Rounded Leading Edge](#rounded-leading-edge).               |
 | U Fwd Up, U Fwd Low    | Where the first corner of each surface falls in the curve's parameter.                   |
 | dU Flat Up, dU Flat Low | How much of the curve's parameter the flat takes.                                       |
 
@@ -145,6 +156,55 @@ sections in the loft, so give neighboring wedge sections the same values to make
 
 *Figure 4. A wedge with T/C 0.12, Thick X 0.3, Flat Up 0.3, Thick X Low 0.4, Flat Low 0.2 and Camber 0.02.  The dots are
 the corners.*
+
+### Rounded Leading Edge
+
+A biconvex or wedge airfoil has a sharp leading edge unless *LE Rad/C* is set.  It rounds the leading edge to a circle
+of that radius, as a fraction of the chord, whose front is the leading edge: the section still runs from 0 to 1 along
+the chord, with its leading edge at the origin on the chord line, and the circle meets each side tangentially.  The
+rounding is part of the airfoil, made before any Modify operation.
+
+Rounding takes material off the front of a sharp nose, and the sharper the nose, the more it takes: the sides meet the
+circle about $r/\delta$ behind the point, for a radius $r$ and a side at a half-angle $\delta$.  That is a tenth of the
+chord for a radius of 0.005 on a 5% diamond.  To keep the chord, the rest of the section has to change, and *Keep*
+chooses how (Figures 5-6):
+
+- *Crest* keeps each side's crest, its thickest point, and everything behind it.  The forward surface is refit
+  through the crest to meet the circle: a wedge's side turns about its crest, and a biconvex side's forward curve
+  flattens, still level at the crest.  The thickness, the crests' positions, the flats, the camber and the aft
+  surfaces are all as set; the forward surfaces are a little less steep.  It is the default.
+- *Angle* keeps the shape of each forward surface, a wedge side's angle or a biconvex side's forward curve, and slides
+  it forward until it meets the circle.  The crest moves forward with it, by about the same $r/\delta$, and the aft
+  surface runs from the new crest to the trailing edge, so it is less steep.  The thickness and the forward surfaces
+  are as set; the crest is ahead of *Thick X*.
+
+On the 5% diamond with a radius of 0.005, Crest leaves the crest at 0.5 and turns the forward sides from a half-angle
+of 2.86 to 2.31 degrees; Angle keeps 2.86 degrees and moves the crest to 0.405, and the aft half-angle falls to 2.41
+degrees.  A thicker section or a smaller radius changes much less.
+
+![Figure 5. Rounded leading edge](images/Airfoils_leradius.png "Figure 5. Rounded leading edge")
+
+*Figure 5. The 5% wedge and biconvex with a leading edge radius of 0.005, keeping the crest and keeping the angle,
+at true scale; dashed, sharp.*
+
+![Figure 6. Rounded noses](images/Airfoils_lenose.png "Figure 6. Rounded noses")
+
+*Figure 6. The noses of Figure 5 close up: the forward surfaces meet the circle, whose front is the leading edge.
+Keeping the crest, they turn about the crest; keeping the angle, they keep the sharp sides' shape, moved forward.*
+
+Use Crest when the section is defined by its thickness and where it is thickest, as for structural depth or a section
+given that way, such as DATCOM's; use Angle when the slope of the forward surfaces matters most, as for the strength
+of the shock on a supersonic section's forward faces.
+
+The circle is centered on the chord line, and each side must climb from the circle to its crest, so *LE Rad/C* can be
+no more than about the height of the lower crest above or below the chord line, and is held to that as the other
+controls change.  A side with no height, as with Up Frac 0 or 1, cannot be rounded, and *LE Rad/C* stays 0.  On a
+wedge, the corners keep their U values: the circle takes a share of the curve's parameter between each first corner
+and the leading edge in proportion to its length.
+
+The Modify tab's leading edge [trim](#trim) and round [cap](#caps) also blunt a leading edge, but leave the section
+shorter than its chord and the cap is not a circle of a given radius.  *LE Rad/C* is the way to round these sections.
+Between two propeller sections it is blended like the other controls.
 
 ### Airfoil File
 
@@ -182,25 +242,25 @@ share one leading edge radius.  *Promote* raises a surface's degree without chan
 coefficients to work with; *Demote* lowers it and approximates the shape.  The trailing edge is sharp; use the Modify
 tab to thicken it.  *T/C* is an output.
 
-CST airfoils are smooth and have few parameters, which suits them to optimization (Figure 5).  *Fit CST* on the other
+CST airfoils are smooth and have few parameters, which suits them to optimization (Figure 7).  *Fit CST* on the other
 families converts an airfoil to one.
 
-![Figure 5. CST controls](images/Airfoils_gui_cst.png "Figure 5. CST controls")
+![Figure 7. CST controls](images/Airfoils_gui_cst.png "Figure 7. CST controls")
 
-*Figure 5. NACA 2412 as a CST airfoil of degree 5 on each surface, on the Airfoil tab of a Wing.  Each list of
+*Figure 7. NACA 2412 as a CST airfoil of degree 5 on each surface, on the Airfoil tab of a Wing.  Each list of
 coefficients scrolls; Al_0 is greyed because Enforce Continuous LE Radius sets it from Au_0, and T/C is shown, not
 set.*
 
 ### Karman-Trefftz
 
-KARMAN_TREFFTZ.  The conformal map of a circle, from potential flow theory (Figure 6).  *Epsilon* moves the circle's
+KARMAN_TREFFTZ.  The conformal map of a circle, from potential flow theory (Figure 8).  *Epsilon* moves the circle's
 center to thicken the airfoil, *Kappa* moves it up to camber it, and *Tau* is the trailing edge angle in degrees; 0
 gives a cusp.  The chord is scaled to *Chord*, and *T/C* is an output.  The pressure distribution of these airfoils is
 known exactly, which makes them useful test cases; the API's `GetVKTAirfoilCpDist` gives it.
 
-![Figure 6. Karman-Trefftz](images/Airfoils_vkt.png "Figure 6. Karman-Trefftz")
+![Figure 8. Karman-Trefftz](images/Airfoils_vkt.png "Figure 8. Karman-Trefftz")
 
-*Figure 6. Karman-Trefftz airfoils: Epsilon, Kappa and Tau each varied from the defaults, Epsilon 0.1, Kappa 0.1 and
+*Figure 8. Karman-Trefftz airfoils: Epsilon, Kappa and Tau each varied from the defaults, Epsilon 0.1, Kappa 0.1 and
 Tau 10.*
 
 ## The Modify Tab
@@ -229,78 +289,78 @@ proportion along the span.
 
 *Theta* turns the section about its leading edge, positive moving the trailing edge up, toward $+Z$ on a wing.
 *Scale* scales it about its leading edge.  *Delta X/C* and *Delta Y/C* then move it along and across the chord, in
-chords (Figure 7).
+chords (Figure 9).
 
-![Figure 7. Shift, rotate and scale](images/Airfoils_srs.png "Figure 7. Shift, rotate and scale")
+![Figure 9. Shift, rotate and scale](images/Airfoils_srs.png "Figure 9. Shift, rotate and scale")
 
-*Figure 7. NACA 2412 turned by Theta, moved by Delta X/C and Delta Y/C, and scaled; dashed, before.  The dot is the
+*Figure 9. NACA 2412 turned by Theta, moved by Delta X/C and Delta Y/C, and scaled; dashed, before.  The dot is the
 leading edge before.*
 
 *Shift LE* changes where the curve's leading edge falls, not the shape: the point halfway round the curve moves onto
-the upper surface for positive values and the lower surface for negative ones (Figure 8).  The surface's leading edge
+the upper surface for positive values and the lower surface for negative ones (Figure 10).  The surface's leading edge
 line, where the wing's upper and lower surfaces meet in its parameters, moves with it.  It is for airfoils whose
 geometric leading edge is not where their curve puts it, such as a drooped or turned airfoil.
 
-![Figure 8. Shift LE](images/Airfoils_shiftle.png "Figure 8. Shift LE")
+![Figure 10. Shift LE](images/Airfoils_shiftle.png "Figure 10. Shift LE")
 
-*Figure 8. The point halfway round NACA 2412's curve, with three values of Shift LE.*
+*Figure 10. The point halfway round NACA 2412's curve, with three values of Shift LE.*
 
 ## Closure
 
 A closure shears one or both surfaces so that an edge becomes a flat face of thickness *T*: it opens a sharp edge, or,
 with T 0, closes a blunt one.
 
-At the trailing edge (Figure 9), *SKEW LOWER* shears the lower surface, *SKEW UPPER* the upper, and *SKEW BOTH* each
+At the trailing edge (Figure 11), *SKEW LOWER* shears the lower surface, *SKEW UPPER* the upper, and *SKEW BOTH* each
 by half; each shears the surface across the chord, so the change grows linearly from nothing at the leading edge.
 *EXTRAPOLATE* instead extends both surfaces along their directions at the trailing edge until they are T apart; it
 lengthens the airfoil without changing anything ahead of the old trailing edge, and acts only where the two surfaces
 converge.  It is the way to close a blunt trailing edge to a point.
 
-![Figure 9. Trailing edge closure](images/Airfoils_teclose.png "Figure 9. Trailing edge closure")
+![Figure 11. Trailing edge closure](images/Airfoils_teclose.png "Figure 11. Trailing edge closure")
 
-*Figure 9. Trailing edge closures on NACA 2412, aft part; dashed, before.  EXTRAPOLATE is shown on the same airfoil
+*Figure 11. Trailing edge closures on NACA 2412, aft part; dashed, before.  EXTRAPOLATE is shown on the same airfoil
 already cut off where it is 0.03 thick, closed to T 0.*
 
-At the leading edge (Figure 10) the shear grows from nothing at the trailing edge instead, and opens the leading edge
+At the leading edge (Figure 12) the shear grows from nothing at the trailing edge instead, and opens the leading edge
 into a flat face T high.
 
-![Figure 10. Leading edge closure](images/Airfoils_leclose.png "Figure 10. Leading edge closure")
+![Figure 12. Leading edge closure](images/Airfoils_leclose.png "Figure 12. Leading edge closure")
 
-*Figure 10. Leading edge closures on NACA 2412, forward part; dashed, before.*
+*Figure 12. Leading edge closures on NACA 2412, forward part; dashed, before.*
 
 ## Trim
 
-A trim cuts an edge off, leaving a flat face (Figure 11).  *X* cuts at the points that distance from the edge, *THICK*
+A trim cuts an edge off, leaving a flat face (Figure 13).  *X* cuts at the points that distance from the edge, *THICK*
 where the airfoil is T thick.  The chord parameter does not change, so a trimmed airfoil is shorter than its chord.
 
-![Figure 11. Trim](images/Airfoils_trim.png "Figure 11. Trim")
+![Figure 13. Trim](images/Airfoils_trim.png "Figure 13. Trim")
 
-*Figure 11. Trailing and leading edge trims on NACA 2412; dashed, before.*
+*Figure 13. Trailing and leading edge trims on NACA 2412; dashed, before.*
 
 ## Plain Flap
 
-*PLAIN* deflects the aft part of the airfoil as a plain flap (Figure 12).  The hinge is *X* from the trailing edge
+*PLAIN* deflects the aft part of the airfoil as a plain flap (Figure 14).  The hinge is *X* from the trailing edge
 (the flap's chord, Abs or Rel) and *Y/T* of the way across the airfoil there, from the lower surface at 0 to the upper
 at 1.  *Deflection* is in degrees, positive trailing edge down.  The side toward which the flap turns gets a sharp
 corner, and the other side an arc about the hinge, so the surface stays closed.
 
 The flap works on a Wing, a Propeller and a Body of Revolution.
 
-![Figure 12. Plain flap](images/Airfoils_flap.png "Figure 12. Plain flap")
+![Figure 14. Plain flap](images/Airfoils_flap.png "Figure 14. Plain flap")
 
-*Figure 12. A plain flap of X/C 0.25 and Y/T 0.5 on NACA 2412, deflected 20 degrees each way; dashed, undeflected.*
+*Figure 14. A plain flap of X/C 0.25 and Y/T 0.5 on NACA 2412, deflected 20 degrees each way; dashed, undeflected.*
 
 ## Caps
 
 A cap shapes the flat face of a blunt edge, whether it comes from the airfoil itself, a closure or a trim
-(Figure 13).  *FLAT* leaves the face flat.  *ROUND* replaces it with an arc tangent to both surfaces.  *EDGE* replaces
+(Figure 15).  *FLAT* leaves the face flat.  *ROUND* replaces it with an arc tangent to both surfaces.  *EDGE* replaces
 it with two straight lines that meet in a point, and *SHARP* with two curves that meet in a point.
 
-![Figure 13. Caps](images/Airfoils_caps.png "Figure 13. Caps")
+![Figure 15. Caps](images/Airfoils_caps.png "Figure 15. Caps")
 
-*Figure 13. Trailing edge caps on NACA 2412 cut off where it is 0.04 thick; dashed, the flat face.*
+*Figure 15. Trailing edge caps on NACA 2412 cut off where it is 0.04 thick; dashed, the flat face.*
 
-Three parameters adjust a cap (Figure 14):
+Three parameters adjust a cap (Figure 16):
 
 - *Length* stretches it along the chord: 1 is a circular arc for ROUND, and for EDGE and SHARP puts the point half the
   face's height beyond it.
@@ -308,9 +368,9 @@ Three parameters adjust a cap (Figure 14):
   trailing edge and toward the lower surface at the leading edge.
 - *Strength*, for SHARP only, sets how full the two curves are: 0 makes them straight, like EDGE, and 1 fullest.
 
-![Figure 14. Cap parameters](images/Airfoils_capparms.png "Figure 14. Cap parameters")
+![Figure 16. Cap parameters](images/Airfoils_capparms.png "Figure 16. Cap parameters")
 
-*Figure 14. ROUND with three Lengths and three Offsets, and SHARP at Length 2 with three Strengths, on the same
+*Figure 16. ROUND with three Lengths and three Offsets, and SHARP at Length 2 with three Strengths, on the same
 trailing edge.*
 
 ## Scripting
@@ -343,3 +403,6 @@ The Modify tab's parameters are found by name with `GetXSecParm`: `Theta`, `Scal
 The flap's Y/T and Deflection are `TE_Flap_Y_Frc` and `TE_Flap_Deflection` (Flap), and a cap's Length, Offset and
 Strength are `TE_Cap_Length`, `TE_Cap_Offset` and `TE_Cap_Strength` (Cap).  The leading edge has the same names with
 `LE_` in place of `TE_`, except for the flap.
+
+A biconvex or wedge airfoil's rounded leading edge is `LERadius`, the radius over the chord, and `LERadiusType`, with
+`LE_RADIUS_KEEP_CREST` or `LE_RADIUS_KEEP_ANGLE`.

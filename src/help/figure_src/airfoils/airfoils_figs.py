@@ -413,9 +413,70 @@ def flap():
     xf.save( fig, "Airfoils_flap", rows, hmax = 4.2 )
 
 
+# A 5% section with its leading edge rounded to a radius of 0.005 chords, keeping its crest or its angle.
+LE_SHAPES = ( ( "Wedge", vsp.XS_WEDGE ), ( "Biconvex", vsp.XS_BICONVEX ) )
+LE_KEEPS = ( ( "Keep Crest", vsp.LE_RADIUS_KEEP_CREST ), ( "Keep Angle", vsp.LE_RADIUS_KEEP_ANGLE ) )
+
+
+def le_section( shape, keep, r = 0.005 ):
+    return xf.wing_section( shape, { "ThickChord": 0.05, "LERadiusType": keep, "LERadius": r } )
+
+
+def crest( P, f ):
+    """The upper surface's highest point, the first of a flat."""
+    up = f >= 0.5
+    i = np.flatnonzero( up )[ int( np.argmax( P[ up, 1 ] ) ) ]
+    return P[ i ]
+
+
+def leradius():
+    """Each kind of rounding over the whole chord, at true scale: where the crest goes."""
+    fig = xf.new()
+    rows = []
+    for name, shape in LE_SHAPES:
+        sharp, fs, xs = xf.wing_section( shape, { "ThickChord": 0.05 } )
+        for keep_name, keep in LE_KEEPS:
+            P, f, xs = le_section( shape, keep )
+            c = xf.canvas( fig )
+            ghost( c, sharp )
+            xf.curve( c, P )
+            q = crest( P, f )
+            xf.dot( c, q, color = MARK, ms = 4.0 )
+            xf.label( c, q, "crest at %.3f" % q[0], dx = 8, dy = 8, ha = "left", color = MARK )
+            frame( c, [ 0, -0.03 ], [ 1, 0.045 ] )
+            xf.title( c, "%s, %s" % ( name, keep_name ), pad = 2 )
+            rows.append( [ c ] )
+    xf.key_side( rows[ -1 ][ 0 ], at = ( 0.0, 0.0 ), dx = -14, dy = -20 )
+    xf.save( fig, "Airfoils_leradius", rows, hmax = 6.0 )
+
+
+def lenose():
+    """Each kind of rounding close up: the nose circle and how the forward surface meets it."""
+    lo = [ -0.004, -0.03 ]
+    hi = [ 0.16, 0.03 ]
+    fig = xf.new()
+    rows = []
+    for name, shape in LE_SHAPES:
+        sharp, fs, xs = xf.wing_section( shape, { "ThickChord": 0.05 } )
+        row = []
+        for keep_name, keep in LE_KEEPS:
+            P, f, xs = le_section( shape, keep )
+            c = xf.canvas( fig )
+            ghost( c, sharp, lo, hi )
+            draw( c, P, lo, hi )
+            xf.dot( c, [ 0.005, 0.0 ], color = MARK, ms = 3.0 )
+            xf.label( c, [ 0.005, 0.0 ], "circle center", dx = 4, dy = -22, ha = "left", color = MARK )
+            frame( c, lo, hi )
+            xf.title( c, "%s, %s" % ( name, keep_name ), pad = 2 )
+            row.append( c )
+        rows.append( row )
+    xf.key_side( rows[ -1 ][ 0 ], at = ( 0.0, 0.0 ), dx = -14, dy = -20 )
+    xf.save( fig, "Airfoils_lenose", rows, hmax = 4.0 )
+
+
 FIGS = { "param": param, "families": families, "fourmod": four_mod, "wedge": wedge, "vkt": vkt, "srs": srs,
          "shiftle": shiftle, "teclose": teclose, "leclose": leclose, "trim": trim, "caps": caps,
-         "capparms": capparms, "flap": flap }
+         "capparms": capparms, "flap": flap, "leradius": leradius, "lenose": lenose }
 
 if __name__ == "__main__":
     xf.style()

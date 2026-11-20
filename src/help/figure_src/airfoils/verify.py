@@ -148,6 +148,53 @@ check( abs( base - 0.12 ) < 3e-3, "File airfoil: Base T/C is the file's thicknes
 check( abs( ( mid_u.z() - mid_l.z() ) / c - 2 * 2 * np.interp( mid_u.x() / c, xx, th ) ) < 0.02,
        "File airfoil: doubling T/C doubles the thickness" )
 
+# Rounded leading edge: a 5% diamond with a radius of 0.005.
+def upper_crest( P, f ):
+    up = f >= 0.5
+    i = np.flatnonzero( up )[ int( np.argmax( P[ up, 1 ] ) ) ]
+    return P[ i ]
+
+
+def half_angle( P, f, x0, x1 ):
+    up = ( f >= 0.5 ) & ( P[ :, 0 ] > x0 ) & ( P[ :, 0 ] < x1 )
+    k = np.polyfit( P[ up, 0 ], P[ up, 1 ], 1 )[ 0 ]
+    return math.degrees( math.atan( abs( k ) ) )
+
+
+LE = { "ThickChord": 0.05 }
+S, fs, xs = wing( LE, shape = vsp.XS_WEDGE )
+check( abs( half_angle( S, fs, 0.1, 0.4 ) - 2.862 ) < 0.005, "Sharp 5% diamond: half-angle 2.86 degrees" )
+for shape in ( vsp.XS_WEDGE, vsp.XS_BICONVEX ):
+    for keep in ( vsp.LE_RADIUS_KEEP_CREST, vsp.LE_RADIUS_KEEP_ANGLE ):
+        P, f, xs = wing( dict( LE, LERadiusType = keep, LERadius = 0.005 ), shape = shape )
+        front = P[ int( np.argmin( P[ :, 0 ] ) ) ]
+        near = P[ P[ :, 0 ] < 0.0025 ]
+        rad = np.linalg.norm( near - [ 0.005, 0.0 ], axis = 1 )
+        check( abs( front[ 0 ] ) < 1e-6 and abs( front[ 1 ] ) < 2e-4 and abs( P[ :, 0 ].max() - 1.0 ) < 1e-9
+               and np.allclose( xf.at( P, f, 0.5 ), [ 0, 0 ], atol = 1e-9 ) and np.all( abs( rad - 0.005 ) < 3e-6 ),
+               "Rounded (%d, keep %d): runs 0 to 1, leading edge at the origin, nose a circle of radius 0.005" % ( shape, keep ) )
+
+P, f, xs = wing( dict( LE, LERadius = 0.005 ), shape = vsp.XS_WEDGE )
+c = upper_crest( P, f )
+check( abs( c[ 0 ] - 0.5 ) < 2e-3 and abs( c[ 1 ] - 0.025 ) < 1e-7 and abs( half_angle( P, f, 0.15, 0.45 ) - 2.31 ) < 0.01,
+       "Keep Crest is the default: crest at 0.5, forward half-angle %.3f (page 2.31)" % half_angle( P, f, 0.15, 0.45 ) )
+check( xf.gp( xs, "LERadiusType" ) == vsp.LE_RADIUS_KEEP_CREST,
+       "LERadiusType defaults to LE_RADIUS_KEEP_CREST" )
+P, f, xs = wing( dict( LE, LERadiusType = vsp.LE_RADIUS_KEEP_ANGLE, LERadius = 0.005 ), shape = vsp.XS_WEDGE )
+c = upper_crest( P, f )
+fa = half_angle( P, f, 0.1, 0.38 )
+aa = half_angle( P, f, 0.45, 0.95 )
+check( abs( c[ 0 ] - 0.405 ) < 2e-3 and abs( fa - 2.862 ) < 0.005 and abs( aa - 2.41 ) < 0.01,
+       "Keep Angle: crest at %.3f (page 0.405), forward %.3f (2.86), aft %.3f (2.41)" % ( c[ 0 ], fa, aa ) )
+sharp_t = 0.005 / math.tan( math.atan( 0.025 / 0.5 ) )
+check( abs( sharp_t - 0.1 ) < 0.002, "The sides of the sharp diamond meet the circle a tenth of the chord back (%.4f)" % sharp_t )
+P, f, xs = wing( dict( LE, ThickFracUp = 1.0, LERadius = 0.005 ), shape = vsp.XS_BICONVEX )
+check( xf.gp( xs, "LERadius" ) == 0.0, "Up Frac 1: LE Rad/C stays 0" )
+P, f, xs = wing( dict( LE, LERadius = 0.5 ), shape = vsp.XS_WEDGE )
+check( 0.024 < xf.gp( xs, "LERadius" ) <= 0.0251, "LE Rad/C is held to about the crest's height (%.4f)" % xf.gp( xs, "LERadius" ) )
+P, f, xs = wing( dict( LE, LERadius = 0.005 ), shape = vsp.XS_WEDGE )
+check( np.allclose( xf.at( P, f, 0.75 ), [ 0.5, 0.025 ], atol = 1e-3 ), "Rounded wedge: the upper corner keeps U Fwd Up 0.75" )
+
 vsp.VSPRenew()
 p = vsp.AddGeom( "PROP" )
 s = vsp.GetXSecSurf( p, 0 )
