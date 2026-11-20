@@ -62,3 +62,44 @@ def testAParmIsUsedOnceInALink():
     vsp.AddAdvLinkInput( 1, length, "len" )
     vsp.AddAdvLinkOutput( 1, x_pos, "x" )
     assert_no_errors()
+
+
+def testALinkReadWithARepeatedParmKeepsTheFirstUse( tmp_path ):
+    """A file whose link uses a Parm twice reads with the later uses dropped, their names
+    renamed in the code to the kept variable, and an error raised."""
+    vsp.VSPRenew()
+    vsp.DelAllAdvLinks()
+    pod = vsp.AddGeom( "POD" )
+    length = vsp.FindParm( pod, "Length", "Design" )
+    x_pos = vsp.GetParm( pod, "X_Rel_Location", "XForm" )
+    vsp.AddAdvLink( "A" )
+    vsp.AddAdvLinkInput( 0, length, "len" )
+    vsp.AddAdvLinkOutput( 0, x_pos, "x" )
+    vsp.SetAdvLinkCode( 0, "x = len2*len2 + len3 * 0.0 + 1.0;" )
+    fname = str( tmp_path / "repeated_parm.vsp3" )
+    vsp.WriteVSPFile( fname )
+    drop_errors()
+
+    # Add the Parm again, once as an input and once as an output.
+    with open( fname ) as f:
+        xml = f.read()
+    tag = '<VarDef Name="len" ParmID="%s"/>' % length
+    assert xml.count( tag ) == 1, "the saved file does not hold the input as expected"
+    xml = xml.replace( tag, tag + '<VarDef Name="len2" ParmID="%s"/>' % length )
+    xml = xml.replace( '<VarDef Name="x" ParmID="%s"/>' % x_pos,
+                       '<VarDef Name="x" ParmID="%s"/><VarDef Name="len3" ParmID="%s"/>' % ( x_pos, length ) )
+    with open( fname, "w" ) as f:
+        f.write( xml )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( fname )
+    errs = pop_errors()
+    assert len( [ e for e in errs if "more than once" in e ] ) == 2, errs
+    assert list( vsp.GetAdvLinkInputNames( 0 ) ) == [ "len" ]
+    assert list( vsp.GetAdvLinkOutputNames( 0 ) ) == [ "x" ]
+    assert vsp.GetAdvLinkCode( 0 ) == "x = len*len + len * 0.0 + 1.0;", vsp.GetAdvLinkCode( 0 )
+
+    # The link still works.
+    vsp.SetParmVal( length, 7.0 )
+    vsp.Update()
+    assert abs( vsp.GetParmVal( x_pos ) - 50.0 ) < 1e-9, vsp.GetParmVal( x_pos )

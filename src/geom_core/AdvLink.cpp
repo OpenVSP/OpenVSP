@@ -734,6 +734,8 @@ xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
             m_OutputVars[i].DecodeXml( var_def_node );
         }
 
+        DropRepeatedParms();
+
         //==== Attribute Data ====//
         m_AdvLinkAttrCollection.DecodeXml( adv_link_node );
 
@@ -768,6 +770,73 @@ bool AdvLink::ReadCode( const string & file_name )
         return true;
     }
     return false;
+}
+
+// The variable that uses parm_id, or nullptr.
+static const VarDef* FindParmUse( const vector < VarDef > & vars, const string & parm_id )
+{
+    for ( int i = 0 ; i < (int)vars.size() ; i++ )
+    {
+        if ( vars[i].m_ParmID == parm_id )
+        {
+            return &vars[i];
+        }
+    }
+    return nullptr;
+}
+
+// Keeps the first use of each Parm, inputs before outputs, and drops the later ones.  The
+// code's uses of a dropped variable are renamed to the variable that keeps its Parm.
+void AdvLink::DropRepeatedParms()
+{
+    MessageData errMsgData;
+    errMsgData.m_String = "Error";
+
+    vector < VarDef > used;
+    vector < VarDef > input_vars;
+    vector < VarDef > output_vars;
+    int nin = (int)m_InputVars.size();
+    for ( int i = 0 ; i < nin + (int)m_OutputVars.size() ; i++ )
+    {
+        VarDef vd;
+        if ( i < nin )
+        {
+            vd = m_InputVars[i];
+        }
+        else
+        {
+            vd = m_OutputVars[i - nin];
+        }
+
+        const VarDef* first = FindParmUse( used, vd.m_ParmID );
+        if ( first )
+        {
+            errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_ID );
+            char buf[512];
+            snprintf( buf, sizeof( buf ), "Error: Advanced Link %s uses Parm %s more than once.  Variable %s is dropped and the code uses %s in its place.\n", m_Name.c_str(), vd.m_ParmID.c_str(), vd.m_VarName.c_str(), first->m_VarName.c_str() );
+            errMsgData.m_StringVec.emplace_back( string( buf ) );
+            SearchReplaceCode( vd.m_VarName, first->m_VarName );
+        }
+        else
+        {
+            used.push_back( vd );
+            if ( i < nin )
+            {
+                input_vars.push_back( vd );
+            }
+            else
+            {
+                output_vars.push_back( vd );
+            }
+        }
+    }
+
+    if ( !errMsgData.m_IntVec.empty() )
+    {
+        m_InputVars = input_vars;
+        m_OutputVars = output_vars;
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
 }
 
 void AdvLink::SearchReplaceCode( const string & from, const string & to )

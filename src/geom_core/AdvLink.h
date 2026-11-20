@@ -106,6 +106,7 @@ public:
     bool SaveCode( const string & file_name );
     bool ReadCode( const string & file_name );
     void SearchReplaceCode( const string & from, const string & to );
+    void DropRepeatedParms();
 
     void AttachAttrCollection()
     {
