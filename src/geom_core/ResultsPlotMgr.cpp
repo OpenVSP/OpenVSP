@@ -763,6 +763,7 @@ xmlNodePtr ResultsPlot::DecodeXml( xmlNodePtr & node )
     {
         ResultsCurve* curve = new ResultsCurve();
         curve->DecodeXml( curve_nodes[i] );
+        curve->SetParentContainer( m_ID );
         m_Curves.push_back( curve );
     }
     NumberCurves();
@@ -788,6 +789,7 @@ void ResultsPlot::CopyFrom( ResultsPlot* from )
     {
         ResultsCurve* curve = new ResultsCurve();
         curve->CopyFrom( from->m_Curves[i] );
+        curve->SetParentContainer( m_ID );
         m_Curves.push_back( curve );
     }
     NumberCurves();
@@ -895,6 +897,7 @@ ResultsCurve* ResultsPlot::AddCurve( ResultsCurve* from )
 {
     ResultsCurve* curve = new ResultsCurve();
     curve->CopyFrom( from );
+    curve->SetParentContainer( m_ID );
     m_Curves.push_back( curve );
     m_EditIndex = ( int ) m_Curves.size() - 1;
     NumberCurves();
