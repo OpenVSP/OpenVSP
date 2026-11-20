@@ -1975,6 +1975,9 @@ void GroupLayout::AddPCurveEditor( PCurveEditor& curve_editor )
 
     canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y", new ResultsPlotCanvas( 0, 0, 10, 10 ) );
 
+    // The curve's name runs right from the left edge, so a long one stays in the window.
+    canvas->m_Ymain->align( Fl_Align( FL_ALIGN_TOP_LEFT ) );
+
     split_label = "r/R Split";
 
     AddY( 25 );

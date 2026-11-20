@@ -476,7 +476,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_ChordCurve.InitParms();
 
     m_TwistCurve.SetParentContainer( GetID() );
-    m_TwistCurve.SetDispNames( "r/R", "Twist" );
+    m_TwistCurve.SetDispNames( "r/R", "Twist (deg)" );
     m_TwistCurve.SetParmNames( "r", "tw" );
     m_TwistCurve.SetCurveName( "Twist" );
     m_TwistCurve.InitParms();
@@ -494,7 +494,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_SkewCurve.InitParms();
 
     m_SweepCurve.SetParentContainer( GetID() );
-    m_SweepCurve.SetDispNames( "r/R", "Sweep" );
+    m_SweepCurve.SetDispNames( "r/R", "Sweep (deg)" );
     m_SweepCurve.SetParmNames( "r", "sw" );
     m_SweepCurve.SetCurveName( "Sweep" );
     m_SweepCurve.InitParms();
@@ -518,7 +518,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_AxialCurve.InitParms();
 
     m_TangentialCurve.SetParentContainer(GetID() );
-    m_TangentialCurve.SetDispNames("r/R", "Tan/R" );
+    m_TangentialCurve.SetDispNames( "r/R", "Tangential/R" );
     m_TangentialCurve.SetParmNames("r", "tan" );
     m_TangentialCurve.SetCurveName("Tangential" );
     m_TangentialCurve.InitParms();
