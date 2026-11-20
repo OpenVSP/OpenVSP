@@ -781,11 +781,12 @@ void AdvLink::SearchReplaceCode( const string & from, const string & to )
     static const std::regex esc_chars( R"([.^$|()\[\]{}*+?\\])" );
     string from_escaped = std::regex_replace( from, esc_chars, R"(\$&)" );
 
-    // The group references are written two digits wide on purpose.  Spelled
+    // The group reference is written two digits wide on purpose.  Spelled
     // "$1", a replacement that starts with a digit is swallowed into the group
     // number: "$1" followed by "12.3" reads as group 112 then ".3", which drops
     // the leading character of the replacement along with the captured
-    // delimiter.
-    m_ScriptCode = regex_replace( m_ScriptCode, regex( "([^\\w]|^)" + from_escaped + "([^\\w]|$)" ), "$01" + to + "$02" );
+    // delimiter.  The delimiter after the name is looked ahead at, not taken,
+    // so it can also start the next match, as in "a*a".
+    m_ScriptCode = regex_replace( m_ScriptCode, regex( "([^\\w]|^)" + from_escaped + "(?=[^\\w]|$)" ), "$01" + to );
 #endif
 }
