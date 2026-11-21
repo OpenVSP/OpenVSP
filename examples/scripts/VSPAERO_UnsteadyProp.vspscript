@@ -123,12 +123,9 @@ void VSPAeroUnsteadyAnalysis()
     SetDoubleAnalysisInput( analysis_name, "MachStart", mach, 0 );
 
     // Unsteady analysis inputs
-    array< int > blades_flag;
-    blades_flag.push_back( 1 ); // True
-    SetIntAnalysisInput( analysis_name, "RotateBladesFlag", blades_flag, 0 );
-    array< int > disks_flag;
-    disks_flag.push_back( 0 ); // False
-    SetIntAnalysisInput( analysis_name, "ActuatorDiskFlag", disks_flag, 0 );
+    array< int > blades_mode;
+    blades_mode.push_back( VSPAERO_PROP_UNSTEADY ); // Rotating blades
+    SetIntAnalysisInput( analysis_name, "PropBladesMode", blades_mode, 0 );
     array< int > auto_time_flag;
     auto_time_flag.push_back( 1 ); // True - VSPAERO calculates time step size and quantity automatically
     SetIntAnalysisInput( analysis_name, "AutoTimeStepFlag", auto_time_flag, 0 );
@@ -160,7 +157,7 @@ void VSPAeroUnsteadyAnalysis()
     array<double> FOM = GetDoubleResults( rotor_res, "FOM", 0 );
     array<double> Thrust = GetDoubleResults( rotor_res, "Thrust", 0 );
 
-    array<double> CMx = GetDoubleResults( history_res, "CMx", 0 );
+    array<double> CMx = GetDoubleResults( history_res, "CMxtot", 0 );
 	
 	//==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
