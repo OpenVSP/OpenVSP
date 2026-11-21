@@ -155,10 +155,6 @@ void NewFEAMeshAnalysisExample( string struct_id )
 
     SetAnalysisInputDefaults( analysis_name );
 	
-    array < double > relCurveTolNums;
-	relCurveTolNums.push_back( 0.01 );
-    SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
-	
     array < double > sTEPTolNums;
 	sTEPTolNums.push_back( 1e-06 );
     SetDoubleAnalysisInput( analysis_name, "STEPTol", sTEPTolNums, 0 );
