@@ -2790,7 +2790,7 @@ extern void ComputeDegenGeom( int set, int file_export_types );
     \ingroup CFDMesh
 */
 /*!
-    Create a CFD Mesh for the components in the set. This analysis cannot be run through the Analysis Manager. When the CFD Mesh UseMode flag is on, the sets of its mode replace set and degenset.
+    Create a CFD Mesh for the components in the set. This function is deprecated: it is kept so that existing scripts still work, but new scripts should run the Analysis Manager's 'CfdMeshAnalysis' instead. When the CFD Mesh UseMode flag is on, the sets of its mode replace set and degenset.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -2854,7 +2854,7 @@ extern void ComputeDegenGeom( int set, int file_export_types );
     DeleteGeom( mesh_id )
     \endcode
     \endPythonOnly
-    \sa COMPUTATION_FILE_TYPE
+    \sa SetAnalysisInputDefaults, PrintAnalysisInputs, ExecAnalysis, COMPUTATION_FILE_TYPE
     \param [in] set int Set index (i.e. SET_ALL)
     \param [in] degenset int DegenSet index (i.e. SET_NONE)
     \param [in] file_export_types int CFD Mesh file type to export (supports XOR i.e CFD_SRF_TYPE & CFD_STL_TYPE)
