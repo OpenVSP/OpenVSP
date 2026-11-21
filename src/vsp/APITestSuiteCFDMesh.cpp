@@ -11,6 +11,7 @@
 #include "APIErrorMgr.h"
 #include "APITestSuiteCFDMesh.h"
 #include "APIDefines.h"
+#include "CfdMeshMgr.h"
 
 #include<fstream>
 
@@ -476,4 +477,27 @@ void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "COMPLETE\n" );
 
+}
+// What the CFD Mesh screen draws before a run comes from the settings as they are: the Sets
+// whose sources and wakes are shown, and the far field box.
+void APITestSuiteCFDMesh::ThePreviewsFollowTheSettings()
+{
+    printf( "APITestSuiteCFDMesh::ThePreviewsFollowTheSettings()\n" );
+    vsp::VSPRenew();
+
+    vsp::AddGeom( "POD" );
+    vsp::Update();
+
+    string settings = vsp::FindContainer( "CFDMeshSettings", 0 );
+    vsp::SetParmVal( vsp::FindParm( settings, "Set", "Global" ), vsp::SET_NOT_SHOWN );
+    vsp::SetParmVal( vsp::FindParm( settings, "FarMesh", "FarField" ), 1.0 );
+    vsp::SetParmVal( vsp::FindParm( settings, "FarXScale", "FarField" ), 3.0 );
+
+    CfdMeshMgr.Update();
+
+    TEST_ASSERT( CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex == vsp::SET_NOT_SHOWN );
+    TEST_ASSERT( CfdMeshMgr.GetCfdSettingsPtr()->m_FarMeshFlag );
+    TEST_ASSERT_DELTA( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale, 3.0, 1e-12 );
+
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
 }

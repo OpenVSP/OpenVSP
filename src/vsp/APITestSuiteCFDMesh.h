@@ -23,6 +23,7 @@ public:
         TEST_ADD( APITestSuiteCFDMesh::TestSurfaceIntersection )
         TEST_ADD( APITestSuiteCFDMesh::CFDMeshAnalysisTest)
         TEST_ADD( APITestSuiteCFDMesh::FEAMeshAnalysisTest)
+        TEST_ADD( APITestSuiteCFDMesh::ThePreviewsFollowTheSettings )
     }
 
 private:
@@ -34,6 +35,7 @@ private:
     void RunScaleTest( double scale_value, double test_compare_percent );
     void CFDMeshAnalysisTest();
     void FEAMeshAnalysisTest();
+    void ThePreviewsFollowTheSettings();
 };
 
 #endif // !defined(VSPAPITESTSUITECFDMESH__INCLUDED_)

@@ -577,6 +577,8 @@ void CfdMeshMgrSingleton::Update()
     // sources and wakes only need building again when what they are built from has changed
     if ( !GetMeshInProgress() )
     {
+        UpdateModelSettings();
+
         string state = SourcesAndWakesState();
         if ( state != m_SourcesAndWakesState )
         {
@@ -584,10 +586,6 @@ void CfdMeshMgrSingleton::Update()
             UpdateSourcesAndWakes();
         }
     }
-
-    UpdateDomain();
-
-    m_Vehicle->GetCfdGridDensityPtr()->Update( 1.0 );
 }
 
 void CfdMeshMgrSingleton::UpdateModelSettings()
