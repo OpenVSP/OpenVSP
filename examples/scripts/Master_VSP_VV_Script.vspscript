@@ -1348,7 +1348,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='HAdv'>Advanced Settings Study</h2>\n") );
                 
-                text = string("In this study, the various advanced VSPAERO settings are investigated and compared for the Hershey Bar wing. The settings of interest are the preconditioner and 2nd order Karman-Tsien Mach Correction. The three types of preconditioners available are matrix, Jacobi, and symmetric successive over-relaxation (SSOR). For each VSPAERO run case, only a single advanced setting is varied at a time while all others are left at their default value. The last column of the VSPAERO setup table displays the VSPAERO computation time for each case. The lift distribution is plotted for each case and compared to the theoretical lift distribution determined by Glauert's method. This process is repeated for one, two, and three wake iterations.");
+                text = string("In this study, VSPAERO is run on the Hershey Bar wing with its default advanced settings. The last column of the VSPAERO setup table displays the VSPAERO computation time for each case. The lift distribution is plotted for each case and compared to the theoretical lift distribution determined by Glauert's method. This process is repeated for one, two, and three wake iterations.");
                 
                 WriteParagraph( text );
                 
@@ -1390,7 +1390,7 @@ class HTML
                     fid.writeString( string("\t\t<div>\n") );
                     
                     HTMLTable t2 = HTMLTable(); // Initialize Table
-                    head_str.resize(10);
+                    head_str.resize(8);
                     head_str[0] = string("Case #");
                     head_str[1] = string("Analysis");
                     head_str[2] = string("Method");
@@ -1398,17 +1398,15 @@ class HTML
                     head_str[4] = string("\\(\\beta\\) (°)");
                     head_str[5] = string("M");
                     head_str[6] = string("Wake Iterations");
-                    head_str[7] = string("Preconditioner");
-                    head_str[8] = string("Mach Correction");
-                    head_str[9] = string("Exe Time (sec)");
+                    head_str[7] = string("Exe Time (sec)");
                     t2.m_HeaderStringVec = head_str;
 
-                    const uint8 num_case = 2; // Number of advanced VSPAERO settings to test
+                    const uint8 num_case = 1; // Number of advanced VSPAERO settings to test
 
                     data_mat.resize(num_case);
                     for ( uint8 i = 0; i < num_case; i++ )
                     {
-                        data_mat[i].resize(10);
+                        data_mat[i].resize(8);
                         
                         if ( i == 0 )
                         {
@@ -1426,16 +1424,7 @@ class HTML
                         data_mat[i][5] = m_hvv.m_MachVec[0];
                         data_mat[i][6] = m_hvv.m_AdvancedWakeVec[w];
                         
-                        if ( i == 1 )
-                        {
-                            data_mat[i][8] = string("On");
-                        }
-                        else
-                        {
-                            data_mat[i][8] = string("Off");
-                        }
-                        
-                        data_mat[i][9] = m_hvv.m_AdvancedTimeVec[w][i];
+                        data_mat[i][7] = m_hvv.m_AdvancedTimeVec[w][i];
                     }
                     
                     t2.m_TableDataMat = data_mat;
@@ -4286,7 +4275,7 @@ class HersheyVV : VV_Base
         const uint8 x = 2; // AR
         const uint8 t = 2; // Tip Clustering
         
-        const uint8 num_case = 2; // Number of advanced VSPAERO settings to test
+        const uint8 num_case = 1; // Number of advanced VSPAERO settings to test
         const uint8 num_wake = uint8(m_AdvancedWakeVec.length());
 
         m_AdvancedTimeVec.resize(num_wake);
@@ -4354,13 +4343,7 @@ class HersheyVV : VV_Base
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", wake_vec, 0);
                 SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
-                // if i == 0 -> use default advanced settings
-                
-                if ( i == 1 )
-                {
-                    array<int> KTCorrect_vec(1, 0); // 2nd Orrder Mach Correction On
-                    SetIntAnalysisInput(m_VSPSweepAnalysis, "KTCorrection", KTCorrect_vec, 0);
-                }
+                // i == 0 -> use default advanced settings
                 
                 Update();
 

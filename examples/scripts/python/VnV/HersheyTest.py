@@ -77,7 +77,7 @@ class HersheyTest:
         self.Vinf = 100
 
         # Number of cases in Advanced tests.
-        self.num_case = 2
+        self.num_case = 1
         
         #Data for CLvA chart
         self.alpha_vlm = [[] for i in range(len(self.m_halfAR))]
@@ -1692,11 +1692,7 @@ class HersheyTest:
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', wake_vec, 0)
                 vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
-                # if i == 0 -> use default advanced settings
-                
-                if ( i == 1 ):
-                    KTCorrect_vec=[0] # 2nd Orrder Mach Correction On
-                    vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'KTCorrection', KTCorrect_vec, 0)
+                # i == 0 -> use default advanced settings
                 
                 
                 vsp.Update()
