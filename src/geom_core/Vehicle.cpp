@@ -6408,22 +6408,38 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
         {
             int num_surf = geom_vec[i]->GetNumTotalSurfs();
 
-            const vector<VspSurf> *surf_vec_ptr = nullptr;
-
             if ( innormalset )
             {
-                surf_vec_ptr = geom_vec[i]->GetSurfVecPtr();
+                const vector<VspSurf> *surf_vec_ptr = geom_vec[i]->GetSurfVecPtr();
+
+                for ( int j = 0; j < num_surf; j++ )
+                {
+                    tasks.push_back( MakeXFerSurfTask( geom_vec[i], &( *surf_vec_ptr )[j], j, icomp, n_ref ) );
+                    icomp++;
+                }
             }
             else // indegenset
             {
                 degen_surfs.push_back( geom_vec[i]->GetDegenSurfVec() );
-                surf_vec_ptr = &degen_surfs.back();
-            }
+                const vector<VspSurf> &degen_vec = degen_surfs.back();
 
-            for ( int j = 0; j < num_surf; j++ )
-            {
-                tasks.push_back( MakeXFerSurfTask( geom_vec[i], &( *surf_vec_ptr )[j], j, icomp, n_ref ) );
-                icomp++;
+                // A wing surface gives one camber surface; any other surface gives two plates, in turn.
+                int idegen = 0;
+                for ( int j = 0; j < num_surf; j++ )
+                {
+                    int nplate = 2;
+                    if ( geom_vec[i]->GetSurfPtr( j )->GetSurfType() == vsp::WING_SURF )
+                    {
+                        nplate = 1;
+                    }
+
+                    for ( int k = 0; k < nplate; k++ )
+                    {
+                        tasks.push_back( MakeXFerSurfTask( geom_vec[i], &degen_vec[idegen], j, icomp, n_ref ) );
+                        idegen++;
+                        icomp++;
+                    }
+                }
             }
         }
     }
