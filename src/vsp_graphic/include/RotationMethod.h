@@ -62,6 +62,43 @@ private:
 };
 
 /*!
+* Bell's trackball, as in SGI's tools, measured from the press.  The mouse is mapped onto a
+* sphere whose radius is half the smaller viewport dimension, about the viewport center,
+* out to 1 / sqrt(2) of that radius, and beyond it onto a sheet that falls off as 1 / r,
+* joined to the sphere with the same height and slope.  Near the center a drag turns the
+* view as OpenVSP's classic ball does at the same speed; farther out a drag turns it less
+* and less.  Each drag turns by the angle between the press and current points, times the
+* speed, about their common normal, so a drag that returns to where it started restores
+* the view.  Every point lies in front of the sphere's center, so the axis is always
+* defined and no drag is restarted.  If something else turns the view during a drag, the
+* drag continues from there.
+*/
+class Trackball : public RotationMethod
+{
+public:
+    Trackball();
+
+    /*!
+    * Multiplier on the angle between the press and current points.
+    */
+    void setSpeed( double speed );
+
+    virtual void begin( Camera * cam, int x, int y );
+    virtual void drag( Camera * cam, int x, int y );
+
+    /*!
+    * Point on the ball under a mouse location, in eye coordinates.
+    */
+    glm::dvec3 ballPoint( Camera * cam, int x, int y );
+
+private:
+    double _speed;
+
+    glm::dvec3 _p0;
+    glm::dquat _rot0;
+};
+
+/*!
 * Shoemake's arcball with a rounded edge (Shambaugh, 2024).  The mouse is mapped onto a
 * sphere joined by a circular fillet to a flat ring.  Each drag rotates by a multiple of
 * the angle between the press and current points, so the result depends only on those two

@@ -40,6 +40,76 @@ void ClassicBall::drag( Camera * cam, int x, int y )
     _py = y;
 }
 
+Trackball::Trackball()
+{
+    _speed = 1.0;
+    _p0 = glm::dvec3( 0.0, 0.0, 1.0 );
+    _rot0 = glm::dquat( 1.0, 0.0, 0.0, 0.0 );
+}
+
+void Trackball::setSpeed( double speed )
+{
+    _speed = speed;
+}
+
+glm::dvec3 Trackball::ballPoint( Camera * cam, int x, int y )
+{
+    double w = cam->viewportWidth();
+    double h = cam->viewportHeight();
+    double rb = 0.5 * std::min( w, h );
+    if ( rb <= 0.0 )
+    {
+        return glm::dvec3( 0.0, 0.0, 1.0 );
+    }
+
+    double u = ( x - ( cam->viewportX() + 0.5 * w ) ) / rb;
+    double v = ( y - ( cam->viewportY() + 0.5 * h ) ) / rb;
+    double rsq = u * u + v * v;
+
+    // Bell's: the unit sphere inside a radius of 1 / sqrt(2), the sheet z = 1 / ( 2 r )
+    // outside, meeting it there with the same height and slope.
+    double z = 0.0;
+    if ( rsq < 0.5 )
+    {
+        z = std::sqrt( 1.0 - rsq );
+    }
+    else
+    {
+        z = 0.5 / std::sqrt( rsq );
+    }
+    return glm::normalize( glm::dvec3( u, v, z ) );
+}
+
+void Trackball::begin( Camera * cam, int x, int y )
+{
+    _p0 = ballPoint( cam, x, y );
+    _rot0 = glm::dquat( cam->getViewRotation() );
+    _version = cam->rotationVersion();
+}
+
+void Trackball::drag( Camera * cam, int x, int y )
+{
+    rebaseIfTurned( cam, x, y );
+
+    glm::dvec3 p = ballPoint( cam, x, y );
+
+    // Turn by the angle between the two points, times the speed, about their common
+    // normal, in eye coordinates.  Every point lies in front of the sphere's center, so
+    // no two are opposite and the axis is always defined.
+    glm::dvec3 c = glm::cross( _p0, p );
+    double s = glm::length( c );
+
+    glm::dquat q( 1.0, 0.0, 0.0, 0.0 );
+    if ( s > 0.0 )
+    {
+        double between = std::atan2( s, glm::dot( _p0, p ) );
+        q = glm::angleAxis( _speed * between, c / s );
+    }
+
+    cam->setViewRotation( glm::quat( q * _rot0 ) );
+    _version = cam->rotationVersion();
+}
+
 RoundedArcball::RoundedArcball()
 {
     _size = 0.9;
