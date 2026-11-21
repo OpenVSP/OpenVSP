@@ -778,12 +778,24 @@ void CfdMeshMgrSingleton::UpdateDomain()
 
 void CfdMeshMgrSingleton::AddDefaultSources()
 {
-    if ( GetGridDensityPtr()->GetNumSources() == 0 )
+    vector<string> geomVec = m_Vehicle->GetGeomVec();
+
+    // The model's own sources and Max Edge Len, not those of the last run.
+    int nsource = 0;
+    for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector<string> geomVec = m_Vehicle->GetGeomVec();
+        Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
+        if ( gi )
+        {
+            nsource += ( int )gi->GetCfdMeshMainSourceVec().size();
+        }
+    }
+
+    if ( nsource == 0 )
+    {
+        double base_len = m_Vehicle->GetCfdGridDensityPtr()->m_BaseLen();
         for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
         {
-            double base_len = GetGridDensityPtr()->m_BaseLen;
             Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
             if ( gi )
             {
