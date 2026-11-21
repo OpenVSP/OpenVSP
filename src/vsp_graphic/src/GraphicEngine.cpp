@@ -11,6 +11,7 @@
 #include "OpenGLHeaders.h"
 #include "gl2ps.h"
 #include <string.h>
+#include <algorithm>
 
 #include <assert.h>
 
@@ -101,6 +102,34 @@ void GraphicEngine::dumpScreenImage( const std::string &fileName, int width, int
     GLuint depth;
     GLuint fbo;
     int oldWidth, oldHeight;
+
+    // The image is drawn into a texture and a renderbuffer of its own size, which the graphics
+    // card can make only up to its limits; a larger one is never made and the image comes out
+    // blank.  So a larger image is scaled down to the limit, keeping its shape.
+    if ( framebufferSupported )
+    {
+        GLint maxtex = 0;
+        GLint maxrb = 0;
+        GLint maxvp[2] = { 0, 0 };
+        glGetIntegerv( GL_MAX_TEXTURE_SIZE, &maxtex );
+        glGetIntegerv( GL_MAX_RENDERBUFFER_SIZE, &maxrb );
+        glGetIntegerv( GL_MAX_VIEWPORT_DIMS, maxvp );
+
+        int maxw = std::min( std::min( maxtex, maxrb ), maxvp[0] );
+        int maxh = std::min( std::min( maxtex, maxrb ), maxvp[1] );
+
+        if ( maxw > 0 && maxh > 0 && ( width > maxw || height > maxh ) )
+        {
+            double scale = std::min( ( double ) maxw / ( double ) width, ( double ) maxh / ( double ) height );
+            int w = std::min( maxw, ( int ) ( width * scale ) );
+            int h = std::min( maxh, ( int ) ( height * scale ) );
+            printf( "Screen grab of %d x %d is larger than the graphics card can draw; made at %d x %d.\n",
+                    width, height, w, h );
+            width = w;
+            height = h;
+        }
+    }
+
     // width * height * RGBA
     Image image( width, height, 4 );
 
