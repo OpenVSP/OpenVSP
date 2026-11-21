@@ -3560,13 +3560,8 @@ static void PreRegisterNewObjectIDs( xmlNodePtr node )
 }
 
 //==== Read File ====//
-int Vehicle::ReadXMLFile( const string & file_name )
+int Vehicle::ReadXMLFile( const string & file_name, bool replace_model )
 {
-    string lastreset = IDMgr.ResetRemapID();
-
-    // Disable link updates when until all geoms are loaded
-    LinkMgr.SetFreezeUpdateFlag( true );
-
     //==== Read Xml File ====//
     xmlDocPtr doc;
 
@@ -3575,17 +3570,19 @@ int Vehicle::ReadXMLFile( const string & file_name )
 
     //==== Build an XML tree from a the file ====//
     doc = xmlReadFile( file_name.c_str(), nullptr, XML_PARSE_HUGE );
-    if ( doc == nullptr )
+    if ( doc == nullptr && !replace_model )
     {
+        // Preserve recovery for non-replacing callers. File > Open must not
+        // replace an in-memory project with a partially recovered document.
         fprintf( stderr, "could not parse XML document, trying again with more permissive parser\n" );
 
         doc = xmlReadFile( file_name.c_str(), nullptr, XML_PARSE_HUGE | XML_PARSE_RECOVER );
+    }
 
-        if ( doc == nullptr )
-        {
-            fprintf( stderr, "could not parse XML document\n" );
-            return 1;
-        }
+    if ( doc == nullptr )
+    {
+        fprintf( stderr, "could not parse XML document\n" );
+        return 1;
     }
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
@@ -3604,15 +3601,34 @@ int Vehicle::ReadXMLFile( const string & file_name )
     }
 
     //==== Find Version Number ====//
-    m_FileOpenVersion = XmlUtil::FindInt( root, "Version", 0 );
+    const int file_version = XmlUtil::FindInt( root, "Version", 0 );
 
-    if ( m_FileOpenVersion < MIN_FILE_VER )
+    if ( file_version < MIN_FILE_VER )
     {
         fprintf( stderr, "document version not supported \n");
         xmlFreeDoc( doc );
-        m_FileOpenVersion = -1;
         return 4;
     }
+
+    if ( replace_model )
+    {
+        if ( !XmlUtil::GetNode( root, "Vehicle", 0 ) )
+        {
+            fprintf( stderr, "document does not contain a Vehicle\n" );
+            xmlFreeDoc( doc );
+            return 5;
+        }
+
+        // Use this already-validated tree rather than opening the path again.
+        Renew();
+        // Set the path before decoding so relative references work as before.
+        SetVSP3FileName( file_name );
+    }
+
+    m_FileOpenVersion = file_version;
+    string lastreset = IDMgr.ResetRemapID();
+    // Disable link updates until all geoms are loaded.
+    LinkMgr.SetFreezeUpdateFlag( true );
 
     // Register the Geoms before reading any of them, so a reference into one resolves whichever
     // order the file lists it and the thing it names.

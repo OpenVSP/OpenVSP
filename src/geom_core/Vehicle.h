@@ -224,7 +224,8 @@ public:
 
     vector < string > GetPtCloudGeoms();
 
-    int ReadXMLFile( const string & file_name );
+    // In replace mode, validate the project before resetting the current model.
+    int ReadXMLFile( const string & file_name, bool replace_model = false );
     int ReadXMLFileGeomsOnly( const string & file_name );
 
     void SetVSP3FileName( const string & f_name );
