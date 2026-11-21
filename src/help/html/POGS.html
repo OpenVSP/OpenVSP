@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OpenVSP for POGS</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">OpenVSP for POGS</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>POGS, the Pre-processor for Overset Grid Simulations, is part of the
+Chimera Grid Tools (CGT) developed by William Chan and others at NASA
+Ames Research Center. Together with its companion EGADS2SRF it builds an
+overset structured grid system with little manual work: surface grids
+over every face, edge and corner of the geometry, near-body and off-body
+volume grids, the connectivity between them, and input files for the
+Overflow and LAVA flow solvers (Reference 1). EGADS2SRF usually makes
+POGS's input from a CAD solid. OpenVSP's CFD Mesh writes the same set of
+files straight from an OpenVSP model, so POGS can start from it,
+including the file of geometric components that would otherwise be made
+by hand.</p>
+<p>This page is the short path from an OpenVSP model to the input of
+POGS. The <a href="CFDMesh.html">CFD Mesh</a> page covers each setting
+in full.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#getting-started">Getting
+Started</a></td>
+<td style="text-align: left;">Global, Output</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#the-files">The Files</a></td>
+<td style="text-align: left;">Output</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#split-and-join-surfaces">Split
+and Join Surfaces</a></td>
+<td style="text-align: left;">Global</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#num-ref">Num Ref.</a></td>
+<td style="text-align: left;">Output</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#blanking">Blanking</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#curve-relative-tol">Curve
+Relative Tol.</a></td>
+<td style="text-align: left;">Output</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#half-models-far-fields-and-wakes">Half Models, Far Fields and
+Wakes</a></td>
+<td style="text-align: left;">Domain, Wakes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#tips">Tips</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="getting-started">Getting Started</h2>
+<ol type="1">
+<li>Open <em>Analysis &gt; CFD Mesh...</em>.</li>
+<li>On the Global tab (Figure 1), set the global mesh controls. Choose
+<em>Rel</em> for <em>Max Edge Len</em>, <em>Min Edge Len</em> and
+<em>Max Gap</em>, and set each to 0.01 as a starting point: <em>Max Edge
+Len</em> is then 1% of the diagonal of the model's bounding box, and
+<em>Min Edge Len</em> and <em>Max Gap</em> 1% of <em>Max Edge Len</em>.
+Set <em>Num Circle Segments</em> to 90, for the maximum dihedral angle
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>4</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">4^\circ</annotation></semantics></math>
+that POGS is usually run with. These controls size the triangulation and
+also start the POGS parameters (see <a href="#the-files">The Files</a>);
+the CFD Mesh page's <a href="CFDMesh.html#choosing-settings">Choosing
+Settings</a> tells how to adjust them.</li>
+<li>Choose a Set of the components to mesh as the <em>Normal Set</em>,
+and leave <em>Degen Set</em> at <em>None</em>. Make Sets with the <a
+href="SetEdit.html">Set Editor</a>. Do not use <em>Shown</em> with
+<em>Rel</em>: a run leaves the components hidden, so <em>Shown</em> is
+then empty, the relative lengths are taken from the bounding box of
+nothing, whose diagonal is about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3.5</mn><mo>×</mo><msup><mn>10</mn><mn>12</mn></msup></mrow><annotation encoding="application/x-tex">3.5 \times 10^{12}</annotation></semantics></math>,
+and the next run meshes nothing.</li>
+<li>Turn on <em>Split and Join Surfaces</em>.</li>
+<li>On the Output tab (Figure 2), turn on <em>POGS</em> and turn every
+other file off. Choose the name of the <em>.i.tri</em> file with the
+<em>...</em> button beside it; the other POGS files take the same name.
+Raise <em>Num Ref.</em> until the surface grids of the <em>.uvin</em>
+file are fine enough for POGS (see <a href="#num-ref">Num
+Ref.</a>).</li>
+<li>Press <em>Mesh and Export</em>. The console under the tabs ends with
+"Is Water Tight" when the surface is closed.</li>
+<li>Set <em>DSWALL</em> and <em>DOBND</em> in the <em>.pogs.i</em> file
+for the case (see <a href="#the-files">The Files</a>), and run POGS on
+it.</li>
+</ol>
+<p><img src="images/POGS_gui_global.png"
+title="Figure 1. The Global tab" style="max-width: none" width="550"
+alt="Figure 1. The Global tab" /></p>
+<p><em>Figure 1. The Global tab set up for POGS: Max Edge Len, Min Edge
+Len and Max Gap relative, each at 0.01, Num Circle Segments 90, the Set
+All as the Normal Set, and Split and Join Surfaces on.</em></p>
+<p><img src="images/POGS_gui_output.png"
+title="Figure 2. The Output tab" style="max-width: none" width="550"
+alt="Figure 2. The Output tab" /></p>
+<p><em>Figure 2. The Output tab with the POGS files the only
+output.</em></p>
+<h2 id="the-files">The Files</h2>
+<p>The POGS output is the set of files POGS reads, the ones EGADS2SRF
+writes (Reference 1). Each is named after the <em>.i.tri</em> file
+chosen on the Output tab:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">File</th>
+<th style="text-align: left;">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">.i.tri</td>
+<td style="text-align: left;">The trimmed surface triangulation, each
+triangle tagged with its face</td>
+</tr>
+<tr>
+<td style="text-align: left;">.uvin</td>
+<td style="text-align: left;">Each face's untrimmed surface on its own U
+and W lines (Plot3D), iblanks marking trimmed points</td>
+</tr>
+<tr>
+<td style="text-align: left;">.cur</td>
+<td style="text-align: left;">The edges, the curves where faces meet, as
+Plot3D curve grids</td>
+</tr>
+<tr>
+<td style="text-align: left;">.topo</td>
+<td style="text-align: left;">The topology: the face on each side of
+each edge, and the sense of each face's normal</td>
+</tr>
+<tr>
+<td style="text-align: left;">.gcomp</td>
+<td style="text-align: left;">The geometric components: the faces that
+make up each surface of each component</td>
+</tr>
+<tr>
+<td style="text-align: left;">.pogs.i</td>
+<td style="text-align: left;">The POGS input parameters</td>
+</tr>
+</tbody>
+</table>
+<p>A face is one patch of the CFD Mesh (see <a
+href="#split-and-join-surfaces">Split and Join Surfaces</a>). The
+<em>.gcomp</em> file has a component for each surface of each OpenVSP
+component, a symmetric copy apart from its original, named for the
+component's name, the surface's number and the component's ID, such as
+<code>WingGeom_1_FTBNWVYMMQ</code>. POGS uses the components to scale
+its grid spacing to each component's size and to set up the component
+loads (Reference 1).</p>
+<p>The <em>.pogs.i</em> file names the case on its first line and holds
+the grid control parameters on the next three. Three come from the
+Global tab and one from the Domain tab; the rest are starting values to
+edit for the case:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">Written as</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">DSM</td>
+<td style="text-align: left;">Maximum grid spacing</td>
+<td style="text-align: left;"><em>Max Edge Len</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">SRMAX</td>
+<td style="text-align: left;">Maximum stretching ratio</td>
+<td style="text-align: left;"><em>Growth Ratio</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">MAXA</td>
+<td style="text-align: left;">Maximum dihedral angle, degrees</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>360</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">360^\circ</annotation></semantics></math>
+divided by <em>Num Circle Segments</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">ISYM</td>
+<td style="text-align: left;">Symmetry of the geometry</td>
+<td style="text-align: left;">0 for a whole model, 2 for a half
+mesh</td>
+</tr>
+<tr>
+<td style="text-align: left;">DSWALL</td>
+<td style="text-align: left;">Wall normal grid spacing of the volume
+grids</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><annotation encoding="application/x-tex">10^{-4}</annotation></semantics></math>,
+to set for the case</td>
+</tr>
+<tr>
+<td style="text-align: left;">DOBND</td>
+<td style="text-align: left;">Outer boundary marching distance</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>10</mn></mrow><annotation encoding="application/x-tex">-10</annotation></semantics></math>,
+to set for the case</td>
+</tr>
+<tr>
+<td style="text-align: left;">NPMIN, NFRINGE, STENQUAL, SHARP, TURNTMAX,
+TOLSP, TOLONSE</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">The defaults of EGADS2SRF</td>
+</tr>
+</tbody>
+</table>
+<p>POGS is usually run with <em>MAXA</em> at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>4</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">4^\circ</annotation></semantics></math>,
+which 90 <em>Num Circle Segments</em> gives. Set <em>DSWALL</em> and
+<em>DOBND</em> for the case before running POGS. OpenVSP does not know
+the flow: the wall spacing depends on its Reynolds number (Reference
+1).</p>
+<h2 id="split-and-join-surfaces">Split and Join Surfaces</h2>
+<p>CFD Mesh cuts every surface into patches along all of its feature
+lines, the black lines OpenVSP draws on a component, and each patch
+becomes a face for POGS. POGS covers every face, edge and corner with a
+grid of its own, so the number of grids it makes is about the number of
+faces, edges and corners together, and it works best with as few faces
+as the geometry allows (Reference 1). <em>Split and Join Surfaces</em>
+joins the patches back together where no feature needs a split: a body
+comes out as two halves instead of four quarters, a blunt trailing edge
+is one face instead of two, and a wing's end caps have fewer faces where
+they can. The mesh lines are kept along the joined boundaries, so the
+triangulation is much the same either way (see <a
+href="CFDMesh.html#split-and-join-surfaces">Split and Join Surfaces</a>
+on the CFD Mesh page).</p>
+<p>The small aircraft of the CFD Mesh page has 24 faces and 46 edges
+with it off, and 14 faces and 32 edges with it on; its Fuselage goes
+from 8 faces to 2.</p>
+<p>The mesh itself looks the same either way, so Figures 3 and 4 draw
+only the curves that bound the faces: the intersection curves (orange)
+and the border curves (blue), with the mesh, the face colors and
+<em>Show Patch Join Curves</em> turned off on the Display tab, so that a
+boundary that was joined is not drawn. The aircraft has a blunt trailing
+edge on its wing here; each wing half goes from 6 faces to 4.</p>
+<p><img src="images/POGS_split_join_wing.png"
+title="Figure 3. A wing tip and trailing edge"
+alt="Figure 3. A wing tip and trailing edge" /></p>
+<p><em>Figure 3. The outer part of the right wing, seen from behind,
+outboard and above: the tip cap at the left, with its leading edge at
+the lower left, and the blunt trailing edge running inboard to the
+right. With Split and Join Surfaces off, the tip cap is two faces, split
+along its chord, and the trailing edge is two, split along the middle of
+its thickness; with it on, each is one face.</em></p>
+<p><img src="images/POGS_split_join_body.png" title="Figure 4. A body"
+alt="Figure 4. A body" /></p>
+<p><em>Figure 4. The aircraft seen from in front, a little to the left
+and above. With Split and Join Surfaces off, the Fuselage is four
+quarters, split along its top, bottom and sides, and again at its middle
+cross section, which shows as the ring; with it on, it is two halves,
+left and right, which meet along the top and bottom.</em></p>
+<h2 id="num-ref">Num Ref.</h2>
+<p>The <em>.uvin</em> file holds a structured surface grid of each face,
+on the face's own U and W lines. Those lines are the component's
+wireframe, as OpenVSP draws it in the main window: around a body, its
+<em>Tess W</em> lines, and along it, the tessellation of its sections.
+That wireframe is usually too coarse for POGS.</p>
+<p><em>Num Ref.</em> on the Output tab refines all of the grids at once.
+Each step puts a line halfway between every two, so a grid of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>×</mo><msub><mi>n</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">n_i \times n_j</annotation></semantics></math>
+points becomes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><msub><mi>n</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2 n_i - 1) \times (2 n_j - 1)</annotation></semantics></math>.
+It goes from 0 to 6. One half of the Fuselage in Figure 5 has 21 by 9
+points at <em>Num Ref.</em> 0, 41 by 17 at 1 and 81 by 33 at 2. <em>Num
+Ref.</em> leaves the components' own tessellation and the triangle mesh
+as they are; to refine one component more than the others, raise its
+tessellation instead.</p>
+<p><img src="images/POGS_num_ref.png" title="Figure 5. Num Ref."
+alt="Figure 5. Num Ref." /></p>
+<p><em>Figure 5. The right half of the Fuselage of Figures 3 and 4 in
+its .uvin grid, drawn on the X-Z plane, at Num Ref. 0 (top) and 2
+(bottom).</em></p>
+<h3 id="blanking">Blanking</h3>
+<p>The <em>.uvin</em> grids are not trimmed. Each point carries an
+iblank instead: 1 where the point is on the face as trimmed, and 0 where
+the trimming removed it, where it lies inside another component. OpenVSP
+sets it from each face's trimming loops, the curves that bound the face
+in its own U and W; a face whose loops do not close is classified by
+casting rays instead, and the console says so.</p>
+<p>Figure 6 shows the blanking where the right Wing meets the Fuselage,
+at <em>Num Ref.</em> 2. Each skin of the Wing has 325 of its 1365 points
+blanked, the five spanwise stations from the root out to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Y = 1</annotation></semantics></math>
+that lie inside the Fuselage. The Fuselage half has 17 of its 2673
+points blanked: 11 inside the Wing's root and 6 inside the tail. The
+finer the grid, the closer the blanked points follow the junction; at
+<em>Num Ref.</em> 0 no point of this Fuselage half falls inside the Wing
+or the tail, so its grid does not record the trimming there.</p>
+<p><img src="images/POGS_blanking.png" title="Figure 6. Blanking"
+alt="Figure 6. Blanking" /></p>
+<p><em>Figure 6. The right half of the Fuselage (grey) and the upper and
+lower skins of the right Wing (blue) at Num Ref. 2, seen from outboard,
+a little behind and above. Each surface is shaded lightly and seen
+through, and on it only the grid edges whose two ends are both kept are
+drawn; an edge with a blanked end is left out. Top: the Wing's grid
+stops at the Fuselage's side, and its root inside the Fuselage is bare.
+Bottom: the same view without the Wing, which lies over the Fuselage's
+notch in any view from outside. The Fuselage's grid stops around the
+Wing's root in a slot two cells tall, where one row of its points, from
+X 3.88 to 5.12, is blanked.</em></p>
+<h2 id="curve-relative-tol">Curve Relative Tol.</h2>
+<p><em>Curve Relative Tol.</em>, on the Output tab under the POGS files,
+is how closely the edges in the <em>.cur</em> file follow the curves
+where the surfaces meet, as a fraction of each segment's length. A
+smaller value puts more points on each edge. It is used for the POGS
+files only.</p>
+<h2 id="half-models-far-fields-and-wakes">Half Models, Far Fields and
+Wakes</h2>
+<p>With <em>Generate Half Mesh</em> on the Domain tab, the model is cut
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Y = 0</annotation></semantics></math>
+and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+half kept; the <em>.pogs.i</em> and <em>.topo</em> files then give
+<em>ISYM</em> 2, a half body on the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+side, and the symmetry plane is not a face. POGS takes such a model as a
+half body bounded by the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Y = 0</annotation></semantics></math>
+plane (Reference 1).</p>
+<p>POGS builds its own off-body grids out to the far field (Reference
+1), so a far field from CFD Mesh is not usually wanted. If <em>Generate
+Far Field Mesh</em> is on, the far field box becomes a component of its
+own, <em>FarField</em>, and with a half mesh the symmetry plane inside
+it becomes the component <em>SymmetryPlane</em>.</p>
+<p>Wakes are left out of the POGS files.</p>
+<p>The CFD Mesh page's <a
+href="CFDMesh.html#half-mesh-and-far-field">Half Mesh and Far Field</a>
+and <a href="CFDMesh.html#wakes">Wakes</a> describe these settings.</p>
+<h2 id="tips">Tips</h2>
+<ul>
+<li>The surface must be closed. The <em>.topo</em> file pairs a face
+with each side of every edge, so a gap or an overlap leaves an edge with
+one face or more than two. If the console reports "NOT Water Tight", see
+<a href="CFDMesh.html#running-and-checking-the-mesh">Running and
+Checking the Mesh</a>.</li>
+<li>POGS works best on clean geometry, without tiny edges or sliver
+faces (Reference 1). Where two components touch without crossing, or
+cross at a shallow angle, the intersection makes short edges and thin
+faces; move one so they cross cleanly.</li>
+<li>Put in the Normal Set only the components that make up the solid to
+be gridded.</li>
+<li>Sources refine the triangulation where it is needed (see <a
+href="CFDMesh.html#sources">Sources</a>); they do not change the faces,
+the edges or the <em>.uvin</em> samples.</li>
+</ul>
+<h2 id="scripting">Scripting</h2>
+<p>A run is made through the Analysis Manager, as the analysis
+"CfdMeshAnalysis". This makes the POGS files alone, with Split and Join
+Surfaces on, for a fuselage with a wing through it:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openvsp <span class="im">as</span> vsp</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> vsp.AddGeom( <span class="st">&quot;FUSELAGE&quot;</span> )</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( f, <span class="st">&quot;Length&quot;</span>, <span class="st">&quot;Design&quot;</span>, <span class="fl">10.0</span> )</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> vsp.AddGeom( <span class="st">&quot;WING&quot;</span> )</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( w, <span class="st">&quot;X_Rel_Location&quot;</span>, <span class="st">&quot;XForm&quot;</span>, <span class="fl">3.5</span> )</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>vsp.Update()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>vsp.SetAnalysisInputDefaults( <span class="st">&quot;CfdMeshAnalysis&quot;</span> )</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>vsp.SetIntAnalysisInput( <span class="st">&quot;CfdMeshAnalysis&quot;</span>, <span class="st">&quot;SplitJoinSurfs&quot;</span>, [ <span class="dv">1</span> ] )</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># The POGS files alone: every other file off.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ff <span class="kw">in</span> [ <span class="st">&quot;STL&quot;</span>, <span class="st">&quot;POLY&quot;</span>, <span class="st">&quot;TRI&quot;</span>, <span class="st">&quot;FACET&quot;</span>, <span class="st">&quot;OBJ&quot;</span>, <span class="st">&quot;GMSH&quot;</span>, <span class="st">&quot;VSPGEOM&quot;</span> ]:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    vsp.SetIntAnalysisInput( <span class="st">&quot;CfdMeshAnalysis&quot;</span>, ff <span class="op">+</span> <span class="st">&quot;FileFlag&quot;</span>, [ <span class="dv">0</span> ] )</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>vsp.SetIntAnalysisInput( <span class="st">&quot;CfdMeshAnalysis&quot;</span>, <span class="st">&quot;POGSFileFlag&quot;</span>, [ <span class="dv">1</span> ] )</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>vsp.SetStringAnalysisInput( <span class="st">&quot;CfdMeshAnalysis&quot;</span>, <span class="st">&quot;POGSFileName&quot;</span>, [ <span class="st">&quot;plane.i.tri&quot;</span> ] )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>settings <span class="op">=</span> vsp.FindContainer( <span class="st">&quot;CFDMeshSettings&quot;</span>, <span class="dv">0</span> )</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ff <span class="kw">in</span> [ <span class="st">&quot;DAT&quot;</span>, <span class="st">&quot;KEY&quot;</span>, <span class="st">&quot;TKEY&quot;</span> ]:</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    vsp.SetParmVal( vsp.FindParm( settings, ff <span class="op">+</span> <span class="st">&quot;_Export&quot;</span>, <span class="st">&quot;ExportCFD&quot;</span> ), <span class="fl">0.0</span> )</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>rid <span class="op">=</span> vsp.ExecAnalysis( <span class="st">&quot;CfdMeshAnalysis&quot;</span> )</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>( <span class="st">&quot;Water tight:&quot;</span>, vsp.GetIntResults( rid, <span class="st">&quot;Water_Tight&quot;</span> )[ <span class="dv">0</span> ] )</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>nface <span class="op">=</span> <span class="bu">int</span>( <span class="bu">open</span>( <span class="st">&quot;plane.topo&quot;</span> ).readline().split()[ <span class="dv">2</span> ] )</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>( <span class="st">&quot;Faces:&quot;</span>, nface )</span></code></pre></div>
+<p>The inputs POGSNRef and RelCurveTol are <em>Num Ref.</em> and
+<em>Curve Relative Tol.</em>. Three of the other files have no inputs of
+the analysis, so they are turned off through their Parms. The CFD Mesh
+page's <a href="CFDMesh.html#scripting">Scripting</a> lists every
+input.</p>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Chan, W. M., Chuen, A. M., Jensen, J. C. and Schauerhamer, D. G.,
+"Overset Structured Mesh Generation on Complex Configurations Using the
+EPOGS Toolset," AIAA Paper 2026-4121, AIAA Aviation Forum, 2026.</li>
+</ol>
+</body>
+</html>

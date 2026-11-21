@@ -346,6 +346,8 @@ fraction of the diagonal of the bounding box of the components being meshed, tho
 it follows the model's size.  Relative *Min Edge Len* and *Max Gap* are fractions of *Max Edge Len*, so a coarser or
 finer mesh keeps their proportions; at the defaults they are 5% and 1%.  The form chosen is the one a run uses, from the
 screen or from a script; the other is worked out from it.
+Do not use *Rel* with the *Shown* Set: a run leaves the components hidden, so *Shown* is then empty, and *Max Edge Len*
+is taken from the bounding box of nothing, whose diagonal is about $3.5 \times 10^{12}$.
 
 | Control                     | Default | Meaning                                                                    |
 |:----------------------------|:--------|:---------------------------------------------------------------------------|
@@ -489,6 +491,7 @@ system: surface grids over every face, edge and corner of the geometry, near-bod
 connectivity between them, and input files for the Overflow and LAVA flow solvers (Reference 1).  POGS usually takes
 its input from a CAD solid through a companion tool, EGADS2SRF; the POGS output of CFD Mesh is that same set of
 files made from the OpenVSP model, so POGS can start from it directly.
+[OpenVSP for POGS](POGS.md) is a short guide to setting up CFD Mesh for POGS.
 
 The POGS output, named after the .i.tri file chosen, is:
 

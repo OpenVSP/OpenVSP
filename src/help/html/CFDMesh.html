@@ -678,7 +678,11 @@ of the Normal and Degen Sets, so it follows the model's size. Relative
 <em>Min Edge Len</em> and <em>Max Gap</em> are fractions of <em>Max Edge
 Len</em>, so a coarser or finer mesh keeps their proportions; at the
 defaults they are 5% and 1%. The form chosen is the one a run uses, from
-the screen or from a script; the other is worked out from it.</p>
+the screen or from a script; the other is worked out from it. Do not use
+<em>Rel</em> with the <em>Shown</em> Set: a run leaves the components
+hidden, so <em>Shown</em> is then empty, and <em>Max Edge Len</em> is
+taken from the bounding box of nothing, whose diagonal is about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3.5</mn><mo>×</mo><msup><mn>10</mn><mn>12</mn></msup></mrow><annotation encoding="application/x-tex">3.5 \times 10^{12}</annotation></semantics></math>.</p>
 <table>
 <thead>
 <tr>
@@ -920,7 +924,8 @@ between them, and input files for the Overflow and LAVA flow solvers
 (Reference 1). POGS usually takes its input from a CAD solid through a
 companion tool, EGADS2SRF; the POGS output of CFD Mesh is that same set
 of files made from the OpenVSP model, so POGS can start from it
-directly.</p>
+directly. <a href="POGS.html">OpenVSP for POGS</a> is a short guide to
+setting up CFD Mesh for POGS.</p>
 <p>The POGS output, named after the .i.tri file chosen, is:</p>
 <table>
 <thead>
