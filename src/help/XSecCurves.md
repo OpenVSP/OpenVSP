@@ -282,6 +282,8 @@ value set by hand and kept consistent with its neighbors; use it only where a se
 Points can be dragged in the window's plot, or typed in the table below it (Figure 8), where the selected point is
 highlighted.  *Split U* adds a point at the U given, and *Split Pick* where the curve is clicked; *Delete Selected* and
 *Delete Pick* remove one.  On a Bezier curve these act on a point on the curve together with its two tangent points.
+With R-L Symmetry on, a point and its mirror are deleted together, whichever of the two is picked, and the Bottom,
+Left and Top points cannot be deleted.
 
 Away from a point, the mouse moves the view as in the other plots; see [Mouse and Keyboard](MouseKeyboard.md#plots).  In
 OpenVSP's own scheme a left drag zooms to the box it draws, keeping the plot's scale the same in both directions; the

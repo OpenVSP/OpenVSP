@@ -306,15 +306,37 @@ for kind, axis in ( ( "STACK", 0 ), ( "FUSELAGE", 0 ), ( "WING", 1 ) ):
 # Split and convert rebuild the points' Parms; so does delete with R-L Symmetry on, while off it renumbers them.
 for op, sym in ( ( "split", 0 ), ( "convert", 0 ), ( "delete", 1 ) ):
     s, xs = edit( vsp.EDIT_XSEC_CIRCLE, sym = sym )
+    if op == "delete":
+        vsp.EditXSecSplit01( xs, 0.1 )
+        vsp.Update()
+        xs = vsp.GetXSec( s, 1 )
     pid = vsp.GetXSecParm( xs, "X_9" )
     if op == "split":
         vsp.EditXSecSplit01( xs, 0.1 )
     elif op == "convert":
         vsp.EditXSecConvertTo( xs, vsp.LINEAR )
     else:
-        vsp.EditXSecDelPnt( xs, 6 )
+        vsp.EditXSecDelPnt( xs, 3 )
     vsp.Update()
     check( not vsp.ValidParm( pid ), "%s (R-L Symmetry %d) replaces the points' Parms" % ( op, sym ) )
+
+# With R-L Symmetry on a point and its mirror go together, picked on either side; Bottom, Left and Top stay.
+for pick in ( 3, 9 ):
+    s, xs = edit( vsp.EDIT_XSEC_CIRCLE, sym = 1 )
+    vsp.EditXSecSplit01( xs, 0.1 )
+    vsp.Update()
+    xs = vsp.GetXSec( s, 1 )
+    n = len( vsp.GetEditXSecUVec( xs ) )
+    vsp.EditXSecDelPnt( xs, pick )
+    vsp.Update()
+    check( len( vsp.GetEditXSecUVec( xs ) ) == n - 6, "delete point %d of %d with R-L Symmetry takes its mirror" % ( pick, n ) )
+for pick in ( 3, 6, 9 ):
+    s, xs = edit( vsp.EDIT_XSEC_CIRCLE, sym = 1 )
+    pid = vsp.GetXSecParm( xs, "X_%d" % pick )
+    vsp.EditXSecDelPnt( xs, pick )
+    vsp.Update()
+    check( len( vsp.GetEditXSecUVec( xs ) ) == 13 and vsp.GetXSecParm( xs, "X_%d" % pick ) == pid,
+           "with R-L Symmetry, point %d (Bottom, Left or Top) is not deleted" % pick )
 s, xs = edit( vsp.EDIT_XSEC_CIRCLE, sym = 0 )
 pid = vsp.GetXSecParm( xs, "X_9" )
 vsp.EditXSecDelPnt( xs, 6 )

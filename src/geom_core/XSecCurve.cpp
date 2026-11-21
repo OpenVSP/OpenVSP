@@ -5950,7 +5950,44 @@ void EditCurveXSec::DeletePt( int indx )
 {
     int nseg = ( (int)m_XParmVec.size() - 1 ) / 3;
 
-    // TODO: Delete symmetric copy?
+    // With R-L Symmetry the left half follows the right, so a point on the left deletes its mirror on the right, which
+    // takes the point with it.  A point on the axis, or one whose mirror is an end of the curve, is kept.
+    if ( m_SymType() == vsp::SYM_RL && indx > 0 && indx < ( (int)m_UParmVec.size() - 1 ) )
+    {
+        double u = m_UParmVec[indx]->Get();
+        if ( u == 0.25 || u == 0.75 || u == 0.5 )
+        {
+            return;
+        }
+        if ( u > 0.25 && u < 0.75 )
+        {
+            double mirror_u = 0.5 - u;
+            if ( u > 0.5 )
+            {
+                mirror_u = 1.5 - u;
+            }
+
+            int step = 1;
+            if ( m_CurveType() == vsp::CEDIT )
+            {
+                step = 3;
+            }
+
+            int mirror = -1;
+            for ( int i = 0; i < (int)m_UParmVec.size(); i += step )
+            {
+                if ( std::abs( m_UParmVec[i]->Get() - mirror_u ) < 1e-9 )
+                {
+                    mirror = i;
+                }
+            }
+            if ( mirror == -1 )
+            {
+                return;
+            }
+            indx = mirror;
+        }
+    }
 
     if ( indx > 0 && indx < ( m_XParmVec.size() - 1 ) )
     {
