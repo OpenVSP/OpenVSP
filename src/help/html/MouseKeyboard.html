@@ -239,7 +239,8 @@ OpenVSP:</p>
 <td>Zoom</td>
 </tr>
 <tr>
-<td>Ctrl + left drag (or Cmd + left drag)</td>
+<td>Ctrl + left drag, or Cmd + left drag (the Windows or Super key
+elsewhere)</td>
 <td>Zoom</td>
 </tr>
 <tr>
@@ -321,8 +322,8 @@ zooms one step and holding the button keeps zooming; a mouse's Back and
 Forward side buttons suit them. See <a
 href="#mouse-button-preferences">Mouse button preferences</a>.</p>
 <p>View &gt; Zoom Box (w) arms a one-time zoom box: the next left drag
-draws a rectangle, and the view zooms so the rectangle fills it. Esc
-gives the box up.</p>
+draws a rectangle, and the view zooms so the rectangle fills it. Esc, or
+a press of any other button, gives the box up.</p>
 <h3 id="saved-views">Saved views</h3>
 <p>F1 to F4 recall four saved views; Shift with F1 to F4 saves the
 current view into that slot. The saved views last until OpenVSP closes.
@@ -365,8 +366,8 @@ selects the target points inside it. This comes before every other use
 of the left button and cannot be changed in the preferences.</p>
 <h2 id="keyboard-in-the-3d-window">Keyboard in the 3D window</h2>
 <p>The keys in the View and Edit menus act from any OpenVSP window,
-unless a text box is being typed in. z, tapped or held, and F1 to F4 act
-only in the 3D window.</p>
+unless a text box is being typed in. F1 to F4, and z held for a roll,
+act only in the 3D window; elsewhere z is View &gt; Z Up.</p>
 <table>
 <thead>
 <tr>
@@ -619,7 +620,8 @@ None.</td>
 </tr>
 <tr>
 <td>Shift, Ctrl, Alt, Cmd</td>
-<td>Whether each key must be up, down, or may be either.</td>
+<td>Whether each key must be up, down, or may be either. Cmd is named
+Win on Windows and Super on Linux.</td>
 </tr>
 <tr>
 <td>Other Buttons</td>
@@ -640,10 +642,11 @@ None.</td>
 </tbody>
 </table>
 <p>Zoom in and Zoom out zoom one wheel notch, about the pointer or the
-middle of the view as Wheel Zooms is set. They act at the press, and
-again ten times a second while the button is held, however the mouse
-moves; On does not apply to them. A mouse's Back and Forward buttons
-bound to Zoom out and Zoom in zoom the view without the wheel.</p>
+middle of the view as Wheel Zooms is set. They act at the press and,
+after a short pause, ten times a second while the button is held,
+however the mouse moves; On does not apply to them. A mouse's Back and
+Forward buttons bound to Zoom out and Zoom in zoom the view without the
+wheel.</p>
 <p>Rather than setting the fields by hand, press in the Try a Press box
 with the buttons and keys wanted: it shows what that press does now, and
 Use This Press for the Selected Binding copies it into the selected
@@ -757,7 +760,7 @@ reversed</td>
 Shift + Ctrl + right click; Tumbler</td>
 </tr>
 <tr>
-<td>HyperMesh before 2021</td>
+<td>HyperMesh (before 2021, or its Legacy setting)</td>
 <td>Ctrl + left</td>
 <td>Ctrl + right</td>
 <td></td>
@@ -939,13 +942,13 @@ view take the mouse alike, from the same bindings and settings as the 3D
 window. A press does in a plot what it does in the 3D window, in two
 dimensions: what rotates the view draws a box to zoom to, what pans or
 zooms the view pans or zooms the plot, and Zoom in and Zoom out step the
-zoom. A press that would go first to a waiting tool pick goes first to
-the point under it, or to Wave Drag's slice line, and moves it. The
-wheel and zoom drags follow the 3D View preferences' Wheel Direction,
-Wheel Zooms, Wheel Step, Drag Direction, Drag Zooms and Zoom Speed, but
-a zoom drag always grows with the distance moved. A double click returns
-to the whole plot, and hovering over a results plot reads out the
-nearest point.</p>
+zoom once per press. A press that would go first to a waiting tool pick
+goes first to the point under it, or to Wave Drag's slice line, and
+moves it. The wheel and zoom drags follow the 3D View preferences' Wheel
+Direction, Wheel Zooms, Wheel Step, Drag Direction, Drag Zooms and Zoom
+Speed, but a zoom drag always grows with the distance moved. A double
+click returns to the whole plot, and hovering over a results plot reads
+out the nearest point.</p>
 <table>
 <thead>
 <tr>
@@ -999,11 +1002,17 @@ on any tab, opens it in the Attribute Explorer.</li>
 Drag, a click on a check box, or Space on the selected line, checks or
 unchecks a run.</li>
 <li>Column widths: in lists with column headings, dragging the line
-between two columns sets their width.</li>
+between two columns sets their width, and Ctrl+C (Cmd+C on macOS) copies
+the selected lines as text.</li>
 <li>Selecting several: Shift-click selects a range and Ctrl-click adds
 or removes one; dragging extends the selection. In the Geom Browser Ctrl
 is Ctrl even on macOS, and Alt-click also selects every Geom below the
-one clicked.</li>
+one clicked. Where a list takes several, its Delete button deletes all
+the selected lines, and the controls that edit the selected item work
+only while one line is selected. The list scrolls to keep a single
+selected line in view.</li>
+<li>Geom Browser: clicking the selected Geom again opens its window if
+it was closed.</li>
 <li>Geom Browser icons: the eye shows or hides, and the surface icon
 steps the draw type through wire, hidden, shaded, textured and none.
 Both act on the whole selection when the clicked Geom is in it, and on
