@@ -23,7 +23,7 @@
 
 #define CFD_CONSOLE_HEIGHT 200
 
-CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 572 + CFD_CONSOLE_HEIGHT, "CFD Mesh", "", CFD_CONSOLE_HEIGHT )
+CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 572 + CFD_CONSOLE_HEIGHT, "CFD Mesh", "CFDMesh.html", CFD_CONSOLE_HEIGHT )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
