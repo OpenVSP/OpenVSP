@@ -147,6 +147,11 @@ public:
     virtual void UpdateSourcesAndWakes();
     virtual void UpdateDomain();
 
+    // Bring the model's CFD Mesh settings up to date with the model: the far field box's
+    // sizes and location in both forms, and the relative edge lengths.  The copy of the
+    // settings is taken from them first, so what is drawn follows the settings as they are.
+    void UpdateModelSettings();
+
     // Everything the sources and wakes are built from: the sets and mode, and each Geom's
     // updates and sources
     string SourcesAndWakesState();

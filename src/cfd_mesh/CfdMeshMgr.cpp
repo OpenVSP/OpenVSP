@@ -118,6 +118,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     m_NumOverConnEdges = 0;
     m_NumTopoSurfs = 0;
 
+    UpdateModelSettings();
+
     addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
 
@@ -585,6 +587,27 @@ void CfdMeshMgrSingleton::Update()
 
     UpdateDomain();
 
+    m_Vehicle->GetCfdGridDensityPtr()->Update( 1.0 );
+}
+
+void CfdMeshMgrSingleton::UpdateModelSettings()
+{
+    m_CfdSettings.CopyFrom( m_Vehicle->GetCfdSettingsPtr() );
+
+    UpdateDomain();
+
+    CfdMeshSettings* settings = m_Vehicle->GetCfdSettingsPtr();
+    settings->m_FarXScale = m_CfdSettings.m_FarXScale;
+    settings->m_FarYScale = m_CfdSettings.m_FarYScale;
+    settings->m_FarZScale = m_CfdSettings.m_FarZScale;
+    settings->m_FarLength = m_CfdSettings.m_FarLength;
+    settings->m_FarWidth = m_CfdSettings.m_FarWidth;
+    settings->m_FarHeight = m_CfdSettings.m_FarHeight;
+    settings->m_FarXLocation = m_CfdSettings.m_FarXLocation;
+    settings->m_FarYLocation = m_CfdSettings.m_FarYLocation;
+    settings->m_FarZLocation = m_CfdSettings.m_FarZLocation;
+
+    // Taken from the far field just set.
     m_Vehicle->GetCfdGridDensityPtr()->Update( 1.0 );
 }
 

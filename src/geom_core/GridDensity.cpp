@@ -1571,6 +1571,15 @@ double CfdGridDensity::GetDomainLen()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    if ( veh->GetCfdSettingsPtr()->m_FarCompFlag() )
+    {
+        Geom* g = veh->FindGeom( veh->GetCfdSettingsPtr()->GetFarGeomID() );
+        if ( g )
+        {
+            return g->GetBndBox().DiagDist();
+        }
+    }
+
     double l = veh->GetCfdSettingsPtr()->m_FarLength();
     double w = veh->GetCfdSettingsPtr()->m_FarWidth();
     double h = veh->GetCfdSettingsPtr()->m_FarHeight();
