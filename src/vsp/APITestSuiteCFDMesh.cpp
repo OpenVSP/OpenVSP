@@ -501,3 +501,81 @@ void APITestSuiteCFDMesh::ThePreviewsFollowTheSettings()
 
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
 }
+
+// The faces the CFD Mesh screen would draw, with each display setting as given: the visible
+// triangle and quad objects' points, three to a triangle and four to a quad.
+static int CountDrawnFaces( const string & settings, int colormode, bool colored, bool wake )
+{
+    vsp::SetParmVal( vsp::FindParm( settings, "ColorTagsFlag", "DrawMesh" ), colored );
+    vsp::SetParmVal( vsp::FindParm( settings, "ColorReasonFlag", "DrawMesh" ), colormode );
+    vsp::SetParmVal( vsp::FindParm( settings, "DrawWake", "DrawMesh" ), wake );
+    CfdMeshMgr.UpdateDisplaySettings();
+
+    vector< DrawObj* > dos;
+    CfdMeshMgr.LoadDrawObjs( dos );
+
+    int nface = 0;
+    for ( int i = 0; i < ( int ) dos.size(); i++ )
+    {
+        if ( !dos[i]->m_Visible )
+        {
+            continue;
+        }
+        int type = dos[i]->m_Type;
+        if ( type == DrawObj::VSP_CFD_HIDDEN_TRIS || type == DrawObj::VSP_SHADED_TRIS )
+        {
+            nface += ( int ) dos[i]->m_PntVec.size() / 3;
+        }
+        else if ( type == DrawObj::VSP_CFD_HIDDEN_QUADS || type == DrawObj::VSP_SHADED_QUADS )
+        {
+            nface += ( int ) dos[i]->m_PntVec.size() / 4;
+        }
+    }
+    return nface;
+}
+
+// Every face of a mesh is drawn once in each way of coloring it, and a wake that is hidden is
+// hidden in each of them.
+void APITestSuiteCFDMesh::EachMeshFaceIsDrawnOnce()
+{
+    printf( "APITestSuiteCFDMesh::EachMeshFaceIsDrawnOnce()\n" );
+    vsp::VSPRenew();
+
+    string wid = vsp::AddGeom( "WING" );
+    vsp::SetCFDWakeFlag( wid, true );
+    vsp::Update();
+
+    string analysis_name = "CfdMeshAnalysis";
+    vsp::SetAnalysisInputDefaults( analysis_name );
+    vsp::SetDoubleAnalysisInput( analysis_name, "BaseLen", { 0.5 } );
+    vsp::SetDoubleAnalysisInput( analysis_name, "MinLen", { 0.05 } );
+    vector < int > off = { 0 };
+    vsp::SetIntAnalysisInput( analysis_name, "STLFileFlag", off );
+    vsp::SetIntAnalysisInput( analysis_name, "POLYFileFlag", off );
+    vsp::SetIntAnalysisInput( analysis_name, "TRIFileFlag", off );
+    vsp::SetIntAnalysisInput( analysis_name, "FACETFileFlag", off );
+    vsp::SetIntAnalysisInput( analysis_name, "OBJFileFlag", off );
+    vsp::SetIntAnalysisInput( analysis_name, "GMSHFileFlag", off );
+    vsp::SetIntAnalysisInput( analysis_name, "VSPGEOMFileFlag", off );
+    vsp::SetIntAnalysisInput( analysis_name, "POGSFileFlag", off );
+    vsp::ExecAnalysis( analysis_name );
+
+    string settings = vsp::FindContainer( "CFDMeshSettings", 0 );
+
+    int all = CountDrawnFaces( settings, vsp::TAG, true, true );
+    int body = CountDrawnFaces( settings, vsp::TAG, true, false );
+    printf( "\tfaces drawn %d, without the wake %d\n", all, body );
+    TEST_ASSERT( all > 0 );
+    TEST_ASSERT( body > 0 );
+    TEST_ASSERT( body < all );
+
+    TEST_ASSERT_EQUALS( CountDrawnFaces( settings, vsp::TAG, false, true ), all );
+    TEST_ASSERT_EQUALS( CountDrawnFaces( settings, vsp::REASON, true, true ), all );
+    TEST_ASSERT_EQUALS( CountDrawnFaces( settings, vsp::QUALITY_ANGLE, true, true ), all );
+
+    TEST_ASSERT_EQUALS( CountDrawnFaces( settings, vsp::TAG, false, false ), body );
+    TEST_ASSERT_EQUALS( CountDrawnFaces( settings, vsp::REASON, true, false ), body );
+    TEST_ASSERT_EQUALS( CountDrawnFaces( settings, vsp::QUALITY_ANGLE, true, false ), body );
+
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+}

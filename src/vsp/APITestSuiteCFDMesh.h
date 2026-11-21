@@ -24,6 +24,7 @@ public:
         TEST_ADD( APITestSuiteCFDMesh::CFDMeshAnalysisTest)
         TEST_ADD( APITestSuiteCFDMesh::FEAMeshAnalysisTest)
         TEST_ADD( APITestSuiteCFDMesh::ThePreviewsFollowTheSettings )
+        TEST_ADD( APITestSuiteCFDMesh::EachMeshFaceIsDrawnOnce )
     }
 
 private:
@@ -36,6 +37,7 @@ private:
     void CFDMeshAnalysisTest();
     void FEAMeshAnalysisTest();
     void ThePreviewsFollowTheSettings();
+    void EachMeshFaceIsDrawnOnce();
 };
 
 #endif // !defined(VSPAPITESTSUITECFDMESH__INCLUDED_)

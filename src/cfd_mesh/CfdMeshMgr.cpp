@@ -8299,26 +8299,50 @@ void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
 //   length   the mean of the two edges meeting at that corner over the target length there --
 //            edge data drawn as corner data.  Taken as how far off it is either way, so 0.8
 //            and 1.25 match and sqrt(2) lands halfway up the ramp.
+// Which of the mesh's draw objects a surface's faces go in: a component's surfaces, the wakes,
+// the far field and the symmetry plane each have their own, so each is shown by its own switch.
+static const int NUM_DRAW_KIND = 4;
+
+static int SurfDrawKind( Surf* s )
+{
+    if ( s->GetWakeFlag() )
+    {
+        return 1;
+    }
+    if ( s->GetFarFlag() )
+    {
+        return 2;
+    }
+    if ( s->GetSymPlaneFlag() )
+    {
+        return 3;
+    }
+    return 0;
+}
+
 void CfdMeshMgrSingleton::UpdateQualityDrawObjs()
 {
     m_QualityDO.clear();
-    m_QualityDO.resize( 2 );
+    m_QualityDO.resize( 2 * NUM_DRAW_KIND );
 
     char str[256];
-    snprintf( str, sizeof( str ), "%s_TQUAL", GetID().c_str() );
-    m_QualityDO[0].m_GeomID = string( str );
-    snprintf( str, sizeof( str ), "%s_QQUAL", GetID().c_str() );
-    m_QualityDO[1].m_GeomID = string( str );
+    for ( int kind = 0; kind < NUM_DRAW_KIND; kind++ )
+    {
+        snprintf( str, sizeof( str ), "%s_TQUAL_%d", GetID().c_str(), kind );
+        m_QualityDO[ 2 * kind ].m_GeomID = string( str );
+        snprintf( str, sizeof( str ), "%s_QQUAL_%d", GetID().c_str(), kind );
+        m_QualityDO[ 2 * kind + 1 ].m_GeomID = string( str );
 
-    m_QualityDO[0].m_GeomChanged = true;
-    m_QualityDO[1].m_GeomChanged = true;
+        m_QualityDO[ 2 * kind ].m_GeomChanged = true;
+        m_QualityDO[ 2 * kind + 1 ].m_GeomChanged = true;
+    }
 
     // The material still has to be set even though the color comes per vertex.  Color material
     // only routes the array into ambient and diffuse; specular and emission stay the
     // material's, and DrawObj's default emission is opaque white, which on its own drives any
     // lit surface to white however right the colors underneath are.  Set to no highlight and
     // no glow, which is what a color map wants anyway.
-    for ( int i = 0; i < 2; i++ )
+    for ( int i = 0; i < ( int ) m_QualityDO.size(); i++ )
     {
         for ( int k = 0; k < 4; k++ )
         {
@@ -8341,11 +8365,12 @@ void CfdMeshMgrSingleton::UpdateQualityDrawObjs()
     bool bylen = ( m_QualityDOMetric == vsp::QUALITY_LENGTH );
 
     // What the ramp means, so the picture can be read.  Both ends are fixed rather than taken
-    // from the data, so two meshes colored the same way can be held against each other.
-    for ( int i = 0; i < 2; i++ )
+    // from the data, so two meshes colored the same way can be held against each other.  The
+    // scale is drawn with the components' objects alone, so it is drawn once.
+    for ( int i = 0; i < ( int ) m_QualityDO.size(); i++ )
     {
         m_QualityDO[i].m_VertexColorFlag = true;
-        m_QualityDO[i].m_ColorScaleFlag = true;
+        m_QualityDO[i].m_ColorScaleFlag = ( i < 2 );
 
         if ( bylen )
         {
@@ -8367,6 +8392,7 @@ void CfdMeshMgrSingleton::UpdateQualityDrawObjs()
     {
         const vector< vec3d >& pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+        int kind = SurfDrawKind( m_SurfVec[i] );
 
         for ( int f = 0 ; f < ( int ) fVec.size() ; f++ )
         {
@@ -8380,11 +8406,11 @@ void CfdMeshMgrSingleton::UpdateQualityDrawObjs()
                 n = 4;
             }
 
-            int ido = 0;
+            int ido = 2 * kind;
 
             if ( sface->m_isQuad )
             {
-                ido = 1;
+                ido++;
             }
 
             vec3d norm = cross( pVec[ind[1]] - pVec[ind[0]], pVec[ind[2]] - pVec[ind[0]] );
@@ -8470,19 +8496,23 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
     SurfaceIntersectionSingleton::UpdateDrawObjs();
 
     unsigned int num_reason = vsp::NUM_MESH_REASON + 1;
-    m_ReasonDO.resize( num_reason * 2 );
+    m_ReasonDO.resize( num_reason * 2 * NUM_DRAW_KIND );
 
     char str[256];
-    for ( int i = 0; i < num_reason; i++ )
+    for ( int kind = 0; kind < NUM_DRAW_KIND; kind++ )
     {
-        snprintf( str, sizeof( str ), "%s_TREASON_%d", GetID().c_str(), i );
-        m_ReasonDO[i].m_GeomID = string( str );
+        int base = kind * 2 * num_reason;
+        for ( int i = 0; i < num_reason; i++ )
+        {
+            snprintf( str, sizeof( str ), "%s_TREASON_%d_%d", GetID().c_str(), kind, i );
+            m_ReasonDO[ base + i ].m_GeomID = string( str );
 
-        snprintf( str, sizeof( str ), "%s_QREASON_%d", GetID().c_str(), i + num_reason );
-        m_ReasonDO[ i + num_reason ].m_GeomID = string( str );
+            snprintf( str, sizeof( str ), "%s_QREASON_%d_%d", GetID().c_str(), kind, i + num_reason );
+            m_ReasonDO[ base + i + num_reason ].m_GeomID = string( str );
 
-        m_ReasonDO[i].m_GeomChanged = true;
-        m_ReasonDO[ i + num_reason ].m_GeomChanged = true;
+            m_ReasonDO[ base + i ].m_GeomChanged = true;
+            m_ReasonDO[ base + i + num_reason ].m_GeomChanged = true;
+        }
     }
 
     UpdateQualityDrawObjs();
@@ -8491,13 +8521,14 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
     {
         const vector< vec3d >& pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+        int base = SurfDrawKind( m_SurfVec[i] ) * 2 * num_reason;
         for ( int f = 0 ; f < ( int ) fVec.size() ; f++ )
         {
             const SimpFace* sface = &fVec[f];
 
             if ( sface->m_reason >= 0 && sface->m_reason < num_reason )
             {
-                int ido = sface->m_reason;
+                int ido = base + sface->m_reason;
                 if ( sface->m_isQuad )
                 {
                     ido += num_reason;
@@ -8711,8 +8742,15 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_BBoxLineSymSplit.m_Visible = m_BBoxLineStripSymSplit.m_Visible;
     draw_obj_vec.push_back( &m_BBoxLineSymSplit );
 
-    // The two quality objects.  Their color is per vertex, so no material is set on them --
-    // see UpdateQualityDrawObjs.
+    // Whether each kind of surface is shown: components always, the rest by their own switches.
+    bool kind_shown[ NUM_DRAW_KIND ];
+    kind_shown[0] = true;
+    kind_shown[1] = GetCfdSettingsPtr()->m_DrawWakeFlag;
+    kind_shown[2] = GetCfdSettingsPtr()->m_DrawFarFlag;
+    kind_shown[3] = GetCfdSettingsPtr()->m_DrawSymmFlag;
+
+    // The quality objects, two for each kind of surface.  Their color is per vertex, so no
+    // material is set on them -- see UpdateQualityDrawObjs.
     if ( m_QualityDOMetric != GetCfdSettingsPtr()->m_ColorTagReason &&
          ( GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_ANGLE ||
            GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_LENGTH ) )
@@ -8720,70 +8758,85 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         UpdateQualityDrawObjs();
     }
 
-    if ( m_QualityDO.size() == 2 )
+    if ( m_QualityDO.size() == 2 * NUM_DRAW_KIND )
     {
         bool onqual = GetCfdSettingsPtr()->m_ColorFacesFlag &&
                       ( GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_ANGLE ||
                         GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_LENGTH );
 
-        m_QualityDO[0].m_Visible = onqual;
-        m_QualityDO[1].m_Visible = onqual;
-
-        m_QualityDO[0].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-        m_QualityDO[1].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-
-        if ( onqual && !GetCfdSettingsPtr()->m_DrawMeshFlag )
+        for ( int i = 0; i < ( int ) m_QualityDO.size(); i++ )
         {
-            m_QualityDO[0].m_Type = DrawObj::VSP_SHADED_TRIS;
-            m_QualityDO[1].m_Type = DrawObj::VSP_SHADED_QUADS;
-        }
-        else
-        {
-            m_QualityDO[0].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
-            m_QualityDO[1].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
-        }
+            m_QualityDO[i].m_Visible = onqual && kind_shown[ i / 2 ];
+            m_QualityDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
 
-        draw_obj_vec.push_back( &m_QualityDO[0] );
-        draw_obj_vec.push_back( &m_QualityDO[1] );
+            bool quad = ( i % 2 == 1 );
+            if ( onqual && !GetCfdSettingsPtr()->m_DrawMeshFlag )
+            {
+                m_QualityDO[i].m_Type = DrawObj::VSP_SHADED_TRIS;
+                if ( quad )
+                {
+                    m_QualityDO[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                }
+            }
+            else
+            {
+                m_QualityDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
+                if ( quad )
+                {
+                    m_QualityDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
+                }
+            }
+
+            draw_obj_vec.push_back( &m_QualityDO[i] );
+        }
     }
 
     unsigned int num_reason = vsp::NUM_MESH_REASON + 1;
 
-    if ( m_ReasonDO.size() == 2 * num_reason )
+    if ( m_ReasonDO.size() == 2 * num_reason * NUM_DRAW_KIND )
     {
-        for ( int i = 0; i < num_reason; i++ )
+        for ( int j = 0; j < ( int ) m_ReasonDO.size(); j++ )
         {
+            int i = j % ( 2 * num_reason );
+            if ( i >= num_reason )
+            {
+                continue;
+            }
+            int base = j - i;
+            int kind = base / ( 2 * num_reason );
+            DrawObj* tdo = &m_ReasonDO[ base + i ];
+            DrawObj* qdo = &m_ReasonDO[ base + i + num_reason ];
 
             if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::REASON )
             {
-                m_ReasonDO[i].m_Visible = true;
-                m_ReasonDO[i + num_reason].m_Visible = true;
+                tdo->m_Visible = kind_shown[ kind ];
+                qdo->m_Visible = kind_shown[ kind ];
 
                 if ( GetCfdSettingsPtr()->m_DrawMeshFlag &&
                      GetCfdSettingsPtr()->m_ColorFacesFlag ) // Both are visible.
                 {
-                    m_ReasonDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
-                    m_ReasonDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    tdo->m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
+                    tdo->m_LineColor = vec3d( 0.4, 0.4, 0.4 );
 
-                    m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
-                    m_ReasonDO[i + num_reason].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    qdo->m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
+                    qdo->m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else
                 {
-                    m_ReasonDO[i].m_Type = DrawObj::VSP_SHADED_TRIS;
-                    m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_SHADED_QUADS;
+                    tdo->m_Type = DrawObj::VSP_SHADED_TRIS;
+                    qdo->m_Type = DrawObj::VSP_SHADED_QUADS;
                 }
             }
             else
             {
                 // Need to set some m_Type so objects are created in vsp_graphic on first time through.
-                m_ReasonDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
-                m_ReasonDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-                m_ReasonDO[i].m_Visible = false;
+                tdo->m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
+                tdo->m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                tdo->m_Visible = false;
 
-                m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
-                m_ReasonDO[i + num_reason].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-                m_ReasonDO[i + num_reason].m_Visible = false;
+                qdo->m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
+                qdo->m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                qdo->m_Visible = false;
             }
 
             if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::REASON  )
@@ -8792,52 +8845,52 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 for ( int icomp = 0; icomp < 3; icomp++ )
                 {
-                    m_ReasonDO[i].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp];
-                    m_ReasonDO[i].m_MaterialInfo.Diffuse[icomp] = 0;
-                    m_ReasonDO[i].m_MaterialInfo.Specular[icomp] = 0;
-                    m_ReasonDO[i].m_MaterialInfo.Emission[icomp] = 0;
+                    tdo->m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp];
+                    tdo->m_MaterialInfo.Diffuse[icomp] = 0;
+                    tdo->m_MaterialInfo.Specular[icomp] = 0;
+                    tdo->m_MaterialInfo.Emission[icomp] = 0;
 
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp];
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Diffuse[icomp] = 0;
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Specular[icomp] = 0;
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Emission[icomp] = 0;
+                    qdo->m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp];
+                    qdo->m_MaterialInfo.Diffuse[icomp] = 0;
+                    qdo->m_MaterialInfo.Specular[icomp] = 0;
+                    qdo->m_MaterialInfo.Emission[icomp] = 0;
                 }
-                m_ReasonDO[i].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_ReasonDO[i].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_ReasonDO[i].m_MaterialInfo.Specular[3] = 1.0f;
-                m_ReasonDO[i].m_MaterialInfo.Emission[3] = 1.0f;
+                tdo->m_MaterialInfo.Ambient[3] = 1.0f;
+                tdo->m_MaterialInfo.Diffuse[3] = 1.0f;
+                tdo->m_MaterialInfo.Specular[3] = 1.0f;
+                tdo->m_MaterialInfo.Emission[3] = 1.0f;
 
-                m_ReasonDO[i].m_MaterialInfo.Shininess = 0; // 32.0f;
+                tdo->m_MaterialInfo.Shininess = 0; // 32.0f;
 
 
-                m_ReasonDO[i + num_reason].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_ReasonDO[i + num_reason].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_ReasonDO[i + num_reason].m_MaterialInfo.Specular[3] = 1.0f;
-                m_ReasonDO[i + num_reason].m_MaterialInfo.Emission[3] = 1.0f;
+                qdo->m_MaterialInfo.Ambient[3] = 1.0f;
+                qdo->m_MaterialInfo.Diffuse[3] = 1.0f;
+                qdo->m_MaterialInfo.Specular[3] = 1.0f;
+                qdo->m_MaterialInfo.Emission[3] = 1.0f;
 
-                m_ReasonDO[i + num_reason].m_MaterialInfo.Shininess = 0; // 32.0f;
+                qdo->m_MaterialInfo.Shininess = 0; // 32.0f;
             }
             else
             {
                 for ( int icomp = 0; icomp < 4; icomp++ )
                 {
-                    m_ReasonDO[i].m_MaterialInfo.Ambient[icomp] = 1.0f;
-                    m_ReasonDO[i].m_MaterialInfo.Diffuse[icomp] = 1.0f;
-                    m_ReasonDO[i].m_MaterialInfo.Specular[icomp] = 1.0f;
-                    m_ReasonDO[i].m_MaterialInfo.Emission[icomp] = 1.0f;
+                    tdo->m_MaterialInfo.Ambient[icomp] = 1.0f;
+                    tdo->m_MaterialInfo.Diffuse[icomp] = 1.0f;
+                    tdo->m_MaterialInfo.Specular[icomp] = 1.0f;
+                    tdo->m_MaterialInfo.Emission[icomp] = 1.0f;
 
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Ambient[icomp] = 1.0f;
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Diffuse[icomp] = 1.0f;
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Specular[icomp] = 1.0f;
-                    m_ReasonDO[i + num_reason].m_MaterialInfo.Emission[icomp] = 1.0f;
+                    qdo->m_MaterialInfo.Ambient[icomp] = 1.0f;
+                    qdo->m_MaterialInfo.Diffuse[icomp] = 1.0f;
+                    qdo->m_MaterialInfo.Specular[icomp] = 1.0f;
+                    qdo->m_MaterialInfo.Emission[icomp] = 1.0f;
                 }
-                m_ReasonDO[i].m_MaterialInfo.Shininess = 1.0f;
-                m_ReasonDO[i + num_reason].m_MaterialInfo.Shininess = 1.0f;
+                tdo->m_MaterialInfo.Shininess = 1.0f;
+                qdo->m_MaterialInfo.Shininess = 1.0f;
             }
 
 
-            draw_obj_vec.push_back( &m_ReasonDO[i] );
-            draw_obj_vec.push_back( &m_ReasonDO[i + num_reason] );
+            draw_obj_vec.push_back( tdo );
+            draw_obj_vec.push_back( qdo );
         }
     }
 
@@ -8948,11 +9001,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 dmit = tag_tri_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
-                obj->m_Visible = GetCfdSettingsPtr()->m_DrawWakeFlag ;
+                obj->m_Visible = obj->m_Visible && GetCfdSettingsPtr()->m_DrawWakeFlag;
 
                 dmit = tag_quad_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
-                obj->m_Visible = GetCfdSettingsPtr()->m_DrawWakeFlag ;
+                obj->m_Visible = obj->m_Visible && GetCfdSettingsPtr()->m_DrawWakeFlag;
             }
         }
         else if ( m_SurfVec[ i ]->GetFarFlag() )
@@ -8964,11 +9017,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 dmit = tag_tri_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
-                obj->m_Visible = GetCfdSettingsPtr()->m_DrawFarFlag ;
+                obj->m_Visible = obj->m_Visible && GetCfdSettingsPtr()->m_DrawFarFlag;
 
                 dmit = tag_quad_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
-                obj->m_Visible = GetCfdSettingsPtr()->m_DrawFarFlag ;
+                obj->m_Visible = obj->m_Visible && GetCfdSettingsPtr()->m_DrawFarFlag;
             }
         }
         else if ( m_SurfVec[ i ]->GetSymPlaneFlag() )
@@ -8980,11 +9033,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 dmit = tag_tri_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
-                obj->m_Visible = GetCfdSettingsPtr()->m_DrawSymmFlag ;
+                obj->m_Visible = obj->m_Visible && GetCfdSettingsPtr()->m_DrawSymmFlag;
 
                 dmit = tag_quad_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
-                obj->m_Visible = GetCfdSettingsPtr()->m_DrawSymmFlag ;
+                obj->m_Visible = obj->m_Visible && GetCfdSettingsPtr()->m_DrawSymmFlag;
             }
         }
     }

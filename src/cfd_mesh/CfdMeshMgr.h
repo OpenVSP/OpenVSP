@@ -386,10 +386,13 @@ private:
     DrawObj m_BBoxLineStripSymSplit;
     DrawObj m_BBoxLineSymSplit;
     vector< DrawObj > m_TagDO;
+
+    // Tris then quads of each reason, for each kind of surface -- components, wakes, far field
+    // and symmetry plane -- so each kind is shown by its own switch.
     vector< DrawObj > m_ReasonDO;
 
-    // One per quality band, tris then quads, laid out exactly as m_ReasonDO is, and which of
-    // the two quality measures they were last filled for.
+    // Tris then quads for each kind of surface, as m_ReasonDO, and which of the two quality
+    // measures they were last filled for.
     vector< DrawObj > m_QualityDO;
     int m_QualityDOMetric = -1;
 
