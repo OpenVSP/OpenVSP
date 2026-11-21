@@ -65,7 +65,8 @@ separate slice set a CpSlice_Wrapper, listed with its nickname.  A deleted run l
 Each plot tab has a Flow Condition list.  It lists each flow condition (angle of attack a, sideslip b, Mach M and,
 where the run has one, Reynolds number Re) once, whichever of the checked runs computed it.  Selecting a condition
 plots it from every checked run that has it, so two runs over the same sweep are compared condition by condition.
-Several conditions may be selected at once; click a row to select it or clear it.
+Several conditions may be selected at once: a click selects one, Ctrl-click (Cmd-click on macOS) adds or removes a
+condition, and Shift-click selects a range.
 
 The list shows each value to two significant digits, but conditions are told apart by their exact values.  Two
 conditions that differ only past the second digit (an angle of attack of 12 and 12.4, say) get two rows that read
