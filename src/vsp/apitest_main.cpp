@@ -22,6 +22,7 @@
 #include "APITestSuiteParasiteDrag.h"
 #include "APITestSuiteCFDMesh.h"
 #include "UtilTestSuite.h"
+#include "GeomCoreTestSuite.h"
 
 
 void vsp_exit()
@@ -99,6 +100,12 @@ int main( int argc, char** argv )
     //==== --unstable-suites runs only the unstable tests and exits with their result ====//
     for ( int i = 1; i < argc; i++ )
     {
+        if ( strcmp( argv[i], "--replace-model-open" ) == 0 )
+        {
+            ReplaceModelOpenTestSuite suite;
+            Test::TextOutput output( Test::TextOutput::Verbose );
+            return suite.run( output, true ) ? EXIT_SUCCESS : EXIT_FAILURE;
+        }
         if ( strcmp( argv[i], "--unstable-suites" ) == 0 )
         {
             return run_unstable_tests();

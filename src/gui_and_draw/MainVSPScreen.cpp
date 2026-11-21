@@ -454,9 +454,11 @@ void MainVSPScreen::ActionCB( void * data )
         string openfile = m_ScreenMgr->FileChooser( "Open VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
-            VehicleMgr.GetVehicle()->Renew();
-            VehicleMgr.GetVehicle()->SetVSP3FileName( openfile );
-            VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
+            if ( VehicleMgr.GetVehicle()->ReadXMLFile( openfile, true ) != 0 )
+            {
+                m_ScreenMgr->Alert( "Could not open VSP file. The current model was not changed:\n" + openfile );
+                return;
+            }
 
             if ( VehicleMgr.GetVehicle()->m_ShowNotesScreenParm.Get() )
             {

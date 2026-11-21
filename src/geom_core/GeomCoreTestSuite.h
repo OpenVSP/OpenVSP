@@ -43,4 +43,16 @@ private:
 
 };
 
+class ReplaceModelOpenTestSuite : public Test::Suite
+{
+public:
+    ReplaceModelOpenTestSuite()
+    {
+        TEST_ADD( ReplaceModelOpenTestSuite::ReplaceModelOpenTest )
+    }
+
+private:
+    void ReplaceModelOpenTest();
+};
+
 #endif // !defined(VSPGEOMCORETESTSUITE__INCLUDED_)

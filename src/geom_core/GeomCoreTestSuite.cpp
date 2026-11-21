@@ -7,7 +7,11 @@
 
 #include "GeomCoreTestSuite.h"
 #include "MeshGeom.h"
+#include "LinkMgr.h"
+#include "VehicleMgr.h"
 #include <cfloat>  //For DBL_EPSILON
+#include <filesystem>
+#include <fstream>
 
 //==== Test GeomXForm ====//
 void GeomCoreTestSuite::GeomXFormTest()
@@ -187,6 +191,88 @@ void GeomCoreTestSuite::XmlTest()
     }
 
     xmlFreeNode( root );
+}
+
+void ReplaceModelOpenTestSuite::ReplaceModelOpenTest()
+{
+    Vehicle &veh = *VehicleMgr.GetVehicle();
+    const auto dir = std::filesystem::temp_directory_path() / ( "openvsp-replace-test-" + veh.GetID() );
+    const auto valid_file = dir / "replacement.vsp3";
+    const auto invalid_file = dir / "damaged.vsp3";
+    if ( !std::filesystem::create_directory( dir ) )
+    {
+        TEST_ASSERT( false );
+        return;
+    }
+
+    GeomType pod_type;
+    pod_type.m_Type = POD_GEOM_TYPE;
+    pod_type.m_Name = "POD";
+    veh.AddGeom( pod_type );
+    TEST_ASSERT( veh.WriteXMLFile( valid_file.string(), vsp::SET_ALL ) );
+
+    veh.Renew();
+    GeomType wing_type;
+    wing_type.m_Type = MS_WING_GEOM_TYPE;
+    wing_type.m_Name = "WING";
+    const string wing_id = veh.AddGeom( wing_type );
+    veh.SetActiveGeom( wing_id );
+    veh.SetVSP3FileName( ( dir / "current.vsp3" ).string() );
+    const string old_path = veh.GetVSP3FileName();
+    const auto old_geom_ids = veh.GetGeomVec();
+    const auto old_selection = veh.GetActiveGeomVec();
+    TEST_ASSERT( old_geom_ids.size() == 1 );
+    TEST_ASSERT( old_selection.size() == 1 );
+    const bool old_links_frozen = LinkMgr.GetFreezeUpdateFlag();
+    const int old_version = veh.GetFileVersion();
+    const auto check_preserved = [&]()
+    {
+        TEST_ASSERT( veh.GetVSP3FileName() == old_path );
+        TEST_ASSERT( veh.GetGeomVec() == old_geom_ids );
+        TEST_ASSERT( veh.GetActiveGeomVec() == old_selection );
+        TEST_ASSERT( LinkMgr.GetFreezeUpdateFlag() == old_links_frozen );
+        TEST_ASSERT( veh.GetFileVersion() == old_version );
+    };
+
+    TEST_ASSERT( veh.ReadXMLFile( invalid_file.string(), true ) != 0 );
+    check_preserved();
+
+    const vector< string > invalid_contents = {
+        "not an XML document",
+        "<Unexpected/>",
+        "<Vsp_Geometry><Version>3</Version><Vehicle/></Vsp_Geometry>",
+        "<Vsp_Geometry><Version>5</Version></Vsp_Geometry>",
+        "<Vsp_Geometry><Version>5</Version><Vehicle>"
+    };
+
+    for ( const string &contents : invalid_contents )
+    {
+        {
+            std::ofstream fixture( invalid_file );
+            fixture << contents;
+            TEST_ASSERT( fixture.good() );
+        }
+
+        TEST_ASSERT( veh.ReadXMLFile( invalid_file.string(), true ) != 0 );
+        check_preserved();
+    }
+
+    TEST_ASSERT( veh.ReadXMLFile( valid_file.string(), true ) == 0 );
+    TEST_ASSERT( veh.GetVSP3FileName() == valid_file.generic_string() );
+    TEST_ASSERT( !LinkMgr.GetFreezeUpdateFlag() );
+    TEST_ASSERT( veh.GetFileVersion() == -1 );
+    const auto new_geom_ids = veh.GetGeomVec();
+    TEST_ASSERT( new_geom_ids.size() == 1 );
+    TEST_ASSERT( veh.FindGeom( wing_id ) == nullptr );
+    if ( new_geom_ids.size() == 1 )
+    {
+        Geom *geom = veh.FindGeom( new_geom_ids.front() );
+        TEST_ASSERT( geom && geom->GetType().m_Type == POD_GEOM_TYPE );
+    }
+
+    std::filesystem::remove( invalid_file );
+    std::filesystem::remove( valid_file );
+    std::filesystem::remove( dir );
 }
 
 //==== Test Import/Export Files ====//

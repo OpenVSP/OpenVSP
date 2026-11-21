@@ -12,6 +12,9 @@ FILE( MAKE_DIRECTORY ${CPPTEST_WORK_DIR} )
 ADD_TEST( NAME CppApiTests COMMAND $<TARGET_FILE:apitest> --suites
           WORKING_DIRECTORY ${CPPTEST_WORK_DIR} )
 
+ADD_TEST( NAME ReplaceModelOpen COMMAND $<TARGET_FILE:apitest> --replace-model-open
+          WORKING_DIRECTORY ${CPPTEST_WORK_DIR} )
+
 # The unstable C++ tests (the VSPAERO solves of one model, which crash vspaero now and then,
 # and the CpSlicer test that reads their results) are left out of the suite; configure with
 # -DVSP_UNSTABLE_TESTS=ON to register them, and run them with ctest -L unstable.
