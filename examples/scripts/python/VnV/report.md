@@ -291,12 +291,8 @@ Combined, these plots demonstrate the increase in VSPAERO accuracy as the number
 
 ### Advanced Settings Study
 
-In this study, the various advanced VSPAERO settings are investigated and compared for the Hershey Bar wing.
-The settings of interest are the preconditioner and 2nd order Karman-Tsien Mach Correction. The three types of preconditioners
-available are matrix, Jacobi, and symmetric successive over-relaxation (SSOR). For each VSPAERO run case, only a single advanced setting
-is varied at a time while all others are left at their default value. The last column of the VSPAERO setup table displays the VSPAERO
-computation time for each case. The lift distribution is plotted for each case and compared to the theoretical lift distribution determined by Glauert's method.
-This process is repeated for one, two, and three wake iterations.
+In this study, VSPAERO is run on the Hershey Bar wing with its default advanced settings, for one, two, and three
+wake iterations.
 
 <center>
 
@@ -305,36 +301,15 @@ This process is repeated for one, two, and three wake iterations.
 | :------: | :---: | :--------: | :-------: | :-----------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 |  15   |    1.0     |    1.0    |      0.0      |      12       |       17       |      0.2      |      1.0      |      1.0       |
 
-#### Advanced Settings Study VSPAERO Setup: Wake Iterations = 1 </div>
-| Case #  |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations | Preconditioner | Mach Correction |
-|:-------:|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|:--------------:|:---------------:|
-| Default | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |     Matrix     |       Off       |
-|    1    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |     Jacobi     |       Off       |
-|    2    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |      SSOR      |       Off       |
-|    3    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        1        |     Matrix     |       On        |
-
-
-#### Advanced Settings Study VSPAERO Setup: Wake Iterations = 2 </div>
-| Case #  |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations | Preconditioner | Mach Correction |
-|:-------:|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|:--------------:|:---------------:|
-| Default | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       Off       |
-|    1    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Jacobi     |       Off       |
-|    2    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |      SSOR      |       Off       |
-|    3    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       On        |
-
-
-#### Advanced Settings Study VSPAERO Setup: Wake Iterations = 3 </div>
-| Case #  |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations | Preconditioner | Mach Correction |
-|:-------:|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|:--------------:|:---------------:|
-| Default | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       Off       |
-|    1    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Jacobi     |       Off       |
-|    2    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |      SSOR      |       Off       |
-|    3    | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |        3        |     Matrix     |       On        |
+#### Advanced Settings Study VSPAERO Setup </div>
+| Case #  |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |  M  | Wake Iterations |
+|:-------:|:------------:|:------:|:------------:|:-----------:|:---:|:---------------:|
+| Default | Single Point |  VLM   |     1.0      |     0.0     | 0.1 |    1, 2, 3      |
 
 
 </center>
 
-In the next plot below, the total VSPAERO computation time is plotted for each wake iteration and advanced settings case to provide a summary of the "Exe Time (sec)" column in each of the tables above.
+In the next plot below, the total VSPAERO computation time is plotted for each wake iteration.
 <center>
 
 
