@@ -187,7 +187,7 @@ class VKTTest:
                     vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', Alpha, 0)
                     AlphaNpts = [1]
                     vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
-                    vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'Machstart', const.m_MachVec, 0)
+                    vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
                     MachNpts = [1]
                     vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
                     vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
