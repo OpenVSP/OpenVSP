@@ -28,7 +28,7 @@ def wing_tank():
         vsp.SetParmVal( c, k, "Design", v )
 
 
-snap.shots( fuselage_utrim, "CONFORMAL_SCREEN", { "Conformal_gui_utrim": ( "Conformal_Design", ( 4, 161, 396, 280 ) ) },
+snap.shots( fuselage_utrim, "CONFORMAL_SCREEN", { "Conformal_gui_utrim": ( "Conformal_Design", ( 4, 161, 396, 300 ) ) },
             name = "conformal_fuselage_utrim" )
-snap.shots( wing_tank, "CONFORMAL_SCREEN", { "Conformal_gui_wingtrim": ( "Conformal_Design", ( 4, 509, 396, 726 ) ) },
+snap.shots( wing_tank, "CONFORMAL_SCREEN", { "Conformal_gui_wingtrim": ( "Conformal_Design", ( 4, 529, 396, 746 ) ) },
             name = "conformal_wing_tank" )

@@ -51,10 +51,11 @@ relative to Conformal Parent* places it, relative to the hinge, exactly where it
 on the body with the hinge at rest and swings with the hinge.  A detached Conformal's symmetry still follows its
 conformal parent's, and its symmetry controls stay greyed.
 
-A Conformal can be made on a Fuselage, Stack, Wing, Pod, Ellipsoid, Body of Revolution, Cobra or Custom component,
-or on a Clone of one, which gives it the Clone's placement.  It cannot be made on a Human, a Gear, nor on another
-Conformal; OpenVSP reports an error instead.  On a component that has no notion of an offset, such as a Propeller, the
-Conformal is a copy of the parent's surface.  A Conformal on a Cobra is offset but not trimmed: every trim is ignored.
+A Conformal can be made on a Fuselage, Stack, Wing, Pod, Ellipsoid, Body of Revolution, Cobra, Custom or DATCOM
+component, on a Human shown by its surfaces, or on a Clone of one, which gives it the Clone's placement.  It cannot be
+made on a Human shown as a mesh, a Gear, nor on another Conformal; OpenVSP reports an error instead.  On a component
+that has no notion of an offset, such as a Propeller or a Human, the Conformal is a copy of the parent's surface.  A
+Conformal on a Cobra is offset but not trimmed: every trim is ignored.
 
 ## Offset
 
@@ -69,8 +70,9 @@ default Fuselage an offset of 0.1 lies between 0.092 and 0.104 from the skin.
 *Offset Ends* moves the ends of the Conformal in as well, where the parent ends in a point or in a cap: each end moves
 along the body until it is the offset from the parent's surface, so the Conformal closes inside the parent
 (Figure 2).  Unchecked, the ends stay at the parent's nose and tail points and the Conformal touches the parent there.
-On a Wing the ends move in along the span by the offset.  The check box acts on a component built from cross sections:
-a Fuselage, Stack, Wing or custom component.  On a Pod, Ellipsoid, Body of Revolution or Cobra the ends always move in
+On a Wing, or a component whose surface is a wing's such as an MDC_FIN, the ends move in along the span by the
+offset.  The check box acts on a component built from cross sections: a Fuselage, Stack, Wing, custom or DATCOM
+component.  On a Pod, Ellipsoid, Body of Revolution or Cobra the ends always move in
 by the offset, and the check box is greyed.
 
 ![Figure 2. Offset Ends](images/Conformal_ends.png "Figure 2. Offset Ends")
@@ -78,7 +80,9 @@ by the offset, and the check box is greyed.
 *Figure 2. The nose of the same Fuselage and Conformal, cut through the axis: with Offset Ends (filled) and without
 (dashed).*
 
-The Conformal's end caps are the parent's, unless it is trimmed along its length.
+The Conformal's end caps are the parent's, offset inside them, unless it is trimmed along its length.  A Cone or Ogive
+cap keeps the parent's sphere, smaller by the offset, and the end of a cap that carries the body on, such as Round or
+Point, moves back only as far as the offset body meets the offset cap.
 
 ## Trimming Along the Length
 
@@ -101,8 +105,13 @@ Each setting shows the same end in the other forms.  Use *L* to place an end at 
 default Fuselage, *U* 0.1 falls 2.5 from the nose, while *L* 0.1 falls at about 3, a tenth of its length.  The ends
 cannot cross; each is kept at least 0.001 short of the other.
 
-The trimmed ends are closed by the caps chosen under *U Trim Tip Treatment*, Flat by default.  They work as the end
-caps of a Fuselage do (see [End Caps](FuselageStack.md#end-caps)).
+The trimmed ends are closed by the caps chosen under *U Trim Tip Treatment*, Flat by default: the None, Flat, Round,
+Edge and Sharp caps of a Fuselage (see [End Caps](FuselageStack.md#end-caps)), always relative to the end, and without
+the parent cap's Radius, Truncate, Shear or Scaled Rows.
+
+*Trim the Capped Surface* caps the Conformal as its parent before the U trim, which then measures and cuts the capped
+surface, so an end can be trimmed inside a cap, an ogive nose say.  The trim caps close the cut ends, and an end the
+trim does not reach keeps the parent's cap.
 
 ## Trimming Around the Surface
 
@@ -118,11 +127,11 @@ Prefer *Side Trim* to *V Trim* off a Wing.  Each Side Trim is one number and sta
 floor stays level as it is widened, and four sides can be cut; V Trim needs both ends of each band and gives only
 two.  Use V Trim only for a band that is not centered on a side.
 
-*Side Trim*, offered when the parent is not a Wing, cuts off a band centered on one side, *Side 1* to *Side 4* at
-$W$ = 0, 0.5, 0.25 and 0.75; each value is the width of the band, as a fraction of the way around.  On a Fuselage, a
-Stack or an Ellipsoid these are the right ($+Y$), left, bottom and top; on a Pod, whose $W$ starts at the top, they
-are the top, bottom, right and left.  On a Body of Revolution $W$ runs around the section, not around the axis, and
-*U* runs around the axis.
+*Side Trim*, offered when the parent is not a Wing or an MDC_FIN, cuts off a band centered on one side, *Side 1* to
+*Side 4* at $W$ = 0, 0.5, 0.25 and 0.75; each value is the width of the band, as a fraction of the way around.  On a
+Fuselage, a Stack or an Ellipsoid these are the right ($+Y$), left, bottom and top; on a Pod, whose $W$ starts at the
+top, they are the top, bottom, right and left.  On a Body of Revolution $W$ runs around the section, not around the
+axis, and *U* runs around the axis.
 
 ![Figure 4. Trims](images/Conformal_trims.png "Figure 4. Trims")
 
@@ -131,8 +140,9 @@ cutting its top flat.*
 
 ## Trimming a Wing
 
-On a Wing, the Conformal's sections are the wing's airfoils, each offset into the wing, and its ends move in along
-the span by the offset.  The Side Trim group is replaced by Wing Trim.
+On a Wing, or a component whose surface is a wing's such as an MDC_FIN, the Conformal's sections are the wing's
+airfoils, each offset into the wing, and its ends move in along the span by the offset.  The Side Trim group is
+replaced by Wing Trim.
 
 - *Chord Min* and *Chord Max*, with their toggle checked, keep the part of each airfoil between two fractions of the
   chord and cut off the leading and trailing edges, leaving flat walls where the spars of a tank would be.  They set
@@ -179,6 +189,7 @@ its front edge and turned by Rotate 30.  The dashed outline is the flap at rest.
 | Offset                 | `Offset`                                    | 0.1             |
 | Offset Ends            | `OffSetEnds`                                | on              |
 | Enable U Trimming      | `UTrimFlag`                                 | off             |
+| Trim the Capped Surface | `CapBeforeTrimFlag`                        | off             |
 | Trim type of each end  | `UMinTrimTypeFalg`, `UMaxTrimTypeFalg`      | `U_TRIM`; also `L_TRIM`, `ETA_TRIM` |
 | U Min, U Max           | `UTrimMin`, `UTrimMax`                      | 0.1, 0.9        |
 | L Min, L Max           | `LTrimMin`, `LTrimMax`; `L0LenTrimMin`, `L0LenTrimMax` | 0.1, 0.9 |

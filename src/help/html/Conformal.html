@@ -157,10 +157,11 @@ that it lies on the body with the hinge at rest and swings with the
 hinge. A detached Conformal's symmetry still follows its conformal
 parent's, and its symmetry controls stay greyed.</p>
 <p>A Conformal can be made on a Fuselage, Stack, Wing, Pod, Ellipsoid,
-Body of Revolution, Cobra or Custom component, or on a Clone of one,
-which gives it the Clone's placement. It cannot be made on a Human, a
-Gear, nor on another Conformal; OpenVSP reports an error instead. On a
-component that has no notion of an offset, such as a Propeller, the
+Body of Revolution, Cobra, Custom or DATCOM component, on a Human shown
+by its surfaces, or on a Clone of one, which gives it the Clone's
+placement. It cannot be made on a Human shown as a mesh, a Gear, nor on
+another Conformal; OpenVSP reports an error instead. On a component that
+has no notion of an offset, such as a Propeller or a Human, the
 Conformal is a copy of the parent's surface. A Conformal on a Cobra is
 offset but not trimmed: every trim is ignored.</p>
 <h2 id="offset">Offset</h2>
@@ -178,18 +179,22 @@ where the parent ends in a point or in a cap: each end moves along the
 body until it is the offset from the parent's surface, so the Conformal
 closes inside the parent (Figure 2). Unchecked, the ends stay at the
 parent's nose and tail points and the Conformal touches the parent
-there. On a Wing the ends move in along the span by the offset. The
-check box acts on a component built from cross sections: a Fuselage,
-Stack, Wing or custom component. On a Pod, Ellipsoid, Body of Revolution
-or Cobra the ends always move in by the offset, and the check box is
+there. On a Wing, or a component whose surface is a wing's such as an
+MDC_FIN, the ends move in along the span by the offset. The check box
+acts on a component built from cross sections: a Fuselage, Stack, Wing,
+custom or DATCOM component. On a Pod, Ellipsoid, Body of Revolution or
+Cobra the ends always move in by the offset, and the check box is
 greyed.</p>
 <p><img src="images/Conformal_ends.png" title="Figure 2. Offset Ends"
 alt="Figure 2. Offset Ends" /></p>
 <p><em>Figure 2. The nose of the same Fuselage and Conformal, cut
 through the axis: with Offset Ends (filled) and without
 (dashed).</em></p>
-<p>The Conformal's end caps are the parent's, unless it is trimmed along
-its length.</p>
+<p>The Conformal's end caps are the parent's, offset inside them, unless
+it is trimmed along its length. A Cone or Ogive cap keeps the parent's
+sphere, smaller by the offset, and the end of a cap that carries the
+body on, such as Round or Point, moves back only as far as the offset
+body meets the offset cap.</p>
 <h2 id="trimming-along-the-length">Trimming Along the Length</h2>
 <p><em>Enable U Trimming</em> cuts off the Conformal's ends. Each end is
 set one of three ways, chosen by the toggles before the sliders (Figure
@@ -218,8 +223,15 @@ place an end at a known station of a body: on the default Fuselage,
 about 3, a tenth of its length. The ends cannot cross; each is kept at
 least 0.001 short of the other.</p>
 <p>The trimmed ends are closed by the caps chosen under <em>U Trim Tip
-Treatment</em>, Flat by default. They work as the end caps of a Fuselage
-do (see <a href="FuselageStack.html#end-caps">End Caps</a>).</p>
+Treatment</em>, Flat by default: the None, Flat, Round, Edge and Sharp
+caps of a Fuselage (see <a href="FuselageStack.html#end-caps">End
+Caps</a>), always relative to the end, and without the parent cap's
+Radius, Truncate, Shear or Scaled Rows.</p>
+<p><em>Trim the Capped Surface</em> caps the Conformal as its parent
+before the U trim, which then measures and cuts the capped surface, so
+an end can be trimmed inside a cap, an ogive nose say. The trim caps
+close the cut ends, and an end the trim does not reach keeps the
+parent's cap.</p>
 <h2 id="trimming-around-the-surface">Trimming Around the Surface</h2>
 <p>The trims around the surface cut a band off each cross section and
 close the cut with a straight line, so the Conformal stays closed and is
@@ -246,8 +258,9 @@ Trim is one number and stays centered on its side, so a flat floor stays
 level as it is widened, and four sides can be cut; V Trim needs both
 ends of each band and gives only two. Use V Trim only for a band that is
 not centered on a side.</p>
-<p><em>Side Trim</em>, offered when the parent is not a Wing, cuts off a
-band centered on one side, <em>Side 1</em> to <em>Side 4</em> at
+<p><em>Side Trim</em>, offered when the parent is not a Wing or an
+MDC_FIN, cuts off a band centered on one side, <em>Side 1</em> to
+<em>Side 4</em> at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
 = 0, 0.5, 0.25 and 0.75; each value is the width of the band, as a
 fraction of the way around. On a Fuselage, a Stack or an Ellipsoid these
@@ -266,9 +279,10 @@ alt="Figure 4. Trims" /></p>
 (outline), trimmed to L 0.3 to 0.7, with Side 4 0.3 cutting its top
 flat.</em></p>
 <h2 id="trimming-a-wing">Trimming a Wing</h2>
-<p>On a Wing, the Conformal's sections are the wing's airfoils, each
-offset into the wing, and its ends move in along the span by the offset.
-The Side Trim group is replaced by Wing Trim.</p>
+<p>On a Wing, or a component whose surface is a wing's such as an
+MDC_FIN, the Conformal's sections are the wing's airfoils, each offset
+into the wing, and its ends move in along the span by the offset. The
+Side Trim group is replaced by Wing Trim.</p>
 <ul>
 <li><em>Chord Min</em> and <em>Chord Max</em>, with their toggle
 checked, keep the part of each airfoil between two fractions of the
@@ -350,6 +364,11 @@ style="text-align: left;"><code>HingeConformalPositionFlag</code></td>
 <tr>
 <td style="text-align: left;">Enable U Trimming</td>
 <td style="text-align: left;"><code>UTrimFlag</code></td>
+<td style="text-align: left;">off</td>
+</tr>
+<tr>
+<td style="text-align: left;">Trim the Capped Surface</td>
+<td style="text-align: left;"><code>CapBeforeTrimFlag</code></td>
 <td style="text-align: left;">off</td>
 </tr>
 <tr>
