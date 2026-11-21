@@ -147,6 +147,10 @@ void GraphicEngine::dumpScreenImage( const std::string &fileName, int width, int
         glPixelStorei( GL_PACK_ALIGNMENT, 1 );
         glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &(image.getImageData())[0] );
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glDeleteFramebuffers( 1, &fbo );
+        glDeleteRenderbuffers( 1, &depth );
+        glDeleteTextures( 1, &color );
     }
     else
     {
