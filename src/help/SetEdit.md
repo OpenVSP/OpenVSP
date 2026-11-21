@@ -1,5 +1,5 @@
 ---
-title: 'Set Editor Window'
+title:  'Set Editor'
 ---
 
 OpenVSP Sets enable a user to group components together and perform a wide range of actions or functions. Examples
