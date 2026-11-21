@@ -889,6 +889,36 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
+namespace
+{
+const SurfaceIntersectionSingleton * &SilentProgressManager()
+{
+    static thread_local const SurfaceIntersectionSingleton *mgr = nullptr;
+    return mgr;
+}
+
+class ScopedSilentProgress
+{
+public:
+    explicit ScopedSilentProgress( const SurfaceIntersectionSingleton *mgr )
+        : m_Previous( SilentProgressManager() )
+    {
+        SilentProgressManager() = mgr;
+    }
+
+    ~ScopedSilentProgress()
+    {
+        SilentProgressManager() = m_Previous;
+    }
+
+    ScopedSilentProgress( const ScopedSilentProgress & ) = delete;
+    ScopedSilentProgress &operator=( const ScopedSilentProgress & ) = delete;
+
+private:
+    const SurfaceIntersectionSingleton *m_Previous;
+};
+}
+
 string SurfaceIntersectionSingleton::SplitStitchSurfaces( const string &file_name, bool step_flag, int set, int degen_set,
                                                           bool use_mode, const string &mode_id )
 {
@@ -897,6 +927,12 @@ string SurfaceIntersectionSingleton::SplitStitchSurfaces( const string &file_nam
     {
         return "Surface Intersection is running";
     }
+
+    // File > Export calls this synchronously with the FLTK UI lock held. A worker
+    // cannot acquire that lock to report progress to the Trimmed Surfaces console
+    // while the caller is waiting for its join. Keep the work parallel; only the
+    // progress bars created here on the caller thread must be silent.
+    const ScopedSilentProgress silent_progress( this );
 
     m_MeshInProgress = true;
 
@@ -1186,7 +1222,7 @@ void SurfaceIntersectionSingleton::EndProgress( int output_type )
 ProgressStage::ProgressStage( SurfaceIntersectionSingleton *mgr, const string &label, int n )
 {
     m_Mgr = mgr;
-    m_Live = ( n > 0 && mgr->m_ProgressTotal <= 0 );
+    m_Live = ( mgr != SilentProgressManager() && n > 0 && mgr->m_ProgressTotal <= 0 );
     m_N = n;
     m_Stride = std::max( 1, n / 200 );
 
