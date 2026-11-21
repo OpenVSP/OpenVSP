@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="5.403in" height="4.600in" viewBox="1158 0 1103 939">
+<title>OpenVSP</title>
+<desc>
+Creator: GL2PS 1.4.3, (C) 1999-2020 C. Geuzaine
+For: OpenVSP
+CreationDate: Fri Nov 20 22:47:48 2026
+</desc>
+<defs>
+</defs>
+<g>
+<path fill="#ab0000" shape-rendering="crispEdges" d="M2254.05 47.04l5.64-0.98-3.66 4.4z"/>
+<path fill="#aa0000" shape-rendering="crispEdges" d="M2248.45 52.29l-0.23-3.86 3.69 6.38z"/>
+<path fill="#ab0000" shape-rendering="crispEdges" d="M2242.5 55.99l-0.18-5.94 5.23 9.06z"/>
+<path fill="#aa0000" shape-rendering="crispEdges" d="M2256.03 50.46l-7.81-2.03 5.83-1.39z"/>
+<path fill="#aa0101" shape-rendering="crispEdges" d="M2144.94 105.59l5.8 10.01-10.26-0.98z"/>
+<path fill="#aa0000" shape-rendering="crispEdges" d="M2256.03 50.46l-4.12 4.35-3.69-6.38z"/>
+<path fill="#aa0101" shape-rendering="crispEdges" d="M1329.11 584.02l-12.72-7.96 11.68-8.47z"/>
+<path fill="#6c0000" shape-rendering="crispEdges" d="M2247.55 59.11l0.9 0.67-6.13 2.35z"/>
+<path fill="#d00000" shape-rendering="crispEdges" d="M2237.1 53.07l5.32-4.26-0.1 1.24z"/>
+<path fill="#820000" shape-rendering="crispEdges" d="M2248.45 59.78l-0.9-0.67 4.36-4.3zm-126.4 110.97l-1.73 5.96-8.07 6.16z"/>
+<path fill="#b70000" shape-rendering="crispEdges" d="M2242.42 48.81l5.8-0.38-5.9 1.62z"/>
+<path fill="#930000" shape-rendering="crispEdges" d="M2247.55 59.11l0.9-6.82 3.46 2.52z"/>
+<path fill="#b90000" shape-rendering="crispEdges" d="M2248.22 48.43l0.23 3.86-6.13-2.24z"/>
+<path fill="#b80000" shape-rendering="crispEdges" d="M2095.85 104.61l-11.84-0.65 1.75-4.15z"/>
+<path fill="#b90000" shape-rendering="crispEdges" d="M2220.05 54.39l7.03-1.87 3.41 1.15z"/>
+<path fill="#b80000" shape-rendering="crispEdges" d="M2230.49 53.67l-3.41-1.15 9.28-0.69z"/>
+<path fill="#b90000" shape-rendering="crispEdges" d="M2224.58 55.6l-4.53-1.21 10.44-0.72z"/>
+<path fill="#ad1212" shape-rendering="crispEdges" d="M2248.45 52.29l-0.9 6.82-5.23-9.06z"/>
+<path fill="#b70000" shape-rendering="crispEdges" d="M2236.36 51.83l-2.73-0.96 8.69-0.82z"/>
+<path fill="#b80000" shape-rendering="crispEdges" d="M2227.08 52.52l6.55-1.65 2.73 0.96zm-14.42 7.14l-8.37-0.13 2.83-1.35z"/>
+<path fill="#820000" shape-rendering="crispEdges" d="M2247.55 59.11l-5.05 7.12 0.53-2.84z"/>
+<path fill="#830000" shape-rendering="crispEdges" d="M2045.68 230.85l9.73-3.05-20.57 18.63z"/>
+<path fill="#820000" shape-rendering="crispEdges" d="M2029.05 244.18l5.79 2.25-17.52 13.65zm213.45-177.95l-4.71 4.85 5.24-7.69zm-4.71 4.85l-5.13 5.15 5.84-8.68zm5.24-7.69l-5.24 7.69 0.71-3.53zm-4.53 4.16l-5.84 8.68 1.22-4.53z"/>
+<path fill="#830000" shape-rendering="crispEdges" d="M1300.09 611.36l0.77 6.26-6.98-0.7z"/>
+<path fill="#820000" shape-rendering="crispEdges" d="M1376.47 613.99l-5.16-13.72 20.23-5.92zm21.03-4.64l-21.03 4.64 15.07-19.64z"/>
+<path fill="#920000" shape-rendering="crispEdges" d="M2243.03 63.39l-0.53-7.4 5.05 3.12z"/>
+<path fill="#930101" shape-rendering="crispEdges" d="M2237.79 58.71l4.71-2.72 0.53 7.4z"/>
+<path fill="#920101" shape-rendering="crispEdges" d="M2079.13 176.43l14.22-9.87-6.58 14.33z"/>
+<path fill="#930101" shape-rendering="crispEdges" d="M2035.89 204.83l16.63-12.39-7.54 18.07zm78.14-53.87l12.15-8.29-4.47 12.08zm118.63-89.29l5.13-2.96 0.71 8.84zm5.84 5.88l-0.71-8.84 5.24 4.68zm-4.62 4.15l-1.22-10.03 5.84 5.88z"/>
+<path fill="#920101" shape-rendering="crispEdges" d="M1854.96 312.91l5.06 38.42-27.99-12.34z"/>
+<path fill="#b80000" shape-rendering="crispEdges" d="M2242.32 50.05l0.18 5.94-6.14-4.16zm0.18 5.94l-4.71 2.72-1.43-6.88z"/>
+<path fill="#b70000" shape-rendering="crispEdges" d="M2099.66 112.61l10.4 8-11.46 2.7z"/>
+<path fill="#b80000" shape-rendering="crispEdges" d="M2237.79 58.71l-5.13 2.96-2.17-8zm-1.43-6.88l1.43 6.88-7.3-5.04zm-5.87 1.84l2.17 8-8.08-6.07z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M2217.96 55.25l-5.28 1.19 7.37-2.05zm-5.34 1.54l0.06-0.35 5.28-1.19z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M1900.25 169.83l10.32 2.63-29.22 5.99zm96.62-36.28l-24.27 6.44 7.83-2.56z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M1953.55 147.4l14.37 0.55-20.29 5.66z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M2212.68 56.44l-0.06 0.35-6.14 1.43z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M2178.91 67.62l-7.35 2.02 0.68-0.92z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2227.2 81.59l3.67-3.97 1.79-1.39zm-0.33-0.12l0.33 0.12-4.64 4.48zm-51.06 47.49l1.01-1.75 6.09-5.98zm-55.49 47.75l10.84-11.33-8.68 9.68z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M2205.14 101.74l-8.75 8.71 4.27-5.24z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2227.2 81.59l-0.33-0.12 4-3.85z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M2182.91 121.23l6.31-5.49-6.76 7.34z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2131.16 165.38l1 1.59-9.68 8.09z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M2189.22 115.74l-0.09 1.33-6.67 6.01z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2157.91 142.45l6.77-5.24-9.75 10z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M2141.05 157.13l8.55-7.56-8.88 9.94z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2189.13 117.07l0.09-1.33 6.09-5.32zm0 0l6.18-6.65 1.08 0.03z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M2132.16 166.97l-1-1.59 9.89-8.25zm0 0l8.89-9.84-0.33 2.38zm-163.63 127.95l17.54-12.54-25.3 23.74zm207.28-165.96l7.1-7.73-0.45 1.85zm-491.3 354.83l-14.36 6.05 17.93-16.5zm-45.25 15.89l-14.56 16.66-13.73 1.47z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M1484.82 586.08l29.02-23.33 5.13 6.06zm-13.05-2.42l22.2-12.53-9.15 14.95z"/>
+<path fill="#af0000" shape-rendering="crispEdges" d="M2224.58 55.6l-6.62-0.35 2.09-0.86z"/>
+<path fill="#ae0000" shape-rendering="crispEdges" d="M2105.52 139.16l-13.17-4.86 6.25-10.99z"/>
+<path fill="#840000" shape-rendering="crispEdges" d="M2230.87 77.62l3.01-5.92-1.22 4.53z"/>
+<path fill="#830000" shape-rendering="crispEdges" d="M1872.88 357.9l14.29-1.77-31.86 22.89zm-99.95 64.29l20.95-17.48 5.66 8.42zm-146.77 76.92l13.1 0.57-28.29 18.13z"/>
+<path fill="#840000" shape-rendering="crispEdges" d="M1421.46 603.1l-23.96 6.25 15.8-22.36z"/>
+<path fill="#830000" shape-rendering="crispEdges" d="M1397.5 609.35l-5.96-15 21.76-7.36z"/>
+<path fill="#ba0000" shape-rendering="crispEdges" d="M2217.96 55.25l6.62 0.35-6 2.02zm-200 110.88l-22.38-6.23-4.39-11.25z"/>
+<path fill="#bb0101" shape-rendering="crispEdges" d="M2212.67 64.37l-0.01-4.71 4.73 4.45z"/>
+<path fill="#ba0000" shape-rendering="crispEdges" d="M2084.18 120.64l-0.95-10.86 15.37 13.53z"/>
+<path fill="#bb0000" shape-rendering="crispEdges" d="M2212.62 56.79l5.34-1.54 0.62 2.37zm0.04 2.87l-0.04-2.87 5.96 0.83zm-147.96 50.54l6.24-4.92 12.29 4.5z"/>
+<path fill="#ba0000" shape-rendering="crispEdges" d="M2178.91 67.62l5.28-2.14 3.91 3.01z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2233.88 71.7l-3.01 5.92-1.74-1.72zm-3.01 5.92l-4 3.85 2.26-5.57zm-4 3.85l-2.47-1.47 4.73-4.1z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2179.36 117.38l-2.54 9.83-5.22 4.04zm-2.54 9.83l2.54-9.83 3.55 3.85z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2216.06 91.65l-5.36 5.1 4.05-8.5zm0 0l-1.31-3.4 4.86-4.13z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2003.67 251.55l-0.48 17.99-17.12 12.84zm207.03-154.8l-5.56 4.99 4.7-9.36z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2131.16 165.38l-4.09-6.69 10.16-7.91zm9.89-8.25l-9.89 8.25 6.07-14.6zm54.26-46.71l-6.09 5.32 3.53-9.23zm-6.09 5.32l-2.96-3.93 6.49-5.3zm15.92-14l-4.48 3.47 3.82-8.36zm-33.54 29.51l-6.92 5.96 7.3-13.89zm-203.07 163.67l17.38-30.46 0.16 17.92zm203.07-163.67l0.38-7.93 7.38-5.94zm-105.42 73.94l-10.77 22.61-3.63-11.81z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2070.06 216.78l-14.65 11.02 10.77-22.61z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2095.27 195.18l-2.58-10.06 12.14-9.28z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2210.7 96.75l-0.86-4.37 4.91-4.13z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2164.68 137.21l-0.56-7.62 7.86-6.27zm34.17-35.7l-3.54 8.91-2.56-3.91z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2084.77 201.94l-14.71 14.84 9.75-21.88z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2146.79 143.29l-5.74 13.84-3.82-6.35zm63.05-50.91l-4.7 9.36-0.66-4.89z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2020.56 239.15l-17.37 30.39 0.48-17.99zm-34.49 43.23l-0.16-17.92 17.76-12.91zm-74.15 53.62l15.22-29.74 2.65 20.42z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M1985.91 264.46l-17.38 30.46-1.28-17.02z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1911.92 336l-24.75 20.13 18.42-34.99z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M1860.02 351.33l-27.99 37.73 3.7-22.9zm-66.14 53.38l-20.95 17.48 13.38-27.55z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1639.26 499.68l23.45-34.84 1.83 17.79zm25.28-17.05l22.96-31.68 0.58 22.39z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M1786.31 394.64l-13.38 27.55-11.28-13.39zm-98.81 56.31l-22.96 31.68-1.83-17.79z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1835.73 366.16l-3.7 22.9-21.07-8.62zm-247.67 139.45l24.99-13.43-28.57 35.42z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M1561.75 519.44l-24.21 29.38-1.81-16.07z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2233.88 71.7l-3.01-2.72 1.79-7.31z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M1948.44 269.54l18.81 8.36-19.62 13.97zm0 0l-0.81 22.33-14.68-10.23z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2220.33 77.63l-0.72 6.49-3.55-4.42zm0 0l4.07 2.37-4.79 4.12zm6.54-5.71l4-2.94-1.74 6.92zm-2.47 8.08l2.47-8.08 2.26 3.98zm-156.46 106.09l11.19-9.66 0.68 18.47zm-42.37 32.45l10.32-13.71 0.7 22.47zm-131.33 90.01l17.45-23.36-6.1 35.95z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M2092.69 185.12l-5.92-4.23 6.58-14.33zm-40.91 30.87l-6.8-5.48 7.54-18.07z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2106.65 163.15l7.38-12.19 2.26 16.07zm-130.98 90.86l16.01-21.66-5.77 32.11z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M2020.56 239.15l5.01-20.61 11.02 8.76z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2066.18 205.19l1.76-19.1 11.87 8.81zm60.89-46.5l-5.36-3.94 4.47-12.08z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M2106.65 163.15l-1.82 12.69-11.48-9.28z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2214.75 88.25l1.31-8.55 3.55 4.42zm-14.11 3.8l3.84 4.8-5.63 4.66zm-5.43 2.45l5.43-2.45-1.79 9.46zm5.43-2.45l4.49-4.8-0.65 9.6zm-42.72 30.35l6.76-6.23-0.56 13.42zm6.76-6.23l6.93-4.94 0.37 12.09zm-23.24 15.8l8.23-4.06-2.88 15.38zm8.23-4.06l6.08 8.32-8.96 7.06zm74.73-47.91l-4.07-2.37 2.58-3.95zm-74.73 47.91l8.25-5.51-2.17 13.83zm22.31-4.59l-0.37-12.09 7.75 6.15zm-79.29 61.8l0.66-18.56 11.48 9.28zm138.18-116.14l3.01 2.72-4.75 4.2zm-104.69 73.69l11.05 8.11-10.16 7.91zm37.94-13.08l0.56-13.42 7.3 7.15zm31.09-35.09l3.64 7.01-6.1 5zm9.92-7.25l4.71 5.13-5.36 4.47zm-47.21 35.15l6.2 7.19-8.37 6.64zm-867.67 488.95l4.63-7.1 5.21 7.11z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M1294.88 604.25l12.09-2.59-6.88 9.7z"/>
+<path fill="#b90000" shape-rendering="crispEdges" d="M2225.44 59.57l-0.86-3.97 8.08 6.07zm-100.11 26.44l-11.07 1.9 5.45-1.69z"/>
+<path fill="#ba0000" shape-rendering="crispEdges" d="M1912.69 183.41l-34.57 1.75 3.23-6.71z"/>
+<path fill="#bb0000" shape-rendering="crispEdges" d="M2212.62 56.79l-5.5 1.39-0.64 0.04zm-118.95 39.35l14.1 3.63-22.01 0.04zm105.52-35.78l5.1-0.83-5.89 1.53z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M2046.36 114.97l-18.57 4.16 7.46-2.65z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2222.91 85.53l3.96-4.06-4.31 4.6zm-344.97 282.34l-19.93 13.92 29.16-25.66zm20.46-14.83l-20.46 14.83 9.23-11.74zm157.01-125.24l-3.05 5.02-9.54 8.32z"/>
+<path fill="#790000" shape-rendering="crispEdges" d="M2176.82 127.21l-7.85 7.75 2.63-3.71z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2095.27 195.18l4.33-0.66-13.46 10.91zm-116.41 96.74l-18.09 14.2 25.3-23.74z"/>
+<path fill="#790000" shape-rendering="crispEdges" d="M2210.7 96.75l-2.87 3.2-4.42 4.08zm-2.87 3.2l2.87-3.2 1.05-0.44z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2164.68 137.21l-2.42 3.62-7.33 6.38zm-2.42 3.62l9.34-9.58-2.63 3.71zm34.13-30.38l8.75-8.71-1.73 2.29zm14.31-13.7l5.36-5.1-4.31 4.66zm5.36-5.1l1-0.34-5.31 5z"/>
+<path fill="#790000" shape-rendering="crispEdges" d="M2003.19 269.54l-24.33 22.38 7.21-9.54z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M2205.14 101.74l5.56-4.99-7.29 7.28zm-125.85 109.58l15.98-16.14-9.13 10.25zm92.31-80.07l-9.34 9.58 2.42-3.62zm-136.76 115.18l20.57-18.63-12.59 13.34z"/>
+<path fill="#790000" shape-rendering="crispEdges" d="M1887.17 356.13l-29.16 25.66-2.7-2.77z"/>
+<path fill="#7a0000" shape-rendering="crispEdges" d="M1513.84 562.75l-29.02 23.33 9.15-14.95zm74.71-27.07l-4.07-8.08 26.49-9.79zm-4.07-8.08l-29.42 25.35-3.32-4.23z"/>
+<path fill="#bb0202" shape-rendering="crispEdges" d="M2224.58 55.6l0.86 3.97-6.86-1.95z"/>
+<path fill="#bc0202" shape-rendering="crispEdges" d="M2032.91 151.01l-19.59-0.07-4.74-9.78z"/>
+<path fill="#bb0202" shape-rendering="crispEdges" d="M2225.44 59.57l-4.55 2-2.31-3.95zm-28.7 13.14l-6.41 1.47-2.23-5.69z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M2207.12 58.18l-7.93 2.18 7.29-2.14z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M2104.41 92.96l-10.74 3.18-3.93 0.77z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M2155.77 74.9l-7.95 2.34-2.26 0.25z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M2191.3 63.15l-4.21 0.89 5.12-1.57z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M2114.26 87.91l11.07-1.9-10.28 3.59zm-61.91 22.49l18.59-5.12-6.24 4.92zm18.59-5.12l-18.59 5.12 5.93-2.59zm0 0l14.82-5.47-1.75 4.15zm-209.63 88.07l-28.03 8.36 13.31-10.43zm224.45-93.54l-16.54 4.03 9.92-3.31zm112.64-38.75l-7.1 2.09 0.91-0.68zm0.79-0.7l-0.79 0.7-6.19 1.41zm-918.61 539.73l2.28-8.03 0.55 4.42z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M1281.41 593.89l2.26-11.24-0.5 4.43zm1.76-6.81l-2.59 13.01 0.83-6.2z"/>
+<path fill="#790000" shape-rendering="crispEdges" d="M2217.06 91.31l5.85-5.78-0.35 0.54z"/>
+<path fill="#780000" shape-rendering="crispEdges" d="M1978.86 291.92l24.33-22.38-8.08 9.19z"/>
+<path fill="#790000" shape-rendering="crispEdges" d="M2168.97 134.96l7.85-7.75-1.01 1.75zm-453.61 323.29l-6.4 11.8-24.45 13.74zm-27.28 15.09l27.28-15.09-30.85 25.54z"/>
+<path fill="#780000" shape-rendering="crispEdges" d="M1743.01 443.85l-34.05 26.2 6.4-11.8z"/>
+<path fill="#b20000" shape-rendering="crispEdges" d="M2227.2 64.82l-1.76-5.25 7.22 2.1zm-10.14 5.86l-4.39-6.31 4.72-0.26zm3.83-9.11l6.31 3.25-4.64 2.68zm-45.48 32.69l-9.1-6.41 4.93-4.2zm-65.35 26.35l3.98-10.22 8.21 14.76zm86.68-47.9l-0.39 9.88-6.02-8.41zm30.46-7.89l-6.31-3.25 4.55-2zm-55.96 18.83l7.13-3.16 3.5 9.82zm7.13-3.16l10.42 6.12-6.92 3.7z"/>
+<path fill="#b30000" shape-rendering="crispEdges" d="M2185.37 77.5l4.96-3.32 6.02 8.41z"/>
+<path fill="#b20000" shape-rendering="crispEdges" d="M2125.02 105.3l8.62-4.89 6.84 14.21zm5.67 13.55l-16.65-8.46 10.98-5.09zm0 0l-5.67-13.55 15.46 9.32zm-195.4 105.79l2.71-28.1 19.51 20.23zm240.12-130.38l-4.17-10.61 10.63 6.66z"/>
+<path fill="#a00101" shape-rendering="crispEdges" d="M2230.87 68.98l-3.67-4.16 5.46-3.15z"/>
+<path fill="#a00202" shape-rendering="crispEdges" d="M2226.87 71.92l0.33-7.1 3.67 4.16zm0.33-7.1l-0.33 7.1-4.31-4.42z"/>
+<path fill="#a10202" shape-rendering="crispEdges" d="M2216.06 79.7l-5.36 3.32 1.04-9.27zm1-9.02l-1 9.02-4.32-5.95z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M2212.62 56.79l0.04 2.87-5.54-1.48z"/>
+<path fill="#bd0101" shape-rendering="crispEdges" d="M1967.92 147.95l9.59-6.38 13.68 7.08zm-57.35 24.51l14.36-10.2 8.73 11.71z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M2191.3 63.15l7.1-2.09 2.29 2.83z"/>
+<path fill="#bc0101" shape-rendering="crispEdges" d="M2178.91 67.62l9.19 0.87-6.84 2.54z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M2125.33 86.01l7.92-3.24 6.33 4.3z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M2163.64 72.22l10.23 1.59-7.83 2.98zm-7.87 2.68l7.87-2.68 2.4 4.57zm7.87-2.68l7.92-2.58 2.31 4.17z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M2171.56 69.64l9.7 1.39-7.39 2.78z"/>
+<path fill="#bd0000" shape-rendering="crispEdges" d="M2155.77 74.9l10.27 1.89-8.28 3.18z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2224.4 80l2.47 1.47-3.96 4.06zm-189.56 166.43l-5.79-2.25 7.54-16.88zm185.49-159.12l4.07-7.31-1.49 5.53z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M2107.35 183.26l8.94-16.23-4.04 15.84z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1952.51 305.13l-22.72 21.55 17.84-34.81z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M2003.19 269.54l17.37-30.39-3.24 20.93z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M2079.81 194.9l-9.75 21.88-3.88-11.59z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M1855.31 379.02l-23.28 10.04 27.99-37.73zm74.48-52.34l-2.65-20.42 20.49-14.39z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1905.59 321.14l-18.42 34.99-3.92-19.93zm-588.8 281.75l5.86 6.91-11.81 1.08zm197.05-40.14l21.89-30 1.81 16.07z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M1510.06 545.42l3.78 17.33-19.87 8.38zm262.87-123.23l-29.92 21.66 18.64-35.05z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1662.71 464.84l-23.45 34.84-1.34-21.1z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M1493.97 571.13l-9.2-13.78 25.29-11.93zm267.68-162.33l-18.64 35.05-6.03-20.95zm-18.64 35.05l-27.65 14.4 21.62-35.35z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1715.36 458.25l-3.05-21.31 24.67-14.04zm-179.63 74.5l-21.89 30-3.78-17.33z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M1613.05 492.18l-2.08 25.63-26.49 9.79z"/>
+<path fill="#880000" shape-rendering="crispEdges" d="M1588.06 505.61l-3.58 21.99-22.73-8.16z"/>
+<path fill="#c00000" shape-rendering="crispEdges" d="M2204.29 59.53l-5.1 0.83 7.93-2.18zm-110.62 36.61l-14.53 4.39 10.6-3.62z"/>
+<path fill="#bf0000" shape-rendering="crispEdges" d="M2147.82 77.24l-10.6 3.02 8.34-2.77zm-18.93 5.83l4.36-0.3-13.54 3.45zm0 0l12.97-3.33-8.61 3.03z"/>
+<path fill="#c00000" shape-rendering="crispEdges" d="M1833.28 201.71l-14.56 11.75-22.09 0.97zm338.96-132.99l11.95-3.24-5.28 2.14z"/>
+<path fill="#bf0000" shape-rendering="crispEdges" d="M2070.94 105.28l-1.72-1.44 16.54-4.03zm-1.72-1.44l1.72 1.44-12.66 2.53zm72.64-24.1l-12.97 3.33 8.33-2.81zm20.72-7.87l1.06 0.35-9.85 2.57zm1.06 0.35l-7.87 2.68-1.98-0.11z"/>
+<path fill="#c00000" shape-rendering="crispEdges" d="M1282.86 592.06l-2.28 8.03 2.59-13.01z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M2217.06 91.31l3.27-4 2.58-1.78zm3.27-4l-3.27 4-1 0.34zm-69.56 63.75l-10.05 8.45 8.88-9.94zm44.54-40.64l5.35-5.21-4.27 5.24zm-252.47 209.48l25.69-24.98-7.76 11.2zm-55.67 36.23l24.75-20.13-13.52 17.04z"/>
+<path fill="#7c0000" shape-rendering="crispEdges" d="M1555.06 552.95l29.42-25.35-8.62 13.66zm-226.01 64.69l-10.99-1 4.59-6.84z"/>
+<path fill="#bc0202" shape-rendering="crispEdges" d="M2220.89 61.57l-8.23-1.91 5.92-2.04z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2212.66 59.66l8.23 1.91-3.5 2.54z"/>
+<path fill="#bb0202" shape-rendering="crispEdges" d="M2157.76 79.97l8.55 7.88-7.17 1.88z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2208.75 67.03l-5.56 2.98-2.5-6.12z"/>
+<path fill="#bc0202" shape-rendering="crispEdges" d="M2208.75 67.03l-8.06-3.14 6.01-2.14z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M1978.14 179.7l-5.23-23.09 25.43 18.42zm135.9-69.31l-14.38 2.22-3.81-8z"/>
+<path fill="#bc0202" shape-rendering="crispEdges" d="M2203.19 70.01l-6.45 2.7-2.08-6.63zm9.47-10.35l0.01 4.71-5.97-2.62z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2203.19 70.01l-8.53-3.93 6.03-2.19zm-8.53-3.93l2.08 6.63-8.64-4.22z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2226.87 71.92l-2.47 8.08-1.49-6.32zm-93.56 62.67l3.92 16.19-11.05-8.11zm43.45-28.87l2.6 11.66-7.75-6.15zm33.94-22.7l5.36-3.32-1.31 8.55zm-5.57 4.23l5.57-4.23-0.86 9.36zm-16.11 11.4l3.73 7.86-6.49 5.3zm-6.26 4.51l6.26-4.51-2.76 13.16zm6.26-4.51l6.19-4.15-2.46 12.01zm20.82-6.27l0.86-9.36 4.05 5.23zm-68.4 39.59l5.35 11.32-9.56 7.49zm41.32-28.81l3.5 8.65-6.9 5.57z"/>
+<path fill="#920000" shape-rendering="crispEdges" d="M1967.25 277.9l-18.81-8.36 7.43-21.44z"/>
+<path fill="#a10101" shape-rendering="crispEdges" d="M2226.87 71.92l-3.96 1.76-0.35-6.18z"/>
+<path fill="#b20000" shape-rendering="crispEdges" d="M2217.39 64.11l3.5-2.54 1.67 5.93zm-184.48 86.9l22.12 16.29-14.09 2.88z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M2203.19 70.01l4.64 6-4.42 2.54zm4.64 6l-4.64-6 8.55 3.74zm-56.37 17.28l10.78 9.02-7.31 4.24zm10.78 9.02l-3.1-12.58 9.71 8.65z"/>
+<path fill="#b20000" shape-rendering="crispEdges" d="M2196.35 82.59l0.39-9.88 6.67 5.84zm6.84-12.58l5.56-2.98 2.99 6.72zm5.56-2.98l8.31 3.65-5.32 3.07z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M2196.74 72.71l6.45-2.7 0.22 8.54z"/>
+<path fill="#b20000" shape-rendering="crispEdges" d="M2070.6 145.2l4.55-15.82 11.34 17.09z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M2114.04 110.39l16.65 8.46-8.44 6.3zm28.64-14.36l8.78-2.74 3.47 13.26zm16.46-6.3l3.1 12.58-10.78-9.02z"/>
+<path fill="#b20000" shape-rendering="crispEdges" d="M2188.79 86.61l-10.42-6.12 7-2.99zm0 0l-3.42-9.11 10.98 5.09z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M2017.96 166.13l14.95-15.12 8.03 19.17z"/>
+<path fill="#b20000" shape-rendering="crispEdges" d="M1855.55 242.88l20.37-16.81 20.33 27.34z"/>
+<path fill="#bb0000" shape-rendering="crispEdges" d="M2204.29 59.53l8.37 0.13-5.96 2.09zm-3.6 4.36l-2.29-2.83 8.3 0.69z"/>
+<path fill="#bc0000" shape-rendering="crispEdges" d="M2184.19 65.48l7.11-2.33 3.36 2.93zm10.47 0.6l-3.36-2.93 9.39 0.74zm-10.47-0.6l10.47 0.6-6.56 2.41z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M2224.4 80l-4.07 7.31-0.72-3.19zm-168.99 147.8l-9.73 3.05 6.1-14.86z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M1887.17 356.13l-14.29 1.77 10.37-21.7zm332.44-272.01l0.72 3.19-4.27 4.34zm-112.26 99.14l-12.08 11.92 9.56-19.34z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M2131.16 165.38l-9.11 5.37 5.02-12.06z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2189.22 115.74l-6.31 5.49 3.35-9.42zm-220.69 179.18l-16.02 10.21 14.74-27.23z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M1952.51 305.13l-4.88-13.26 19.62-13.97z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2200.66 105.21l-5.35 5.21 3.54-8.91z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M2204.48 96.85l-3.82 8.36-1.81-3.7z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2164.68 137.21l-6.77 5.24 6.21-12.86zm-15.08 12.36l-8.55 7.56 5.74-13.84zm-54.33 45.61l-10.5 6.76 7.92-16.82zm62.64-52.73l-8.31 7.12 6.15-13.34zm-2.16-6.22l-6.15 13.34-2.81-6.28zm30.51-24.42l-3.35 9.42-3.55-3.85z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M2092.69 185.12l-7.92 16.82-4.96-7.04z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M2164.12 129.59l-6.21 12.86-2.16-6.22zm-236.98 176.67l-15.22 29.74-6.33-14.86zm-287.88 193.42l-13.1-0.57 11.76-20.53z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M1626.16 499.11l-13.11-6.93 24.87-13.6z"/>
+<path fill="#890000" shape-rendering="crispEdges" d="M1701.93 456.08l10.38-19.14 3.05 21.31z"/>
+<path fill="#bd0101" shape-rendering="crispEdges" d="M2204.29 59.53l2.41 2.22-8.3-0.69z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M2029.31 121.55l17.05-6.58-3.58 5.53zm-51.8 20.02l19.36-8.02-3.46 6.71z"/>
+<path fill="#bd0101" shape-rendering="crispEdges" d="M2133.25 82.77l8.61-3.03 7.07 3.66z"/>
+<path fill="#be0101" shape-rendering="crispEdges" d="M2115.05 89.6l14.59 1.4-10.6 4.23zm0 0l10.28-3.59 4.31 4.99z"/>
+<path fill="#bd0101" shape-rendering="crispEdges" d="M2148.93 83.4l-7.07-3.66 15.9 0.23zm-9.35 3.67l-6.33-4.3 15.68 0.63z"/>
+<path fill="#be0101" shape-rendering="crispEdges" d="M2104.41 92.96l14.63 2.27-11.27 4.54zm20.92-6.95l14.25 1.06-9.94 3.93z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M1283.41 596.48l2.01 6.51-4.82 2.78z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M2217.06 70.68l0.33-6.57 5.17 3.39zm-50.75 17.17l2.54 10.53-9.71-8.65zm-188.31 119.85l-20.49 9.07 1.26-28.49z"/>
+<path fill="#b00000" shape-rendering="crispEdges" d="M1978 207.7l0.14-28 19.66 20.67z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M2168.85 98.38l-2.54-10.53 9.1 6.41z"/>
+<path fill="#a20202" shape-rendering="crispEdges" d="M2222.91 73.68l-5.85-3 5.5-3.18z"/>
+<path fill="#a30202" shape-rendering="crispEdges" d="M2141.44 131.97l-8.13 2.62-2.62-15.74z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M2187.09 64.04l4.21-0.89-9.95 2.68z"/>
+<path fill="#bf0000" shape-rendering="crispEdges" d="M1818.72 213.46l-21.67 10.03-0.42-9.06zm-22.09 0.97l0.42 9.06-28.58 6.31z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M1996.96 130.7l19.69-3.54-19.78 6.39z"/>
+<path fill="#bf0000" shape-rendering="crispEdges" d="M1900.25 169.83l5.25-2.99 19.43-4.58z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M1910.57 172.46l-10.32-2.63 24.68-7.57z"/>
+<path fill="#bf0000" shape-rendering="crispEdges" d="M2029.31 121.55l-1.52-2.42 18.57-4.16z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M2184.19 65.48l-11.95 3.24 9.11-2.89zm7.11-2.33l-7.11 2.33-2.84 0.35zm-76.25 26.45l-10.64 3.36-2.69-0.45z"/>
+<path fill="#bf0000" shape-rendering="crispEdges" d="M2171.56 69.64l-8.98 2.23 9.66-3.15zm-15.79 5.26l-10.21 2.59 8.23-2.7z"/>
+<path fill="#be0000" shape-rendering="crispEdges" d="M2163.64 72.22l-1.06-0.35 8.98-2.23z"/>
+<path fill="#a00404" shape-rendering="crispEdges" d="M2220.33 77.63l-3.27-6.95 5.85 3z"/>
+<path fill="#bd0404" shape-rendering="crispEdges" d="M2206.7 61.75l5.97 2.62-3.92 2.66zm-351.15 181.13l-29.94-0.78-5.4-15.1z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2178.37 80.49l-7.13 3.16-5.2-6.86zm7-2.99l-7 2.99-4.5-6.68zm-7 2.99l-12.33-3.7 7.83-2.98zm9.73-12l2.23 5.69-9.07-3.15z"/>
+<path fill="#bc0404" shape-rendering="crispEdges" d="M2159.14 89.73l-7.68 3.56-2.53-9.89z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2075.15 129.38l-15.2 3.35-4.19-11.56z"/>
+<path fill="#bc0404" shape-rendering="crispEdges" d="M2159.14 89.73l-10.21-6.33 8.83-3.43z"/>
+<path fill="#bd0404" shape-rendering="crispEdges" d="M2050.83 144.44l-17.92 6.57-7.79-16.92z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2166.04 76.79l5.2 6.86-13.48-3.68z"/>
+<path fill="#bd0404" shape-rendering="crispEdges" d="M2151.46 93.29l-11.88-6.22 9.35-3.67z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2181.26 71.03l4.11 6.47-11.5-3.69z"/>
+<path fill="#bc0404" shape-rendering="crispEdges" d="M1875.92 226.07l-7.84-22.11 35.94 17.7z"/>
+<path fill="#b30000" shape-rendering="crispEdges" d="M2212.67 64.37l4.39 6.31-8.31-3.65z"/>
+<path fill="#b40000" shape-rendering="crispEdges" d="M1904.02 221.66l13.05-18.71 18.22 21.69z"/>
+<path fill="#9f0101" shape-rendering="crispEdges" d="M2217.06 70.68l3.27 6.95-4.27 2.07zm-123.71 95.88l-12.88-7.21 6.02-12.88z"/>
+<path fill="#a10202" shape-rendering="crispEdges" d="M2210.7 83.02l-2.87-7.01 3.91-2.26zm-2.87-7.01l2.87 7.01-7.29-4.47z"/>
+<path fill="#a20303" shape-rendering="crispEdges" d="M1972.79 233.32l5.21-25.62 13.68 24.65z"/>
+<path fill="#a10202" shape-rendering="crispEdges" d="M2205.13 87.25l-8.78-4.66 7.06-4.04zm5.57-4.23l-5.57 4.23-1.72-8.7z"/>
+<path fill="#a20303" shape-rendering="crispEdges" d="M2188.79 86.61l0.23 12.04-7.15-8.34z"/>
+<path fill="#a10303" shape-rendering="crispEdges" d="M2195.21 94.5l-6.42-7.89 7.56-4.02z"/>
+<path fill="#a20303" shape-rendering="crispEdges" d="M2182.76 103.16l-7.35-8.9 6.46-3.95zm6.26-4.51l-6.26 4.51-0.89-12.85z"/>
+<path fill="#a10303" shape-rendering="crispEdges" d="M2189.02 98.65l-0.23-12.04 6.42 7.89z"/>
+<path fill="#be0101" shape-rendering="crispEdges" d="M2171.56 69.64l7.35-2.02 2.35 3.41z"/>
+<path fill="#bf0101" shape-rendering="crispEdges" d="M2157.76 79.97l-9.94-2.73 7.95-2.34z"/>
+<path fill="#be0101" shape-rendering="crispEdges" d="M2016.65 127.16l12.66-5.61 11.54 5.88zm69.11-27.35l22.01-0.04-11.92 4.84z"/>
+<path fill="#a00404" shape-rendering="crispEdges" d="M2196.35 82.59l8.78 4.66-4.49 4.8z"/>
+<path fill="#9f0404" shape-rendering="crispEdges" d="M2114.42 133.88l-0.39 17.08-8.51-11.8z"/>
+<path fill="#bd0404" shape-rendering="crispEdges" d="M2190.33 74.18l-4.96 3.32-4.11-6.47zm-65.31 31.12l-10.98 5.09-6.27-10.62zm17.66-9.27l-9.04 4.38-4-9.41zm-13.04-5.03l4 9.41-14.6-5.18zm-10.6 4.23l5.98 10.07-17.25-5.53zm20.54-8.16l3.1 8.96-13.04-5.03z"/>
+<path fill="#9f0202" shape-rendering="crispEdges" d="M2200.64 92.05l-5.43 2.45 1.14-11.91z"/>
+<path fill="#c10000" shape-rendering="crispEdges" d="M2137.22 80.26l10.6-3.02-5.96 2.5zm-124.54 44.42l3.97 2.48-19.69 3.54z"/>
+<path fill="#c20000" shape-rendering="crispEdges" d="M1977.51 141.57l-9.59 6.38-14.37-0.55z"/>
+<path fill="#c10000" shape-rendering="crispEdges" d="M1796.63 214.43l14.42-7.72 22.23-5z"/>
+<path fill="#bb0000" shape-rendering="crispEdges" d="M2147.82 77.24l9.94 2.73-15.9-0.23z"/>
+<path fill="#ba0000" shape-rendering="crispEdges" d="M2052.35 110.4l12.35-0.2-18.34 4.77z"/>
+<path fill="#bd0505" shape-rendering="crispEdges" d="M2166.31 87.85l-8.55-7.88 13.48 3.68z"/>
+<path fill="#be0505" shape-rendering="crispEdges" d="M2083.23 109.78l0.95 10.86-14.3-5.35zm-129.5 55.27l24.41 14.65-19.37 8.58zm-15.73 31.49l-20.93 6.41-4.38-19.54z"/>
+<path fill="#be0606" shape-rendering="crispEdges" d="M1938 196.54l-4.34-22.57 25.11 14.31z"/>
+<path fill="#be0505" shape-rendering="crispEdges" d="M2025.12 134.09l7.79 16.92-24.33-9.85z"/>
+<path fill="#bd0505" shape-rendering="crispEdges" d="M2099.66 112.61l-16.43-2.83 12.62-5.17z"/>
+<path fill="#be0606" shape-rendering="crispEdges" d="M2055.76 121.17l4.19 11.56-19.1-5.3zm-82.85 35.44l5.23 23.09-24.41-14.65z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2179.36 117.38l-2.6-11.66 6-2.56z"/>
+<path fill="#920101" shape-rendering="crispEdges" d="M2137.23 150.78l-3.92-16.19 8.13-2.62z"/>
+<path fill="#910101" shape-rendering="crispEdges" d="M2079.13 176.43l7.64 4.46-6.96 14.01zm-43.24 28.4l9.09 5.68-8.39 16.79zm78.14-53.87l7.68 3.79-5.42 12.28z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2052.52 192.44l13.66 12.75-14.4 10.8zm-60.84 39.91l18.85-10.5-6.86 29.7zm-5.77 32.11l5.77-32.11 11.99 19.2zm-74.22 20.73l15.45 21.07-21.55 14.88z"/>
+<path fill="#910101" shape-rendering="crispEdges" d="M1687.5 450.95l-17.4-18.02 20.46-15.82z"/>
+<path fill="#a20202" shape-rendering="crispEdges" d="M2182.76 103.16l-6 2.56-1.35-11.46zm-130.24 89.28l-17.72-8.06 6.14-14.2z"/>
+<path fill="#c10000" shape-rendering="crispEdges" d="M2133.25 82.77l-7.92 3.24-5.62 0.21z"/>
+<path fill="#c00000" shape-rendering="crispEdges" d="M1846.59 191.28l31.53-6.12-16.81 8.19zm170.06-64.12l-3.97-2.48 16.63-3.13zm-39.14 14.41l-4.91-1.58 24.27-6.44zm-4.91-1.58l4.91 1.58-23.96 5.83zm55.19-20.86l1.52 2.42-16.63 3.13z"/>
+<path fill="#c10000" shape-rendering="crispEdges" d="M2104.41 92.96l-14.67 3.95 11.98-4.4zm-156.78 60.65l-22.7 8.65 3.66-4.95z"/>
+<path fill="#a30303" shape-rendering="crispEdges" d="M2176.76 105.72l-7.91-7.34 6.56-4.12z"/>
+<path fill="#7c0000" shape-rendering="crispEdges" d="M2150.77 151.06l7.14-8.61-2.98 4.76z"/>
+<path fill="#7d0000" shape-rendering="crispEdges" d="M1952.51 305.13l16.02-10.21-25.69 24.98z"/>
+<path fill="#7c0000" shape-rendering="crispEdges" d="M1336.52 607.87l-7.47 9.77-6.4-7.84z"/>
+<path fill="#7d0000" shape-rendering="crispEdges" d="M1293.88 616.92l-3.63-5.57 9.84 0.01z"/>
+<path fill="#a30505" shape-rendering="crispEdges" d="M2168.85 98.38l7.91 7.34-5.15 5.51z"/>
+<path fill="#a30404" shape-rendering="crispEdges" d="M2141.44 131.97l-10.75-13.12 9.79-4.23z"/>
+<path fill="#a30505" shape-rendering="crispEdges" d="M1882.35 288.14l13.9-34.73 15.44 31.78z"/>
+<path fill="#a10303" shape-rendering="crispEdges" d="M2171.61 111.23l-9.37-8.92 6.61-3.93zm-9.37-8.92l2.44 13.86-9.75-9.62zm0 0l9.37 8.92-6.93 4.94z"/>
+<path fill="#c30000" shape-rendering="crispEdges" d="M2101.72 92.51l12.54-4.6 0.79 1.69z"/>
+<path fill="#c40000" shape-rendering="crispEdges" d="M1905.5 166.84l-5.25 2.99-18.49 6.96z"/>
+<path fill="#c30000" shape-rendering="crispEdges" d="M1905.5 166.84l23.09-9.53-3.66 4.95z"/>
+<path fill="#c40000" shape-rendering="crispEdges" d="M1980.43 137.43l16.53-6.73-0.09 2.85zm-411.41 215.18l-28.8 7.75 16.94-11.89z"/>
+<path fill="#c30000" shape-rendering="crispEdges" d="M1283.41 596.48l-2.81 9.29-0.02-5.68z"/>
+<path fill="#7e0000" shape-rendering="crispEdges" d="M2157.91 142.45l-7.14 8.61-1.17-1.49z"/>
+<path fill="#7f0000" shape-rendering="crispEdges" d="M2107.35 183.26l-7.75 11.26-4.33 0.66zm-12.08 11.92l-15.98 16.14 5.48-9.38zm-737.02 421.39l-16.02 1.45 10.61-13.27z"/>
+<path fill="#7e0000" shape-rendering="crispEdges" d="M1342.23 618.02l-5.71-10.15 16.32-3.12z"/>
+<path fill="#bc0303" shape-rendering="crispEdges" d="M2151.46 93.29l-8.78 2.74-3.1-8.96z"/>
+<path fill="#a10505" shape-rendering="crispEdges" d="M2164.68 116.17l-6.76 6.23-2.99-15.85z"/>
+<path fill="#a00505" shape-rendering="crispEdges" d="M2010.53 221.85l-18.85 10.5 6.12-31.98z"/>
+<path fill="#bf0101" shape-rendering="crispEdges" d="M2104.41 92.96l10.64-3.36 3.99 5.63z"/>
+<path fill="#bf0202" shape-rendering="crispEdges" d="M2025.12 134.09l-8.47-6.93 24.2 0.27z"/>
+<path fill="#bf0101" shape-rendering="crispEdges" d="M1996.87 133.55l28.25 0.54-16.54 7.07z"/>
+<path fill="#c00202" shape-rendering="crispEdges" d="M1306.99 583.32l-10.87 2.07 6.84-9.69z"/>
+<path fill="#b40000" shape-rendering="crispEdges" d="M2144.94 105.59l-2.26-9.56 12.25 10.52z"/>
+<path fill="#b50000" shape-rendering="crispEdges" d="M2142.68 96.03l2.26 9.56-11.3-5.18z"/>
+<path fill="#9d0101" shape-rendering="crispEdges" d="M2157.92 122.4l-7.18-6.8 4.19-9.05z"/>
+<path fill="#ab0202" shape-rendering="crispEdges" d="M2150.74 115.6l-5.8-10.01 9.99 0.96z"/>
+<path fill="#ab0303" shape-rendering="crispEdges" d="M2080.47 159.35l-9.87-14.15 15.89 1.27z"/>
+<path fill="#ab0202" shape-rendering="crispEdges" d="M1428.87 522.15l-30.06-5.2 21.71-18.34z"/>
+<path fill="#aa0303" shape-rendering="crispEdges" d="M1420.52 498.61l22.99-13.95 9.12 28.69z"/>
+<path fill="#ab0303" shape-rendering="crispEdges" d="M1359.62 568.31l-18.24-11.54 16.08-11.75zm83.89-83.65l38.38 7.08-29.26 21.61z"/>
+<path fill="#9a0303" shape-rendering="crispEdges" d="M2150.74 115.6l7.18 6.8-8.25 5.51z"/>
+<path fill="#740000" shape-rendering="crispEdges" d="M2111.01 184.1l9.31-7.39 2.16-1.65z"/>
+<path fill="#750000" shape-rendering="crispEdges" d="M2120.32 176.71l-9.31 7.39 1.24-1.23zm-568.58 372.01l-25.47 18.83-7.3 1.26z"/>
+<path fill="#740000" shape-rendering="crispEdges" d="M1293.88 616.92l8.29 3.92-11.84-3.85z"/>
+<path fill="#c20000" shape-rendering="crispEdges" d="M2079.14 100.53l14.53-4.39-7.91 3.67zm-125.59 46.87l-5.92 6.21-19.04 3.7z"/>
+<path fill="#c30000" shape-rendering="crispEdges" d="M1540.22 360.36l9.91 5.72-28.85 8.62zm161.17-83.95l-31.58 14.41 6.5-12.2z"/>
+<path fill="#c00101" shape-rendering="crispEdges" d="M2107.77 99.77l-14.1-3.63 10.74-3.18z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M2144.94 105.59l-4.46 9.03-6.84-14.21zm-206.94 90.95l20.77-8.26-1.26 28.49z"/>
+<path fill="#a20909" shape-rendering="crispEdges" d="M2140.48 114.62l10.26 0.98-1.07 12.31z"/>
+<path fill="#bd0505" shape-rendering="crispEdges" d="M2133.64 100.41l-8.62 4.89-5.98-10.07z"/>
+<path fill="#bd0404" shape-rendering="crispEdges" d="M2114.04 110.39l-18.19-5.78 11.92-4.84z"/>
+<path fill="#bd0505" shape-rendering="crispEdges" d="M2075.15 129.38l-19.39-8.21 14.12-5.88zm-34.3-1.95l9.98 17.01-25.71-10.35z"/>
+<path fill="#a00303" shape-rendering="crispEdges" d="M2149.67 127.91l-8.23 4.06-0.96-17.35z"/>
+<path fill="#a00202" shape-rendering="crispEdges" d="M2126.18 142.67l-11.76-8.79 7.83-8.73z"/>
+<path fill="#760000" shape-rendering="crispEdges" d="M2112.25 182.87l-1.24 1.23-9.03 7.56z"/>
+<path fill="#750000" shape-rendering="crispEdges" d="M2079.29 211.32l-16.89 12.65 7.66-7.19zm-524.23 341.63l-28.79 14.6 25.47-18.83z"/>
+<path fill="#760000" shape-rendering="crispEdges" d="M1796.09 419.9l-18.21 10.78 21.66-17.55zm-18.21 10.78l-15.05 7.53 36.71-25.08zm-153.18 85.66l-21.92 12.29 8.19-10.82z"/>
+<path fill="#750000" shape-rendering="crispEdges" d="M1285.42 614.13l8.46 2.79-3.55 0.07z"/>
+<path fill="#810000" shape-rendering="crispEdges" d="M2131.16 165.38l-10.84 11.33 1.73-5.96zm-754.69 448.61l-18.22 2.58 13.06-16.3zm-18.22 2.58l-5.41-11.82 18.47-4.48z"/>
+<path fill="#a40303" shape-rendering="crispEdges" d="M2133.31 134.59l-11.06-9.44 8.44-6.3z"/>
+<path fill="#860000" shape-rendering="crispEdges" d="M2116.29 167.03l5.76 3.72-9.8 12.12z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M1793.88 404.71l17.08-24.27-11.42 32.69zm-256.34 144.11l24.21-29.38-10.01 29.28z"/>
+<path fill="#860000" shape-rendering="crispEdges" d="M1832.03 389.06l-32.49 24.07 11.42-32.69z"/>
+<path fill="#7f0000" shape-rendering="crispEdges" d="M2099.6 194.52l7.75-11.26 4.9-0.39zm-14.83 7.42l-5.48 9.38-9.23 5.46zm-783.91 415.68l-0.77-6.26 8.49 6.61zm-6.98-0.7l-8.46-2.79 4.83-2.78zm16.96-6.04l7.22 5.76-9.48 1.33zm7.22 5.76l-7.22-5.76 11.81-1.08z"/>
+<path fill="#800000" shape-rendering="crispEdges" d="M1308.58 617.97l-8.49-6.61 10.75-0.48z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M2122.05 170.75l-5.76-3.72 10.78-8.34z"/>
+<path fill="#8b0000" shape-rendering="crispEdges" d="M2045.68 230.85l-9.09-3.55 15.19-11.31zm-16.63 13.33l-8.49-5.03 16.03-11.85zm-156.17 113.72l-12.86-6.57 23.23-15.13z"/>
+<path fill="#8a0000" shape-rendering="crispEdges" d="M2116.29 167.03l-8.94 16.23-2.52-7.42zm-305.33 213.41l-17.08 24.27-7.57-10.07zm-98.65 56.5l-10.38 19.14-14.43-5.13z"/>
+<path fill="#a40606" shape-rendering="crispEdges" d="M2122.25 125.15l11.06 9.44-7.13 8.08z"/>
+<path fill="#c40303" shape-rendering="crispEdges" d="M2070.94 105.28l13.07-1.32-0.78 5.82z"/>
+<path fill="#bf0202" shape-rendering="crispEdges" d="M2084.01 103.96l11.84 0.65-12.62 5.17z"/>
+<path fill="#8f0000" shape-rendering="crispEdges" d="M2121.71 154.75l5.36 3.94-10.78 8.34z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M1874.72 320.46l19.52-11.91-10.99 27.65zm-14.7 30.87l14.7-30.87 8.53 15.74zm23.23-15.13l10.99-27.65 11.35 12.59z"/>
+<path fill="#8f0000" shape-rendering="crispEdges" d="M2086.77 180.89l5.92 4.23-12.88 9.78zm-41.79 29.62l6.8 5.48-15.19 11.31z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M1932.95 281.64l14.68 10.23-20.49 14.39zm34.3-3.74l8.42-23.89 10.24 10.45zm137.58-102.06l1.82-12.69 9.64 3.88z"/>
+<path fill="#b70101" shape-rendering="crispEdges" d="M2114.04 110.39l-3.98 10.22-10.4-8z"/>
+<path fill="#c40000" shape-rendering="crispEdges" d="M2035.25 116.48l17.1-6.08-5.99 4.57z"/>
+<path fill="#c50000" shape-rendering="crispEdges" d="M1765.72 227.45l20.31-9.31 10.6-3.71z"/>
+<path fill="#c40000" shape-rendering="crispEdges" d="M1881.76 176.79l18.49-6.96-18.9 8.62z"/>
+<path fill="#c50000" shape-rendering="crispEdges" d="M1881.76 176.79l-0.41 1.66-24.78 9.46zm-331.63 189.29l-9.91-5.72 28.8-7.75zm162.82-104.16l-11.56 14.49-25.08 2.21zm-106.09 64.4l-31.65 10.38 16.1-10.39z"/>
+<path fill="#ad0101" shape-rendering="crispEdges" d="M2114.42 133.88l-4.36-13.27 12.19 4.54zm-4.36-13.27l4.36 13.27-15.82-10.57z"/>
+<path fill="#ae0000" shape-rendering="crispEdges" d="M1997.8 200.37l0.54-25.34 20.52 18.56z"/>
+<path fill="#ad0101" shape-rendering="crispEdges" d="M2018.86 193.59l-20.52-18.56 19.62-8.9z"/>
+<path fill="#ae0000" shape-rendering="crispEdges" d="M1927.38 252.9l-31.13 0.51 7.77-31.75z"/>
+<path fill="#9f0404" shape-rendering="crispEdges" d="M2114.03 150.96l0.39-17.08 11.76 8.79z"/>
+<path fill="#9e0303" shape-rendering="crispEdges" d="M2055.03 167.3l12.91 18.79-15.42 6.35z"/>
+<path fill="#c30c0c" shape-rendering="crispEdges" d="M2083.23 109.78l16.43 2.83-1.06 10.7z"/>
+<path fill="#bf0202" shape-rendering="crispEdges" d="M2069.88 115.29l-5.18-5.09 18.53-0.42z"/>
+<path fill="#bf0101" shape-rendering="crispEdges" d="M1818.72 213.46l14.56-11.75 11.14 13.48zm237.04-92.29l-9.4-6.2 23.52 0.32z"/>
+<path fill="#c30303" shape-rendering="crispEdges" d="M2064.7 110.2l5.18 5.09-23.52-0.32z"/>
+<path fill="#c20303" shape-rendering="crispEdges" d="M1861.31 193.35l29.47 0.07-22.7 10.54z"/>
+<path fill="#ae0000" shape-rendering="crispEdges" d="M2098.6 123.31l15.82 10.57-8.9 5.28z"/>
+<path fill="#af0000" shape-rendering="crispEdges" d="M1997.8 200.37l-19.66-20.67 20.2-4.67z"/>
+<path fill="#ae0101" shape-rendering="crispEdges" d="M1855.62 276.6l-20.03 13.93-10.01-28.15z"/>
+<path fill="#af0101" shape-rendering="crispEdges" d="M1809.25 290.3l16.33-27.92 10.01 28.15z"/>
+<path fill="#ae0101" shape-rendering="crispEdges" d="M1603.77 425.9l-21.85 3.82-0.76-26.32zm76.51-85.82l28.2 23.68-25.67 13.4zm-27.66 15.53l27.66-15.53 2.53 37.08z"/>
+<path fill="#9f0202" shape-rendering="crispEdges" d="M2114.03 150.96l-13.72 0.21 5.21-12.01z"/>
+<path fill="#960404" shape-rendering="crispEdges" d="M2100.31 151.17l13.72-0.21-7.38 12.19z"/>
+<path fill="#b50101" shape-rendering="crispEdges" d="M2092.35 134.3l-8.17-13.66 14.42 2.67z"/>
+<path fill="#770000" shape-rendering="crispEdges" d="M2062.4 223.97l-10.04 8.85 17.7-16.04zm-353.44 246.08l34.05-26.2-13.69 14.4z"/>
+<path fill="#760000" shape-rendering="crispEdges" d="M1448.19 592.37l23.58-8.71-20.29 16.29zm23.58-8.71l13.05 2.42-33.34 13.87z"/>
+<path fill="#c00808" shape-rendering="crispEdges" d="M2084.18 120.64l-9.03 8.74-5.27-14.09z"/>
+<path fill="#c10909" shape-rendering="crispEdges" d="M1868.08 203.96l7.84 22.11-31.5-10.88zm-216.9 134.83l-3.69-14.11 32.79 15.4z"/>
+<path fill="#aa0505" shape-rendering="crispEdges" d="M2100.31 151.17l-7.96-16.87 13.17 4.86z"/>
+<path fill="#ba0000" shape-rendering="crispEdges" d="M2055.76 121.17l-12.98-0.67 3.58-5.53zm-47.18 19.99l-15.17-0.9 3.46-6.71z"/>
+<path fill="#b50000" shape-rendering="crispEdges" d="M2084.18 120.64l8.17 13.66-17.2-4.92z"/>
+<path fill="#b60000" shape-rendering="crispEdges" d="M2059.95 132.73l10.65 12.47-19.77-0.76z"/>
+<path fill="#940202" shape-rendering="crispEdges" d="M2100.31 151.17l6.34 11.98-13.3 3.41z"/>
+<path fill="#a80101" shape-rendering="crispEdges" d="M2092.35 134.3l7.96 16.87-13.82-4.7z"/>
+<path fill="#b00000" shape-rendering="crispEdges" d="M2075.15 129.38l17.2 4.92-5.86 12.17z"/>
+<path fill="#b10000" shape-rendering="crispEdges" d="M1896.25 253.41l-22.41 10.69-18.29-21.22zm81.89-73.71l-0.14 28-19.23-19.42zm-81.89 73.71l-20.33-27.34 28.1-4.41zm-213.44 123.75l-29.73-0.57-0.46-20.98z"/>
+<path fill="#a40909" shape-rendering="crispEdges" d="M2086.49 146.47l13.82 4.7-6.96 15.39z"/>
+<path fill="#c40303" shape-rendering="crispEdges" d="M2029.31 121.55l13.47-1.05-1.93 6.93z"/>
+<path fill="#c50303" shape-rendering="crispEdges" d="M1977.51 141.57l15.9-1.31-2.22 8.39z"/>
+<path fill="#c40202" shape-rendering="crispEdges" d="M1620.72 315.17l26.77 9.51-40.63 1.64z"/>
+<path fill="#c50202" shape-rendering="crispEdges" d="M1521.28 374.7l28.74 8.32-44.95 7.03z"/>
+<path fill="#c00303" shape-rendering="crispEdges" d="M2042.78 120.5l12.98 0.67-14.91 6.26z"/>
+<path fill="#780000" shape-rendering="crispEdges" d="M2052.36 232.82l3.05-5.02 14.65-11.02zm-57.25 45.91l8.08-9.19 14.13-9.46zm-172.15 124.8l32.35-24.51-19.38 17.46zm35.05-21.74l-22.08 14.69 19.38-17.46zm-255.23 146.84l-14.23 7.05 22.42-17.87z"/>
+<path fill="#770000" shape-rendering="crispEdges" d="M1431.98 606.36l-10.52-3.26 26.73-10.73zm19.5-6.41l-19.5 6.41 16.21-13.99z"/>
+<path fill="#b50000" shape-rendering="crispEdges" d="M2075.15 129.38l-4.55 15.82-10.65-12.47z"/>
+<path fill="#9b0404" shape-rendering="crispEdges" d="M2079.13 176.43l1.34-17.08 12.88 7.21z"/>
+<path fill="#730000" shape-rendering="crispEdges" d="M2027.47 251.96l7.37-5.53 7.98-5.29zm-84.63 67.94l-28.43 18.81 15.38-12.03zm-545.34 289.45l-2.94 8.83-19.38 3.72zm-2.94 8.83l26.9-15.08-9.12 10.47z"/>
+<path fill="#720000" shape-rendering="crispEdges" d="M1302.17 620.84l-6.05-1.47-5.79-2.38z"/>
+<path fill="#c10a0a" shape-rendering="crispEdges" d="M2059.95 132.73l-9.12 11.71-9.98-17.01z"/>
+<path fill="#c10202" shape-rendering="crispEdges" d="M2016.65 127.16l8.47 6.93-28.25-0.54z"/>
+<path fill="#c20303" shape-rendering="crispEdges" d="M1878.12 185.16l34.57-1.75-21.91 10.01z"/>
+<path fill="#c10303" shape-rendering="crispEdges" d="M1878.12 185.16l12.66 8.26-29.47-0.07zm34.57-1.75l-2.12-10.95 23.09 1.51z"/>
+<path fill="#ab0101" shape-rendering="crispEdges" d="M2070.6 145.2l9.87 14.15-12.37 3.91z"/>
+<path fill="#aa0202" shape-rendering="crispEdges" d="M1328.07 567.59l13.31-10.82 2.22 20.12z"/>
+<path fill="#9d0606" shape-rendering="crispEdges" d="M2080.47 159.35l-1.34 17.08-11.03-13.17z"/>
+<path fill="#9d0505" shape-rendering="crispEdges" d="M2067.94 186.09l0.16-22.83 11.03 13.17z"/>
+<path fill="#9e0505" shape-rendering="crispEdges" d="M2035.89 204.83l-1.09-20.45 17.72 8.06zm-1.09-20.45l1.09 20.45-17.03-11.24z"/>
+<path fill="#ad0101" shape-rendering="crispEdges" d="M2070.6 145.2l-2.5 18.06-17.27-18.82z"/>
+<path fill="#ad0202" shape-rendering="crispEdges" d="M1478.88 456.5l3.01 35.24-22.94-23.8z"/>
+<path fill="#ad0101" shape-rendering="crispEdges" d="M1803.15 317.8l-23.59 7.41-8.22-29.76zm-23.59 7.41l-30 0.06 21.78-29.82z"/>
+<path fill="#ae0202" shape-rendering="crispEdges" d="M1581.92 429.72l-35.18-15.61 34.42-10.71z"/>
+<path fill="#ae0101" shape-rendering="crispEdges" d="M1708.48 363.76l2.2-38.05 25.18 30.34zm2.2-38.05l-2.2 38.05-28.2-23.68z"/>
+<path fill="#af0000" shape-rendering="crispEdges" d="M2068.1 163.26l-13.07 4.04-4.2-22.86z"/>
+<path fill="#9f0707" shape-rendering="crispEdges" d="M2068.1 163.26l-0.16 22.83-12.91-18.79z"/>
+<path fill="#740000" shape-rendering="crispEdges" d="M2011.52 264.76l5.8-4.68 17.52-13.65z"/>
+<path fill="#910000" shape-rendering="crispEdges" d="M2067.94 186.09l-1.76 19.1-13.66-12.75zm-156.25 99.1l21.26-3.55-5.81 24.62zm113.88-66.65l-5.01 20.61-10.03-17.3zm-15.04 3.31l10.03 17.3-16.89 12.4z"/>
+<path fill="#910101" shape-rendering="crispEdges" d="M1860.02 351.33l-24.29 14.83-3.7-27.17z"/>
+<path fill="#900101" shape-rendering="crispEdges" d="M1670.1 432.93l-7.39 31.91-13.83-16.97z"/>
+<path fill="#910101" shape-rendering="crispEdges" d="M1662.71 464.84l7.39-31.91 17.4 18.02z"/>
+<path fill="#900101" shape-rendering="crispEdges" d="M1648.88 447.87l13.83 16.97-24.79 13.74z"/>
+<path fill="#910101" shape-rendering="crispEdges" d="M1736.98 422.9l15.81-38.1 8.86 24zm73.98-42.46l21.07-41.45 3.7 27.17z"/>
+<path fill="#af0000" shape-rendering="crispEdges" d="M2055.03 167.3l-22.12-16.29 17.92-6.57z"/>
+<path fill="#b00000" shape-rendering="crispEdges" d="M1873.84 264.1l-18.22 12.5-0.07-33.72zm-18.29-21.22l0.07 33.72-30.04-14.22z"/>
+<path fill="#b00101" shape-rendering="crispEdges" d="M1602.95 383.31l14.04 24.92-35.83-4.83z"/>
+<path fill="#af0101" shape-rendering="crispEdges" d="M1546.74 414.11l2.95 35.67-25.83-11.07z"/>
+<path fill="#840000" shape-rendering="crispEdges" d="M2036.59 227.3l9.09 3.55-10.84 15.58zm-423.54 264.88l13.11 6.93-15.19 18.7zm75.03-18.84l13.85-17.26 13.43 2.17zm-266.62 129.76l-8.16-16.11 22.93-8.71zm26.73-10.73l-26.73 10.73 14.77-24.82z"/>
+<path fill="#c00303" shape-rendering="crispEdges" d="M1993.41 140.26l15.17 0.9-17.39 7.49z"/>
+<path fill="#a50808" shape-rendering="crispEdges" d="M2040.94 170.18l14.09-2.88-2.51 25.14z"/>
+<path fill="#be0606" shape-rendering="crispEdges" d="M2013.32 150.94l-22.13-2.29 17.39-7.49z"/>
+<path fill="#bf0707" shape-rendering="crispEdges" d="M1995.58 159.9l-22.67-3.29 18.28-7.96zm-61.92 14.07l4.34 22.57-25.31-13.13z"/>
+<path fill="#be0707" shape-rendering="crispEdges" d="M1904.02 221.66l-35.94-17.7 22.7-10.54z"/>
+<path fill="#be0606" shape-rendering="crispEdges" d="M1958.77 188.28l-25.11-14.31 20.07-8.92z"/>
+<path fill="#b90202" shape-rendering="crispEdges" d="M2013.32 150.94l19.59 0.07-14.95 15.12z"/>
+<path fill="#850000" shape-rendering="crispEdges" d="M2020.56 239.15l8.49 5.03-11.73 15.9z"/>
+<path fill="#860000" shape-rendering="crispEdges" d="M1860.02 351.33l12.86 6.57-17.57 21.12zm-158.09 104.75l-13.85 17.26-0.58-22.39zm-207.96 115.05l-22.2 12.53 13-26.31zm-22.2 12.53l-23.58 8.71 11.94-24.03zm0 0l-11.64-15.32 24.64-10.99zm-11.64-15.32l-11.94 24.03-11.96-14.09zm124.35-40.74l-32.74 21.12 10.01-29.28z"/>
+<path fill="#c40d0d" shape-rendering="crispEdges" d="M1991.19 148.65l22.13 2.29 4.64 15.19z"/>
+<path fill="#ac0202" shape-rendering="crispEdges" d="M2034.8 184.38l-16.84-18.25 22.98 4.05zm-417.81 223.85l-13.22 17.67-22.61-22.5z"/>
+<path fill="#ad0303" shape-rendering="crispEdges" d="M1523.86 438.71l7.77 33.9-26.91-7.12z"/>
+<path fill="#c00202" shape-rendering="crispEdges" d="M1972.91 156.61l-4.99-8.66 23.27 0.7z"/>
+<path fill="#c40303" shape-rendering="crispEdges" d="M1967.92 147.95l4.99 8.66-25.28-3z"/>
+<path fill="#ad0101" shape-rendering="crispEdges" d="M2017.96 166.13l16.84 18.25-15.94 9.21z"/>
+<path fill="#9c0808" shape-rendering="crispEdges" d="M2035.89 204.83l-10.32 13.71-6.71-24.95z"/>
+<path fill="#b80101" shape-rendering="crispEdges" d="M1995.58 159.9l22.38 6.23-19.62 8.9z"/>
+<path fill="#c00101" shape-rendering="crispEdges" d="M1947.63 153.61l25.28 3-19.18 8.44z"/>
+<path fill="#c10202" shape-rendering="crispEdges" d="M1924.93 162.26l22.7-8.65 6.1 11.44z"/>
+<path fill="#c00101" shape-rendering="crispEdges" d="M1933.66 173.97l-8.73-11.71 28.8 2.79z"/>
+<path fill="#c70f0f" shape-rendering="crispEdges" d="M1972.91 156.61l22.67 3.29 2.76 15.13z"/>
+<path fill="#990202" shape-rendering="crispEdges" d="M2018.86 193.59l6.71 24.95-15.04 3.31z"/>
+<path fill="#a10707" shape-rendering="crispEdges" d="M2018.86 193.59l-8.33 28.26-12.73-21.48z"/>
+<path fill="#a40707" shape-rendering="crispEdges" d="M1978 207.7l19.8-7.33-6.12 31.98z"/>
+<path fill="#c70303" shape-rendering="crispEdges" d="M1910.57 172.46l2.12 10.95-31.34-4.96z"/>
+<path fill="#7d0000" shape-rendering="crispEdges" d="M1929.79 326.68l22.72-21.55-9.67 14.77zm-97.76 62.38l23.28-10.04-32.35 24.51z"/>
+<path fill="#7e0000" shape-rendering="crispEdges" d="M1518.97 568.81l-5.13-6.06 23.7-13.93z"/>
+<path fill="#7d0000" shape-rendering="crispEdges" d="M1670.15 489.84l-5.61-7.21 23.54-9.29z"/>
+<path fill="#7e0000" shape-rendering="crispEdges" d="M1537.54 548.82l14.2-0.1-32.77 20.09zm127-66.19l5.61 7.21-21.65 12.62z"/>
+<path fill="#7d0000" shape-rendering="crispEdges" d="M1329.05 617.64l7.47-9.77 5.71 10.15zm443.88-195.45l26.61-9.06-36.71 25.08z"/>
+<path fill="#7e0000" shape-rendering="crispEdges" d="M1743.01 443.85l29.92-21.66-10.1 16.02zm-94.51 58.61l-9.24-2.78 25.28-17.05z"/>
+<path fill="#7d0000" shape-rendering="crispEdges" d="M1584.48 527.6l4.07 8.08-12.69 5.58zm215.06-114.47l32.49-24.07-9.07 14.47z"/>
+<path fill="#c10000" shape-rendering="crispEdges" d="M1878.12 185.16l-31.53 6.12 34.76-12.83z"/>
+<path fill="#970505" shape-rendering="crispEdges" d="M1975.67 254.01l-2.88-20.69 18.89-0.97zm-93.32 34.13l-7.63 32.32-19.76-7.55z"/>
+<path fill="#a70505" shape-rendering="crispEdges" d="M1978 207.7l-5.21 25.62-15.28-16.55z"/>
+<path fill="#920202" shape-rendering="crispEdges" d="M1975.67 254.01l-8.42 23.89-11.38-29.8zm-176.29 94.99l32.65-10.01-21.07 41.45z"/>
+<path fill="#930202" shape-rendering="crispEdges" d="M1605.87 455.89l7.18 36.29-28.57-12.7z"/>
+<path fill="#c60000" shape-rendering="crispEdges" d="M1846.59 191.28l-13.31 10.43-22.23 5z"/>
+<path fill="#c50000" shape-rendering="crispEdges" d="M1786.03 218.14l25.02-11.43-14.42 7.72zm-17.56 11.66l-24.47 8.24 21.72-10.59zm0 0l-19.65 15.13-17.07 0.63zm-24.47 8.24l24.47-8.24-36.72 15.76zm-155.55 101.28l-31.29 9.15 18.05-11.77z"/>
+<path fill="#c60000" shape-rendering="crispEdges" d="M1643.83 304.33l-23.11 10.84-4.05-3.87z"/>
+<path fill="#c50000" shape-rendering="crispEdges" d="M1711.2 256.56l37.62-11.63-35.87 16.99z"/>
+<path fill="#c60000" shape-rendering="crispEdges" d="M1669.81 290.82l-25.98 13.51 0.26-8.82z"/>
+<path fill="#950303" shape-rendering="crispEdges" d="M1972.79 233.32l2.88 20.69-19.8-5.91z"/>
+<path fill="#a80606" shape-rendering="crispEdges" d="M1957.51 216.77l15.28 16.55-16.92 14.78z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M1898.4 353.04l13.52-17.04 17.87-9.32z"/>
+<path fill="#bf0808" shape-rendering="crispEdges" d="M1917.07 202.95l-26.29-9.53 21.91-10.01z"/>
+<path fill="#a80707" shape-rendering="crispEdges" d="M1957.51 216.77l-1.64 31.33-20.58-23.46z"/>
+<path fill="#a90606" shape-rendering="crispEdges" d="M1855.62 276.6l18.22-12.5 8.51 24.04z"/>
+<path fill="#a90707" shape-rendering="crispEdges" d="M1873.84 264.1l22.41-10.69-13.9 34.73z"/>
+<path fill="#a80606" shape-rendering="crispEdges" d="M1398.81 516.95l30.06 5.2-9.87 16.98z"/>
+<path fill="#b30000" shape-rendering="crispEdges" d="M1917.07 202.95l20.93-6.41-2.71 28.1z"/>
+<path fill="#c60404" shape-rendering="crispEdges" d="M1833.28 201.71l28.03-8.36 6.77 10.61z"/>
+<path fill="#c70404" shape-rendering="crispEdges" d="M1795.49 239.56l-24.99 13.62-21.68-8.25z"/>
+<path fill="#c80e0e" shape-rendering="crispEdges" d="M1917.07 202.95l-13.05 18.71-13.24-28.24z"/>
+<path fill="#990707" shape-rendering="crispEdges" d="M1948.44 269.54l-21.06-16.64 28.49-4.8z"/>
+<path fill="#980808" shape-rendering="crispEdges" d="M1556.33 484.28l-8.79 27.64-17.09-3.18z"/>
+<path fill="#a70303" shape-rendering="crispEdges" d="M1955.87 248.1l-28.49 4.8 7.91-28.26z"/>
+<path fill="#990606" shape-rendering="crispEdges" d="M1927.38 252.9l21.06 16.64-15.49 12.1z"/>
+<path fill="#980606" shape-rendering="crispEdges" d="M1911.69 285.19l-17.45 23.36-11.89-20.41z"/>
+<path fill="#ac0303" shape-rendering="crispEdges" d="M1935.29 224.64l-7.91 28.26-23.36-31.24z"/>
+<path fill="#c20202" shape-rendering="crispEdges" d="M1833.28 201.71l34.8 2.25-23.66 11.23z"/>
+<path fill="#c20101" shape-rendering="crispEdges" d="M1768.47 229.8l27.02 9.76-46.67 5.37z"/>
+<path fill="#c60000" shape-rendering="crispEdges" d="M1765.72 227.45l30.91-13.02-28.16 15.37zm-367.49 227.75l3.43-6.39 18.19-1.3zm158.93-106.73l31.29-9.15-19.43 13.29zm119.15-69.85l11.07-8.57 25.57-8.13zm-187.38 112.06l16.14-0.63-30.45 14.93z"/>
+<path fill="#970404" shape-rendering="crispEdges" d="M1932.95 281.64l-21.26 3.55 15.69-32.29z"/>
+<path fill="#a70c0c" shape-rendering="crispEdges" d="M1927.38 252.9l-15.69 32.29-15.44-31.78z"/>
+<path fill="#c90000" shape-rendering="crispEdges" d="M1718.04 253.47l25.96-15.43-12.25 7.52zm-317.48 209.2l-2.33-7.47 21.62-7.69zm62.46-56.72l12.93-7.77 12.98-7.5zm180.81-101.62l-27.16 6.97 27.42-15.79z"/>
+<path fill="#6f0000" shape-rendering="crispEdges" d="M1822.96 403.53l12.97-7.05-26.68 14.96zm-520.79 217.31l-1.31-3.22 7.72 0.35z"/>
+<path fill="#6e0000" shape-rendering="crispEdges" d="M1648.5 502.46l6.97-3-24.04 12.54z"/>
+<path fill="#6f0000" shape-rendering="crispEdges" d="M1329.05 617.64l-0.53 6.51-12.17-1.84z"/>
+<path fill="#6e0000" shape-rendering="crispEdges" d="M1575.86 541.26l12.69-5.58-25.67 13.07z"/>
+<path fill="#c40404" shape-rendering="crispEdges" d="M1820.21 227l-1.49-13.54 25.7 1.73z"/>
+<path fill="#c50404" shape-rendering="crispEdges" d="M1797.05 223.49l21.67-10.03 1.49 13.54z"/>
+<path fill="#c40c0c" shape-rendering="crispEdges" d="M1875.92 226.07l-20.37 16.81-11.13-27.69z"/>
+<path fill="#c00909" shape-rendering="crispEdges" d="M1844.42 215.19l11.13 27.69-35.34-15.88z"/>
+<path fill="#bf0808" shape-rendering="crispEdges" d="M1825.58 262.38l-33.4 7.59 3.31-30.41z"/>
+<path fill="#c80303" shape-rendering="crispEdges" d="M1797.05 223.49l-1.56 16.07-27.02-9.76z"/>
+<path fill="#c60505" shape-rendering="crispEdges" d="M1795.49 239.56l1.56-16.07 23.16 3.51z"/>
+<path fill="#970505" shape-rendering="crispEdges" d="M1894.24 308.55l-19.52 11.91 7.63-32.32z"/>
+<path fill="#c80000" shape-rendering="crispEdges" d="M1748.82 244.93l-37.62 11.63 20.55-11zm-316.63 190.98l-1.93-5.97 24.34-6.64z"/>
+<path fill="#c70000" shape-rendering="crispEdges" d="M1588.45 339.32l-13.24-2.62 31.65-10.38zm-141.72 78.07l7.87 5.91-24.34 6.64z"/>
+<path fill="#c80000" shape-rendering="crispEdges" d="M1493.47 386.32l27.81-11.62-32.35 15.98z"/>
+<path fill="#c70000" shape-rendering="crispEdges" d="M1658.38 287.95l17.93-9.33-32.22 16.89z"/>
+<path fill="#730000" shape-rendering="crispEdges" d="M1796.09 419.9l3.45-6.77 23.42-9.6z"/>
+<path fill="#740000" shape-rendering="crispEdges" d="M1302.17 620.84l3.84 1.94-9.89-3.41z"/>
+<path fill="#730000" shape-rendering="crispEdges" d="M1376.47 613.99l21.03-4.64-22.32 12.55zm44.99-10.89l-26.9 15.08 2.94-8.83z"/>
+<path fill="#c80c0c" shape-rendering="crispEdges" d="M1825.61 242.1l-30.12-2.54 24.72-12.56z"/>
+<path fill="#ba0505" shape-rendering="crispEdges" d="M1825.61 242.1l29.94 0.78-29.97 19.5z"/>
+<path fill="#c90000" shape-rendering="crispEdges" d="M1687.38 270.05l23.82-13.49 1.75 5.36zm-240.65 147.34l16.29-11.44 11.6-0.97zm173.99-102.22l-29.41 11.14 25.36-15.01z"/>
+<path fill="#c80000" shape-rendering="crispEdges" d="M1540.22 360.36l-25.91 12.75 12.91-7.81zm136.09-81.74l-6.5 12.2-25.72 4.69zm-149.09 86.68l17.83-10.16 12.11-6.67zm-38.29 25.38l32.35-15.98-16.21 15.35z"/>
+<path fill="#940404" shape-rendering="crispEdges" d="M1874.72 320.46l-14.7 30.87-5.06-38.42z"/>
+<path fill="#930303" shape-rendering="crispEdges" d="M1712.31 436.94l-5.16-36.56 20.95-5.09z"/>
+<path fill="#cf1515" shape-rendering="crispEdges" d="M1795.49 239.56l30.12 2.54-0.03 20.28z"/>
+<path fill="#cf1414" shape-rendering="crispEdges" d="M1598.53 353.68l4.42 29.63-28.71-15.03z"/>
+<path fill="#cf1515" shape-rendering="crispEdges" d="M1792.18 269.97l-20.84 25.48-25.59-27.97z"/>
+<path fill="#a90b0b" shape-rendering="crispEdges" d="M1855.62 276.6l26.73 11.54-27.39 24.77z"/>
+<path fill="#6d0000" shape-rendering="crispEdges" d="M1777.88 430.68l-29.68 14.96 14.63-7.43z"/>
+<path fill="#cb0000" shape-rendering="crispEdges" d="M1687.38 270.05l-11.07 8.57-17.93 9.33z"/>
+<path fill="#ca0000" shape-rendering="crispEdges" d="M1514.31 373.11l25.91-12.75-18.94 14.34zm77-46.8l29.41-11.14-13.86 11.15zm-46.26 28.83l30.16-18.44-18.05 11.77z"/>
+<path fill="#cb0000" shape-rendering="crispEdges" d="M1454.6 423.3l-7.87-5.91 27.89-12.41zm85.62-62.94l-13 4.94 29.94-16.83z"/>
+<path fill="#a70909" shape-rendering="crispEdges" d="M1854.96 312.91l-19.37-22.38 20.03-13.93zm-19.37-22.38l19.37 22.38-32 1.13z"/>
+<path fill="#c90f0f" shape-rendering="crispEdges" d="M1795.49 239.56l-3.31 30.41-21.68-16.79zm-173.17 125.75l0.64-26.16 29.66 16.46z"/>
+<path fill="#c90505" shape-rendering="crispEdges" d="M1712.95 261.92l35.87-16.99-3.07 22.55z"/>
+<path fill="#c90404" shape-rendering="crispEdges" d="M1647.49 324.68l-26.77-9.51 23.11-10.84z"/>
+<path fill="#c90606" shape-rendering="crispEdges" d="M1745.75 267.48l3.07-22.55 21.68 8.25z"/>
+<path fill="#c90505" shape-rendering="crispEdges" d="M1622.96 339.15l-16.1-12.83 40.63-1.64z"/>
+<path fill="#b20101" shape-rendering="crispEdges" d="M1792.18 269.97l33.4-7.59-16.33 27.92z"/>
+<path fill="#b30101" shape-rendering="crispEdges" d="M1710.68 325.71l20.85-22.51 18.03 22.07z"/>
+<path fill="#b30202" shape-rendering="crispEdges" d="M1634.7 390.97l-31.75-7.66 19.37-18z"/>
+<path fill="#b20101" shape-rendering="crispEdges" d="M1546.74 414.11l35.18 15.61-19.04 3.67z"/>
+<path fill="#b30101" shape-rendering="crispEdges" d="M1771.34 295.45l20.84-25.48 17.07 20.33z"/>
+<path fill="#a20f0f" shape-rendering="crispEdges" d="M1854.96 312.91l-22.93 26.08-9.07-24.95z"/>
+<path fill="#ce1212" shape-rendering="crispEdges" d="M1770.5 253.18l21.68 16.79-46.43-2.49z"/>
+<path fill="#c30202" shape-rendering="crispEdges" d="M1745.75 267.48l-44.36 8.93 11.56-14.49z"/>
+<path fill="#c20202" shape-rendering="crispEdges" d="M1476.64 416.29l-2.02-11.31 26.14 8.83z"/>
+<path fill="#ad0808" shape-rendering="crispEdges" d="M1809.25 290.3l26.34 0.23-12.63 23.51zm-259.56 159.48l13.19-16.39 12.98 22.48z"/>
+<path fill="#750000" shape-rendering="crispEdges" d="M1743.01 443.85l19.82-5.64-33.51 20.04z"/>
+<path fill="#a71616" shape-rendering="crispEdges" d="M1832.03 338.99l-28.88-21.19 19.81-3.76z"/>
+<path fill="#ac0606" shape-rendering="crispEdges" d="M1822.96 314.04l-19.81 3.76 6.1-27.5z"/>
+<path fill="#cb0808" shape-rendering="crispEdges" d="M1701.39 276.41l44.36-8.93-24.62 14.26zm0 0l19.74 5.33-24.59 14.28z"/>
+<path fill="#a50d0d" shape-rendering="crispEdges" d="M1803.15 317.8l28.88 21.19-32.65 10.01z"/>
+<path fill="#ac0404" shape-rendering="crispEdges" d="M1803.15 317.8l-31.81-22.35 37.91-5.15z"/>
+<path fill="#d11414" shape-rendering="crispEdges" d="M1745.75 267.48l-1.55 18.83-23.07-4.57z"/>
+<path fill="#bc0404" shape-rendering="crispEdges" d="M1744.2 286.31l1.55-18.83 25.59 27.97z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M1781.06 375.97l29.9 4.47-24.65 14.2z"/>
+<path fill="#8f0000" shape-rendering="crispEdges" d="M1613.05 492.18l14.72-29.18 10.15 15.58z"/>
+<path fill="#900000" shape-rendering="crispEdges" d="M1627.77 463l21.11-15.13-10.96 30.71zm153.29-87.03l5.25 18.67-24.66 14.16z"/>
+<path fill="#920101" shape-rendering="crispEdges" d="M1810.96 380.44l-29.9-4.47 18.32-26.97zm-263.42 131.48l8.79-27.64 5.42 35.16zm159.61-111.54l5.16 36.56-21.75-19.83z"/>
+<path fill="#ad1414" shape-rendering="crispEdges" d="M1779.56 325.21l23.59-7.41-3.77 31.2z"/>
+<path fill="#cb0707" shape-rendering="crispEdges" d="M1669.81 290.82l31.58-14.41-4.85 19.61z"/>
+<path fill="#cb0808" shape-rendering="crispEdges" d="M1550.13 366.08l18.89-13.47 5.22 15.67z"/>
+<path fill="#cc0808" shape-rendering="crispEdges" d="M1569.02 352.61l29.51 1.07-24.29 14.6z"/>
+<path fill="#d81919" shape-rendering="crispEdges" d="M1744.2 286.31l-12.67 16.89-10.4-21.46z"/>
+<path fill="#bc0707" shape-rendering="crispEdges" d="M1731.53 303.2l12.67-16.89 27.14 9.14z"/>
+<path fill="#a80c0c" shape-rendering="crispEdges" d="M1766.6 352l12.96-26.79 19.82 23.79z"/>
+<path fill="#cf1313" shape-rendering="crispEdges" d="M1721.13 281.74l10.4 21.46-34.99-7.18z"/>
+<path fill="#a00f0f" shape-rendering="crispEdges" d="M1799.38 349l-18.32 26.97-14.46-23.97z"/>
+<path fill="#9f0f0f" shape-rendering="crispEdges" d="M1627.77 463l-0.01-27.83 21.12 12.7z"/>
+<path fill="#b20202" shape-rendering="crispEdges" d="M1731.53 303.2l39.81-7.75-21.78 29.82z"/>
+<path fill="#c90606" shape-rendering="crispEdges" d="M1671.98 310.33l-2.17-19.51 26.73 5.2z"/>
+<path fill="#ca0606" shape-rendering="crispEdges" d="M1669.81 290.82l2.17 19.51-28.15-6z"/>
+<path fill="#ae0d0d" shape-rendering="crispEdges" d="M1779.56 325.21l-12.96 26.79-17.04-26.73z"/>
+<path fill="#900101" shape-rendering="crispEdges" d="M1752.79 384.8l28.27-8.83-19.41 32.83z"/>
+<path fill="#910202" shape-rendering="crispEdges" d="M1530.45 508.74l5.28 24.01-25.67 12.67z"/>
+<path fill="#910101" shape-rendering="crispEdges" d="M1588.06 505.61l-3.58-26.13 28.57 12.7zm0 0l-26.31 13.83 22.73-39.96z"/>
+<path fill="#9c0b0b" shape-rendering="crispEdges" d="M1781.06 375.97l-28.27 8.83 13.81-32.8zm-153.3 59.2l0.01 27.83-21.9-7.11z"/>
+<path fill="#710000" shape-rendering="crispEdges" d="M1670.15 489.84l14.36-6.05-29.04 15.67zm-369.29 127.78l1.31 3.22-8.29-3.92zm347.64-115.16l21.65-12.62-14.68 9.62zm-306.27 115.56l16.02-1.45-16.31 8.33zm16.02-1.45l-0.87 7.68-15.44 0.65z"/>
+<path fill="#d31717" shape-rendering="crispEdges" d="M1731.53 303.2l-20.85 22.51-14.14-29.69z"/>
+<path fill="#ab0707" shape-rendering="crispEdges" d="M1749.56 325.27l17.04 26.73-30.74 4.05z"/>
+<path fill="#ca1111" shape-rendering="crispEdges" d="M1696.54 296.02l14.14 29.69-38.7-15.38z"/>
+<path fill="#aa1616" shape-rendering="crispEdges" d="M1766.6 352l-13.81 32.8-16.93-28.75z"/>
+<path fill="#c90505" shape-rendering="crispEdges" d="M1643.83 304.33l28.15 6-24.49 14.35z"/>
+<path fill="#ac0303" shape-rendering="crispEdges" d="M1710.68 325.71l38.88-0.44-13.7 30.78z"/>
+<path fill="#ab0202" shape-rendering="crispEdges" d="M1452.63 513.35l-23.76 8.8-8.35-23.54z"/>
+<path fill="#910101" shape-rendering="crispEdges" d="M1752.79 384.8l-15.81 38.1-8.88-27.61zm-65.29 66.15l3.06-33.84 21.75 19.83zm40.6-55.66l8.88 27.61-24.67 14.04z"/>
+<path fill="#a50f0f" shape-rendering="crispEdges" d="M1752.79 384.8l-24.69 10.49 7.76-39.24z"/>
+<path fill="#c90f0f" shape-rendering="crispEdges" d="M1710.68 325.71l-30.4 14.37-8.3-29.75z"/>
+<path fill="#c80f0f" shape-rendering="crispEdges" d="M1550.02 383.02l31.14 20.38-34.42 10.71z"/>
+<path fill="#cc1212" shape-rendering="crispEdges" d="M1680.28 340.08l-32.79-15.4 24.49-14.35z"/>
+<path fill="#ae1616" shape-rendering="crispEdges" d="M1728.1 395.29l-19.62-31.53 27.38-7.71z"/>
+<path fill="#c80505" shape-rendering="crispEdges" d="M1622.96 339.15l-34.51 0.17 18.41-13z"/>
+<path fill="#a70d0d" shape-rendering="crispEdges" d="M1728.1 395.29l-20.95 5.09 1.33-36.62z"/>
+<path fill="#d31515" shape-rendering="crispEdges" d="M1647.49 324.68l3.69 14.11-28.22 0.36z"/>
+<path fill="#7b0000" shape-rendering="crispEdges" d="M1639.26 499.68l9.24 2.78-23.8 13.88z"/>
+<path fill="#ad1212" shape-rendering="crispEdges" d="M1707.15 400.38l-24.34-23.22 25.67-13.4z"/>
+<path fill="#c10b0b" shape-rendering="crispEdges" d="M1652.62 355.61l-1.44-16.82 29.1 1.29zm-74.8 28.31l25.13-0.61-21.79 20.09z"/>
+<path fill="#d71b1b" shape-rendering="crispEdges" d="M1651.18 338.79l1.44 16.82-29.66-16.46z"/>
+<path fill="#ca0707" shape-rendering="crispEdges" d="M1598.53 353.68l-10.08-14.36 34.51-0.17z"/>
+<path fill="#b01818" shape-rendering="crispEdges" d="M1682.81 377.16l24.34 23.22-16.59 16.73z"/>
+<path fill="#ca0606" shape-rendering="crispEdges" d="M1588.45 339.32l10.08 14.36-29.51-1.07z"/>
+<path fill="#cc0000" shape-rendering="crispEdges" d="M1493.47 386.32l20.84-13.21 6.97 1.59z"/>
+<path fill="#cb0000" shape-rendering="crispEdges" d="M1282.86 592.06l5.09-6.92-4.54 11.34z"/>
+<path fill="#cc0000" shape-rendering="crispEdges" d="M1283.67 582.65l3.04-9.1 1.89 1.57zm192.28-184.47l17.52-11.86-4.54 4.36zm-192.28 184.47l4.93-7.53-5.43 11.96z"/>
+<path fill="#cb0000" shape-rendering="crispEdges" d="M1400.56 462.67l-22.46 14.88-1.04-9.16zm21.81-28.27l7.89-4.46-28.6 18.87z"/>
+<path fill="#cc0000" shape-rendering="crispEdges" d="M1280.6 605.77l4.82-2.78-4.11 7.95z"/>
+<path fill="#a50b0b" shape-rendering="crispEdges" d="M1690.56 417.11l-24.8-16.26 17.05-23.69z"/>
+<path fill="#d11515" shape-rendering="crispEdges" d="M1622.96 339.15l-0.64 26.16-23.79-11.63z"/>
+<path fill="#a71414" shape-rendering="crispEdges" d="M1670.1 432.93l-4.34-32.08 24.8 16.26z"/>
+<path fill="#a81414" shape-rendering="crispEdges" d="M1531.63 472.61l-1.18 36.13-17.92-18.22z"/>
+<path fill="#ad0707" shape-rendering="crispEdges" d="M1653.08 376.59l29.73 0.57-17.05 23.69z"/>
+<path fill="#ac0808" shape-rendering="crispEdges" d="M1616.99 408.23l17.71-17.26 11.84 26.55z"/>
+<path fill="#b20303" shape-rendering="crispEdges" d="M1653.08 376.59l-30.76-11.28 30.3-9.7z"/>
+<path fill="#b30303" shape-rendering="crispEdges" d="M1622.32 365.31l30.76 11.28-18.38 14.38z"/>
+<path fill="#ac0606" shape-rendering="crispEdges" d="M1634.7 390.97l18.38-14.38 12.68 24.26z"/>
+<path fill="#a20f0f" shape-rendering="crispEdges" d="M1670.1 432.93l-23.56-15.41 19.22-16.67z"/>
+<path fill="#6f0000" shape-rendering="crispEdges" d="M1555.06 552.95l20.8-11.69-12.98 7.49zm-28.79 14.6l-25.07 11.43 17.77-10.17z"/>
+<path fill="#700000" shape-rendering="crispEdges" d="M1328.52 624.15l0.53-6.51 13.18 0.38z"/>
+<path fill="#6f0000" shape-rendering="crispEdges" d="M1328.52 624.15l13.71-6.13-0.29 6.88zm190.45-55.34l-17.77 10.17-16.38 7.1z"/>
+<path fill="#d71919" shape-rendering="crispEdges" d="M1602.95 383.31l-4.42-29.63 23.79 11.63z"/>
+<path fill="#a21212" shape-rendering="crispEdges" d="M1646.54 417.52l23.56 15.41-21.22 14.94z"/>
+<path fill="#ae0a0a" shape-rendering="crispEdges" d="M1634.7 390.97l31.06 9.88-19.22 16.67z"/>
+<path fill="#cd0505" shape-rendering="crispEdges" d="M1550.13 366.08l-0.11 16.94-28.74-8.32z"/>
+<path fill="#cd0a0a" shape-rendering="crispEdges" d="M1550.02 383.02l0.11-16.94 24.11 2.2z"/>
+<path fill="#cc0000" shape-rendering="crispEdges" d="M1474.62 404.98l-11.6 0.97 25.91-15.27z"/>
+<path fill="#cd0000" shape-rendering="crispEdges" d="M1335.8 506.85l14.44 0.26-13.78 9.38zm65.86-58.04l-3.43 6.39-21.17 13.19z"/>
+<path fill="#cc0000" shape-rendering="crispEdges" d="M1357.49 484.54l20.61-6.99-26.9 14.75zm89.24-67.15l-16.47 12.55-7.89 4.46z"/>
+<path fill="#cd0000" shape-rendering="crispEdges" d="M1378.1 477.55l-15.93 16.46-10.97-1.71z"/>
+<path fill="#cc0000" shape-rendering="crispEdges" d="M1283.17 587.08l5.43-11.96-0.65 10.02z"/>
+<path fill="#cd0000" shape-rendering="crispEdges" d="M1401.66 448.81l30.53-12.9-12.34 11.6z"/>
+<path fill="#9e0d0d" shape-rendering="crispEdges" d="M1648.88 447.87l-21.12-12.7 18.78-17.65z"/>
+<path fill="#c50c0c" shape-rendering="crispEdges" d="M1602.95 383.31l-25.13 0.61-3.58-15.64z"/>
+<path fill="#af0101" shape-rendering="crispEdges" d="M1602.95 383.31l31.75 7.66-17.71 17.26z"/>
+<path fill="#d61717" shape-rendering="crispEdges" d="M1577.82 383.92l-27.8-0.9 24.22-14.74z"/>
+<path fill="#b01010" shape-rendering="crispEdges" d="M1627.76 435.17l-10.77-26.94 29.55 9.29z"/>
+<path fill="#d81b1b" shape-rendering="crispEdges" d="M1550.02 383.02l27.8 0.9 3.34 19.48z"/>
+<path fill="#ac0b0b" shape-rendering="crispEdges" d="M1627.76 435.17l-23.99-9.27 13.22-17.67z"/>
+<path fill="#940505" shape-rendering="crispEdges" d="M1627.77 463l-14.72 29.18-7.18-36.29z"/>
+<path fill="#cb0707" shape-rendering="crispEdges" d="M1525.9 397.94l-20.83-7.89 44.95-7.03z"/>
+<path fill="#b11616" shape-rendering="crispEdges" d="M1603.77 425.9l23.99 9.27-21.89 20.72z"/>
+<path fill="#cb0505" shape-rendering="crispEdges" d="M1474.62 404.98l30.45-14.93-4.31 23.76z"/>
+<path fill="#d31717" shape-rendering="crispEdges" d="M1525.9 397.94l24.12-14.92-3.28 31.09z"/>
+<path fill="#cc0707" shape-rendering="crispEdges" d="M1525.9 397.94l-25.14 15.87 4.31-23.76z"/>
+<path fill="#b31919" shape-rendering="crispEdges" d="M1581.92 429.72l21.85-3.82 2.1 29.99z"/>
+<path fill="#ab0b0b" shape-rendering="crispEdges" d="M1581.92 429.72l23.95 26.17-30.01-0.02z"/>
+<path fill="#c50101" shape-rendering="crispEdges" d="M1474.62 404.98l2.02 11.31-22.04 7.01z"/>
+<path fill="#a81717" shape-rendering="crispEdges" d="M1575.86 455.87l30.01 0.02-21.39 23.59z"/>
+<path fill="#d51818" shape-rendering="crispEdges" d="M1525.9 397.94l20.84 16.17-45.98-0.3z"/>
+<path fill="#ae0c0c" shape-rendering="crispEdges" d="M1562.88 433.39l19.04-3.67-6.06 26.15z"/>
+<path fill="#cd0000" shape-rendering="crispEdges" d="M1432.19 435.91l-30.53 12.9 28.6-18.87z"/>
+<path fill="#ce0000" shape-rendering="crispEdges" d="M1294.18 577.4l-5.58-2.28 9.69-7.11zm56.06-70.29l-14.44-0.26 26.37-12.84zm-62.29 78.03l-5.09 6.92 0.31-4.98zm110.28-129.94l2.33 7.47-23.5 5.72zm-109.63 119.92l5.58 2.28-6.23 7.74zm-1.89-1.57l7.35-10.45-5.46 12.02zm75.46-79.54l-26.37 12.84 15.4-14.55zm-26.37 12.84l-0.28-0.3 15.68-14.25zm-41.74 56.25l-7.35 10.45 4.76-10.74z"/>
+<path fill="#b00303" shape-rendering="crispEdges" d="M1549.69 449.78l-2.95-35.67 16.14 19.28z"/>
+<path fill="#940404" shape-rendering="crispEdges" d="M1556.33 484.28l28.15-4.8-22.73 39.96z"/>
+<path fill="#a41212" shape-rendering="crispEdges" d="M1575.86 455.87l8.62 23.61-28.15 4.8z"/>
+<path fill="#d41919" shape-rendering="crispEdges" d="M1546.74 414.11l-22.88 24.6-23.1-24.9z"/>
+<path fill="#d30f0f" shape-rendering="crispEdges" d="M1476.24 429.69l0.4-13.4 24.12-2.48z"/>
+<path fill="#d20b0b" shape-rendering="crispEdges" d="M1476.64 416.29l-0.4 13.4-21.64-6.39zm-69.04 61.07l-7.04-14.69 28.88-1.14z"/>
+<path fill="#b41919" shape-rendering="crispEdges" d="M1556.33 484.28l-6.64-34.5 26.17 6.09z"/>
+<path fill="#8e0000" shape-rendering="crispEdges" d="M1535.73 532.75l11.81-20.83 14.21 7.52z"/>
+<path fill="#d91b1b" shape-rendering="crispEdges" d="M1500.76 413.81l-3.51 25.93-21.01-10.05z"/>
+<path fill="#c40d0d" shape-rendering="crispEdges" d="M1497.25 439.74l3.51-25.93 23.1 24.9z"/>
+<path fill="#cd0707" shape-rendering="crispEdges" d="M1452.42 445.59l-20.23-9.68 22.41-12.61z"/>
+<path fill="#ce0909" shape-rendering="crispEdges" d="M1454.6 423.3l21.64 6.39-23.82 15.9z"/>
+<path fill="#ad1010" shape-rendering="crispEdges" d="M1531.63 472.61l18.06-22.83 6.64 34.5z"/>
+<path fill="#ab0303" shape-rendering="crispEdges" d="M1549.69 449.78l-18.06 22.83-7.77-33.9z"/>
+<path fill="#900202" shape-rendering="crispEdges" d="M1547.54 511.92l-11.81 20.83-5.28-24.01z"/>
+<path fill="#910202" shape-rendering="crispEdges" d="M1469.33 540.71l22.78-12.56-7.34 29.2zm15.44 16.64l7.34-29.2 17.95 17.27z"/>
+<path fill="#900202" shape-rendering="crispEdges" d="M1460.13 568.34l9.2-27.63 15.44 16.64z"/>
+<path fill="#cb0606" shape-rendering="crispEdges" d="M1432.19 435.91l20.23 9.68-32.57 1.92z"/>
+<path fill="#b11e1e" shape-rendering="crispEdges" d="M1530.45 508.74l1.18-36.13 24.7 11.67z"/>
+<path fill="#b50505" shape-rendering="crispEdges" d="M1497.25 439.74l26.61-1.03-19.14 26.78z"/>
+<path fill="#de1f1f" shape-rendering="crispEdges" d="M1478.88 456.5l-2.64-26.81 21.01 10.05z"/>
+<path fill="#d91b1b" shape-rendering="crispEdges" d="M1476.24 429.69l2.64 26.81-26.46-10.91z"/>
+<path fill="#da1c1c" shape-rendering="crispEdges" d="M1452.42 445.59l26.46 10.91-19.93 11.44z"/>
+<path fill="#ce0000" shape-rendering="crispEdges" d="M1378.1 477.55l-20.61 6.99 19.57-16.15z"/>
+<path fill="#cf0000" shape-rendering="crispEdges" d="M1298.29 568.01l-9.69 7.11 5.46-12.02zm-6.82-5.2l6.56-11.58 3.16-0.75z"/>
+<path fill="#ce0000" shape-rendering="crispEdges" d="M1319.34 523.48l16.46-16.63-14.88 16.05zm-12.11 14.49l12.11-14.49 1.58-0.58zm28.29-31.42l0.28 0.3-16.46 16.63z"/>
+<path fill="#b30303" shape-rendering="crispEdges" d="M1504.72 465.49l-25.84-8.99 18.37-16.76z"/>
+<path fill="#d00909" shape-rendering="crispEdges" d="M1429.44 461.53l-9.59-14.02 32.57-1.92zm-28.88 1.14l19.29-15.16 9.59 14.02z"/>
+<path fill="#cf0000" shape-rendering="crispEdges" d="M1335.52 506.55l21.97-22.01-6.29 7.76z"/>
+<path fill="#d00000" shape-rendering="crispEdges" d="M1315.55 543.1l-9.75 13.18-4.61-5.8z"/>
+<path fill="#cf0000" shape-rendering="crispEdges" d="M1326.76 529.3l-11.21 13.8-5.49-6zm-20.96 26.98l-7.51 11.73-4.23-4.91z"/>
+<path fill="#d00000" shape-rendering="crispEdges" d="M1336.46 516.49l-9.7 12.81-5.84-6.4zm-9.7 12.81l-16.7 7.8 10.86-14.2zm-20.96 26.98l-11.74 6.82 7.13-12.62z"/>
+<path fill="#cf0000" shape-rendering="crispEdges" d="M1335.8 506.85l0.66 9.64-15.54 6.41z"/>
+<path fill="#d00000" shape-rendering="crispEdges" d="M1315.55 543.1l-14.36 7.38 8.87-13.38z"/>
+<path fill="#cf0000" shape-rendering="crispEdges" d="M1310.06 537.1l-12.03 14.13 9.2-13.26zm0 0l-2.83 0.87 13.69-15.07zm-16 26l-2.59-0.29 9.72-12.33zm3.97-11.87l12.03-14.13-8.87 13.38z"/>
+<path fill="#ae0b0b" shape-rendering="crispEdges" d="M1531.63 472.61l-19.1 17.91-7.81-25.03z"/>
+<path fill="#920404" shape-rendering="crispEdges" d="M1510.06 545.42l-1.73-30.83 22.12-5.85z"/>
+<path fill="#a91616" shape-rendering="crispEdges" d="M1508.33 514.59l4.2-24.07 17.92 18.22z"/>
+<path fill="#920202" shape-rendering="crispEdges" d="M1508.33 514.59l1.73 30.83-17.95-17.27z"/>
+<path fill="#dd1e1e" shape-rendering="crispEdges" d="M1458.95 467.94l-29.51-6.41 22.98-15.94z"/>
+<path fill="#dd1f1f" shape-rendering="crispEdges" d="M1420.52 498.61l-21.71 18.34-11.76-23.85z"/>
+<path fill="#710000" shape-rendering="crispEdges" d="M1421.46 603.1l10.52 3.26-19.64 7.21z"/>
+<path fill="#720000" shape-rendering="crispEdges" d="M1318.06 616.64l10.99 1-12.7 4.67zm0 0l-1.71 5.67-7.77-4.34z"/>
+<path fill="#710000" shape-rendering="crispEdges" d="M1308.58 617.97l7.77 4.34-14.18-1.47z"/>
+<path fill="#720000" shape-rendering="crispEdges" d="M1357.38 624.25l0.87-7.68 18.22-2.58zm0 0l19.09-10.26-1.29 7.91z"/>
+<path fill="#710000" shape-rendering="crispEdges" d="M1290.25 611.35l-4.83 2.78-4.11-3.19z"/>
+<path fill="#ad0202" shape-rendering="crispEdges" d="M1481.89 491.74l-3.01-35.24 25.84 8.99z"/>
+<path fill="#ae0a0a" shape-rendering="crispEdges" d="M1504.72 465.49l7.81 25.03-30.64 1.22z"/>
+<path fill="#b62323" shape-rendering="crispEdges" d="M1508.33 514.59l-26.44-22.85 30.64-1.22z"/>
+<path fill="#d10909" shape-rendering="crispEdges" d="M1378.1 477.55l22.46-14.88 7.04 14.69z"/>
+<path fill="#b62121" shape-rendering="crispEdges" d="M1481.89 491.74l26.44 22.85-16.22 13.56z"/>
+<path fill="#de2020" shape-rendering="crispEdges" d="M1458.95 467.94l-15.44 16.72-14.07-23.13z"/>
+<path fill="#600000" shape-rendering="crispEdges" d="M1368.9 622.96l-16.06 2.07 22.34-3.13zm-16.06 2.07l4.54-0.78 17.8-2.35z"/>
+<path fill="#5f0000" shape-rendering="crispEdges" d="M1325.42 625.99l3.1-1.84 13.42 0.75z"/>
+<path fill="#ae0202" shape-rendering="crispEdges" d="M1443.51 484.66l15.44-16.72 22.94 23.8z"/>
+<path fill="#a80f0f" shape-rendering="crispEdges" d="M1474.64 517.84l7.25-26.1 10.22 36.41z"/>
+<path fill="#db1e1e" shape-rendering="crispEdges" d="M1443.51 484.66l-35.91-7.3 21.84-15.83zm0 0l-22.99 13.95-12.92-21.25z"/>
+<path fill="#aa1a1a" shape-rendering="crispEdges" d="M1469.33 540.71l5.31-22.87 17.47 10.31z"/>
+<path fill="#d00808" shape-rendering="crispEdges" d="M1378.1 477.55l29.5-0.19-20.55 15.74z"/>
+<path fill="#d00909" shape-rendering="crispEdges" d="M1362.17 494.01l15.93-16.46 8.95 15.55z"/>
+<path fill="#b31717" shape-rendering="crispEdges" d="M1481.89 491.74l-7.25 26.1-22.01-4.49z"/>
+<path fill="#5e0000" shape-rendering="crispEdges" d="M1352.84 625.03l-14.67 1.15 19.21-1.93z"/>
+<path fill="#5f0000" shape-rendering="crispEdges" d="M1338.17 626.18l3.77-1.28 15.44-0.65z"/>
+<path fill="#b32525" shape-rendering="crispEdges" d="M1474.64 517.84l-5.31 22.87-16.7-27.36z"/>
+<path fill="#910404" shape-rendering="crispEdges" d="M1445.22 547.27l24.11-6.56-9.2 27.63z"/>
+<path fill="#920404" shape-rendering="crispEdges" d="M1423 562.04l22.22-14.77-8.99 31.01zm22.22-14.77l14.91 21.07-23.9 9.94z"/>
+<path fill="#df2020" shape-rendering="crispEdges" d="M1407.6 477.36l12.92 21.25-33.47-5.51z"/>
+<path fill="#b21f1f" shape-rendering="crispEdges" d="M1469.33 540.71l-24.11 6.56 7.41-33.92z"/>
+<path fill="#d40c0c" shape-rendering="crispEdges" d="M1362.17 494.01l24.88-0.91-19.01 15.5zm5.87 14.59l-17.8-1.49 11.93-13.1z"/>
+<path fill="#5d0000" shape-rendering="crispEdges" d="M1338.17 626.18l-12.75-0.19 16.52-1.09z"/>
+<path fill="#b72323" shape-rendering="crispEdges" d="M1445.22 547.27l-16.35-25.12 23.76-8.8z"/>
+<path fill="#8f0303" shape-rendering="crispEdges" d="M1423 562.04l13.23 16.24-22.93 8.71zm-9.7 24.95l-7.61-14.58 17.31-10.37z"/>
+<path fill="#dd1f1f" shape-rendering="crispEdges" d="M1398.81 516.95l-30.77-8.35 19.01-15.5z"/>
+<path fill="#d00707" shape-rendering="crispEdges" d="M1350.24 507.11l0.55 16.65-14.33-7.27z"/>
+<path fill="#cf0707" shape-rendering="crispEdges" d="M1315.55 543.1l11.21-13.8 8.78 9.02z"/>
+<path fill="#d00707" shape-rendering="crispEdges" d="M1315.55 543.1l19.99-4.78-13.11 13.75z"/>
+<path fill="#b51d1d" shape-rendering="crispEdges" d="M1428.87 522.15l16.35 25.12-26.22-8.14z"/>
+<path fill="#d60e0e" shape-rendering="crispEdges" d="M1350.79 523.76l-0.55-16.65 17.8 1.49z"/>
+<path fill="#b22424" shape-rendering="crispEdges" d="M1445.22 547.27l-22.22 14.77-4-22.91z"/>
+<path fill="#b22525" shape-rendering="crispEdges" d="M1423 562.04l-24.3-14.1 20.3-8.81z"/>
+<path fill="#b22424" shape-rendering="crispEdges" d="M1398.7 547.94l-8.02 24.99-13.33-14.94z"/>
+<path fill="#610000" shape-rendering="crispEdges" d="M1325.42 625.99l-10.56-1.3 13.66-0.54z"/>
+<path fill="#d10808" shape-rendering="crispEdges" d="M1350.79 523.76l-24.03 5.54 9.7-12.81z"/>
+<path fill="#8d0202" shape-rendering="crispEdges" d="M1391.54 594.35l14.15-21.94 7.61 14.58z"/>
+<path fill="#dc1e1e" shape-rendering="crispEdges" d="M1398.81 516.95l-22.75 14.52-8.02-22.87z"/>
+<path fill="#de1f1f" shape-rendering="crispEdges" d="M1376.06 531.47l-25.27-7.71 17.25-15.16z"/>
+<path fill="#650000" shape-rendering="crispEdges" d="M1314.86 624.69l1.49-2.38 12.17 1.84z"/>
+<path fill="#670000" shape-rendering="crispEdges" d="M1306.01 622.78l10.34-0.47-1.49 2.38z"/>
+<path fill="#660000" shape-rendering="crispEdges" d="M1316.35 622.31l-10.34 0.47-3.84-1.94z"/>
+<path fill="#a90606" shape-rendering="crispEdges" d="M1398.7 547.94l0.11-30.99 20.19 22.18z"/>
+<path fill="#b12424" shape-rendering="crispEdges" d="M1405.69 572.41l-6.99-24.47 24.3 14.1z"/>
+<path fill="#d20a0a" shape-rendering="crispEdges" d="M1326.76 529.3l24.03-5.54-15.25 14.56z"/>
+<path fill="#a90404" shape-rendering="crispEdges" d="M1398.81 516.95l-0.11 30.99-22.64-16.47z"/>
+<path fill="#a90505" shape-rendering="crispEdges" d="M1376.06 531.47l22.64 16.47-21.35 10.05z"/>
+<path fill="#8f0404" shape-rendering="crispEdges" d="M1405.69 572.41l-14.15 21.94-0.86-21.42z"/>
+<path fill="#b12424" shape-rendering="crispEdges" d="M1398.7 547.94l6.99 24.47-15.01 0.52z"/>
+<path fill="#da1b1b" shape-rendering="crispEdges" d="M1376.06 531.47l-18.6 13.55-6.67-21.26z"/>
+<path fill="#8d0303" shape-rendering="crispEdges" d="M1374.73 582.28l16.81 12.07-20.23 5.92z"/>
+<path fill="#da1b1b" shape-rendering="crispEdges" d="M1357.46 545.02l-21.92-6.7 15.25-14.56z"/>
+<path fill="#900404" shape-rendering="crispEdges" d="M1391.54 594.35l-16.81-12.07 15.95-9.35z"/>
+<path fill="#cc0404" shape-rendering="crispEdges" d="M1322.43 552.07l-16.63 4.21 9.75-13.18z"/>
+<path fill="#cb0404" shape-rendering="crispEdges" d="M1305.8 556.28l16.63-4.21-10.85 12.58z"/>
+<path fill="#aa0303" shape-rendering="crispEdges" d="M1357.46 545.02l18.6-13.55 1.29 26.52z"/>
+<path fill="#aa2020" shape-rendering="crispEdges" d="M1390.68 572.93l-15.95 9.35 2.62-24.29z"/>
+<path fill="#c80202" shape-rendering="crispEdges" d="M1298.29 568.01l7.51-11.73 5.78 8.37z"/>
+<path fill="#8a0202" shape-rendering="crispEdges" d="M1357.18 589.08l14.13 11.19-18.47 4.48z"/>
+<path fill="#8c0303" shape-rendering="crispEdges" d="M1357.18 589.08l17.55-6.8-3.42 17.99z"/>
+<path fill="#d31313" shape-rendering="crispEdges" d="M1341.38 556.77l-18.95-4.7 13.11-13.75z"/>
+<path fill="#d51616" shape-rendering="crispEdges" d="M1357.46 545.02l-16.08 11.75-5.84-18.45z"/>
+<path fill="#ab2020" shape-rendering="crispEdges" d="M1374.73 582.28l-15.11-13.97 17.73-10.32z"/>
+<path fill="#aa0404" shape-rendering="crispEdges" d="M1359.62 568.31l-2.16-23.29 19.89 12.97z"/>
+<path fill="#c60101" shape-rendering="crispEdges" d="M1302.96 575.7l-8.78 1.7 4.11-9.39z"/>
+<path fill="#c70101" shape-rendering="crispEdges" d="M1298.29 568.01l13.29-3.36-8.62 11.05z"/>
+<path fill="#a51b1b" shape-rendering="crispEdges" d="M1374.73 582.28l-17.55 6.8 2.44-20.77z"/>
+<path fill="#c20000" shape-rendering="crispEdges" d="M1287.95 585.14l6.23-7.74 1.94 7.99z"/>
+<path fill="#870101" shape-rendering="crispEdges" d="M1340.89 594.4l11.95 10.35-16.32 3.12z"/>
+<path fill="#ca0b0b" shape-rendering="crispEdges" d="M1328.07 567.59l-16.49-2.94 10.85-12.58z"/>
+<path fill="#c40101" shape-rendering="crispEdges" d="M1283.41 596.48l4.54-11.34 2.38 9.32zm10.77-19.08l8.78-1.7-6.84 9.69z"/>
+<path fill="#890202" shape-rendering="crispEdges" d="M1352.84 604.75l-11.95-10.35 16.29-5.32z"/>
+<path fill="#cd0e0e" shape-rendering="crispEdges" d="M1341.38 556.77l-13.31 10.82-5.64-15.52z"/>
+<path fill="#c30000" shape-rendering="crispEdges" d="M1287.95 585.14l8.17 0.25-5.79 9.07z"/>
+<path fill="#c40101" shape-rendering="crispEdges" d="M1285.42 602.99l-2.01-6.51 6.92-2.02z"/>
+<path fill="#a01717" shape-rendering="crispEdges" d="M1357.18 589.08l-13.58-12.19 16.02-8.58z"/>
+<path fill="#c40505" shape-rendering="crispEdges" d="M1311.58 564.65l4.81 11.41-13.43-0.36z"/>
+<path fill="#aa0303" shape-rendering="crispEdges" d="M1341.38 556.77l18.24 11.54-16.02 8.58z"/>
+<path fill="#860000" shape-rendering="crispEdges" d="M1326.97 598.55l9.55 9.32-13.87 1.93z"/>
+<path fill="#c70909" shape-rendering="crispEdges" d="M1316.39 576.06l-4.81-11.41 16.49 2.94z"/>
+<path fill="#860101" shape-rendering="crispEdges" d="M1326.97 598.55l13.92-4.15-4.37 13.47z"/>
+<path fill="#9d1313" shape-rendering="crispEdges" d="M1357.18 589.08l-16.29 5.32 2.71-17.51z"/>
+<path fill="#9b0000" shape-rendering="crispEdges" d="M1285.42 602.99l4.83 8.36-8.94-0.41z"/>
+<path fill="#c20404" shape-rendering="crispEdges" d="M1316.39 576.06l-9.4 7.26-4.03-7.62z"/>
+<path fill="#870000" shape-rendering="crispEdges" d="M1322.65 609.8l-5.86-6.91 10.18-4.34z"/>
+<path fill="#9d0202" shape-rendering="crispEdges" d="M1294.88 604.25l-4.63 7.1-4.83-8.36z"/>
+<path fill="#b00101" shape-rendering="crispEdges" d="M1294.88 604.25l-9.46-1.26 4.91-8.53z"/>
+<path fill="#b90101" shape-rendering="crispEdges" d="M1302.9 591.91l-12.57 2.55 5.79-9.07zm-6.78-6.52l10.87-2.07-4.09 8.59z"/>
+<path fill="#8d0000" shape-rendering="crispEdges" d="M1306.97 601.66l3.87 9.22-10.75 0.48zm0 0l9.82 1.23-5.95 7.99z"/>
+<path fill="#9a0d0d" shape-rendering="crispEdges" d="M1340.89 594.4l-11.78-10.38 14.49-7.13z"/>
+<path fill="#a90202" shape-rendering="crispEdges" d="M1329.11 584.02l-1.04-16.43 15.53 9.3z"/>
+<path fill="#970a0a" shape-rendering="crispEdges" d="M1340.89 594.4l-13.92 4.15 2.14-14.53z"/>
+<path fill="#b20404" shape-rendering="crispEdges" d="M1290.33 594.46l8.1 3.78-3.55 6.01z"/>
+<path fill="#b50202" shape-rendering="crispEdges" d="M1298.43 598.24l-8.1-3.78 12.57-2.55z"/>
+<path fill="#ab0000" shape-rendering="crispEdges" d="M1306.99 583.32l9.4-7.26-0.41 14.43zm0 0l8.99 7.17-13.08 1.42z"/>
+<path fill="#940303" shape-rendering="crispEdges" d="M1316.79 602.89l-0.81-12.4 10.99 8.06zm-0.81-12.4l0.81 12.4-9.82-1.23z"/>
+<path fill="#a90000" shape-rendering="crispEdges" d="M1316.39 576.06l12.72 7.96-13.13 6.47z"/>
+<path fill="#970000" shape-rendering="crispEdges" d="M1298.43 598.24l8.54 3.42-12.09 2.59z"/>
+<path fill="#960606" shape-rendering="crispEdges" d="M1326.97 598.55l-10.99-8.06 13.13-6.47z"/>
+<path fill="#9d0101" shape-rendering="crispEdges" d="M1306.97 601.66l-8.54-3.42 4.47-6.33z"/>
+<path fill="#9d0000" shape-rendering="crispEdges" d="M1302.9 591.91l13.08-1.42-9.01 11.17z"/>
+<path fill="none" stroke="#666666" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" d="M1281.9 591.9l-0.5 2l-0.8 6.2l0 5.7l2.8-9.3l6.9-2l-2.3-9.4l-4.6 11.4l2 6.5l-4.8 2.8l0.7 5.1l4.1 3.2l-0.5-1m207.1-225.3l1.5-1.5l-4.6 4.4l32.4-16l-16.2 15.4l-4.3 23.7l25.1-15.9l-20.8-7.8l-30.5 14.9l14.3-14.3l-25.9 15.3l0.4 0.4m28.1-18.2l-2 2m-22 13.1l-4.5 2.7l0.4 0.4m92.1-50.5l-29.6 10.1l0 31.9l18.7-11.6l25.2 17.3l17.2-17.6l-31.5-30.1l35.2-4.2l-7.8-50.5l50.8 59.4l-5.1 49.2l31.1 62.1l-34.3-15.5l3.2-46.6l-25.7 10.6l-33.1-16.8l-14.3-47.7l-1.2-44.4l-28.4 10.1l29.6 34.3l-10.9 30.4l-18.7-20.3l-29.6-44.5l12 43.8l-3.2 24.8l-18.4-35.2l9.6-33.4l-31.7-2l22.1 35.4l2.2 35.8l16.2-0.6l44.9-7.1l-24.1 14.9l20.8 16.2l3.3-31.1l0.1-16.9l24.1 2.2l-24.2 14.7l-28.7-8.3l18.9-14.3l-25.9 12.7l12.9-7.8l13-4.9l17-11.9l-4.4 2.4m92.8-56.2l-1.5 0.8l-27.4 15.8l27.1-7l26-13.5l2.2 19.5l-28.2-6l0.3-8.8l32.2-16.9l11.1-8.5l25.5-8.2l35.9-17l-3.1 22.6l-32.8-5.6l-36.6 16.7l25.1-2.2l44.3-8.9l-24.6 14.2l-19.7-5.3l-4.9 19.6l-26.7-5.2l6.5-12.2l-2.5 1.3m-299.2 190.9l2.5-2.4l24.6-19.6l-4.5 4.1m49.2-35l0.3-0.5l27.9-12.4l-20 18.3l-2.2 22.3l-23 15.9l-28.8 1.2l7 14.7l21.8-15.9l-9.5-14l32.5-1.9l-20.2-9.7l22.4-12.6l-7.9-5.9l-16.4 12.5l-1 0.6m-0.5 0.3l-6.4 3.6l-20.7 14.4l30.5-12.9l-12.3 11.6l-18.2 1.3l-1.2 1.5m-103.6 104.4l1.1-3.5l0.2 1m237.9-192l-8.9 5.1l30-16.8l11.8 4.1l19.4-13.3l18.5-13l13.8-11.1l-4-3.9l-25.4 15l29.4-11.1l23.1-10.9l3.7 20.4l-24.5 14.5l-16.1-12.9l-15.6 0l0.4 0.5m-308.2 257.3l0.2-1.5l-2.3 11.3l1.8-6.8l4.8-2l0.6-10l-5.4 12l0.5-4.5l4.9-7.5l-1.9-1.6l7.4-10.4l11.7-6.8l5.8 8.4l10.8-12.6l-16.6 4.2l-4.6-5.8l14.3-7.4l-5.4-6l-8.9 13.4l-9.7 12.3l2.6 0.3l7.1-12.6l-3.2 0.7l9.2-13.2l-1 2.9m13.3-16.9l-0.2-0.5l1.6-0.6l-13.7 15.1l2.9-0.9l-12.1 14.1l-6.5 11.6l-0.9 3m44.3-57.8l0.6-1.4l-16.2 16.9l-12.1 14.5l0.3 1m26.9-30.7l1.4-1.5l-14.9 16.1l5.9 6.4l9.7-12.8l-15.6 6.4l-10.8 14.2l16.7-7.8l24-5.5l-14.3-7.3l-0.7-9.7l15.4-14.5l-2.4 2.2m38.2-1.4l11.8 23.8l21.7-18.3l32.1 14.8l-9.1-28.7l-35.9-7.3l12.9 21.2l-33.5-5.5l-24.8 0.9l5.8 14.6l19-15.5l20.6-15.7l-29.5 0.1l8.9 15.6m269.9-204.4l-0.5 0.3m-0.5 0.3l-0.5 0.2m-0.5 0.3l-0.5 0.2m-0.5 0.3l-0.4 0.3m-0.5 0.2l-0.5 0.3m-3 1.5l-0.5 0.3m22.3-11.7l-0.5 0.3m-0.5 0.2l-0.5 0.3m-1 0.5l0.5-0.3l-0.5 0.3m-0.5 0.3l-0.5 0.2m-0.5 0.3l-0.5 0.2m-0.9 0.6l0.5-0.3l-0.5 0.3m-0.5 0.2l-0.5 0.3m-0.5 0.2l-0.5 0.3m-2 1l-0.5 0.3m-0.5 0.3l-0.5 0.2m-0.5 0.3l-0.5 0.2l0.5-0.2m-1 0.5l-0.5 0.2l0.5-0.2m-12.8 6.8l0.5-0.3m0.4-0.3l0.5-0.2m0.5-0.3l0.5-0.2m1.5-0.8l2-1.1m5.4-2.8l0.5-0.3m-326.5 223l-12.1 12.3l-0.9 2.5m17.2-18.9l-0.1-0.5l3.9-3.4m-47.9 60.6l0-1l-4.8 10.7l0 1.4m70.2-89.4l0.6-1l19.6-16.1l-0.4 0.5m-95.8 131.7l-0.3-0.5l2.6-13l-0.3 5l-2.3 8l2.8-3.6l-0.5-4.4l5.1-7l8.1 0.3l-1.9-8l-5.6-2.3l5.5-12l4.2 4.9l7.5-11.7l9.7-13.2l11.3-13.8l8.7 9l-20 4.8l6.9 9l13.1-13.8l5.9 18.5l-19-4.7l5.7 15.5l-11.7 8.5l-0.4 14.4l-13.1 1.4l4.1 9.8l-6.9 9.7l-6.2 5.5l-8.5-2.8l-0.3-0.5m116.8-164.3l-0.2-0.5l-3.5 6.4l21.7-7.7l-19.3 15.2l-22.5 14.8l-15.9 16.5l-11-1.7l6.3-7.8l-22 22.1l10.8-9.8m243.5-169.1l1.5-1.4l-16.1 10.4l-18 11.8l31.2-9.2l10.1 14.4l24.5-14.5l-34.6 0.1l-13.2-2.6l31.7-10.4l40.6-1.6l-26.8-9.5m-285.2 191.4l0.3 0.2l26.4-12.8l-12 13.1l0.6 16.7l17.2-15.2l8.1 22.9l22.7-14.6l-30.8-8.3l-17.8-1.5l-13.7 9.4m393.8-270.1l1.4-0.8l17.1-0.7l19.7-15.1l-36.8 15.8l-20.5 11l1.7 5.3l-11.5 14.5l-31.6 14.4l-25.7 4.7l-1.5 1.3m-24.9 14.7l-1-0.2l-2 1.9m-70.1 42.4l0.4-0.5l-0.1 0.5m7.4-4.5l-0.5 0.3m-0.5 0.3l-0.4 0.2m-1.5 0.8l-0.5 0.3m-4.8 2.7l-3 1.7m-4 2.3l-0.5 0.2m-247.8 255.6l1.5 1.5l-4.9-2.9l4.9-2.8l-4.9-8.3l-4.1 7.9l9 0.4l9.8 0.1l10.7-0.5l11.8-1.1l13.9-1.9l-9.5-9.3l2.1-14.6l-1-16.4l-16.5-2.9l-13.3 3.3l4.7 7.7l-8.8 1.7l4.1-9.4l-9.7 7.1m205.3-188.4l-0.4-0.4l27.8-11.6l28.8-8.6l-9.9-5.7l28.8-7.8l5.2 15.7l24.3-14.6l-29.5-1.1l-18.9 13.5m-267.1 221.9l-0.3 1m196.2-192.6l0.5-0.2m3-1.8l1-0.5m28.9-18.9l2-1.9l-20.8 13.2l-17.1 11.5m319.4 21.6l0.3 0.5l26.9-16.4l-23.5 9.6l32.5-24l3.7-22.9l-24.7 14.2l21-41.4l-28.8-21.2l6.1-27.5l13.7 23.7l12.6-23.5l-26.3-0.2l-17.1-20.3l17.1 20.3l-38 5.1l20.9-25.4l-46.5-2.5l24.8-14.3l-21.7-8.3l-37.6 11.7l1-0.5m-4.5 3.1l0.5-0.4m-0.7 211.4l1.5-0.2l20.3-11.8l13.7-14.3l-34 26.1l6.4-11.8l-3.1-21.3l15.8-41.6l-19.6-31.5l-28.2-23.7l2.5 37.1l-30.2-21.6l27.7-15.5l-32.8-15.4l24.5-14.4l8.3 29.8l30.4-14.4l-38.7-15.4l24.5-14.3l24.6-14.3l10.4 21.5l39.8-7.8l31.9 22.4l19.8-3.8l32-1.1l5 38.4l-28-12.3l-32.6 10l3.8-31.2l-23.6 7.4l-8.3-29.8l-21.7 29.9l30-0.1l-13 26.8l32.8-3l11.6 31.4l-17.1 24.3l-7.6-10.1l-13.4 27.6l21-17.5l5.6 8.4l-26.6 9.1l-10.1 16l-19.8 5.7l18.7-35.1l11.2 13.4l-29.9 21.7l-6-21l-21.6 35.3l27.6-14.3m-459.3 138.7l3-9.1l-1.1 4.4m-0.1 0.5l-0.1 0.5m-1.9 7.2l-0.1 0.5m-0.1 0l0.2-2m184.5-181.6l0.5-0.3m0.5-0.3l1-0.6m4-2.4l1-0.6m0.5-0.3l0.4-0.3l-0.3 0.5m8.8-5.4l-0.5 0.3m-10.4 6.1l-0.5 0.3m-0.5 0.3l-1 0.6m-0.5 0.3l-0.5 0.3m-128.1 99.3l-0.5 0.4m118.6-93.1l2.5-2.1l-16.3 11.4l-4.9 3.5m-0.5 0.3l-18.9 13.2l4.9-2.5m0.5-0.3l0.5-0.3l-0.5 0.3m121.2-78.7l3-1.8m9-5.1l0.5-0.3m-139.1 89.2l0-0.5l-1.4 1.5m8.7-5.3l0.5-0.3m96.5-64l0.5-1l-3.4 2.7m13.8-8.6l3-1.7m4-2.3l0.4-0.3l22.8-13.9m-22.3 13.7l2.9-1.6m1.5-0.8l0.5-0.3m23.8-14.8l1-0.7l-4.4 2.7m-0.5 0.3l-2 1.2m1.1-0.3l0.5-0.3m21.4-14l-4 2.6m-0.5 0.3l-0.4 0.4m-5 3.2l-0.5 0.4m-1 0.6l-0.5 0.3m-8.1 5.2l-0.5 0.4m-10.3 6.6l-1 0.6m-0.5 0.3l-6.5 3.7m-4 2.2l-3.5 2m-193.8 137.2l26.9-14.8l-20.6 7m20.6-7l-1-9.1l21.1-13.2l2.4 7.5l-23.5 5.7m137.2-95.3l7 1.6m141.6-89.1l0.5-0.2m-5 2.5l29-17.8l-0.5 0.9m-27 16.3l-0.5 0.2m49.3-29.1l2.5-1.8l-23.8 13.5m-255.2 165.8l-1.9-6l24.3-6.6l21.6 6.4l0.4-13.4l24.2-2.5l-26.2-8.8l-11.6 1m-127.2 100.8l14.4 0.3m80.1-77.2l-28.6 18.9m-107.5 128.6l-6.2 7.7m186.6-180.1l2 11.3l-22 7m-159.4 195.2l0.9 0.9l-5.8-2.4l-0.2-0.5m11.4 4.3l-5.4-1.4l-0.2-0.5m-15.3-18.8l0.4 1.9m0.1 4.7l-0.5-0.9l0.6 1m23.5 15.3l1.3 0.7l-9.9-3.4l6.1 1.4l-11.9-3.8l-0.8-0.9m-7.4-24.6l0.4-1.5m-1 4.4l-0.1-0.5m131.9 19l-1 0.7l9.2-10.5l14.7-24.8l-22.9 8.7l-15.8 22.4l-2.9 8.8l26.9-15.1l-24 6.3l-6-15l21.8-7.4l8.2 16.1l26.7-10.7l3.3 7.6l20.3-16.3l-11.7-15.4l24.7-10.9l9.2 13.7l16.1-25.7l25.6-12.7l1.8 16.1l24.2-29.4l26.4-13.8l-3.6 22l28.5-35.4l-24.9 13.4l-3.6-26.1l-22.8 39.9l-5.4-35.1l28.2-4.8l-8.6-23.6l30 0l-21.4 23.6l28.5 12.7l13.2 6.9l11.7-20.5l24.8-13.8l1.8 17.8l-25.2 17.1l9.2 2.8l-2.4 1.3m-193.7-58.2l23.8-15.9l2.7 26.8l-26.5-10.9l6.6 22.3l19.9-11.4l3 35.2l-29.3 21.7l22 4.4l17.5 10.3l18 17.3l-1.8-30.8l-16.2 13.5l-10.2-36.4l26.4 22.9l22.2-5.9l-18-18.2l-30.6 1.2l22.8-26.2l7.8 25l19.1-17.9l-1.1 36.1l5.2 24l26-13.3l-10 29.3l32.8-21.1l-22.8-8.2l-14.2-7.5l-11.8 20.8l-21.9 30.1l-19.8 8.3l-22.2 12.6l13 2.4l-2.5 0.5m-33.8 14.2l3-0.8l33.3-13.9l34.2-17.3l7.3-1.3l25.4-18.8l3.4 4.3l29.4-25.4l26.5-9.8l-22.5 17.9l-12.6 5.6l-20.8 11.7l0.9-0.6m12.4-6.8l-5.5 3.2l-0.5 0m3-1.9l-0.5 0.3m236.6-130.7l-5.4 3.4l3.4-6.8l-36.7 25.1l-2.9 1.5m75.1-43.2l0.9 0l19.4-17.5l-32.3 24.5l9-14.4l-21-8.7l-11.5 32.7l-21.6 17.6l-15.1 7.5l-33.5 20l4-2.6m-239.3 115.5l-9.2 15l29-23.3l-3.7-17.4l-25.3 12l-15.5-16.7l-9.2 27.6l-23.9 10l12 14.1l11.9-24.1l-14.9-21l24.1-6.6l22.8-12.6l-7.3 29.3l-13 26.3l-23.6 8.7l-16.2 14l19.5-6.4l2.4-1.1m46.3-20.4l1 0.5l17.8-10.2l18.5-20l14.2-0.1l-32.7 20.1l-5.2-6l23.7-14m-212.5 76.7l0.4 0.5l16.5-1.1l16.4-8.3l13-16.3l5.2 13.7l-18.2 2.6l-0.9 7.6l-19.2 2l3.7-1.3l0.3-6.9l-13.7 6.1l13.4 0.8l15.5-0.7l19.1-10.2l15-19.6l14.2-22l7.6 14.6l9.7-25l-17.3 10.4l-7-24.5l-8 25l-16 9.4l2.7-24.3l13.3 14.9l15-0.5m370.7-141.8l1.5 0.1l-14.9 7.5m-352.6 175.6l1.9-0.2l-17.7 4.6l-19.4 3.7l22.3-12.5l-21 4.6l-1.3 7.9l-3 0.4m-54.1-5.7l10.9 1l13.2 0.4l-5.7-10.1l-7.5 9.7l-6.4-7.8l-4.5 6.8l-7.3-5.7l-2.2 7.1l9.5-1.4l-1.8 5.7l12.7-4.7l-0.5 6.5l-13.6 0.6l1.4-2.4l-7.7-4.3l-6.4 2.8l14.1 1.5l12.2 1.8l-3.1 1.9l-10.5-1.3l-0.5-0.4m41.6 0.2l-3.2 0.5l-14.6 1.2l-3-0.7m264.6-95.8l3-1.1l21.9-12.3l-13.7 1.5l28.3-18.1l-14.6 16.6l23.8-13.8l16-19.9l23-31.6l0.6 22.3l27.3-15.1l-30.9 25.6l3.6-10.5l-18 16.5l-1.4 1m-296.9 131.7l-2.9 0.5l2.5-0.5m1-0.2l1.4-0.3m15.3-2.8l1-0.2m1-0.2l3.5-0.6l-1.5 0.1m5.7-101.4l30.1 5.3l-9.9 16.9l-20.3 8.8l24.3 14.1l-4-22.9l-20.2-22.2l-0.1 31l-21.3 10.1l-1.3-26.5l-18.6 13.5l-6.7-21.2l-15.3 14.5l22 6.7l-16.1 11.8l-13.3 10.8l15.5 9.3l16-8.6l17.8-10.3l-19.9-13l2.1 23.3l-18.2-11.5l2.2 20.1l-2.7 17.5l-11.8-10.4l14.5-7.1l13.6 12.2l17.5-6.8l-3.4 18l20.2-5.9l-16.8-12.1l-15.1-14l-2.4 20.8l-16.3 5.3l11.9 10.4l4.4-15.7l14.1 11.2l-18.5 4.5l-10.6 13.2l16.1-1.4l-5.5-11.8l-16.3 3.1l4.4-13.5l-13.9 4.2l-4.4 11.2l-5.8-6.9l-6 8l-3.8-9.2l-12.1 2.6l-4.6 7l3.6 5.6l8.3 3.9l-1.3-3.2l7.7 0.4l-8.5-6.6l0.8 6.2l-7-0.7l-3.6 0.1m435-157.4l0.5-0.1m0.5-0.2l3-1.1l-1.5 0m-90.5 50.5l0.5-0.2m-321.5 113.8l-10.3 0.5l8.9 1.9l-2.5-0.7m40.3 0.5l0.1 0.5l4-0.5m8-1.1l2.4-0.4m5.1-0.6l2.9-0.5l-17.8 2.3l-0.5 0.1m7.6-0.8l-3.4 0.5m210.8-80.4l-0.5 0.3m-0.5 0.2l-2 1.2m3.5-2l3.5-2l8.6-13.7l4 8.1l-25.6 13.1l1-0.8m23.7-12.2l0.9-0.1l14.3-7.1l0.8-0.9m199.8-112.5l0.5-0.3m-447.2 209.6l-3.9 0.5l-0.5-0.1m18.4-2.4l-2 0.3m-4.9 0.7l-3 0.4m-0.5 0.1l-3 0.4m0.4 0l2.9-0.4m4.4-0.5l3.9-0.5l1-0.4m186.6-70.4l2-1.1m0.5-0.2l0.5-0.3m0.4-0.3l0.5-0.2m0.5-0.3l2-1l-1.5 0.6m-34.7 17.2l-0.4 0.9l28.8-14.5l-2.5 0.8m73.5-38.4l-1.4 0.9l-3 1.3m-209.4 96l19.7-7.2l-10.5-3.3m100.3-34.4l0.5-0.2m0.5-0.1l3.5-0.9l-25.1 11.5l-3.5 0.9m-174.3 45.6l2 0.5l12.8 0.2l-0.3-0.5m265.9-199.8l2.1 30l21.9-20.7l-24-9.3l13.2-17.7l10.8 27l18.7-17.7l-29.5-9.3l17.7-17.2l-12.4-25.7l30.3-9.7l-29.6-16.4l-0.7 26.1l-23.8-11.6l4.5 29.6l-21.8 20.1l-34.5 10.7l35.2 15.6l21.9-3.8l-22.6-22.5l-3.4-19.5l-27.8-0.9l31.2 20.4l0.7 26.3l-19 3.7l13 22.5l6-26.2l24 26.2l7.1 36.3l14.8-29.2l10.1 15.6l-24.9 13.6l-2 25.6l15.2-18.7l13.1 0.6l-1.4-21.1l11-30.7l13.8 16.9l-23.4 34.9m76.1-41.5l-13.5-2.1l-13.8 17.2l-23.6 9.3l5.6 7.2l14.4-6l-29 15.7l-0.3-1m-10.1 5.9l-0.5 0.2m-0.5 0.3l-0.5 0.3m-8.7 5l0.5-0.2m6.8-3.6l0.5-0.3m0.5-0.2l12.3-6.4l11.2-7.4m3.4-2.3l-21.6 12.7l7-3l-2.5 0.4m14.2-8.1l1-0.7m-87-87.7l35.8 4.8l-14-24.9l31.7 7.7l11.8 26.5l19.3-16.7l24.8 16.3l-3.1 33.9l-17.4-18.1l-7.4 31.9l24.8-13.8l14.4 5.1l10.4-19.2l-24.8 14.1m-255.5 155.4l-1.5 0.3m253-123.1l1 0.2l24.5-13.8l-3 1.2m-21.5 12.6l-2 0.6m-40.8 22.2l-4.9 2.6m-0.5 0.2l-0.5 0.3m-24.8 8.1l-8.2 10.8m158.3-89.4l0.5-0.3m0.4-0.2l0.5-0.3m30.1-17.3l3.5-1.2l-18.2 10.8m-226.3 123.5l0.5-0.2m-97.8 44.7l0.5-0.2m4.3-1.9l0.5-0.2m10.4-4.3l0.5-0.2m2-0.8l0.4-0.2m2-0.8l0.5-0.2m0.5-0.2l0.5-0.2m24.8-10.5l-16.4 7.1l-6.4 2.6m-0.5 0.2l-1 0.4m-3 1.2l-0.5 0.2m-1.9 0.8l-0.5 0.2m-3 1.3l-0.5 0.2m-2 0.8l-0.5 0.2m-9.3 3.9l-0.4 0.2m-3.8 1.7l-1.5 0m-62.3 19.5l-1 0.1m-2 0.4l-0.5 0.1m-2 0.4l-1 0.2m-1.9 0.3l-1 0.2m-1.5 0.3l-1 0.2m-6.9 1.3l-0.5-0.2m128.3-42.6l0.5-0.1m-12.4 6l-0.4-0.1m-173.5 37.5l1 0.3m-8.1-2.2l-0.4-0.2m2.6 1.4l-3.8-2m174-191.1l21.1 10l3.5-25.9l-24.6 15.9m33.9 115.7l20.4-36.7l25.8-24.4l-24.7-11.7l18.1-22.8l6.6 34.5l19.6-28.4l-26.2-6.1l13.2-16.4l-16.2-19.3l3 35.7l-25.8-11.1l22.8-24.6l-45.9-0.3l23.1 24.9l-26.6 1l7.4 25.8l26.9 7.1l-7.7-33.9l-19.2 26.8l-25.8-9l18.4-16.8m505.8-167.7l-8 6.7l22.2-18.6l3.3-20.9l-17.4 30.3l-17.1 12.9l17.6-30.9l-17.8 13l0.2 17.9l-17.6 12.5l17.4-30.4l-18.7 13.4l-14.7 27.2l-4.9-13.2l-20.5 14.4l-15.2 29.7l17.9-9.3l-2.7-20.4l-21.5 14.8l-11.4-12.6l-10.9 27.7l22.3-15.1l-18.4 35l11.2-3.1l13.5-17l-24.7 20.1l-3.9-19.9l-10.4 21.7l-12.9-6.6l-24.3 14.9l-3.7-27.2l-9-25l-13.7-23.7l16.3-27.9l30 14.2l-0.6 36.3l-23 26.1m-229 44.3l-28.8-15l3.6 15.6l25.2-0.6l19.3-18l30.8 11.3l29.7 0.6l24.4 23.2l1.3-36.6l27.4-7.8l13.7-30.7l17 26.7l-30.7 4l-25.2-30.3l-2.2 38.1l-25.7 13.4l7.8 39.9l21.7 19.8l24.7-14l24.7-14.1l-8.9-24l-15.8 38.1l-8.9-27.6l7.8-39.3l16.9 28.8l-24.7 10.5l-20.9 5.1l5.1 36.5m74-42.3l-24.6 14.2l19.4-32.8l5.2 18.6l24.7-14.2l-29.9-4.4l18.3-27l-19.8-23.8m-380.9 222.7l-22.6-16.4l-25.3-7.7m108.2-55.9l-29.6-6.4l14.1 23.2l15.5-16.8l22.9 23.8l-38.4-7l-23 13.9l8.4 23.6l23.7-8.8l-7.4 33.9l-9 31l-13.2-16.3l22.2-14.7l-26.2-8.2m-118.9 72.3l-5.2-7.1l-4.6-9.8l-4.9 8.5l9.5 1.3l3.5-6.1l8.6 3.5l9-11.2l13.1-6.5l-12.7-7.9l-4.8-11.4l-8.6 11l-6.9 9.7l-5.8 9.1l12.6-2.6l-6.8-6.5l10.9-2.1l-4.1 8.6l-4.5 6.3l-8.1-3.7m459.3-269.2l-18.1-22.1l-20.8 22.5l38.9-0.4m-28.5-43.6l23.1 4.6l1.5-18.8l25.6 27.9l-27.1-9.1l-12.7 16.9l-35-7.2l14.2 29.7m55.9 26.3l-13.8 32.8l28.3-8.8l-14.5-24m-463.6 223.7l4 7.6l9.4-7.2l-13.4-0.4m4 7.6l9 7.2l11 8.1l-10.2 4.3l-0.8-12.4m331.5-265.8l3.7 14.1l1.4 16.8l0.5 21l12.7 24.2l4.3 32.1l-21.2 15l-2.4-30.4l23.6 15.4l20.5-15.8l16.6-16.7m-24.4-23.2l-17 23.6l-31.1-9.8l18.4-14.4m-30.1-37.4l28.2-0.4l29.1 1.3m-235.1 207.2l-16.3-25.1m198.9-87l0 27.8l21.1-15.1l-21.1-12.7m0 27.8l-21.9-7.1m-124 35.8l-7.3 26.1l-5.3 22.9l-16.7-27.3m-61.9 59.5l0.8 21.5m116.8-79.8l4.2-24.1m-195.7 112.4l-9.8-1.2m249.3-117.4l-8.8 27.6l-17-3.2m305.1-218.2l19.4 22.4l19.7 7.6l7.7-32.4l13.9-34.7l-22.5 10.7l-18.3-21.2l0.1 33.7l-20 13.9l-10-28.1l29.9-19.5l-35.3-15.9l24.2-11.8l-25.7-1.7l1.5 13.5l-23.2-3.5l-1.5 16.1l-3.3 30.4l-21.7-16.8l25-13.6l-46.7 5.3m95.8-52.2l-0.5 0.4m-31.1 13.6l-2 0l35.6-15.4l-1.5 1.1m-82.9 37.6l3.5-2.6l1 0.6m43.2-19.8l1.1-1.5l22.3-5l34.8 2.3l-6.8-10.6l-28 8.3l11.1 13.5l23.7-11.2l22.7-10.6l-29.5 0l-14.7-2.1l-13.3 10.4l-36.7 12.7l-28.1 15.4l-2.8-2.4l-21.7 10.6l-0.5 1m-16.5 9.1l0.5-0.3m0.5-0.3l0.5-0.3m0.5-0.3l3-1.7m0.5-0.3l2-1.2m114.6-53.3l0.5-0.1m22.8-8.4l-0.5 0.1m-3.4 1.4l-0.5 0.2m-3.5 1.3l-0.5 0.2m-15.9 5.7l-1.5 0.5l34.8-12.8l-3.3 6.7l34.6-1.8l-31.3-4.9l29.2-6l14.3-10.2l8.8 11.7l-23.1-1.5l2.1 10.9l21-9.4l20-9l5.1 23.3l-25.1-14.3l-21 9.4l-21.9 10l-22.7 10.6l35.9 17.7l-13.2-28.3l21.9-10m336.5-135l-1 0l5.9-1.4l-0.5 0.3m-370.4 130.1l-1.4-0.6l-19.8 8.7m11.4-4l0.5-0.2m2-0.8l0.5-0.2m1-0.3l0.5-0.2m0.5-0.2l3-1.1l18.8-8.7l10.4 2.7m347.7-125.1l1.4-1.3l-1.9 0.5m-526.1 199l12.3-7.6l24.5-8.2l27 9.8l30.1 22.8l-33.4 7.6m136.9-112.5l-0.5-0.2l25-9.9l-2.5 1.6m296.7-100.3l0.4-0.3l-5.8 0.4l0.9 0.7m-499.3 188.5l-6.5 3.9m-0.5 0.3l-2 1.2m-9 5.3l-0.5 0.3m-0.5 0.3l-0.5 0.3m342.2-144.2l2.5-1.6l1.7 1.5l-12.6 2.5l10.9-4l16.6-4l22 0l-3.4-6.8l14.6 2.2l-3.9-5.6l10.2-3.6l4.3 5l10-3.9l9.3-3.7l8.9-3.4l8.2-3.2l-10.2-1.9l2 5.1l-15.9-0.3l5.9-2.5l-2.2 0.3l-0.2 0.5m42.4-13.9l-6.5 1.7l2.9-0.3l-5.3 2.1l9.2 0.9l6.6-2.4l-10.5-0.6l3.9 3l8.6 4.2l-2-6.6l-3.4-2.9l9.4 0.7l-2.3-2.8l0.8-0.7l7.9-2.2l5.6 1.5l5.9-2.1l-6-0.8l0.1 2.9l-6 2l-2.4-2.2l-5.9 1.6l-7.1 2.1l0.9-0.7l3.8-0.9m-25.7 8.4l1.9-1.3l-9.6 3.2l1 0.3l8-2.6l2.3 4.2l-7.9 3l-2.4-4.6l-7.8 2.7l-2-0.1l9.8-2.6l10.3 1.6l7.4-2.8l-2.4-3.4l-7.3 2l0.6-0.9l-0.7 1m48.2-14.8l0.4-0.5l4.5 1.2l-6.6-0.4l2.1-0.8l7-1.9l-0.8 1m-7.2 1.4l1-0.5l0.3 0.5m-89.2 111.9l1 0.2l8.5-7.5l0.4-2.4l5.7-13.8l9-7.1l-6.2 13.4l-2.8-6.3l-5.4-11.3l-0.9-17.4l-15.5-9.3l8.6-4.9l-14.6-5.2l10.6-4.2l-14.5-1.4l-10.7 3.4l-10.7 3.1l14.1 3.7l11.2-4.6l6 10.1l5.7 13.5l-16.7-8.4l-6.2-10.6l-12 4.8l-10-4.8l-1.8 4.2l11.8 0.6l-12.6 5.2l-13.3 5.5l-23.5-0.3l9.4 6.2l-13-0.7l3.6-5.5l-11.2 1.5l-7.4 2.6l1.5 2.5l-16.6 3.1l-1.5 1.1m126.1-44.7l-0.1-0.8l4.7-0.6l7 3.7l-15.6-0.6l8.6-3.1l-13 3.4l-1 0.8m-11.1 3.6l2.9-1.3l13.6-3.4l-4.4 0.3l8.3-2.8l8.4-2.8l8.2-2.7l-1.5 1.1m-8.2 2.6l1.5-1l5.3-1.4m2.4-0.6l2.5-0.6l-8 2.3l-10.6 3.1l-1.4 1.2m60.7-20l1.9-0.4l8.3 0.6l2 5.3l-8-3.1l6-2.2l6 2.7l4.7-0.3l3.5-2.5l1.7 5.9l-5.2-3.4l-0.3 6.6l-1 9l3.5 4.4l-4.8 4.1l-4.1 8.5l5.4-5.1l-4.4 4.7l-1 0.4l-7.3 7.3l1.7-2.3l5.6-5l-0.9-4.3l5-4.2l1.3 3.4l1-0.3l-5.4 5l-0.5-0.1m-19.2-33.3l0.2-0.4l7-2.1l7.3-2.2l-1 0.6m-214.6 76.2l6-1.5l-24.3 6.5l4.9 1.6l19.4-8.1l-3.5 6.8l15.2 0.9l-11.7-7.7l28.2 0.6l-16.5 7.1l-17.4 7.5l-23.3-0.7l5 8.6l-25.3-3l-19 3.7l0.5 0.2m24.9-9.7l-0.4-0.4l-6 6.2l6.1 11.4l-28.8-2.7l22.7-8.7l20.3-5.6l-14.3-0.6l23.9-5.8l15.9-1.3l-2.2 8.4l-13.7-7.1l-9.6 6.4m-109.4 39l0.5-0.2m0.5-0.2l0.5-0.2m1-0.5l0.5-0.2m19.9-7.2l0.4-1.7l-0.9 1m-0.5 0.5l-0.5 0.4m98.6-40.2l0.5-0.3l-0.5 0.3m11.9-3.4l-10 2.3l-0.1 0.5m122.2-44.4l1.9-0.5l-2.7-0.5l-12 4.4l10.3-2.8m0.5-0.1l1-0.3m-11.9 3.7l0.1-0.5l-0.9 0.7m64.9-21.9l0.1-0.9l8.8-2.9l7-1.8m0.5-0.1l1.5-0.4l9.7 1.4l4.1 6.5l-11.5-3.7l4.5 6.7l3.5 9.8l7.1 8.3l3.8 7.9l6.1-5l-3.6 8.9l-6.1 5.3l-6.7 7.4l6.6-6l-0.4-0.1m-27.6-44.1l1.5-1l-0.1 0.4m-2.4 1.3l0.5-0.3m-61.3 21l2.4-1.8l-0.4 1m17.5-6.4l0.9-0.9l4.7-0.2m0.5 0l0.4 0l14.3 1.1l-6.3-4.3l-8 3.2l-0.4 0m102.5-33l-0.3-0.5l3.4 1.2l5.9-1.9l5.9-1.7l-8.7 0.8l1 0.6m-203.7 67l0.4-0.2m0.5-0.2l3.4-1.6l17.2-6.1l-2.4 1.2m166-55.9l-3.3 0.7l7.4-2l10.4-0.7l-5.9 1.9l8.1 6.1l1.2 10l4.6-4.1l-0.7 3.5l-0.4-1m-58.5-2.5l-6.7 1.1l12-3.2l7.1-2.3l-3 0.8m-7.9 2.6l0.9-0.8l0.5 0.4m-277.8 102l1.5-1.4l1 0.6m20.1-8.4l2-1.7l-23.1 9.5l15.9-3.7m278.3-102.5l-0.5-0.2l-1.9 1.1m-6.6 1.9l1.5-0.9l-5.1 1.5l-5.8 1.8l-9.1 2.9l0.9 0.4m39.5-12.2l0.1-0.5l-5.3 1.5m-121.6 41.9l7.9-3.7l-4 0.8l-10.6 3.6l6.7-0.7l-14.9 5.5l13.1-1.3l-0.8 5.8l-18.5 0.4l6.2-4.9l-18.5 5.1l-6 4.6l18.3-4.8l5.2 5.1l-14.1 5.9l4.1 11.5l-19-5.3l9.9 17l-25.7-10.3l15.8-6.7l-24.2-0.2l-19.7 3.5l15.7-6l15.1-5.6l-1.5 0.8m85.5 63.4l0.4-0.4l-4.8 0.4l8.9-16.3l-11.5 8.8l1.9-12.7l-13.4 3.5l-6.8-20.1l-15.9-1.3l-10.7-12.5l-9.1 11.7l-17.9 6.6l-7.8-16.9l-8.4-6.9l-19.8 6.3l0.1-2.8l-16.6 6.7l-1 0.6m34.2-13.3l-0.9 0l4 2.5l12.6-5.6l13.5-1.1l-1.9 6.9l14.9-6.2l19.3 8.2l-15.2 3.3m-106.3 14.7l19-7.4l7.8-2.6m-10.3 4.2l0.5-0.3m2-1.3l-1.5 1m136.7-41.2l17.2 5.5l-11 5.1l-18.2-5.8l3.9 8l10.4 8l-11.5 2.7l1.1-10.7l-16.5-2.8l-12.3-4.5m-6.2 4.9l-12.3 0.2l5.9-2.6l-3.5 1.7m-5.8 2.6l0.5-0.3m-8.6 15.6l-11.6-5.8l17.1-6.6l-18.6 4.1m-127.6 50.7l5.3-3l-23.7 10l18.4-7l24.7-7.5l-3 0.7m203.4-77l-11 1.9l0.8 1.7l-13.4 2.9l12.6-4.6l5.4-1.7l0.1 1m-351.3 142.6l28.5-6.3l-0.4-9.1l22.1-0.9l14.6-11.8m271.3-109.7l-2.9 0.5m12.6-4.6l-2 1.1m-7.2 2.9l1-0.2m-29.9 10.4l2.9-1.6l-0.5 1m15.1-5.4l-14.6 4.4l-9.9 3.3l-0.6 0.9m60.4-20.7l-0.1-0.9l-9.2 3.1m7.7-1.9l-0.5 0.4m106.7-33.8l-6.5 1.6l9.3-0.7l-2.8-0.9l-0.4 0.5m-41.9 11.8l-4.2 0.8l-1 1m-261.2 97.3l3.7-5m224.3-81.7l-1.5 0.4m-116.9 41.4l0.7-0.9l2.9-0.6m20.2-8.1l-0.4 0.5m81.8 51.1l1 0.1l8.9-9.9l-8.5 7.5l-3.9-6.3l9.6-7.5l2.9-15.4l6.1 8.3l2.1-13.8l6.2 7.2l7.9-6.3l-7.3-7.1l6.9-5l-2.8-12.8l-6.6 3.9l-10.7-9l-8.8 2.7l-9.1 4.4l-4-9.4l13.1 5l-3.1-8.9l9.3-3.7l8.9-3.4l-10-2.8m75.1 8.3l-0.3 0.6l-5.5 5.2l5.8-5.8l-2.6 1.8l4.1-7.3l-1.5 5.5l4-4l-2.5-1.5l-4.1-2.4l2.6-3.9l-5.8-3l5.5-3.2l4.3 4.4l0.3-7.1l5.5-3.1l-7.3-2.1l-0.8-4l-6 2l-0.6-2.4l-1.5 0.4m-4.8 1.4l1-0.6l-0.1 0.4l5.4-1.6m-11 2.9l-0.5 0.1l0.6 0l5.5-1.4l-2.8 0.6m-1 0.3l-1.4 0.3m-0.4 0.1l-0.5 0.1l0 0.4m-7.6 2.2l0.3-0.4l5.1-0.9l2.8-1.3m25.1 17.1l0.5 0.9l1.2-4.5l-3 5.9l-1.8-1.7l-4.7 4.1l-4.8 4.1l-3.5 7.5l4.2-4.3l-0.7-3.2l0.7-6.5l-3.2-6.9l-5.4 3l-3-6.7l8.4 3.7l-4.4-6.3l0-4.7l-8.4-0.2m-385.6 154l-21.7 10m200-92.3l0-0.5l-2.5 1.8m-147.9 58.8l31.5-6.1l-16.8 8.2m72.4-19.4l4.3 22.5l20.8-8.2l-1.3 28.5l-22.2 7.8l2.7-28.1l-25.3-13.1l4.4 19.5l-26.3-9.5l-12.7-8.2m363.7-134.9l0.5-0.2l5.9-1.7l7.8 2.1l-0.9 0.8m-12.8-1.2l0.1-1.3l-1.4 1.2m-456.3 169.6l1.3-1.5l10.6-3.7l14.4-7.7l-2.4 1.7m2.4-1.7l-25 11.4l-20.3 9.3l30.9-13m129.2 115.4l4-3.1l-31.4 26.3l3.4-3m-26.8 19.1l2.9-1.2l20.5-14.9l-1.5 0.3m-67.4 46.8l-0.5 0.3m-3.9 2.2l-0.5 0.3m-5.5 3l-0.5 0.3m-0.5 0.3l-0.4 0.2m41-26.4l-0.7 1.5l-3.5 1.6m0.5-70.5l27.4-24.8l29.3-2.9l15.4 21.1l5.8-24.7l-21.2 3.6l-6.1 35.9l6.3 14.9m-94.3 70.6l5.4-3.1l12.9-7l22.1-14.7l-2.7-2.8l4.7-27.7l-28 37.8l23.3-10.1l17.6-21.1l14.3-1.8l-31.9 22.9m-38.2 27.9l-0.5 0.3m3.5-1.9l0.5-0.2m0.5-0.3l0.5-0.3m0.5-0.3l2-1.1m1.5-0.8l2.9-1.7m1.5-0.8l5.9-3.3m182.6-137.2l1.5-1.2m4.9-3.9l2-1.5m0.5-0.4l1.5-1.2m3-2.3l2.9-2.4l8-5.3l12.6-13.3l14.7-11l14.7-14.9l-5-7l12.9-9.8l-7.9 16.8l-5.5 9.4l16-16.1l-10.5 6.7m170.7-151.2l0.5-0.2l-4.1 4.3l-0.5 0.3m-310 264.9l1.4-0.1l-13 6.8l22.7-21.6l-9.7 14.8l25.7-25l-7.7 11.2l-4 2.1m-33 23.1l-0.5 0.4m-4.4 4l23.9-15.8l18-13.8l-1.5 0.1m45.8-35.9l0.5-0.5m2.4-2.1l0.5-0.4m5-4.1l3.8-3.1l-14.1 9.4l-24.3 22.4l7.2-9.5l-25.3 23.7l18.1-14.2l16.2-13.2l8.1-9.2l0.5-18l-12-19.2l18.8-10.4l-6.8 29.6l16.9-12.3l8.5 5l7.5-16.9l-1.8 19.1l-0.9 0.8m116.8-131.6l-5.8-10l-4.4 9l10.2 1l7.2 6.8l-3-15.9l-10-0.9l-2.2-9.6l12.2 10.5l-4.2 9.1l-1 12.3l8.2-5.5l6.8-6.2l-0.6 13.4l0.6 7.6l7.3-13.9l-0.4 8l-6.9 5.9l-6.8 5.3l-7.1 8.6l-1.2-1.5l8.3-7.1l6.2-12.9l-8.3 6.6l2.1 6.3l-3 4.7l-4.1 3.9l-2.9 1.6m-78.3 64.5l0.5-0.4l9.7-21.9l-13.6 10.3l-14.4 10.8l-6.1 14.9l-10.9 15.5l-17.5 13.7l11.8-15.9l5.7 2.2l20.6-18.6l10.8-22.6l3.9 11.6l9.2-5.5l1.9-1.7m105.5-91.3l2.4-1.2l7.3-6.6l-1.1-0.1l-6.2 6.7l0.1-1.4l3.6-9.2l2.4-12l3.7 7l1.8 3.7l3.8-8.3l0.6 4.8l4.7-9.3l-5.3 4.5l0.6-9.7l-4.5 4.8l-4.3-9.4l-10.9-5.1l3.4 9.1l0.2 12l-2.7 13.2l-3.5-8.6l-3.4 14.2l-2.6 9.8l-5.2 4.1l-2.6 3.7l-0.5-0.4m13.1-11.9l1.3-1.5l6.3-5.5l-2.9-3.9l6.5-5.3l2.5 3.9l5.4-5.2l-4.3 5.3l-2.5 1.3m-23.7 20.9l1.4-1.4l7.8-13.9l3.5 3.8l-0.4 1.9l-2.5 1.1m-59 52l1.5-1.1l9.7-8.1l8.9-9.9l-9.9 8.3l6-14.6l-10.1 7.9l-10.8 8.3l5.7 3.8l5.1-12.1l4.1 6.7l1 1.6l-2 0.9m-4-25.2l-4-17.6l11.1 9.5l8.1-2.6l-10.7-13.2l2.6 15.8l-7.1 8.1l11 8.1l4.2-18.8l8.3-4.1l-9.2-13.3l-9.8 4.2l-8.5 6.3l-7.8 8.8l11.8 8.8l-12.2 8.3l-8.5-11.8l8.9-5.3l-0.4 17.1l7.7 3.7l5.4 4l-0.9-16l-4.5 12l-5.4 12.3l-4.1 15.9l9.8-12.1l9.2-5.4l-3.5 3.9m104-93l1-0.1l5.8-8.6l4.5-4.2l-0.5 2.8l5.1-7.1l-0.5 0.3m-147.4 53.2l14.3-2.2l-3.9 10.2l4.3 13.3l-15.8-10.6l-6.2 11l13.1 4.9l-5.2 12l-13.8-4.7l-11.4-17.1l-4.5 15.8l-19.8-0.8l17.3 18.9l12.4-3.9l12.8 7.2l11.5 9.2l-9.5 19.4l12.1-11.9l-2.6-7.5l-12.1 9.3l2.6 10.1l-9.2 10.2l-1 0.3m95.2-81.6l-4.5 4.9l1-1.8l6.1-6l3.4-9.4l-6.9 5.6l-7.4 5.9l-0.4-12.1l-9.4-8.9l2.5 13.9l-9.8-9.7l-3.4-13.2l7.6-3.6l-10.2-6.3l2.6 9.9l-11.9-6.2m-147.5 193.1l3-1.5l-1.5 0m187.9-155.9l1 0.3l-6.7 5.9l-1.9 0.9m-36.1 30.9l2.9-1.3l10.1-8.4m16.2-15.4l2-0.7l-6.7 5.8l-0.9-0.7m-9 8.9l2.5-1.8l-1.4 0.5m47.2-42.5l4.4-3.5l-8.7 8.8l7-6.5l-0.9 0.4m-133.9 113.7l-6.2 5.9l4.3-3.9m15-10.9l4.4-3.8l-1.9 1.4m147.5-130l1-0.6l5.1-5.1l-1.5 0.2m-340 182.1l-40.8-10.5l20.4-16.8l20.4 27.3l7.7-31.7l23.4 31.2l-31.1 0.5l15.4 31.8l15.7-32.3l7.9-28.3l20.6 23.5l11.3 29.8l1.3 17l-16 10.2m250.9-201.6l0 0.5l4.4-4l3.9-3.7l-1.9 1.1m-333.9 128.7l-7.8-22.1l-23.7 11.2l31.5 10.9l28.1-4.4l31.3 2.9l-18.2-21.7l20.9-6.4l19.5 20.3l-1.6 31.3l19.8 5.9l-8.5 23.9l-18.8-8.4l-15.5 12.1l14.7 10.3l-17.8 34.8m296.9-244.8l0.5-0.3l3.7-4l1.8-1.4l-5.5 5.4l-4.6 4.5l-0.5 0.2m8.8-8.7l-4 3.9l-4.3 4.6m19-19.7l0.9-0.2l0-0.9m-122.5 111.7l-1.5 1.2m-0.5 0.4l-1.5 1.2m-0.5 0.4l-4.5 3.5m-1 0.6l0.5-0.2l-1.4 1.2m-47.7 38.8l0.5-0.1l16.9-12.7l-2.4 1.3m-2 1.1l0.5-0.3m0.5-0.2l0.5-0.3m-35.1 28.5l1.5-0.3l-10.9 7.7m-7.4 5.6l-0.5 0.4m-1.5 1.2l-1 0.8m-1.5 1.2l-1 0.8m9.5-7.5l0.5-0.4m0.9-0.7l1.5-1m2-1.7l-1 0.8m-1 0.7l-1 0.8m-1.5 1.1l-0.5 0.3m3-2l-2 1.5m-5 3.9l-1.5 1.2m-0.5 0.4l-1.9 1.5m-2.5 2l-2 1.6m-1 0.7l-1.5 1.2m0.5-0.4l1-0.8m1.5-1.2l1.5-1.2m8.5-6.8l0.5-0.4m169.5-143.4l-0.1 1.5l-1.4 0.1m-217.6 181.5l1.5-0.2l-4 2.3m165.8-134.7l2.3-2.8m-93.6 77.5l3-1.4l-1.5-0.3m80.3-67.1l-10.9 11.3l1.7-5.9m-13.7 15.4l3.9-3.3l8.1-6.2l2.2-1.6l4.8-5.4m-7 7l-8.8 7m57.8-50.1l-7 7.2l-2 0.8m-5.4 5.6l7.4-6.4l2.4-3.6l-9.8 10l-0.5-0.3m17.2-15.6l-1.4 1.4m76.4-72.2l1.9-0.7l-0.9-0.7l-4.6 4.3l-5.2 7.7l4.7-4.9m-35.6 34l0.9-0.2l2.9-3.3m-35.8 32l0.9 0.3l-6.8 6l7.8-7.8m-89.6 76.3l-1.1 1.9l13.5-10.9l-4.3 0.7m1.9 0.6l2.4-1.3l12.6-11.6m-4.8 0.4l-7.8 11.2l0.8-0.9m121.2-107l-0.4 0.2m6-5.2l-0.3-0.1l2.2-5.6l1.8-6.9l3 2.7l-4.8 4.2l-2.2-4l4-2.9l1.8-7.3l5.1-3l-7.3-5l5.9-1.9l5.9-1.7l0.2 5.9l5.1 3.1l4.3-4.3l-3.4 5l-0.1-1m-31.2 31.6l-0.1 0.9l3.2-4m-4.2 4.5l1-0.5l-0.5 0.1m-94.6 83.3l0.5 0.4l-1 0.3m-78.7 65.7l9.6-8.3l2.5-4.1m0.5-0.9l-3.6-11.8l0.7-23.6l-7.5 18.1l-8.4 16.8l-11-8.8l-15.1 3.4l-12.7-21.5l-19.7-20.7l-0.1 28l-19.2-19.4l19.3-8.6l-5.2-23.1l-19.2 8.4l24.4 14.7l20.2-4.7l19.7-8.9l0.9 27.5l-20.6-18.6l-0.5 25.4l21.1-6.8l-8.4 28.3l10.1 17.3l16-11.9l9.1 3.6l9.7-3.1l-0.3 0.5m15-11.5l-17.7 16l10-8.8m-169.4 132.3l5.4-3.3m-11.2 3.1l-29.2 25.7l19.9-13.9l9.3-11.8m-61.6-93.7l0-20.3l-30.1-2.5l24.7-12.6l5.4 15.1l29.9 0.8l-11.1-27.7m411.6-164.7l3.7-4.4l-5.6 0.9l1.9 3.5m-13.5 5.5l-4.7 2.7l5.2 4.7l-0.5-7.4l-6.1-4.2l1.4 6.9l0.7 8.9l-5.8-5.9l-2.2-8m-35.8 12.4l8.5 3.9l0.2 8.6l1.7 8.6l5.6-4.2l-0.9 9.4l-4.7-5.2l-8.8-4.6l-7.5 4l6.4 7.9l1.1-11.9l-6-8.4l-9-3.2l6.8-2.5l2.2 5.7l6.4-1.5l6.5-2.7l-2.5-6.1l-6 2.2m-4.4 8.1l-4.9 3.3l-7 3l10.4 6.1l-6.9 3.7l-10.7-6.6l4.2 10.6l1.4 11.4l6-2.5l-7.4-8.9l6.5-4l0.9 12.9l6.2-4.6l6.2-4.1l5.4-2.5l-1.7 9.5l5.6-4.6l-3.9-4.9m-23.8 13.7l2.6 11.7l-7.8-6.2l5.2-5.5l-8-7.3l-9.7-8.7l-1.3-9.7l13.4 3.7l7.2-3.2l-12.4-3.7l5.2 6.9l-4.9 4.1l2.5 10.6l6.6-4.1l-9.1-6.5l-7.2 1.9l3.1 12.6l-7.3 4.2m56.8-32.8l-8.5-3.7l4.6 6l-4.4 2.6l7.3 4.4l-2.9-7l3.9-2.3l-1 9.3l4.1 5.2l1.3-8.5l-4.4-6m8.6 3.9l-4.2 2.1l-5.4 3.3m2-18.6l-4 2.6l-5.5 3m-299.2 151.7l13.1-18.8m313.8-133.9l-3.7-4.2l-6.3-3.2l4.5-2l1.8 5.2l-4.6 2.7l0.3 6.2l4-1.8l-2.5 8.1l-1.5-6.3m-170.4 118.7l2.5-25.1l-14.1 2.9l11.6 22.2l-16.6 12.4l-1.1-20.4l-16.8-18.3l22.9 4.1l-6.1 14.2l17.7 8l13.7 12.8l1.7-19.1l-15.4 6.3m-26.9 26.1l10.3-13.7l9.1 5.7l6.8 5.5l-15.2 11.3l-0.7-22.5l-17-11.2l6.7 24.9l-5 20.7m84.9-100l-6.9-15.9l-14.4-2.7l8.2 13.7l-5.9 12.2l-6 12.9l-9.9-14.2l-2.5 18.1l11 13.1l1.4-17m-94.6 105.1l5.8-32.2l-16 21.7l10.2 10.5m48.9-80.1l-15.9 9.2m177.4-111l0.4-9.9l6.7 5.9l-7.1 4m-80 84.4l-2.3-16l-7.3 12.1l9.6 3.9m-2.3-16l-13.7 0.2l6.4 11.9m-8.1-39.8l-15.4-13.5l1 10.8l-9.1 8.8l17.3 4.9l7.9 16.9l-7 15.4l-0.6 18.5l-5.9-4.2l6.5-14.3l-14.2 9.8l0.7 18.5l7-14l-7.7-4.5l-11.2 9.7l-12.9-18.8l-22.1-16.3l8 19.2m-65.2 83.8l-2.9-20.7l18.9-1l-13.7-24.6l19.8-7.3l-6.1 31.9m-35.8 15.8l-28.5 4.8l21 16.6l7.5-21.4l16.9-14.8l-15.3-16.5l20.5-9.1l-5.2 25.6m-90.4 54.8l-8.6-24l-18.2 12.5l26.8 11.5l11.8 20.4l17.5-23.3m233.2-179.6l-11.3-5.2l6.9 14.2m-89.7 29.8l4.2 22.9l13.1-4l-0.2 22.8l11.9 8.8m30.3-74.3l12.1 4.5l-8.2-14.7m-38.9 19l-5.2-14.1l14.3 5.3m82.1-32.8l-8.5-7.8m67.6-20.4l-6.8-2l2.3 4l-8.2-1.9l4.7 4.4m-334.1 272.1l-8.6-15.7l-14.7 30.8l23.3-15.1m-8.6-15.7l19.5-12m239.1-173.9l3.9 16.2m-209.8 102.1l5.5 28.7m34.3-3.7l-19.6 14l0.8-22.4m300.1-217.2l-6.2-2.2l5.3 9l0.9-6.8l-0.3-3.9l3.7 6.4l-3.4-2.5m-0.3-3.9l-5.9 1.7m-209.4 100.9l-19.6-0.1l-4.7-9.7l24.3 9.8l-14.9 15.1l-4.7-15.2l-22.1-2.2l26.8 17.4l-22.4-6.2l2.7 15.1l-25.4-18.4l18.3-7.9l4.4 11.2l-22.7-3.3m-606.5 320.6l-14.9-42.4l33.7 27.2m27.8-21.7l-0.6-2l1.9 1.8m81.4 141.5l0.6 2l29.6-10.1l0 44.4l-29.6-34.3l1.2 44.3l28.4-10l0 63.6l-57-43.3l-6.6-42.6m32.5-13.4l1.5 1.4l-7.4 0.8m-0.5 0.1l-0.5 0.1m-72-145.8l-3.5-0.5l23.6-20.5l1.8 5.5m-48.7 35.3l-14.3-43.2l37.6 22.9l-14.8-42.7l38.4 22.2l5.5 3.2m-29.1 17.3l-3.8 5.5m87.7-122.3l1.1-42.7l28.5-20.9l0 63.7l-29.6-0.1l-35.4-43.8l36.5 1.1l28.5 42.8l0 44.4l-17.6-0.7l-21.6-10.4l-20.1 5.6l9.3 37.7l-29.2-24.9l-34.2-3.2l-14.9 25.5l-22.8 19.8l-32.3-51.6l9 71l23.3-19.4m64.6 188.4l29.5 34.4l28.6-10.3l28.4 53.6l57 22.5l8-42.2l42.8 41.5l40.6-23.4l-45.2-32l-38.2 13.9l-36.5-1.1l1.1-42.8l35.4 43.9l-3.7-41.8l-31.7-2.1l-29.6 0l28.5 42.8l-28.5 20.8l0 64.6l-48.5-32.1l-14 65.3l-62.6-100l11.7 127.9l50.9-27.9l62.5 27l-48.5-92.3l48.5-32.5l48.5 88.5l-48.5-23.9l0 60.2l48.5-36.3l76.7 53.8l-11.8 114.4l102.2-1.3l-90.4-113.1l69.5-16.6l-86.9-103.9l-4.6-55.4l-41.9-27.9l-22.1-35.4l20.1-5.7l2 41.1l19.9-14.4l-2-39.4l23.8 33.6l10.4-30.5l14.9-25.5l-38.4-22.2l-8.3 16.8l-23-10.8l20.6 38.6l34.2 3.1l-31.8-30.9l-19.4-32.8l27.7 16l-8.3-25.1l31.9 4.6l-23.6 20.5l23.5 47.7l21.2 52.9l39.8 14l-23.2-46.4l-16.6 32.4l-31.6-22.4l0.2 48.1l31.4-25.7l13.8 57.7l26-43.7l9.1-60.6l-55.2-31.8l22.9 46l-37.8-20.5m-141.8 58.6l-31-34.3m59.4-25.6l0 5.5l-3.6-4m-26 14.1l1.1-3m39.5-18.8l6.6 12.3l21.6 10.5l-15.3-29.3m57.7-16.9l-2.4 27.8l-29.2-24.9l9.3 37.6l-22.3-30.1l2.2 35.8l-9.6 33.3l-12-43.8l2.2-16.8m9.8 60.6l-29.6-44.4l17.6 0.6m-80.1 205.2l62.5 114.1l113.4 44.8l-50.9-86.8l62.7-27.6l-17.4-120.5l-50.8 0.7l-28.5-43.3m122.7-70.9l32.3-14.2l-9.1-70.9l-26-73.8l-14.6 41l-20.3 29.2l-14-44.7l-19.6 14.1l-29.9-14.6l8.6 23.6l21.3-9l1.7 26l-23-17m44.4 120.3l-21.8 5.8l22 42.3m-22-42.3l-21.9-26.7l19.9-12.7m95.2 70l72 125.2l50.4 128.6l52.2-87.8l-102.6-40.8l-98-81.5l46.3 127.3l51.7-45.8l32.5-61.6l-39.5-91.9l-65 28.3l104.5 63.6l12.6-61.8l-52.1-30.1l-3.6-58.1l-52.3 25.8l-32.4-51.5l-17.3-52.2l40.6 32.8l-23.3 19.4l-22.8 19.7l-14.8-42.7l37.6 23m-179.6-245.3l-28.5-43.4l57 22.5l57 43.3l-28.6 10.3l-28.4-53.6l0-64.6l0-60.1l59.8 48.9l53.6-49.9l-113.4-86.1l59.8 136l-59.8 11.2l57 107.9l72.4-41.3l-16-127.7l102.2 119.2l-86.2 8.5l-21.6 100.7l40.6 70.3l-45.7-21.1l-37.9-58.1l-3.7 34.3l41.6 23.8m-74.3-98.3l36.4 40.2l43 8.9l87.1-3.1l101.9 34.7l-81.2-140.8l-20.7 106.1l-65.5-97.6l-69.6-77.8l-2.8 119.1m5.2 204.4l19.4-9.1m-44.6-63.1l6.9-29.8l21 35.2l-27.9-5.4l13 22.5l14.9-17.1l15 31.7l33.6 30.6m-94.8-114.8l2.1 27.8l-20.8-16.2l-20.8-7.8m64.7 13.5l-23.1 10.5m56.2 6.3l22.5 36l-34.6-17.6l12.1-18.4l-15.9-34.4m-242.3 112l-65.2-21.1l-32.5-99.2l-70.1 21.5l52.2 148.1l50.4-70.4l-102.6-77.7l-17.9-141.3l17.9-120.7l52.2-87.8l81.2-46.9l20.7 129.9l65.5-22l72.4 125l-8 42.3l-42.8-41.6l50.8-0.7l-2.8-122.3l-69.6-2.7l-86.2-107.9l102.2-1.3l53.6 111.9l59.8-67l-113.4-44.9l-16 109.2l21.6 125.7l-40.6 23.4l-46.5-127.1l87.1 103.7l4.6 55.4l38.2-13.8l3.7 41.8l-41.9-28l-45.2-32l13.8 57.7l31.4-25.7l22 42.4l2 39.4l-23.8-33.6l21.8-5.8l19.9-14.4l2 41l22.3 30.2l-4 2.3m-203-208.7l-52.8-134.9l101.9 83l-49.1 51.9l-105-47.1l49.7 87.5l55.3-40.4l8.2 93.2l61.4 25.8l-69.6-119l95.6 75.2l-26 43.8l23.2 46.4l-32.2 14.1l55.1 31.8l-22.9-45.9l37.8 20.4l10.4-30.4l-31.6-22.5l-39.8-13.9l-9 60.5l-56-32.3l65 103.3l-72 42.1l29 59.2m66.2-186.4l16.6-32.5l21.2 52.9l23.5 47.7l8.3-16.7l15 7m49-42.8l17.6 32.6m-113.4-27.8l31.8 31l7.7 12.9m-7.7-12.9l2.4-27.8l17.2 32.1m-41.2-113.9l0.2 48.2m59 55l-0.5 0.3m-0.5 0.3l-1 0.6m-1.5 0.8l-2 1.2m-31.7-64l21.9 26.6l-19.9 12.8m79.2 520.1l62.5-42l-62.5-45.1l0 87.1l-113.4-86.2l-102.2-119.2l90.5-8.7l-39.8-55.5m-71.6-55.8l-60.3-20.7l81.2 140.7l12.4-62.3m28.8-190.9l-104.5-57.1l39.5-46.2l3.6-54l-63.5-52.8l7.9 76.7l12.5 76.3l-88-119.8l75.5 43.5l52 30.1m114.3 347.8l76.6 34.7l-8.5-75.8l-68.1 41.1l11.3-66m462.8 188.9l-70.1-102.4l88-18.3l-17.9 120.7m-52.2 87.8l-81.2 46.9l-20.9-129.7l102.1 82.8m-171.6-66.2l-68.2-119.8l-8.5 66l14 81.4m286.5-311.2l-49.7 30.2l67.6 111.1l-17.9-141.3l-52.2-148l-52.8 73.9l-95.6-35.2l46.5-73.4l49.1 108.6l105 74.1m17.9 141.3l-75.4-43.5l7.8-67.6l-55.3-104.3l-8.2 83.7l-61.4-45.1l69.6-38.6m-4.6 141.8l-55.9-32.3m108 62.4l-55.7-88.2l63.5 20.6m-299.3-524.3l0 87.1l-59.8-20.1l59.8 80.2l-57 42.1m-309.9 22.5l67.6-33.2m7.9 76.7l55.6-23.9l52.4 86.3"/>
+</g>
+</svg>

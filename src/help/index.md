@@ -18,6 +18,7 @@ opportunity for users to contribute.
 
 - [Advanced Parameter Linking](AdvLink.md)
 - [Attribute Explorer](AttributeExplorer.md)
+- [CFD Mesh](CFDMesh.md)
 - [Geometry Analysis](GeometryAnalysis.md)
 - [Results Viewer](ResultsViewer.md)
 - [Set Editor](SetEdit.md)
