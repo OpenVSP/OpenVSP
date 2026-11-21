@@ -605,6 +605,26 @@ void CfdMeshMgrSingleton::UpdateModelSettings()
     settings->m_FarYLocation = m_CfdSettings.m_FarYLocation;
     settings->m_FarZLocation = m_CfdSettings.m_FarZLocation;
 
+    // The form not chosen follows from the other.
+    if ( settings->m_FarAbsSizeFlag() )
+    {
+        settings->m_FarLength.Activate();
+        settings->m_FarWidth.Activate();
+        settings->m_FarHeight.Activate();
+        settings->m_FarXScale.Deactivate();
+        settings->m_FarYScale.Deactivate();
+        settings->m_FarZScale.Deactivate();
+    }
+    else
+    {
+        settings->m_FarXScale.Activate();
+        settings->m_FarYScale.Activate();
+        settings->m_FarZScale.Activate();
+        settings->m_FarLength.Deactivate();
+        settings->m_FarWidth.Deactivate();
+        settings->m_FarHeight.Deactivate();
+    }
+
     // Taken from the far field just set.
     m_Vehicle->GetCfdGridDensityPtr()->Update( 1.0 );
 }

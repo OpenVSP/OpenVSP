@@ -1347,10 +1347,15 @@ void CfdMeshScreen::UpdateDomainTab()
     //===== Symmetry Plane Toggle Update =====//
     m_SymPlaneSplit.Update( m_Vehicle->GetCfdSettingsPtr()->m_SymSplittingOnFlag.GetID() );
 
-    //Last parameter set to null because Abs functionality currently not available
-    m_DomainLength.Update( 1, m_Vehicle->GetCfdSettingsPtr()->m_FarXScale.GetID(), "" );
-    m_DomainWidth.Update( 1, m_Vehicle->GetCfdSettingsPtr()->m_FarYScale.GetID(), "" );
-    m_DomainHeight.Update( 1, m_Vehicle->GetCfdSettingsPtr()->m_FarZScale.GetID(), "" );
+    // The slider moves the lengths under Abs and the scales under Rel; the boxes show both.
+    int far_slider = 2;
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_FarAbsSizeFlag() )
+    {
+        far_slider = 1;
+    }
+    m_DomainLength.Update( far_slider, m_Vehicle->GetCfdSettingsPtr()->m_FarLength.GetID(), m_Vehicle->GetCfdSettingsPtr()->m_FarXScale.GetID() );
+    m_DomainWidth.Update( far_slider, m_Vehicle->GetCfdSettingsPtr()->m_FarWidth.GetID(), m_Vehicle->GetCfdSettingsPtr()->m_FarYScale.GetID() );
+    m_DomainHeight.Update( far_slider, m_Vehicle->GetCfdSettingsPtr()->m_FarHeight.GetID(), m_Vehicle->GetCfdSettingsPtr()->m_FarZScale.GetID() );
 
     m_DomainXLoc.Update( m_Vehicle->GetCfdSettingsPtr()->m_FarXLocation.GetID() );
     m_DomainYLoc.Update( m_Vehicle->GetCfdSettingsPtr()->m_FarYLocation.GetID() );
