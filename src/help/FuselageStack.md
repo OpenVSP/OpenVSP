@@ -221,7 +221,7 @@ The *Tip Treatment* group of the Design tab closes an open end of the body: the 
 *Tail* cap at the last.  An end whose section is a point needs no cap; an end whose section has area is left open with
 *None*.
 
-The caps are the Wing's None, Flat, Round, Edge and Sharp tip caps, with the same *Length*, *Offset*, *Strength* and
+None, Flat, Round, Edge and Sharp are the Wing's tip caps, with the same *Length*, *Offset*, *Strength* and
 *Sweep Stretch*; see [Tip Treatment](Wing.md#tip-treatment).  The extended round caps are the Wing's alone.  A cap is
 built across the section as if it were an airfoil whose chord runs from the section's right side ($+Y$) to its left, so
 at each point across the section the cap reaches out by half the section's height there (at Length 1).  Where the body
@@ -234,6 +234,31 @@ Where the body narrows toward its end, the cap continues the surface's direction
 *Figure 7. A Round tail cap of Length 1 on a straight body, from above (left) and from the side (right).  On a circle
 of diameter D it is a hemisphere.  On an ellipse of width W twice its height H it reaches out by H/2 in both views, a
 half circle from the side and a half ellipse from above.*
+
+A Fuselage or Stack also takes caps that close an end on a point, which a Wing does not:
+
+- *Point* closes on the middle of the tip an Edge cap of the same *Length* and *Offset* would make.  Its length runs
+  along the body's axis and its offset raises the point along $Z$.
+- *Cone* is that point blunted by a sphere of *Radius* that touches the point; its sides gather at the sphere's pole.
+- *Ogive* and *Ogive Surf* make each side a circular arc from the end to the Cone cap's sphere.  The arcs leave the end
+  at *Angle* degrees toward the axis, measured from the end's normal (Ogive, so 0 is a tangent ogive) or from the
+  surface's own direction across the end (Ogive Surf, so 0 carries the surface on smoothly).
+- *Power Law*, *Von Karman* and *Sears-Haack* give each station the end's size times a profile: a power law of
+  *Exponent*, the Haack series of *Haack C* (0 is the Von Karman nose, 1/3 the LV-Haack), or the front half of a
+  Sears-Haack body.  A *Radius* above 0 blunts the point with a sphere and keeps the cap's length.
+
+*Truncate* ends a Cone, Ogive or profile cap at a flat face of its *Radius* in place of its point or sphere.  *Shear*
+offsets a Cone or Ogive cap as DATCOM cambers a body: it is built with no offset and then sheared up, so its point
+reaches the offset.  A truncated Cone cannot be sheared.  *Scaled Rows* builds a Cone or Ogive cap's rows as the end
+scaled, as DATCOM builds a nose, so on an elliptical end a blunt cap's sphere becomes an ellipsoid; on a profile cap,
+whose rows are the end scaled already, it sizes only the sphere or face.  A cap with Scaled Rows cannot be sheared.
+
+*Rel* and *Abs*, on each cap type's line, choose how *Length*, *Offset* and *Radius* are given: relative to the size
+of the end, or in model units.  Each slider shows both values; the one not chosen is greyed and follows the other.
+They are greyed for None and Flat.
+
+*Nose at Origin* *X*, *Y* and *Z* move the whole body so that the chosen coordinates of the nose cap's tip are 0.  The
+sections keep their values; only the surface moves.
 
 ## Stack Presets
 
@@ -271,8 +296,26 @@ A script reaches a section's parameters through the XSec it belongs to (`GetXSec
 | H Align        | none                                        | `HAlign`                                       |
 | Spin           | `Spin`                                      | `Spin`                                         |
 | Num U, clusters | `SectTess_U`, `FwdCluster`, `AftCluster`   | `SectTess_U`, `FwdCluster`, `AftCluster`       |
+| Nose at Origin | `NoseOriginXFlag`, `NoseOriginYFlag`, `NoseOriginZFlag` (Design) | the same                   |
 
 The two `OrderPolicy` enums differ: 0 is `FUSE_MONOTONIC` in a Fuselage but `STACK_FREE` in a Stack.
+
+The end caps are in the EndCap group, the nose's named `CapUMin...` and the tail's `CapUMax...`:
+
+| Control              | Nose cap parm                                                                  |
+|:---------------------|:-------------------------------------------------------------------------------|
+| Cap type             | `CapUMinOption`, a `CAP_TYPE`; the extended round caps are not taken            |
+| Rel, Abs             | `CapUMinRelFlag`, 1 for Rel                                                     |
+| Length               | `CapUMinLength` (Rel), `CapUMinLengthDim` (Abs)                                |
+| Offset               | `CapUMinOffset` (Rel), `CapUMinOffsetDim` (Abs)                                |
+| Radius               | `CapUMinRadius` (Rel), `CapUMinRadiusDim` (Abs)                                |
+| Strength             | `CapUMinStrength`                                                              |
+| Angle                | `CapUMinOgiveAngle`                                                            |
+| Exponent             | `CapUMinPowerExp`                                                              |
+| Haack C              | `CapUMinHaackC`                                                                |
+| Truncate, Shear, Scaled Rows | `CapUMinTruncFlag`, `CapUMinShearFlag`, `CapUMinScaledFlag`            |
+| Sweep Stretch        | `CapUMinSweepFlag`                                                             |
+| Cap Tess             | `CapUMinTess`, which sets both caps                                            |
 
 | Call                     | Purpose                                                                          |
 |:-------------------------|:---------------------------------------------------------------------------------|
