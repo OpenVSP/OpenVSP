@@ -321,7 +321,7 @@ The Design tab reports several rotor metrics commonly used to describe propeller
 and the integrated design lift coefficient are mostly used for propellers; the mean chords and solidities mostly for
 rotors.  Each integral is taken over the blade curves themselves, by adaptive quadrature, not over a set of sampled
 stations.  Below, $x = r/R$, $c(x)$ is the Chord curve as $c/R$, $x_r$ the root, and $x_0$ the activity factor's
-lower limit *r_0* (0.2 by default, and never inboard of the root).
+lower limit *$r_0$* (0.2 by default, and never inboard of the root).
 
 The *Activity Factor* and the integrated design lift coefficient *CLi* are
 
@@ -329,17 +329,19 @@ $$
 \mathrm{AF} = \frac{100000}{16}\int_{x_0}^{1}\frac{c}{2}\,x^3\,dx, \qquad C_{L_i} = 4\int_{x_0}^{1} C_{l_i}(x)\,x^3\,dx
 $$
 
-The mean chord *C/R*, the thrust-weighted mean chord *C_T/R* and the power-weighted mean chord *C_P/R* are
+The mean chord *C/R*, the thrust-weighted mean chord *$C_\mathrm{T}/R$* and the power-weighted mean chord
+*$C_\mathrm{P}/R$* are
 
 $$
-\frac{C}{R} = \frac{1}{1 - x_r}\int_{x_r}^{1} c\,dx, \qquad \frac{C_T}{R} = \frac{3}{1 - x_r^3}\int_{x_r}^{1} c\,x^2\,dx, \qquad
-\frac{C_P}{R} = \frac{4}{1 - x_r^4}\int_{x_r}^{1} c\,x^3\,dx
+\frac{C}{R} = \frac{1}{1 - x_r}\int_{x_r}^{1} c\,dx, \qquad \frac{C_\mathrm{T}}{R} = \frac{3}{1 - x_r^3}\int_{x_r}^{1} c\,x^2\,dx, \qquad
+\frac{C_\mathrm{P}}{R} = \frac{4}{1 - x_r^4}\int_{x_r}^{1} c\,x^3\,dx
 $$
 
-and the solidities $\sigma$, $\sigma_T$ and $\sigma_P$, blade area over disk area, follow from them:
+and the solidities $\sigma$, $\sigma_\mathrm{T}$ and $\sigma_\mathrm{P}$, blade area over disk area, follow from them:
 
 $$
-\sigma = \frac{N}{\pi}\,\frac{C}{R}, \qquad \sigma_T = \frac{N}{\pi}\,\frac{C_T}{R}, \qquad \sigma_P = \frac{N}{\pi}\,\frac{C_P}{R}
+\sigma = \frac{N}{\pi}\,\frac{C}{R}, \qquad \sigma_\mathrm{T} = \frac{N}{\pi}\,\frac{C_\mathrm{T}}{R}, \qquad
+\sigma_\mathrm{P} = \frac{N}{\pi}\,\frac{C_\mathrm{P}}{R}
 $$
 
 ## Blade Spacing and Balance
@@ -668,7 +670,7 @@ flap, lag and feather angles (`Feather_n` too) are in *Articulation*.  The modes
 | `NumHarmonics`            | Articulation | 0 to 20                                                                 |
 | `IndividualBladeFoldFlag` | Design       | 0 or 1                                                                  |
 | `BladeAzimuthMode`        | Design       | `PROP_AZI_UNIFORM`, `PROP_AZI_FREE`, `PROP_AZI_BALANCED`                |
-| `AFLimit`                 | Design       | *r_0*, the activity factor's lower limit                                |
+| `AFLimit`                 | Design       | *$r_0$*, the activity factor's lower limit                                |
 
 `SetPCurve` and the other curve calls take the curve as `PROP_CHORD`, `PROP_TWIST`, `PROP_RAKE`, `PROP_SKEW`,
 `PROP_SWEEP`, `PROP_THICK`, `PROP_CLI`, `PROP_AXIAL` or `PROP_TANGENTIAL`, and its type as `LINEAR`, `PCHIP` or

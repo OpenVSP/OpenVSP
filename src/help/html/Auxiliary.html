@@ -293,16 +293,21 @@ reach past the whole aircraft.</p>
 <h2 id="rotor-tip-path">Rotor Tip Path</h2>
 <p>A keep-out zone: the region the blade tips of a flapping rotor can
 sweep, which no part of the aircraft may enter. It is the parent
-propeller's tips flapping about a hinge at <em>r_flap/R</em> from the
-shaft, by up to <em>Theta Thrust</em> toward the thrust and <em>Theta
-Anti Thrust</em> away from it, all the way around (Figure 1). With
-<em>Automatic Diameter</em>, the default, the diameter is the
-propeller's. With <em>Automatic r_flap/R</em>, also the default,
-r_flap/R is the radial place of the propeller's flap hinge (see <a
+propeller's tips flapping about a hinge at
+<em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">p</mi></mrow></msub><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r_\mathrm{flap}/R</annotation></semantics></math></em>
+from the shaft, by up to <em>Theta Thrust</em> toward the thrust and
+<em>Theta Anti Thrust</em> away from it, all the way around (Figure 1).
+With <em>Automatic Diameter</em>, the default, the diameter is the
+propeller's. With <em>Automatic
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">p</mi></mrow></msub><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r_\mathrm{flap}/R</annotation></semantics></math></em>,
+also the default,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">p</mi></mrow></msub><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r_\mathrm{flap}/R</annotation></semantics></math>
+is the radial place of the propeller's flap hinge (see <a
 href="Propeller.html#hinges">Hinges</a>); it is on in models saved by
 earlier versions too, so their tip paths now take the propeller's flap
-hinge. Turn it off and set r_flap/R again to keep an earlier tip
-path.</p>
+hinge. Turn it off and set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">p</mi></mrow></msub><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r_\mathrm{flap}/R</annotation></semantics></math>
+again to keep an earlier tip path.</p>
 <p><img src="images/Auxiliary_tip_path.png"
 title="Figure 1. Rotor tip path" alt="Figure 1. Rotor tip path" /></p>
 <p><em>Figure 1. The tip path of the default propeller, cut by the plane
@@ -582,8 +587,10 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>y</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">\Delta y_c</annotation></semantics></math>,
 are given as fractions of the tire diameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>:
-<em>Width (b_g/D)</em>, <em>Half Length (h/D)</em> and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>y</mi><mi>c</mi></msub><mi>/</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">\Delta y_c/D</annotation></semantics></math>.
+<em>Width
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi mathvariant="normal">g</mi></msub><mi>/</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">b_\mathrm{g}/D</annotation></semantics></math>)</em>,
+<em>Half Length (h/D)</em> and the center plume's <em>Width
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>y</mi><mi mathvariant="normal">c</mi></msub><mi>/</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">\Delta y_\mathrm{c}/D</annotation></semantics></math>)</em>.
 Each tire's footprint is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>g</mi></msub><annotation encoding="application/x-tex">b_g</annotation></semantics></math>
 wide and

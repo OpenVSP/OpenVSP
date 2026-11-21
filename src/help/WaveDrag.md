@@ -28,8 +28,8 @@ can compare several runs.
 2. Under Reference Area, choose From Model and pick the reference wing, or choose Manual and enter Sref.
 3. Leave Run with X-Z Symmetry on if the set is symmetric about the X-Z plane.
 4. If the model has engine inlets or exhausts, mark their faces on the Inflow/Outflow tab.
-5. Press START.  The wave drag coefficient appears as CD0_w, and the plot shows the area distribution.
-6. Run again with more slices and rotations to check that CD0_w has settled (see
+5. Press START.  The wave drag coefficient appears as $C_{D_0,\mathrm{w}}$, and the plot shows the area distribution.
+6. Run again with more slices and rotations to check that $C_{D_0,\mathrm{w}}$ has settled (see
    [Choosing Settings](#choosing-settings)).
 
 ## How the Wave Drag Is Computed
@@ -224,7 +224,7 @@ Parts style then shows which component's area changed.
 
 ## Running and the Model Afterward
 
-START runs the analysis; CD0_w then shows the wave drag coefficient of that run.
+START runs the analysis; $C_{D_0,\mathrm{w}}$ then shows the wave drag coefficient of that run.
 
 A run leaves a Mesh component of the sliced geometry and its slices in the model, named in the results.  When the
 Shown set is sliced, the components stay shown along with the Mesh; on any other set only the Mesh is shown
@@ -259,9 +259,10 @@ size.
 ## Choosing Settings
 
 Run time grows in proportion to Num Slices times Num Rotations.  The wave drag depends on the curvature of the area
-distribution, and a coarse set of slices misses the sharp area changes at wing and tail leading and trailing edges,
-so CD0_w often rises as slices are added.  Raise Num Slices until CD0_w stops changing, then raise Num Rotations the
-same way; for a model with wings expect to need more than the defaults.  Compare designs at the same settings.
+distribution, and a coarse set of slices misses the sharp area changes at wing and tail leading and trailing edges, so
+$C_{D_0,\mathrm{w}}$ often rises as slices are added.  Raise Num Slices until $C_{D_0,\mathrm{w}}$ stops changing, then
+raise Num Rotations the same way; for a model with wings expect to need more than the defaults.  Compare designs at the
+same settings.
 
 Use Run with X-Z Symmetry for any model that is symmetric about the X-Z plane; it doubles the angular resolution at
 no cost.  Turn it off for an asymmetric model, such as one with stores on one side or an oblique wing.

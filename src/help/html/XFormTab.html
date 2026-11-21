@@ -130,9 +130,9 @@ the fuselage's center plane, wherever the fuselage is moved.</li>
 <ol type="1">
 <li>Select the wing and add a Pod.</li>
 <li>Set Translate to
-<em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN</em> and Rotate to <em>Comp</em>, so that the nacelle sits at a
-fraction of the span and keeps the wing's axes.</li>
+<em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN</em>
+and Rotate to <em>Comp</em>, so that the nacelle sits at a fraction of
+the span and keeps the wing's axes.</li>
 <li>Set
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
 to the spanwise station and <em>M</em> 1 for the leading edge (where
@@ -217,8 +217,8 @@ title="Figure 2. Attach To Parent" style="max-width: none" width="392"
 alt="Figure 2. Attach To Parent" /></p>
 <p><em>Figure 2. The Attach To Parent group of a Pod whose parent is the
 default Wing, attached by Translate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN and Rotate Comp at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN
+and Rotate Comp at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
 0.4, M 1 and N 0. The rows of the coordinates not chosen are greyed and
 show where the same point lies in them.</em></p>
@@ -259,8 +259,7 @@ distance</td>
 </tr>
 <tr>
 <td
-style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN</td>
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN</td>
 <td style="text-align: left;">a point inside a wing, by fraction of
 span</td>
 <td style="text-align: left;">as RST</td>
@@ -375,8 +374,8 @@ alt="Figure 6. U and L along a fuselage" /></p>
 7.5, 22.5 and 30. Above, the points U = 0 to 1 on its center line fall
 at the cross sections; below, the points L = 0 to 1 are evenly spaced
 along it.</em></p>
-<p><em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN</em> is offered when the parent is a Wing (or a Clone of one).
+<p><em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN</em>
+is offered when the parent is a Wing (or a Clone of one).
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
 is the fraction of the wing's span from root to tip, measured over its
 sections without the caps, and M and N are as in LMN; see <a
@@ -388,12 +387,12 @@ sections and caps, so a part placed by U stays with a section when a
 panel's span is changed, while a part placed by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
 stays at its fraction of the span. Use
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN for nacelles, pylons and stores placed at a fraction of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN
+for nacelles, pylons and stores placed at a fraction of the
 semispan.</p>
 <p>The RST, LMN and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN axes are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN
+axes are
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
 along R (along the parent),
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
@@ -429,8 +428,8 @@ axis.</em></p>
 <p>A flip changes the shape, not the Geom's axes. Children attached by
 <em>Comp</em> follow the parent's unreflected axes; children attached by
 UW, RST, LMN or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN follow the reflected surface. Two planes of flip together amount to a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN
+follow the reflected surface. Two planes of flip together amount to a
 half turn, not a reflection.</p>
 <h2 id="symmetry">Symmetry</h2>
 <p><em>Symmetry</em> adds copies of the Geom. Each <em>Planar</em> plane
@@ -473,9 +472,9 @@ the frame it is attached in. For a wing attached to its fuselage by
 Comp, that is the fuselage's center plane, wherever the fuselage is
 (Figure 9). When the attachment is a point on the surface (UW, RST, LMN
 or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-MN), the frame sits at that point, so the default mirrors the wing about
-a plane through the attachment point instead of the fuselage's center:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN),
+the frame sits at that point, so the default mirrors the wing about a
+plane through the attachment point instead of the fuselage's center:
 choose the fuselage in the list, with <em>Object</em>. To mirror in the
 model's own planes, choose 0, the global origin.</p>
 <p><img src="images/XFormTab_sym_frame.png"

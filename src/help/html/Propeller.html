@@ -744,27 +744,32 @@ is the Chord curve as
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>r</mi></msub><annotation encoding="application/x-tex">x_r</annotation></semantics></math>
 the root, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math>
-the activity factor's lower limit <em>r_0</em> (0.2 by default, and
-never inboard of the root).</p>
+the activity factor's lower limit
+<em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>0</mn></msub><annotation encoding="application/x-tex">r_0</annotation></semantics></math></em>
+(0.2 by default, and never inboard of the root).</p>
 <p>The <em>Activity Factor</em> and the integrated design lift
 coefficient <em>CLi</em> are</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">F</mi></mrow><mo>=</mo><mfrac><mn>100000</mn><mn>16</mn></mfrac><msubsup><mo>∫</mo><msub><mi>x</mi><mn>0</mn></msub><mn>1</mn></msubsup><mfrac><mi>c</mi><mn>2</mn></mfrac><mspace width="0.167em"></mspace><msup><mi>x</mi><mn>3</mn></msup><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>C</mi><msub><mi>L</mi><mi>i</mi></msub></msub><mo>=</mo><mn>4</mn><msubsup><mo>∫</mo><msub><mi>x</mi><mn>0</mn></msub><mn>1</mn></msubsup><msub><mi>C</mi><msub><mi>l</mi><mi>i</mi></msub></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>x</mi><mn>3</mn></msup><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">
 \mathrm{AF} = \frac{100000}{16}\int_{x_0}^{1}\frac{c}{2}\,x^3\,dx, \qquad C_{L_i} = 4\int_{x_0}^{1} C_{l_i}(x)\,x^3\,dx
 </annotation></semantics></math></p>
 <p>The mean chord <em>C/R</em>, the thrust-weighted mean chord
-<em>C_T/R</em> and the power-weighted mean chord <em>C_P/R</em> are</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>C</mi><mi>R</mi></mfrac><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><msub><mi>x</mi><mi>r</mi></msub></mrow></mfrac><msubsup><mo>∫</mo><msub><mi>x</mi><mi>r</mi></msub><mn>1</mn></msubsup><mi>c</mi><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi><mo>,</mo><mspace width="2.0em"></mspace><mfrac><msub><mi>C</mi><mi>T</mi></msub><mi>R</mi></mfrac><mo>=</mo><mfrac><mn>3</mn><mrow><mn>1</mn><mo>−</mo><msubsup><mi>x</mi><mi>r</mi><mn>3</mn></msubsup></mrow></mfrac><msubsup><mo>∫</mo><msub><mi>x</mi><mi>r</mi></msub><mn>1</mn></msubsup><mi>c</mi><mspace width="0.167em"></mspace><msup><mi>x</mi><mn>2</mn></msup><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi><mo>,</mo><mspace width="2.0em"></mspace><mfrac><msub><mi>C</mi><mi>P</mi></msub><mi>R</mi></mfrac><mo>=</mo><mfrac><mn>4</mn><mrow><mn>1</mn><mo>−</mo><msubsup><mi>x</mi><mi>r</mi><mn>4</mn></msubsup></mrow></mfrac><msubsup><mo>∫</mo><msub><mi>x</mi><mi>r</mi></msub><mn>1</mn></msubsup><mi>c</mi><mspace width="0.167em"></mspace><msup><mi>x</mi><mn>3</mn></msup><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">
-\frac{C}{R} = \frac{1}{1 - x_r}\int_{x_r}^{1} c\,dx, \qquad \frac{C_T}{R} = \frac{3}{1 - x_r^3}\int_{x_r}^{1} c\,x^2\,dx, \qquad
-\frac{C_P}{R} = \frac{4}{1 - x_r^4}\int_{x_r}^{1} c\,x^3\,dx
+<em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi mathvariant="normal">T</mi></msub><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">C_\mathrm{T}/R</annotation></semantics></math></em>
+and the power-weighted mean chord
+<em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi mathvariant="normal">P</mi></msub><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">C_\mathrm{P}/R</annotation></semantics></math></em>
+are</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>C</mi><mi>R</mi></mfrac><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><msub><mi>x</mi><mi>r</mi></msub></mrow></mfrac><msubsup><mo>∫</mo><msub><mi>x</mi><mi>r</mi></msub><mn>1</mn></msubsup><mi>c</mi><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi><mo>,</mo><mspace width="2.0em"></mspace><mfrac><msub><mi>C</mi><mi mathvariant="normal">T</mi></msub><mi>R</mi></mfrac><mo>=</mo><mfrac><mn>3</mn><mrow><mn>1</mn><mo>−</mo><msubsup><mi>x</mi><mi>r</mi><mn>3</mn></msubsup></mrow></mfrac><msubsup><mo>∫</mo><msub><mi>x</mi><mi>r</mi></msub><mn>1</mn></msubsup><mi>c</mi><mspace width="0.167em"></mspace><msup><mi>x</mi><mn>2</mn></msup><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi><mo>,</mo><mspace width="2.0em"></mspace><mfrac><msub><mi>C</mi><mi mathvariant="normal">P</mi></msub><mi>R</mi></mfrac><mo>=</mo><mfrac><mn>4</mn><mrow><mn>1</mn><mo>−</mo><msubsup><mi>x</mi><mi>r</mi><mn>4</mn></msubsup></mrow></mfrac><msubsup><mo>∫</mo><msub><mi>x</mi><mi>r</mi></msub><mn>1</mn></msubsup><mi>c</mi><mspace width="0.167em"></mspace><msup><mi>x</mi><mn>3</mn></msup><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">
+\frac{C}{R} = \frac{1}{1 - x_r}\int_{x_r}^{1} c\,dx, \qquad \frac{C_\mathrm{T}}{R} = \frac{3}{1 - x_r^3}\int_{x_r}^{1} c\,x^2\,dx, \qquad
+\frac{C_\mathrm{P}}{R} = \frac{4}{1 - x_r^4}\int_{x_r}^{1} c\,x^3\,dx
 </annotation></semantics></math></p>
 <p>and the solidities
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>σ</mi><annotation encoding="application/x-tex">\sigma</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\sigma_T</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi mathvariant="normal">T</mi></msub><annotation encoding="application/x-tex">\sigma_\mathrm{T}</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>P</mi></msub><annotation encoding="application/x-tex">\sigma_P</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi mathvariant="normal">P</mi></msub><annotation encoding="application/x-tex">\sigma_\mathrm{P}</annotation></semantics></math>,
 blade area over disk area, follow from them:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mfrac><mi>N</mi><mi>π</mi></mfrac><mspace width="0.167em"></mspace><mfrac><mi>C</mi><mi>R</mi></mfrac><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>σ</mi><mi>T</mi></msub><mo>=</mo><mfrac><mi>N</mi><mi>π</mi></mfrac><mspace width="0.167em"></mspace><mfrac><msub><mi>C</mi><mi>T</mi></msub><mi>R</mi></mfrac><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>σ</mi><mi>P</mi></msub><mo>=</mo><mfrac><mi>N</mi><mi>π</mi></mfrac><mspace width="0.167em"></mspace><mfrac><msub><mi>C</mi><mi>P</mi></msub><mi>R</mi></mfrac></mrow><annotation encoding="application/x-tex">
-\sigma = \frac{N}{\pi}\,\frac{C}{R}, \qquad \sigma_T = \frac{N}{\pi}\,\frac{C_T}{R}, \qquad \sigma_P = \frac{N}{\pi}\,\frac{C_P}{R}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mfrac><mi>N</mi><mi>π</mi></mfrac><mspace width="0.167em"></mspace><mfrac><mi>C</mi><mi>R</mi></mfrac><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>σ</mi><mi mathvariant="normal">T</mi></msub><mo>=</mo><mfrac><mi>N</mi><mi>π</mi></mfrac><mspace width="0.167em"></mspace><mfrac><msub><mi>C</mi><mi mathvariant="normal">T</mi></msub><mi>R</mi></mfrac><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>σ</mi><mi mathvariant="normal">P</mi></msub><mo>=</mo><mfrac><mi>N</mi><mi>π</mi></mfrac><mspace width="0.167em"></mspace><mfrac><msub><mi>C</mi><mi mathvariant="normal">P</mi></msub><mi>R</mi></mfrac></mrow><annotation encoding="application/x-tex">
+\sigma = \frac{N}{\pi}\,\frac{C}{R}, \qquad \sigma_\mathrm{T} = \frac{N}{\pi}\,\frac{C_\mathrm{T}}{R}, \qquad
+\sigma_\mathrm{P} = \frac{N}{\pi}\,\frac{C_\mathrm{P}}{R}
 </annotation></semantics></math></p>
 <h2 id="blade-spacing-and-balance">Blade Spacing and Balance</h2>
 <p>Blade 1 is the reference blade. Each other blade
@@ -1444,8 +1449,9 @@ does</td>
 <tr>
 <td style="text-align: left;"><code>AFLimit</code></td>
 <td style="text-align: left;">Design</td>
-<td style="text-align: left;"><em>r_0</em>, the activity factor's lower
-limit</td>
+<td
+style="text-align: left;"><em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>0</mn></msub><annotation encoding="application/x-tex">r_0</annotation></semantics></math></em>,
+the activity factor's lower limit</td>
 </tr>
 </tbody>
 </table>

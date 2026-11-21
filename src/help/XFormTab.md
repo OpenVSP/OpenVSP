@@ -37,7 +37,7 @@ Geom becomes its child.
 ### A nacelle under a wing
 
 1. Select the wing and add a Pod.
-2. Set Translate to *$\eta$ MN* and Rotate to *Comp*, so that the nacelle sits at a fraction of the span and keeps
+2. Set Translate to *$\eta$MN* and Rotate to *Comp*, so that the nacelle sits at a fraction of the span and keeps
    the wing's axes.
 3. Set $\eta$ to the spanwise station and *M* 1 for the leading edge (where *N* has no effect), then move the
    nacelle forward and down with *XLoc* and *ZLoc*, now measured from that point in the wing's axes.
@@ -95,7 +95,7 @@ With both at *None*, the default, the child is placed in the model's axes and st
 
 ![Figure 2. Attach To Parent](images/XFormTab_gui_attach.png "Figure 2. Attach To Parent")
 
-*Figure 2. The Attach To Parent group of a Pod whose parent is the default Wing, attached by Translate $\eta$ MN and
+*Figure 2. The Attach To Parent group of a Pod whose parent is the default Wing, attached by Translate $\eta$MN and
 Rotate Comp at $\eta$ 0.4, M 1 and N 0.  The rows of the coordinates not chosen are greyed and show where the same
 point lies in them.*
 
@@ -106,7 +106,7 @@ point lies in them.*
 | UW     | a point on the parent's surface              | the surface there (below)                           |
 | RST    | a point inside the parent's volume           | the volume coordinates there (below)                |
 | LMN    | a point inside the parent's volume, by distance | as RST                                           |
-| $\eta$ MN   | a point inside a wing, by fraction of span   | as RST                                              |
+| $\eta$MN   | a point inside a wing, by fraction of span   | as RST                                              |
 
 Translate and Rotate are independent: Translate *Comp* with Rotate *None* follows the parent's moves but not its
 turns, which keeps a part level however the parent is turned (Figure 3).
@@ -176,14 +176,14 @@ section, such as a wing at a fuselage frame; L to stay at a fraction of the leng
 *Figure 6. A fuselage 30 long with its cross sections at 0, 3, 7.5, 22.5 and 30.  Above, the points U = 0 to 1 on its
 center line fall at the cross sections; below, the points L = 0 to 1 are evenly spaced along it.*
 
-*$\eta$ MN* is offered when the parent is a Wing (or a Clone of one).  $\eta$ is the fraction of the wing's span
+*$\eta$MN* is offered when the parent is a Wing (or a Clone of one).  $\eta$ is the fraction of the wing's span
 from root to tip, measured over its sections without the caps, and M and N are as in LMN; see [Spanwise Coordinate
 Eta](Wing.md#spanwise-coordinate-eta).  On a wing, $\eta$ is the spanwise choice that corresponds to L: U and R count
 the wing's sections and caps, so a part placed by U stays with a section when a panel's span is changed, while a part
-placed by $\eta$ stays at its fraction of the span.  Use $\eta$ MN for nacelles, pylons and stores placed at a
+placed by $\eta$ stays at its fraction of the span.  Use $\eta$MN for nacelles, pylons and stores placed at a
 fraction of the semispan.
 
-The RST, LMN and $\eta$ MN axes are $X$ along R (along the parent), $Z$ normal to the R and S directions, and $Y$
+The RST, LMN and $\eta$MN axes are $X$ along R (along the parent), $Z$ normal to the R and S directions, and $Y$
 completing the set.
 
 UW, RST and LMN describe one point, and while one of them is in use OpenVSP keeps the others up to date.  Switching
@@ -208,7 +208,7 @@ A left wing made by Planar XZ symmetry is the mirror image of the turned right w
 $Y$ axis.*
 
 A flip changes the shape, not the Geom's axes.  Children attached by *Comp* follow the parent's unreflected axes;
-children attached by UW, RST, LMN or $\eta$ MN follow the reflected surface.  Two planes of flip together amount to a
+children attached by UW, RST, LMN or $\eta$MN follow the reflected surface.  Two planes of flip together amount to a
 half turn, not a reflection.
 
 ## Symmetry
@@ -237,7 +237,7 @@ the global origin (0), the Geom itself (1), its parent (2), its grandparent (3),
 
 The default, the Geom itself with *Attach*, mirrors a Geom in the frame it is attached in.  For a wing attached to its
 fuselage by Comp, that is the fuselage's center plane, wherever the fuselage is (Figure 9).  When the attachment is a
-point on the surface (UW, RST, LMN or $\eta$ MN), the frame sits at that point, so the default mirrors the wing about
+point on the surface (UW, RST, LMN or $\eta$MN), the frame sits at that point, so the default mirrors the wing about
 a plane through the attachment point instead of the fuselage's center: choose the fuselage in the list, with
 *Object*.  To mirror in the model's own planes, choose 0, the global origin.
 

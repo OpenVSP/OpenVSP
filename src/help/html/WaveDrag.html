@@ -204,10 +204,13 @@ or choose Manual and enter Sref.</li>
 plane.</li>
 <li>If the model has engine inlets or exhausts, mark their faces on the
 Inflow/Outflow tab.</li>
-<li>Press START. The wave drag coefficient appears as CD0_w, and the
-plot shows the area distribution.</li>
-<li>Run again with more slices and rotations to check that CD0_w has
-settled (see <a href="#choosing-settings">Choosing Settings</a>).</li>
+<li>Press START. The wave drag coefficient appears as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><msub><mi>D</mi><mn>0</mn></msub><mo>,</mo><mi mathvariant="normal">w</mi></mrow></msub><annotation encoding="application/x-tex">C_{D_0,\mathrm{w}}</annotation></semantics></math>,
+and the plot shows the area distribution.</li>
+<li>Run again with more slices and rotations to check that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><msub><mi>D</mi><mn>0</mn></msub><mo>,</mo><mi mathvariant="normal">w</mi></mrow></msub><annotation encoding="application/x-tex">C_{D_0,\mathrm{w}}</annotation></semantics></math>
+has settled (see <a href="#choosing-settings">Choosing
+Settings</a>).</li>
 </ol>
 <h2 id="how-the-wave-drag-is-computed">How the Wave Drag Is
 Computed</h2>
@@ -448,8 +451,9 @@ model, run again, and check both. The Buildup or Parts style then shows
 which component's area changed.</p>
 <h2 id="running-and-the-model-afterward">Running and the Model
 Afterward</h2>
-<p>START runs the analysis; CD0_w then shows the wave drag coefficient
-of that run.</p>
+<p>START runs the analysis;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><msub><mi>D</mi><mn>0</mn></msub><mo>,</mo><mi mathvariant="normal">w</mi></mrow></msub><annotation encoding="application/x-tex">C_{D_0,\mathrm{w}}</annotation></semantics></math>
+then shows the wave drag coefficient of that run.</p>
 <p>A run leaves a Mesh component of the sliced geometry and its slices
 in the model, named in the results. When the Shown set is sliced, the
 components stay shown along with the Mesh; on any other set only the
@@ -515,10 +519,13 @@ height; the tabs and the Execute area keep their size.</p>
 <p>Run time grows in proportion to Num Slices times Num Rotations. The
 wave drag depends on the curvature of the area distribution, and a
 coarse set of slices misses the sharp area changes at wing and tail
-leading and trailing edges, so CD0_w often rises as slices are added.
-Raise Num Slices until CD0_w stops changing, then raise Num Rotations
-the same way; for a model with wings expect to need more than the
-defaults. Compare designs at the same settings.</p>
+leading and trailing edges, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><msub><mi>D</mi><mn>0</mn></msub><mo>,</mo><mi mathvariant="normal">w</mi></mrow></msub><annotation encoding="application/x-tex">C_{D_0,\mathrm{w}}</annotation></semantics></math>
+often rises as slices are added. Raise Num Slices until
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><msub><mi>D</mi><mn>0</mn></msub><mo>,</mo><mi mathvariant="normal">w</mi></mrow></msub><annotation encoding="application/x-tex">C_{D_0,\mathrm{w}}</annotation></semantics></math>
+stops changing, then raise Num Rotations the same way; for a model with
+wings expect to need more than the defaults. Compare designs at the same
+settings.</p>
 <p>Use Run with X-Z Symmetry for any model that is symmetric about the
 X-Z plane; it doubles the angular resolution at no cost. Turn it off for
 an asymmetric model, such as one with stores on one side or an oblique

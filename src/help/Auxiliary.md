@@ -70,11 +70,12 @@ whole aircraft.
 ## Rotor Tip Path
 
 A keep-out zone: the region the blade tips of a flapping rotor can sweep, which no part of the aircraft may enter.  It
-is the parent propeller's tips flapping about a hinge at *r_flap/R* from the shaft, by up to *Theta Thrust* toward the
-thrust and *Theta Anti Thrust* away from it, all the way around (Figure 1).  With *Automatic Diameter*, the default, the
-diameter is the propeller's.  With *Automatic r_flap/R*, also the default, r_flap/R is the radial place of the
-propeller's flap hinge (see [Hinges](Propeller.md#hinges)); it is on in models saved by earlier versions too, so their
-tip paths now take the propeller's flap hinge.  Turn it off and set r_flap/R again to keep an earlier tip path.
+is the parent propeller's tips flapping about a hinge at *$r_\mathrm{flap}/R$* from the shaft, by up to *Theta Thrust*
+toward the thrust and *Theta Anti Thrust* away from it, all the way around (Figure 1).  With *Automatic Diameter*, the
+default, the diameter is the propeller's.  With *Automatic $r_\mathrm{flap}/R$*, also the default, $r_\mathrm{flap}/R$
+is the radial place of the propeller's flap hinge (see [Hinges](Propeller.md#hinges)); it is on in models saved by
+earlier versions too, so their tip paths now take the propeller's flap hinge.  Turn it off and set $r_\mathrm{flap}/R$
+again to keep an earlier tip path.
 
 ![Figure 1. Rotor tip path](images/Auxiliary_tip_path.png "Figure 1. Rotor tip path")
 
@@ -199,9 +200,9 @@ outward (Figure 8).  A bogie with two or more wheels across and one in tandem al
 pair of neighboring wheels, rising at the *center elevation angle* $\gamma_c$, $\Delta y_c$ wide.
 
 The *Tire Contact* width $b_g$ and half length $h$, and $\Delta y_c$, are given as fractions of the tire diameter $D$:
-*Width (b_g/D)*, *Half Length (h/D)* and $\Delta y_c/D$.  Each tire's footprint is $b_g$ wide and $2h$ long, centered on
-its contact point.  The plumes leave the ground $h$ ahead of the footprints, the side plumes $b_g/4$ outboard of them
-(Figure 9).
+*Width ($b_\mathrm{g}/D$)*, *Half Length (h/D)* and the center plume's *Width ($\Delta y_\mathrm{c}/D$)*.  Each tire's
+footprint is $b_g$ wide and $2h$ long, centered on its contact point.  The plumes leave the ground $h$ ahead of the
+footprints, the side plumes $b_g/4$ outboard of them (Figure 9).
 
 ![Figure 7. Tire spray](images/Auxiliary_tire_spray.png "Figure 7. Tire spray")
 
