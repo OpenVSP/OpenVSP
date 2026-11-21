@@ -821,7 +821,8 @@ void BoxSimpleSource::Update( Geom* geomPtr )
         double u = u1 + fu * ( u2 - u1 );
         for ( int j = 0 ; j < num_segs ; j++ )
         {
-            double w = m_WLoc1 + fu * ( m_WLoc2 - m_WLoc1 );
+            double fw = ( double )j / ( double )( num_segs - 1 );
+            double w = m_WLoc1 + fw * ( m_WLoc2 - m_WLoc1 );
             vec3d p = geomPtr->CompPnt01( m_SurfIndx, u, w );
             pVec.push_back( p );
             box.Update( p );
