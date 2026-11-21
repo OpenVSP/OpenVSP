@@ -1321,8 +1321,6 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
         total_num_tris += surftris[i];
     }
 
-    WakeMgr.StretchWakes();
-
     m_NumMeshTris = total_num_tris;
 
     snprintf( str, sizeof( str ), "Total Num Tris = %d\n", total_num_tris );
@@ -1387,6 +1385,9 @@ void CfdMeshMgrSingleton::PostMesh()
         m_BorderFaceLengthRatios.insert( m_BorderFaceLengthRatios.end(), borderratio[i].begin(), borderratio[i].end() );
         SubSurfaceMgr.m_TagCombos.insert( tagcombo[i].begin(), tagcombo[i].end() );
     }
+
+    // The wakes are stretched in the points written, once the faces have been reduced to them.
+    WakeMgr.StretchWakes();
 }
 
 void CfdMeshMgrSingleton::ConvertToQuads()
