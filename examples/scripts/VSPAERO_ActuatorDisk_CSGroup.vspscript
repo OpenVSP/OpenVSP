@@ -160,6 +160,6 @@ void VSPAeroDiskAndCSGroupAnalysis()
     string history_res = FindLatestResultsID( "VSPAERO_History" );
     string load_res = FindLatestResultsID( "VSPAERO_Load" );
 
-    array<double> CL = GetDoubleResults( history_res, "CL", 0 );
+    array<double> CL = GetDoubleResults( history_res, "CLtot", 0 );
     array<double> cl = GetDoubleResults( load_res, "cl", 0 );
 }
