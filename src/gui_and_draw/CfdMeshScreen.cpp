@@ -298,7 +298,7 @@ void CfdMeshScreen::CreateDisplayTab()
 
     m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2.0 );
 
-    m_DisplayTabLayout.AddButton(m_ShowSourcesAndWakePreview, "Show Sources & Wake Preview");
+    m_DisplayTabLayout.AddButton(m_ShowSourcesAndWakePreview, "Show Sources && Wake Preview");
     m_DisplayTabLayout.AddButton(m_ShowWake, "Show Wake");
     m_DisplayTabLayout.ForceNewLine();
 
@@ -434,7 +434,7 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
 
     m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddButton(m_TaggedMultiSolid, "Tagged Multi Sold STL (Non-Standard)");
+    m_OutputTabLayout.AddButton(m_TaggedMultiSolid, "Tagged Multi Solid STL (Non-Standard)");
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
