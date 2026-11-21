@@ -150,6 +150,9 @@ public:
     void AddSlider(  FractParmSlider& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, int used_w = 0, bool log_slider = false );
+    // The label button, slider and input of a SliderInput, for a setting that is not a Parm.
+    void AddSliderInputWidgets( const char* label, VspButton** button, VspSlider** slider, Fl_Input** input,
+                                int used_w = 0 );
     void AddLabel( const char* label, int width, int bgcolor = FL_BACKGROUND_COLOR );
     void AddButton(  CheckButton& check_button, const char* label, int used_w = 0 );
     void AddButton(  ToggleButton& toggle_button, const char* label, int used_w = 0 );

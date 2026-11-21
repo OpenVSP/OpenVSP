@@ -626,34 +626,10 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
 {
     assert( m_Group && m_Screen );
 
-    int init_used_w = m_X - m_Group->x();
-
-    //==== Parm Button ====//
-    VspButton* button = AddParmButton( label );
-
-    //==== Slider ====//
-    int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w + used_w, m_SliderWidth );
-    VspSlider* slider = new VspSlider( m_X, m_Y, sw, m_StdHeight );
-    slider->type( FL_HOR_NICE_SLIDER );
-    slider->box( FL_THIN_DOWN_BOX );
-    slider->color( FL_BACKGROUND2_COLOR );
-    slider->selection_color( FL_SELECTION_COLOR );
-    m_Group->add( slider );
-    AddX( sw );
-
-    //==== Input ====//
-    Fl_Input* input = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
-#ifdef NOREGEXP
-    input->type( FL_FLOAT_INPUT );
-#endif
-    input->box( FL_THIN_DOWN_BOX );
-    input->textsize( 12 );
-    input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
-    m_Group->add( input );
-    AddX( m_InputWidth );
-
-    AddY( m_StdHeight );
-    NewLineX();
+    VspButton* button = nullptr;
+    VspSlider* slider = nullptr;
+    Fl_Input* input = nullptr;
+    AddSliderInputWidgets( label, &button, &slider, &input, used_w );
 
     slider_input.Init( m_Screen, slider, input, range, format, button, log_slider );
 
@@ -661,6 +637,41 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     {
         slider_input.SetButtonNameUpdate( true );
     }
+}
+
+void GroupLayout::AddSliderInputWidgets( const char* label, VspButton** button, VspSlider** slider, Fl_Input** input,
+                                         int used_w )
+{
+    assert( m_Group && m_Screen );
+
+    int init_used_w = m_X - m_Group->x();
+
+    //==== Parm Button ====//
+    *button = AddParmButton( label );
+
+    //==== Slider ====//
+    int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w + used_w, m_SliderWidth );
+    *slider = new VspSlider( m_X, m_Y, sw, m_StdHeight );
+    ( *slider )->type( FL_HOR_NICE_SLIDER );
+    ( *slider )->box( FL_THIN_DOWN_BOX );
+    ( *slider )->color( FL_BACKGROUND2_COLOR );
+    ( *slider )->selection_color( FL_SELECTION_COLOR );
+    m_Group->add( *slider );
+    AddX( sw );
+
+    //==== Input ====//
+    *input = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    ( *input )->type( FL_FLOAT_INPUT );
+#endif
+    ( *input )->box( FL_THIN_DOWN_BOX );
+    ( *input )->textsize( 12 );
+    ( *input )->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
+    m_Group->add( *input );
+    AddX( m_InputWidth );
+
+    AddY( m_StdHeight );
+    NewLineX();
 }
 
 //==== Add Label ====//
