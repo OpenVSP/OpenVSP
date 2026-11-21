@@ -4385,8 +4385,8 @@ class HersheyVV : VV_Base
             // Const AR, WTess, TC, and UTess, vary advanced settings Lift Distribution Study
             HTMLChart c1 = HTMLChart(); // Initialize Chart
             c1.m_ChartName = string("Advanced_LD_W") + int(w + 1);
-            c1.m_Legend = string("'Span Location','Default','Case #1','Case #2','Case #3','LLT'");
-            c1.m_Series = string("{ 6: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
+            c1.m_Legend = string("'Span Location','Default','LLT'");
+            c1.m_Series = string("{ ") + int(num_case) + string(": { pointSize: 0, color: 'gray', lineWidth: 3 } }");
             c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Lift Distribution Advanced Settings Sensitivity: Wake Iterations = ") + int(w + 1);
             m_FigCount++;
             c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
@@ -4400,15 +4400,19 @@ class HersheyVV : VV_Base
                 {
                     row = row + double( cl_dist_data[j][i] ) + string(",");
                 }
-                row = row + string(",null],\n");
+                row = row + string("null],\n");
 
                 data_str_vec1.push_back( row );
             }
 
             for( uint i = 0; i < uint8(cl_dist_theo.length()); i++ )
             {
-                string row = string("\t\t  [") + double( cl_dist_theo[i][0] ) + string(",null,null,null,null,") + 
-                    double( cl_dist_theo[i][1] );
+                string row = string("\t\t  [") + double( cl_dist_theo[i][0] ) + string(",");
+                for ( uint8 j = 0; j < num_case; j++ )
+                {
+                    row = row + string("null,");
+                }
+                row = row + double( cl_dist_theo[i][1] );
 
                 if ( i == cl_dist_theo.length() - 1 )
                 {
@@ -4429,7 +4433,7 @@ class HersheyVV : VV_Base
         // Computation Time vs Wake Iterations
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("Advanced_Time_W");
-        c2.m_Legend = string("'Wake Iter','Default','Case #1','Case #2','Case #3'");
+        c2.m_Legend = string("'Wake Iter','Default'");
         c2.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity");
         m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Wake Iter', titleTextStyle: { bold: true } }");
