@@ -8430,7 +8430,7 @@ void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec
                 psource->SetName( str );
                 psource->m_Len = 0.1 * base_len;
                 psource->m_Rad = 0.2 * len_ref;
-                psource->m_ULoc = ixsec / ( m_XSecSurf.NumXSec() - 1 );
+                psource->m_ULoc = ( double ) ixsec / ( ( double ) m_XSecSurf.NumXSec() - 1 );
                 psource->m_WLoc = 0.0;
                 psource->m_MainSurfIndx = 0;
                 AddCfdMeshSource( psource );
