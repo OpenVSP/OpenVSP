@@ -20,9 +20,9 @@ opportunity for users to contribute.
 - [Attribute Explorer](AttributeExplorer.md)
 - [Geometry Analysis](GeometryAnalysis.md)
 - [Results Viewer](ResultsViewer.md)
+- [Set Editor](SetEdit.md)
 - [VSPAERO Results](VSPAEROResults.md)
 - [Wave Drag](WaveDrag.md)
-- [Set Editor](SetEdit.md)
 
 ## Components
 
@@ -53,7 +53,7 @@ particular purpose and can be added to a model as needed.
 
 ### Scripted Components
 
-- [Custom](Custom.md)
+- [Custom Components](Custom.md)
 
 ### DATCOM Components
 
@@ -82,10 +82,10 @@ namelists' inputs.
 ### Shared Capabilities
 
 - Common Component Tabs
-   - [Gen](GenTab.md)
-   - [XForm](XFormTab.md)
-   - [Mass](MassTab.md)
-   - [Sub](SubTab.md)
-- [Cross Sections](XSecCurves.md)
+   - [Gen Tab](GenTab.md)
+   - [XForm Tab](XFormTab.md)
+   - [Mass Tab](MassTab.md)
+   - [Sub Tab](SubTab.md)
+- [Cross Section Curves](XSecCurves.md)
 - [Airfoils](Airfoils.md)
-- [Cross Section Skinning](XSecSkinning.md)
+- [Cross Sections and Skinning](XSecSkinning.md)
