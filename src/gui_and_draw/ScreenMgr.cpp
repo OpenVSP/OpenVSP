@@ -117,6 +117,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     m_WindowMode = vsp::WINDOW_MODE_FREE;
 
     m_RunGUI = true;
+    m_EventLoopRunning = false;
 
     m_ShowPlotScreenOnce = false;
     m_UpdateCount = 0;
@@ -153,6 +154,8 @@ void ScreenMgr::ForceUpdate()
 //==== Timer Callback ====//
 void ScreenMgr::TimerCB()
 {
+    ShowPendingText();
+
     if ( m_UpdateFlag )
     {
         if (m_ShowPlotScreenOnce)
@@ -175,9 +178,70 @@ void ScreenMgr::SetUpdateFlag( bool flag )
     m_UpdateFlag = flag;
 }
 
+// The messages that add text to a screen's console.
+static bool IsConsoleMessage( const string &name )
+{
+    if ( name == "VSPAEROSolverMessage" || name == "FEAMessage" || name == "AeroStructMessage" ||
+         name == "CFDMessage" || name == "SurfIntersectMessage" )
+    {
+        return true;
+    }
+    return false;
+}
+
+void ScreenMgr::ShowPendingText()
+{
+    vector < MessageData > pending;
+    {
+        std::lock_guard < std::mutex > lock( m_PendingTextMutex );
+        pending.swap( m_PendingText );
+    }
+
+    for ( int i = 0; i < (int)pending.size(); i++ )
+    {
+        MessageCallback( nullptr, pending[i] );
+    }
+}
+
+bool ScreenMgr::IsEventLoopRunning()
+{
+    std::lock_guard < std::mutex > lock( m_PendingTextMutex );
+    return m_EventLoopRunning;
+}
+
+// Text still waiting when the loop stops is dropped with it.
+void ScreenMgr::SetEventLoopRunning( bool running )
+{
+    std::lock_guard < std::mutex > lock( m_PendingTextMutex );
+    m_EventLoopRunning = running;
+    if ( !running )
+    {
+        m_PendingText.clear();
+    }
+}
+
 //==== Message Callbacks ====//
 void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& data )
 {
+    if ( IsConsoleMessage( data.m_String ) )
+    {
+        if ( !MainThreadIDMgr.IsCurrentThreadMain() )
+        {
+            // The thread holding the FLTK lock may be waiting on this one, so the text is left for the
+            // main thread's timer instead of being added here.  Without the event loop nothing would show
+            // it, so it is dropped.
+            std::lock_guard < std::mutex > lock( m_PendingTextMutex );
+            if ( m_EventLoopRunning )
+            {
+                m_PendingText.push_back( data );
+            }
+            return;
+        }
+
+        // Text left by other threads goes first, so the console keeps the order it was sent in.
+        ShowPendingText();
+    }
+
     if ( data.m_String == string( "UpdateAllScreens" ) )
     {
         // printf( "UpdateAllScreens %u\n", m_UpdateCount );

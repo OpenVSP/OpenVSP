@@ -68,6 +68,13 @@ public:
 
     virtual void MessageCallback( const MessageBase* from, const MessageData& data );
 
+    // Show the console text other threads have left for the main thread.
+    void ShowPendingText();
+
+    // Whether the main thread is running FLTK's event loop.  Safe from any thread.
+    bool IsEventLoopRunning();
+    void SetEventLoopRunning( bool running );
+
 
     bool CheckRunGui();
     void SetRunGui( bool r );
@@ -157,6 +164,12 @@ protected:
     }
 
     bool m_RunGUI;
+
+    // Console text sent from threads other than the main one, waiting for the timer to show it.  The text is
+    // kept only while the event loop runs, since nothing shows it otherwise; the mutex guards both.
+    mutex m_PendingTextMutex;
+    vector < MessageData > m_PendingText;
+    bool m_EventLoopRunning;
 
     unsigned long m_UpdateCount;
 

@@ -30,8 +30,6 @@ GuiInterface::GuiInterface()
     // Set up MainThreadID if this is entry point.
     MainThreadIDMgr.getInstance();
 
-    m_EventLoopRunning = false;
-
     m_ScreenMgr = nullptr;
 }
 
@@ -63,10 +61,13 @@ void GuiInterface::StartGUI()
     if ( m_ScreenMgr )
     {
         m_ScreenMgr->FirstShow();
+        m_ScreenMgr->SetEventLoopRunning( true );
     }
-    m_EventLoopRunning = true;
     Fl::run();
-    m_EventLoopRunning = false;
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->SetEventLoopRunning( false );
+    }
     Fl::unlock();  // We wont' ever get here.
 #endif
 }
@@ -109,13 +110,13 @@ void GuiInterface::StartGUIAPI( )
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         m_ScreenMgr->APIShowScreensImplementation();
         Fl::lock();
-        m_EventLoopRunning = true;
+        m_ScreenMgr->SetEventLoopRunning( true );
         while( m_ScreenMgr->CheckRunGui() )
         {
             Fl::wait( 1e20 );
         }
         Fl::wait( 0.01 );
-        m_EventLoopRunning = false;
+        m_ScreenMgr->SetEventLoopRunning( false );
         Fl::unlock();
     }
 #endif
@@ -130,6 +131,8 @@ void GuiInterface::StopGUI()
     {
         m_ScreenMgr->APIHideScreens();     // Runs in main thread, is blocking.
         m_ScreenMgr->SetRunGui( false ); // Safe from secondary thread.
+        // The loop ends at its next wake; console text sent from here on has nothing to show it.
+        m_ScreenMgr->SetEventLoopRunning( false );
     }
 #endif
 }
@@ -152,7 +155,7 @@ void GuiInterface::UpdateGUI()
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        if ( m_EventLoopRunning )
+        if ( m_ScreenMgr->IsEventLoopRunning() )
         {
             m_ScreenMgr->APIUpdateGUI();
         }
@@ -178,7 +181,13 @@ void GuiInterface::Unlock()
 
 bool GuiInterface::IsEventLoopRunning() const
 {
-    return m_EventLoopRunning;
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        return m_ScreenMgr->IsEventLoopRunning();
+    }
+#endif
+    return false;
 }
 
 void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool transparentBG, bool autocrop )

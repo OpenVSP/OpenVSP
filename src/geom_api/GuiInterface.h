@@ -27,7 +27,6 @@ private:
     GuiInterface& operator=( GuiInterface const& copy ) = delete; // Not Implemented
 
     ScreenMgr* m_ScreenMgr;
-    bool m_EventLoopRunning;
 public:
     static GuiInterface& getInstance()
     {
