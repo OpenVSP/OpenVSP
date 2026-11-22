@@ -10,6 +10,7 @@
 #include "SCurve.h"
 
 #include <algorithm>
+#include <limits>
 
 ParmLine ParmLine::Between( double ua, double wa, double ub, double wb )
 {
@@ -576,42 +577,261 @@ void SCurve::BuildDistTableGeomB( SCurve* BCurve )
     }
 }
 
-SplitSourceSet::SplitSourceSet( const list< MapSource* > &src ) : m_Src( src.begin(), src.end() ), m_Tree( nullptr )
+SplitSourceSet::SplitSourceSet( const list< MapSource* > &src ) : m_Src( src.begin(), src.end() )
 {
-    m_Searches = 0;
-    m_Overs = 0;
-
-    m_StrMax = 0.0;
-    m_NonNegative = true;
-    for ( size_t i = 0 ; i < m_Src.size() ; i++ )
+    size_t n = m_Src.size();
+    m_Order.resize( n );
+    m_Leaf.resize( n );
+    for ( size_t k = 0 ; k < n ; k++ )
     {
-        double str = m_Src[i]->m_str;
-        if ( !( str >= 0.0 ) )
+        m_Order[k] = k;
+    }
+
+    m_Finite = true;
+    for ( size_t k = 0 ; k < n ; k++ )
+    {
+        if ( !std::isfinite( m_Src[k]->m_str ) )
         {
-            m_NonNegative = false;
-        }
-        else if ( str > m_StrMax )
-        {
-            m_StrMax = str;
+            m_Finite = false;
         }
     }
 
-    for ( size_t i = 0 ; i < m_Src.size() ; i++ )
+    if ( n > 0 )
     {
-        m_Box.Update( m_Src[i]->m_pt );
-    }
-
-    if ( !m_Src.empty() )
-    {
-        m_Cloud.sources = m_Src;
-        m_Tree = new MSTree( 3, m_Cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
-        m_Tree->buildIndex();
+        m_Node.resize( 1 );
+        FillNode( 0, -1, 0, ( int )n );
     }
 }
 
-SplitSourceSet::~SplitSourceSet()
+void SplitSourceSet::FillNode( int inode, int parent, int begin, int end )
 {
-    delete m_Tree;
+    m_Node[inode].m_Parent = parent;
+    m_Node[inode].m_Begin = begin;
+    m_Node[inode].m_End = end;
+    m_Node[inode].m_Child = -1;
+
+    double lo[3];
+    double hi[3];
+    for ( int j = 0 ; j < 3 ; j++ )
+    {
+        lo[j] = std::numeric_limits< double >::max();
+        hi[j] = -std::numeric_limits< double >::max();
+    }
+    for ( int k = begin ; k < end ; k++ )
+    {
+        const vec3d &pt = m_Src[ m_Order[k] ]->m_pt;
+        for ( int j = 0 ; j < 3 ; j++ )
+        {
+            lo[j] = std::min( lo[j], pt[j] );
+            hi[j] = std::max( hi[j], pt[j] );
+        }
+    }
+    for ( int j = 0 ; j < 3 ; j++ )
+    {
+        m_Node[inode].m_Lo[j] = lo[j];
+        m_Node[inode].m_Hi[j] = hi[j];
+    }
+
+    if ( end - begin <= 8 )
+    {
+        for ( int k = begin ; k < end ; k++ )
+        {
+            m_Leaf[ m_Order[k] ] = inode;
+        }
+        SetBounds( inode );
+        return;
+    }
+
+    int axis = 0;
+    for ( int j = 1 ; j < 3 ; j++ )
+    {
+        if ( hi[j] - lo[j] > hi[axis] - lo[axis] )
+        {
+            axis = j;
+        }
+    }
+
+    int mid = ( begin + end ) / 2;
+    const vector< MapSource* > &srcs = m_Src;
+    std::nth_element( m_Order.begin() + begin, m_Order.begin() + mid, m_Order.begin() + end,
+                      [&srcs, axis]( size_t a, size_t b ) { return srcs[a]->m_pt[axis] < srcs[b]->m_pt[axis]; } );
+
+    int child = ( int )m_Node.size();
+    m_Node.resize( child + 2 );
+    m_Node[inode].m_Child = child;
+    FillNode( child, inode, begin, mid );
+    FillNode( child + 1, inode, mid, end );
+    SetBounds( inode );
+}
+
+// The least and greatest strength below a node, from its sources or its children.
+void SplitSourceSet::SetBounds( int inode )
+{
+    Node &nd = m_Node[inode];
+    if ( nd.m_Child < 0 )
+    {
+        nd.m_Min = std::numeric_limits< double >::max();
+        nd.m_Max = -std::numeric_limits< double >::max();
+        for ( int k = nd.m_Begin ; k < nd.m_End ; k++ )
+        {
+            double str = m_Src[ m_Order[k] ]->m_str;
+            nd.m_Min = std::min( nd.m_Min, str );
+            nd.m_Max = std::max( nd.m_Max, str );
+        }
+    }
+    else
+    {
+        const Node &c0 = m_Node[ nd.m_Child ];
+        const Node &c1 = m_Node[ nd.m_Child + 1 ];
+        nd.m_Min = std::min( c0.m_Min, c1.m_Min );
+        nd.m_Max = std::max( c0.m_Max, c1.m_Max );
+    }
+}
+
+void SplitSourceSet::Refresh( size_t k )
+{
+    int inode = m_Leaf[k];
+    while ( inode >= 0 )
+    {
+        SetBounds( inode );
+        inode = m_Node[inode].m_Parent;
+    }
+}
+
+// Children always follow their parent, so a walk from the back sets every child first.
+void SplitSourceSet::RefreshAll()
+{
+    for ( int inode = ( int )m_Node.size() - 1 ; inode >= 0 ; inode-- )
+    {
+        SetBounds( inode );
+    }
+}
+
+// No more than the distance from p to any point in the node's box, shaded down so rounding
+// cannot carry it past the distance to a source on the box's face.
+double SplitSourceSet::NearDist( int inode, const vec3d &p ) const
+{
+    const Node &nd = m_Node[inode];
+    double d2 = 0.0;
+    for ( int j = 0 ; j < 3 ; j++ )
+    {
+        double d = 0.0;
+        if ( p[j] < nd.m_Lo[j] )
+        {
+            d = nd.m_Lo[j] - p[j];
+        }
+        else if ( p[j] > nd.m_Hi[j] )
+        {
+            d = p[j] - nd.m_Hi[j];
+        }
+        d2 += d * d;
+    }
+    return sqrt( d2 ) * ( 1.0 - 1.0e-9 );
+}
+
+double SplitSourceSet::LeastReach( const vec3d &p, double grm1, double t ) const
+{
+    if ( m_Node.empty() )
+    {
+        return t;
+    }
+
+    vector< int > stack;
+    stack.push_back( 0 );
+    while ( !stack.empty() )
+    {
+        int inode = stack.back();
+        stack.pop_back();
+
+        const Node &nd = m_Node[inode];
+        if ( !( nd.m_Min + grm1 * NearDist( inode, p ) < t ) )
+        {
+            continue;
+        }
+
+        if ( nd.m_Child < 0 )
+        {
+            for ( int k = nd.m_Begin ; k < nd.m_End ; k++ )
+            {
+                const MapSource* ss = m_Src[ m_Order[k] ];
+                double targetstr = ss->m_str + dist( ss->m_pt, p ) * grm1;
+                if ( targetstr < t )
+                {
+                    t = targetstr;
+                }
+            }
+        }
+        else
+        {
+            // The nearer child last, so it is searched first.
+            int c0 = nd.m_Child;
+            int c1 = nd.m_Child + 1;
+            if ( NearDist( c0, p ) < NearDist( c1, p ) )
+            {
+                std::swap( c0, c1 );
+            }
+            stack.push_back( c0 );
+            stack.push_back( c1 );
+        }
+    }
+    return t;
+}
+
+void SplitSourceSet::Gather( const vec3d p[2], const double t0[2], const double tlo[2], double grm1, vector< size_t > &found ) const
+{
+    found.clear();
+    if ( m_Node.empty() )
+    {
+        return;
+    }
+
+    vector< int > stack;
+    stack.push_back( 0 );
+    while ( !stack.empty() )
+    {
+        int inode = stack.back();
+        stack.pop_back();
+
+        const Node &nd = m_Node[inode];
+        bool keep = false;
+        for ( int i = 0 ; i < 2 && !keep ; i++ )
+        {
+            double r = NearDist( inode, p[i] ) * grm1;
+            if ( nd.m_Min + r < t0[i] || tlo[i] + r < nd.m_Max )
+            {
+                keep = true;
+            }
+        }
+        if ( !keep )
+        {
+            continue;
+        }
+
+        if ( nd.m_Child < 0 )
+        {
+            for ( int k = nd.m_Begin ; k < nd.m_End ; k++ )
+            {
+                const MapSource* ss = m_Src[ m_Order[k] ];
+                for ( int i = 0 ; i < 2 ; i++ )
+                {
+                    // Written as ApplySplitSources writes them, so both round alike
+                    double r = dist( ss->m_pt, p[i] );
+                    if ( ss->m_str + r * grm1 < t0[i] || tlo[i] + r * grm1 < ss->m_str )
+                    {
+                        found.push_back( m_Order[k] );
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            stack.push_back( nd.m_Child );
+            stack.push_back( nd.m_Child + 1 );
+        }
+    }
+
+    std::sort( found.begin(), found.end() );
 }
 
 // Split sources against the two ends of a curve's table: those listed in near in that order, or
@@ -676,60 +896,6 @@ static void ApplySplitSources( const vector< MapSource* > &src, const vector< si
     }
 }
 
-// The sources a tree search finds within a radius, until there are more than a cap; then the
-// search stops and m_Over is set.
-class NearSources
-{
-public:
-    typedef double DistanceType;
-    typedef size_t IndexType;
-
-    NearSources( size_t cap, vector< size_t > &found ) : m_Found( found )
-    {
-        m_Cap = cap;
-        m_RadiusSq = 0.0;
-        m_Over = false;
-    }
-
-    size_t size() const
-    {
-        return m_Found.size();
-    }
-
-    bool full() const
-    {
-        return true;
-    }
-
-    double worstDist() const
-    {
-        return m_RadiusSq;
-    }
-
-    bool addPoint( double dsq, size_t index )
-    {
-        if ( dsq < m_RadiusSq )
-        {
-            if ( m_Found.size() >= m_Cap )
-            {
-                m_Over = true;
-                return false;
-            }
-            m_Found.push_back( index );
-        }
-        return true;
-    }
-
-    void sort()
-    {
-    }
-
-    vector< size_t > &m_Found;
-    size_t m_Cap;
-    double m_RadiusSq;
-    bool m_Over;
-};
-
 void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, SplitSourceSet & splitSources )
 {
     BuildDistTableGeom();
@@ -763,70 +929,43 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, SplitS
 
     const vector< MapSource* > &src = splitSources.m_Src;
 
-    // A source changes an end, or the end changes it, only where it lies nearer than
-    // | target - strength | / grm1.  Targets and strengths here only fall and never below zero,
-    // so the larger of the end's target and the strongest source bounds that, and the sources
-    // beyond it are passed over.  Those taken are taken in their order, as the full loop would.
-    // Where that reaches past every source, or takes in more than one in sixty-four of them, they
-    // are all taken: searching for more would cost more than it saves.  Where most searches find
-    // that many, the searching stops.
-    double t0 = target_vec[indx[0]];
-    double t1 = target_vec[indx[1]];
-    bool crowded = splitSources.m_Searches >= 256 && splitSources.m_Overs * 2 > splitSources.m_Searches;
-    if ( splitSources.m_Tree && splitSources.m_NonNegative && grm1 > 0.0 && t0 >= 0.0 && t1 >= 0.0 && !crowded )
+    // Only the sources Gather finds can change an end or be changed by it, so only they are
+    // taken, in their order, and the ends and sources come out as the loop over all of them
+    // leaves them.  An end's target falls only to some source's str + grm1 * r, so it can fall
+    // no lower than LeastReach.
+    if ( splitSources.m_Finite && grm1 > 0.0 && std::isfinite( target_vec[indx[0]] ) && std::isfinite( target_vec[indx[1]] ) )
     {
-        double reach[2];
-        bool all = false;
+        vec3d p[2] = { m_TablePnt[indx[0]], m_TablePnt[indx[1]] };
+        double t0[2] = { target_vec[indx[0]], target_vec[indx[1]] };
+        double tlo[2];
         for ( int i = 0; i < 2; i++ )
         {
-            reach[i] = 1.01 * std::max( target_vec[indx[i]], splitSources.m_StrMax ) / grm1;
-
-            const BndBox &box = splitSources.m_Box;
-            const vec3d &p = m_TablePnt[indx[i]];
-            double far2 = 0.0;
-            for ( int j = 0; j < 3; j++ )
-            {
-                double d = std::max( std::abs( p[j] - box.GetMin( j ) ), std::abs( p[j] - box.GetMax( j ) ) );
-                far2 += d * d;
-            }
-            if ( far2 <= reach[i] * reach[i] )
-            {
-                all = true;
-            }
+            tlo[i] = splitSources.LeastReach( p[i], grm1, t0[i] );
         }
 
-        if ( !all )
+        vector< size_t > near;
+        splitSources.Gather( p, t0, tlo, grm1, near );
+
+        vector< double > str( near.size() );
+        for ( size_t k = 0; k < near.size(); k++ )
         {
-            vector< size_t > near;
-            NearSources found( src.size() / 64, near );
-            nanoflann::SearchParameters params;
-            params.sorted = false;
+            str[k] = src[ near[k] ]->m_str;
+        }
 
-            for ( int i = 0; i < 2 && !found.m_Over; i++ )
+        ApplySplitSources( src, &near, m_TablePnt, indx, grm1, target_vec, reason_vec );
+
+        for ( size_t k = 0; k < near.size(); k++ )
+        {
+            if ( src[ near[k] ]->m_str != str[k] )
             {
-                vec3d p = m_TablePnt[indx[i]];
-                found.m_RadiusSq = reach[i] * reach[i];
-                splitSources.m_Tree->findNeighbors( found, &p[0], params );
-            }
-
-            splitSources.m_Searches++;
-            if ( found.m_Over )
-            {
-                splitSources.m_Overs++;
-            }
-
-            if ( !found.m_Over )
-            {
-                std::sort( near.begin(), near.end() );
-                near.erase( std::unique( near.begin(), near.end() ), near.end() );
-
-                ApplySplitSources( src, &near, m_TablePnt, indx, grm1, target_vec, reason_vec );
-                return;
+                splitSources.Refresh( near[k] );
             }
         }
+        return;
     }
 
     ApplySplitSources( src, nullptr, m_TablePnt, indx, grm1, target_vec, reason_vec );
+    splitSources.RefreshAll();
 }
 
 // Swapping with an empty vector gives the memory back, where clear() would keep it.

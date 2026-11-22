@@ -29,25 +29,50 @@ using namespace std;
 class ICurve;
 
 // The split sources whose strengths the ends of every chain are measured against, in the order
-// they are taken, with a tree over where they lie.
+// they are taken, with a tree over where they lie.  Each node of the tree holds the least and
+// greatest strength below it, kept current as strengths fall.
 struct SplitSourceSet
 {
     explicit SplitSourceSet( const list< MapSource* > &src );
-    ~SplitSourceSet();
+
+    // The least of t and str + grm1 * r over every source, r its distance from p.
+    double LeastReach( const vec3d &p, double grm1, double t ) const;
+
+    // The sources, in their order, that would change the target t0 at one of the two points p,
+    // or be changed by it: those where str + grm1 * r falls below t0, or where tlo + grm1 * r
+    // falls below str, tlo being the least the target can fall to.
+    void Gather( const vec3d p[2], const double t0[2], const double tlo[2], double grm1, vector< size_t > &found ) const;
+
+    // Takes up source k's current strength, or every source's.
+    void Refresh( size_t k );
+    void RefreshAll();
 
     vector< MapSource* > m_Src;
-    MSCloud m_Cloud;
-    MSTree* m_Tree;
-    BndBox m_Box;
 
-    // No strength is above this, nor below zero.  Strengths only fall.
-    double m_StrMax;
-    bool m_NonNegative;
+    // Every strength was finite when the set was made.  The tree's bounds need it.
+    bool m_Finite;
 
-    // Searches made, and those that found too many sources to be worth it.  Where most of the
-    // first few hundred do, the sources crowd the chains' ends and searching stops.
-    int m_Searches;
-    int m_Overs;
+private:
+
+    struct Node
+    {
+        double m_Lo[3];
+        double m_Hi[3];
+        int m_Child;    // First of two children, or -1 for a leaf.
+        int m_Parent;
+        int m_Begin;
+        int m_End;
+        double m_Min;
+        double m_Max;
+    };
+
+    void FillNode( int inode, int parent, int begin, int end );
+    void SetBounds( int inode );
+    double NearDist( int inode, const vec3d &p ) const;
+
+    vector< Node > m_Node;
+    vector< size_t > m_Order;  // Sources by leaf
+    vector< int > m_Leaf;      // Leaf holding each source
 };
 
 //==== Parameter line of a surface a curve runs along ====//
