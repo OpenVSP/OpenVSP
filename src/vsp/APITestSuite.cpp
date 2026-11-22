@@ -657,6 +657,43 @@ void APITestSuite::TestAirfoilExportStations()
     remove( fname.c_str() );
 }
 
+void APITestSuite::TestFailedReadKeepsModel()
+{
+    printf( "APITestSuite::TestFailedReadKeepsModel()\n" );
+
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    vsp::ErrorMgr.PopErrorAndPrint( stdout );
+
+    //==== A Pod whose Length drives its FineRatio through a link ====//
+    string pod_id = vsp::AddGeom( "POD" );
+    vsp::Update();
+    string len_id = vsp::GetParm( pod_id, "Length", "Design" );
+    string fine_id = vsp::GetParm( pod_id, "FineRatio", "Design" );
+    string link_id = vsp::AddParmLink( len_id, fine_id );
+    vsp::SetParmLinkOffsetFlag( link_id, false );
+    vsp::SetParmVal( len_id, 7.0 );
+    vsp::Update();
+    TEST_ASSERT_DELTA( vsp::GetParmVal( fine_id ), 7.0, TEST_TOL );
+
+    //==== Reading a file that is not a model fails ====//
+    string fname = "apitest_NotAModel.vsp3";
+    {
+        std::ofstream bad( fname.c_str() );
+        bad << "not a vsp3 XML document";
+    }
+    vsp::ReadVSPFile( fname );
+    TEST_ASSERT( vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+
+    //==== The model is untouched and its link still works ====//
+    TEST_ASSERT( vsp::FindGeoms().size() == 1 );
+    vsp::SetParmVal( len_id, 9.0 );
+    vsp::Update();
+    TEST_ASSERT_DELTA( vsp::GetParmVal( fine_id ), 9.0, TEST_TOL );
+
+    remove( fname.c_str() );
+}
+
 void APITestSuite::TestSaveLoad()
 {
     printf( "APITestSuite::TestSaveLoad()\n" );

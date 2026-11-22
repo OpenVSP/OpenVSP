@@ -37,6 +37,7 @@ public:
         // Save and Load
         TEST_ADD( APITestSuite::TestSaveLoad )
         TEST_ADD( APITestSuite::TestAirfoilExportStations )
+        TEST_ADD( APITestSuite::TestFailedReadKeepsModel )
         // FEA Mesh
         TEST_ADD( APITestSuite::TestFEAMesh )
         // XSec
@@ -61,6 +62,7 @@ private:
     // Save and Load
     void TestSaveLoad();
     void TestAirfoilExportStations();
+    void TestFailedReadKeepsModel();
     // FEA Mesh
     void TestFEAMesh();
     // XSec
