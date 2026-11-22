@@ -510,17 +510,66 @@ void SCurve::BuildDistTableGeom()
     assert( m_Surf );
 
     //==== Build U to Dist Table ====//
+    int nsec = UWNumSections();
     int nref = 10;
     int nseglim = 10000;
-    num_segs = nref * UWNumSections() + 1;
+    num_segs = nref * nsec + 1;
     if( num_segs > nseglim )
     {
-        nref = nseglim / UWNumSections();
+        nref = nseglim / nsec;
         if( nref < 1 )
         {
             nref = 1;
         }
-        num_segs = nref * UWNumSections() + 1;
+        num_segs = nref * nsec + 1;
+    }
+
+    // Where that puts stations closer than a quarter of the shortest edge allowed, they are
+    // spread evenly along the curve that far apart instead.  The curve's length is measured
+    // through the ends of its sections.
+    double ds = -1.0;
+    SimpleGridDensity* grid_den = m_Surf->GetGridDensityPtr();
+    if ( grid_den && grid_den->m_MinLen > 0.0 && nsec > 0 )
+    {
+        ds = 0.25 * grid_den->m_MinLen;
+    }
+
+    vector< double > secu;
+    vector< double > secs;
+    if ( ds > 0.0 )
+    {
+        secu.resize( nsec + 1 );
+        secs.resize( nsec + 1 );
+        double len = 0.0;
+        vec3d last_p;
+        for ( int k = 0 ; k <= nsec ; k++ )
+        {
+            double u = ( double )k / ( double )nsec;
+            vec3d uw = UWCompPnt01( u );
+            vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
+            if ( k > 0 )
+            {
+                len += dist( p, last_p );
+            }
+            secu[k] = u;
+            secs[k] = len;
+            last_p = p;
+        }
+
+        // Counted in double, as a short MinLen can ask for more stations than an int holds
+        double nlen = ceil( len / ds ) + 1.0;
+        if ( nlen < 2.0 )
+        {
+            nlen = 2.0;
+        }
+        if ( nlen < ( double )num_segs )
+        {
+            num_segs = ( int )nlen;
+        }
+        else
+        {
+            secu.clear();
+        }
     }
 
     if ( ( int )m_TablePnt.size() != num_segs )
@@ -536,9 +585,26 @@ void SCurve::BuildDistTableGeom()
         vec3d uw0 = UWCompPnt01( 0 );
         vec3d last_p = m_Surf->CompPnt( uw0.x(), uw0.y() );
 
+        int k = 0;
         for ( int i = 0 ; i < num_segs ; i++ )
         {
             double u = ( double )i / ( double )( num_segs - 1 );
+
+            if ( !secu.empty() && i > 0 && i < num_segs - 1 )
+            {
+                double starget = secs.back() * u;
+                while ( k < nsec - 1 && secs[k + 1] < starget )
+                {
+                    k++;
+                }
+                double sspan = secs[k + 1] - secs[k];
+                double frac = 0.0;
+                if ( sspan > 0.0 )
+                {
+                    frac = ( starget - secs[k] ) / sspan;
+                }
+                u = secu[k] + frac * ( secu[k + 1] - secu[k] );
+            }
 
             vec3d uw = UWCompPnt01( u );
             vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );

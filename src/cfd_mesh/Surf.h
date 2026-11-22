@@ -123,6 +123,10 @@ public:
         m_GridDensityPtr = gp;
         m_Mesh.SetGridDensityPtr( gp );
     }
+    SimpleGridDensity* GetGridDensityPtr() const
+    {
+        return m_GridDensityPtr;
+    }
 
     void SetCompID( int id )
     {
