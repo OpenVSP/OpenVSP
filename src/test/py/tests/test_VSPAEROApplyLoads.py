@@ -10,7 +10,7 @@ import tempfile
 import openvsp as vsp
 
 
-def run_apply_loads( out, skin_name ):
+def run_apply_loads( out, skin_name, rib_name = "" ):
     vsp.VSPRenew()
     w = vsp.AddGeom( "WING" )
     vsp.Update()
@@ -18,7 +18,9 @@ def run_apply_loads( out, skin_name ):
     sid = vsp.GetFeaStructID( w, si )
     if skin_name:
         vsp.SetFeaPartName( vsp.GetFeaPartID( sid, 0 ), skin_name )
-    vsp.AddFeaPart( w, si, vsp.FEA_RIB )
+    rib = vsp.AddFeaPart( w, si, vsp.FEA_RIB )
+    if rib_name:
+        vsp.SetFeaPartName( rib, rib_name )
     vsp.Update()
 
     fem = os.path.join( out, "wing_fea.inp" )
@@ -72,6 +74,21 @@ def test_loads_reach_a_renamed_skin():
     assert loaded( run_apply_loads( tempfile.mkdtemp(), "WingCover" ) ) > 0
 
 
+def test_only_the_skin_is_named_as_skin():
+    # vsploads takes every element set named "ESkin..." as skin, so a rib named "SkinRib" must not
+    # be named that way.
+    out = tempfile.mkdtemp()
+    run_apply_loads( out, "", "SkinRib" )
+    skin_sets = []
+    with open( os.path.join( out, "wing_fea.inp" ) ) as f:
+        for line in f:
+            if line.startswith( "*ELEMENT" ) and "ELSET=ESkin" in line:
+                skin_sets.append( line.split( "ELSET=" )[1].strip() )
+    assert len( skin_sets ) > 0
+    assert all( "Rib" not in s for s in skin_sets )
+
+
 if __name__ == "__main__":
     test_loads_reach_a_skin_named_skin()
     test_loads_reach_a_renamed_skin()
+    test_only_the_skin_is_named_as_skin()

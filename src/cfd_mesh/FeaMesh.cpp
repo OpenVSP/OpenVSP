@@ -855,6 +855,27 @@ static const vector < int > & ListAt( const vector < vector < int > > &lists, lo
     return lists[index];
 }
 
+// vsploads applies the aerodynamic loads to the elements of every Calculix set whose name starts
+// with "ESkin", so a skin part's sets are named that way whatever the part is called, and no other
+// part's are.
+static string CalculixPartLabel( int type, const string & name )
+{
+    bool skin_name = ( name.compare( 0, 4, "Skin" ) == 0 );
+    if ( type == vsp::FEA_SKIN )
+    {
+        if ( skin_name )
+        {
+            return name;
+        }
+        return "Skin_" + name;
+    }
+    if ( skin_name )
+    {
+        return "Part_" + name;
+    }
+    return name;
+}
+
 void FeaMesh::IndexElements( vector < vector < int > > &part_elems, vector < vector < int > > &ss_elems )
 {
     part_elems.assign( m_NumFeaParts, vector < int >() );
@@ -2073,7 +2094,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                         int nnode = 3;
                         if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 6;
 
-                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
+                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, CalculixPartLabel( m_FeaPartTypeVec[i], m_FeaPartNameVec[i] ).c_str(), m_StructName.c_str(), isurf );
 
                         for ( size_t k = 0; k < surf_list.size(); k++ )
                         {
@@ -2099,7 +2120,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                         int nnode = 4;
                         if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 8;
 
-                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
+                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, CalculixPartLabel( m_FeaPartTypeVec[i], m_FeaPartNameVec[i] ).c_str(), m_StructName.c_str(), isurf );
 
                         for ( size_t k = 0; k < surf_list.size(); k++ )
                         {
@@ -2377,12 +2398,12 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                         if ( !m_StructSettings.m_ConvertToQuadsFlag )
                         {
-                            snprintf( str, sizeof( str ), "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
+                            snprintf( str, sizeof( str ), "E%s_%s_%d", CalculixPartLabel( m_FeaPartTypeVec[ i ], m_FeaPartNameVec[ i ] ).c_str(), m_StructName.c_str(), isurf );
                             FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
                         else
                         {
-                            snprintf( str, sizeof( str ), "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
+                            snprintf( str, sizeof( str ), "E%s_%s_%d", CalculixPartLabel( m_FeaPartTypeVec[ i ], m_FeaPartNameVec[ i ] ).c_str(), m_StructName.c_str(), isurf );
                             FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
 
