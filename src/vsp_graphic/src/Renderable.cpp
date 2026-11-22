@@ -55,7 +55,7 @@ void Renderable::clear()
     delete _eBuffer;
 }
 
-void Renderable::appendVBuffer( void * mem_ptr, unsigned int mem_size )
+void Renderable::appendVBuffer( void * mem_ptr, size_t mem_size )
 {
     _vBuffer->append( mem_ptr, mem_size );
 }
@@ -65,7 +65,7 @@ void Renderable::emptyVBuffer()
     _vBuffer->empty();
 }
 
-void Renderable::appendEBuffer( void * mem_ptr, unsigned int mem_size )
+void Renderable::appendEBuffer( void * mem_ptr, size_t mem_size )
 {
     _eBuffer->append( mem_ptr, mem_size );
 }
@@ -80,7 +80,7 @@ void Renderable::enableEBuffer( bool enable )
     _eBufferFlag = enable;
 }
 
-void Renderable::appendLineCBuffer( void * mem_ptr, unsigned int mem_size )
+void Renderable::appendLineCBuffer( void * mem_ptr, size_t mem_size )
 {
     _lineColorBuffer->append( mem_ptr, mem_size );
 }
@@ -95,7 +95,7 @@ void Renderable::enableLineCBuffer( bool enable )
     _lineColorBufferFlag = enable;
 }
 
-void Renderable::appendMeshCBuffer( void * mem_ptr, unsigned int mem_size )
+void Renderable::appendMeshCBuffer( void * mem_ptr, size_t mem_size )
 {
     _meshColorBuffer->append( mem_ptr, mem_size );
 }

@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 #include <cstdlib>
 #include <string>
 
@@ -45,6 +46,7 @@ VBO::VBO( GLenum type )
 
     _start = _end = 0;
     _size = BUFFER_INITIAL;
+    _overfull = false;
 }
 VBO::~VBO()
 {
@@ -56,15 +58,27 @@ VBO::~VBO()
     glDeleteBuffers( 1, &_id );
 }
 
-void VBO::append( void * mem_ptr, unsigned int mem_size )
+void VBO::append( void * mem_ptr, size_t mem_size )
 {
     if ( !_support )
     {
         return;
     }
 
+    size_t end = ( size_t )_end + mem_size;
+    if ( end > MAX_BYTES )
+    {
+        if ( !_overfull )
+        {
+            std::printf( "Not drawing %.0f MB of graphics data: one buffer can hold at most %.0f MB.\n",
+                         end / 1.0e6, MAX_BYTES / 1.0e6 );
+        }
+        _overfull = true;
+        return;
+    }
+
     _start = _end;
-    _end = _end + mem_size;
+    _end = ( unsigned int )end;
 
     if( _end > _size )
     {
@@ -88,6 +102,7 @@ void VBO::empty()
     }
 
     _start = _end = 0;
+    _overfull = false;
 }
 
 void VBO::bind()
@@ -110,7 +125,7 @@ void VBO::unbind()
     glBindBuffer( _buffer_Type, 0 );
 }
 
-bool VBO::_extend( unsigned int mem_size )
+bool VBO::_extend( size_t mem_size )
 {
     void * temp = malloc( _size );
 
@@ -126,7 +141,20 @@ bool VBO::_extend( unsigned int mem_size )
     glDeleteBuffers( 1, &_id );
 
     unsigned int oldSize = _size;
-    _size = _size + BUFFER_INCREMENT * ( ( int )( mem_size / BUFFER_INCREMENT ) + ( mem_size % BUFFER_INCREMENT == 0 ? 0 : 1 ) );
+
+    // Whole increments, enough for the new data.  The caller has kept _end within MAX_BYTES; the
+    // capacity rounds up from there and is held to the same limit.
+    size_t nincr = mem_size / BUFFER_INCREMENT;
+    if ( mem_size % BUFFER_INCREMENT != 0 )
+    {
+        nincr++;
+    }
+    size_t newsize = ( size_t )_size + BUFFER_INCREMENT * nincr;
+    if ( newsize > MAX_BYTES )
+    {
+        newsize = _end;
+    }
+    _size = ( unsigned int )newsize;
 
     glGenBuffers( 1, &_id );
     glBindBuffer( _buffer_Type, _id );

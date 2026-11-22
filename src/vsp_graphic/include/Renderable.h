@@ -35,7 +35,7 @@ public:
     * Push a block of data from memory to the back of Vertex Buffer.
     * mem_ptr points to the beginning of memory block, mem_size defines the size of the data.
     */
-    virtual void appendVBuffer( void * mem_ptr, unsigned int mem_size );
+    virtual void appendVBuffer( void * mem_ptr, size_t mem_size );
     /*!
     * Reset Vertex Buffer append location to start of the buffer.
     */
@@ -46,7 +46,7 @@ public:
     * Push a block of data from memory to the back of Element Buffer.
     * mem_ptr points to the beginning of memory block, mem_size defines the size of the data.
     */
-    virtual void appendEBuffer( void * mem_ptr, unsigned int mem_size );
+    virtual void appendEBuffer( void * mem_ptr, size_t mem_size );
     /*!
     * Reset Element Buffer append location to start of the buffer.
     */
@@ -62,7 +62,7 @@ public:
     * Push a block of data from memory to the back of Color Buffer.
     * mem_ptr points to the beginning of memory block, mem_size defines the size of the data.
     */
-    virtual void appendLineCBuffer( void * mem_ptr, unsigned int mem_size );
+    virtual void appendLineCBuffer( void * mem_ptr, size_t mem_size );
     /*!
     * Reset Color Buffer append location to start of the buffer.
     */
@@ -78,7 +78,7 @@ public:
     * Push a block of data from memory to the back of Color Buffer.
     * mem_ptr points to the beginning of memory block, mem_size defines the size of the data.
     */
-    virtual void appendMeshCBuffer( void * mem_ptr, unsigned int mem_size );
+    virtual void appendMeshCBuffer( void * mem_ptr, size_t mem_size );
     /*!
     * Reset Color Buffer append location to start of the buffer.
     */

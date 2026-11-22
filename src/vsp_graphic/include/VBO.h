@@ -1,6 +1,8 @@
 #ifndef _VSP_VERTEX_BUFFER_OBJECT_H
 #define _VSP_VERTEX_BUFFER_OBJECT_H
 
+#include <cstddef>
+
 #include "OpenGLHeaders.h"
 
 namespace VSPGraphic
@@ -27,8 +29,10 @@ public:
     * Push to the back of the buffer.
     * mem_ptr - data pointer.
     * mem_size - data size in bytes.
+    * Data that would take the buffer past MAX_BYTES is not taken, and the buffer draws nothing
+    * until it is emptied.
     */
-    virtual void append( void * mem_ptr, unsigned int mem_size );
+    virtual void append( void * mem_ptr, size_t mem_size );
     /*!
     * Reset append location.  Does not dispose buffer.
     */
@@ -43,7 +47,7 @@ public:
     virtual void unbind();
 
 protected:
-    virtual bool _extend( unsigned int mem_size );
+    virtual bool _extend( size_t mem_size );
 
 protected:
     virtual GLuint _getID()
@@ -66,6 +70,15 @@ protected:
     {
         return _support;
     }
+    // Some data was not taken because it would not fit; see append.
+    virtual bool _isOverfull()
+    {
+        return _overfull;
+    }
+
+    // The largest buffer the graphics driver is trusted with.  The macOS driver accepts a larger
+    // one without an error and then faults when it is filled.
+    static const size_t MAX_BYTES = 0x7FFFFFFF;
 
 private:
     GLuint _id;
@@ -76,6 +89,7 @@ private:
     unsigned int _size;
 
     bool _support;
+    bool _overfull;
 };
 }
 #endif

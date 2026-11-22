@@ -22,7 +22,9 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::draw( GLenum primitive )
 {
-    if ( !_isSupport() )
+    // A buffer that could not take all of its data is not drawn: the counts and indices that go
+    // with it would reach past what it holds.
+    if ( !_isSupport() || _isOverfull() )
     {
         return;
     }
@@ -40,7 +42,9 @@ void VertexBuffer::draw( GLenum primitive )
 
 void VertexBuffer::drawElem( GLenum primitive, unsigned int index_size, void * indices )
 {
-    if ( !_isSupport() )
+    // A buffer that could not take all of its data is not drawn: the counts and indices that go
+    // with it would reach past what it holds.
+    if ( !_isSupport() || _isOverfull() )
     {
         return;
     }
