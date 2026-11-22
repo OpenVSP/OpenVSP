@@ -1,3 +1,273 @@
+# [OpenVSP 3.57.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.57.0)
+
+2026-11-22
+
+OpenVSP 3.57.0
+
+I've become a broken record lately.  Every version has a bunch of big
+impactful changes and a pile of bug fixes -- and everyone should
+upgrade.
+
+I believe this every time.  However, OpenVSP is a collection of a
+bunch of tools and not all of them are used by everybody.  Most
+users use a subset of OpenVSP's capability -- and each user's
+subset is unique.  Consequently, any given improvement or feature
+is likely to impact a potentially small fraction of users.
+
+This version is not like the others.  This version makes changes
+that will impact every single user.  This is not an exaggeration,
+it is an understatement.  This version makes significant changes
+to the GUI and to 3D interaction with the model.  There are lots
+of other smaller UI changes that are equally pervasive.  It also
+includes a bunch of new or upgraded features in many of the niche
+areas of OpenVSP.
+
+The feature list on this version is absolutely enormous.  The
+improvements are far too numerous to describe in any detail in
+this note, so you're just going to have to trust me, download it,
+and explore.
+
+There are of course bug fixes too, but they aren't the headline
+this time.
+
+Here is an interesting measure of how much has changed in this
+version.  Six of our library dependencies have been updated.
+Five new dependencies have been added.  Two have been dropped.
+
+OpenVSP's main UI window has been overhauled.  The Geom Browser
+now falls inside the main window.  The Geom editing windows
+now fall to the left of the Geom Browser.  The main UI is
+nearly full screen by default.
+
+There are several new modes for how moving the mouse rotates,
+zooms, and pans the 3D scene.  These include a Rounded Arcball,
+Tumbler, and Turntable rotation modes.  Go to preferences to
+play with things.
+
+Keyboard and mouse button combinations are fully configurable.
+You can make OpenVSP behave like anything you want.  I left
+the defaults like classic OpenVSP, but I regret that a bit
+because it means many users won't know to try out some of the
+great new features.  Like the ability to pick Geoms without
+messing up rotation -- and the ability to set the rotation
+center at the start of every rotation.
+
+Numeric entry boxes now have a 'virtual slider'.  This works
+for all of them, but is most relevant for those in dense areas
+of the UI where there is not room for sliders (skinning,
+curve editor, etc).  To use it, place your mouse over the
+numeric field and either:
+'press alt (option) and click and drag left mouse button' or
+'click and drag the right mouse button' over the field.  It
+will act just like a value slider.  While dragging, you can
+release the alt key.  Tap cmd/ctrl or shift to increase and
+decrease the sensitivity.  Tap alt to reset sensitivity to
+default.
+
+There is now a toolbar across the top making it easy to get
+to a lot of common operations.
+
+Several of these changes were motivated by users who run
+multiple copies of OpenVSP simultaneously.  This can be very
+confusing because OpenVSP uses many windows and you can't tell
+which windows go with which copy of the program.  There is now
+a 'captive window' mode for the UI.  Instead of floating around
+free, all the windows are 'captive' to the main OpenVSP UI.
+This means they all stay together in one layer, they minimize
+together, and they come to the top together.  So, it should
+be easy to work with multiple copies of OpenVSP at the same time.
+This mode is user-configurable and is easy to switch in and
+out of.
+
+In addition to new mouse driven 3D rotation modes, there is
+also support for Rotatrix (https://rotatrix.com/), a novel
+3D interaction device.  Its creator (David Liu) modifies an
+off-the-shelf trackball such that it can capture three axes
+of rotation.  Unlike other 3D input devices that work by
+sending rotation rates, the Rotatrix is a direct control on
+rotation angle.  You rotate the ball and your model rotates 1:1.
+It is pretty cool.
+
+OpenVSP now has direct support for Missile DATCOM's geometry
+definition.  The new MDC_BOD and MDC_FIN components can be
+converted to a Stack and Wing (respectively) so you can
+migrate from a DATCOM definition to a fully featured VSP
+one with the click of a button.  There is also a datcom2vsp.py
+script to convert your DATCOM file to a *.vsp3 file.
+
+Representing DATCOM shapes required some modifications to
+OpenVSP's existing components.  Stack and Fuselage gained
+a bunch of nose cap types -- for conical, ogive, Sears Haack,
+von Karman, etc.  Each with blunting to match the DATCOM
+model.  There is now an option to shift the origin of these
+Geoms to the tip of the nose cap.  Biconvex and wedge
+airfoils gained some new tricks including the ability
+to model rounded leading edges.
+
+There is now a general 2D plotting capability for working
+with the results of any analysis.  You can configure line
+graphs and save your plot configuration with the model.
+You can plot different results together, so you can track
+the progress of design changes.
+
+The VSPAERO and Wave Drag plotting capability have received
+a bunch of corresponding updates to match.  As have the 2D
+interaction windows for edit curve and editing propeller
+curves.
+
+Several splines in OpenVSP now support cusps - points that
+are continuous, but slope discontinuous.  This is accomplished
+by repeating a point in the spline definition.  Edit Curve
+and Propeller Curves get some nice UI support for this.
+It also works for file based airfoils and fuselage cross
+sections.
+
+The Human Geom has received a significant overhaul.  Two big
+things and a bunch of little ones.  First, while the Human
+anthropometric parameterization (height, weight, age, gender)
+is rigorously derived, its deformation of the skin in response
+to posing (moving arms, legs, etc) is not rigorous.  There, we
+use algorithms from the computer graphics and game community.
+Our old algorithm worked OK, but it severely deforms the body
+if you try to do jumping jacks.  This update replaces that
+algorithm with two more modern options (FAST and ARAP) that
+do a much better job (but are not perfect).
+
+Second, the Human has always been a discrete mesh.  That mode
+is still the default, but you can now represent the human as a
+set of Bezier bodies.  This will allow the Human Geom to work
+with CFDMesh, or to be exported to CAD via STEP or IGES files.
+The Bezier surfaces still update with both anthropometric and
+pose parameters.
+
+The pose definition gained some new degrees of freedom, in
+particular twisting of the spine and rotating the legs about
+their length.  There are also a bunch more pose presets
+pulled from the appropriate literature -- check them out.
+
+Some aspects of OpenVSP's pose definition did not match
+established medical practice (order of rotations, sign
+convention, etc).  These have been corrected to match
+common usage.  This may mean that your Human is now posed
+differently.  Hopefully it will be quick for you to
+correct.
+
+Browser windows now support multi-select and the ability
+to delete multiple entries.  The scroll behavior of browsers
+is also much improved.
+
+There is a fix for how FindParm() works.  A few versions ago,
+it triggered an expensive update to the data structure that
+enables looking up Parms by name.  There were certain operations
+that consequently became intolerably slow.  This has been fixed,
+but we also fundamentally changed how the name based lookup
+of Parms is handled.  That should prevent this from ever
+becoming a problem again and it should also do a better job
+of making sure all Parms are discoverable.
+
+There are a bunch of other bug fixes, but nothing terribly
+interesting.
+
+Features:
+ - Missile DATCOM Components
+ - datcom2vsp.py Conversion script
+ - New nose types
+ - Improved biconvex airfoil
+ - Improved wedge airfoil
+ - LE rounding for biconvex and wedge airfoils
+ - Multiple configurable 3D rotation modes
+ - Configurable mouse and keyboard mappings
+ - Support for Rotatrix 3D input device https://rotatrix.com/
+ - Improved component selection
+ - Improved center of rotation
+ - Box zoom
+ - New GUI layout
+ - Toolbar for quick access to some features
+ - Captive window GUI mode
+ - Virtual slider input boxes
+ - User interaction documentation
+ - CFDMesh Documentation
+ - POGS Users guide
+ - Most significant digit alignment of numeric fields
+ - Results Plotter
+ - Improved VSPAERO plots
+ - Improved Wave Drag plots
+ - Improved interaction with Curve Editor and PCurve Editor
+ - Copy / Paste XSecCurves everywhere
+ - HAlign for Stack XSecs (to accompany VAlign)
+ - Write legacy files from legacy Geometry Analyses
+ - Slope discontinuities for splines (PCHIP, Airfoils, File XSecs)
+ - Bezier surface for Human Geom
+ - Improved posing algorithms for Human (FAST, ARAP)
+ - More movement parameters for Human
+ - More presets for Human
+ - Improved font in 3D windows
+ - Improved math text throughout GUI
+ - Save and Load Preferences file
+ - Multi-select and delete from browsers
+ - Improved scrolling of browsers
+ - Improved natural sorting of lists
+ - Change how Parm name lookup is handled
+ - Add SetParmVals to API
+
+Library Updates:
+ - Updated Code-Eli
+ - Updated Eigen
+ - Updated AngelScript
+ - Updated libigl
+ - Updated Clipper2
+ - Updated Triangle
+ - Added OpenAxis
+ - Added nlohmann_json
+ - Added LibreSSL
+ - Added DejaVu
+ - Added stb_truetype
+ - Dropped Pinocchio
+ - Dropped glFont2
+
+Bug Fixes:
+ - Wing section cut no longer changes chords after save and read
+ - Prop sections between Wedge airfoils blend all shape Parms
+ - Cobra tessellation rows no longer jump between patches
+ - R-L symmetric curve point delete no longer retargets Links
+ - Projected Area no longer fails on thin tips seen edge on
+ - Wave Drag now honors its symmetry input
+ - Repeated Wave Drag runs on the Shown set now work
+ - Degen Set now meshes both plates of each surface
+ - Scale Wake now affects the written mesh
+ - Far field sizes and Rel edge lengths now kept in the model
+ - Source and wake previews now show the current settings
+ - Add Default Sources now sizes from current Max Edge Len
+ - Box sources now cover the whole patch they span
+ - Control groups outside the Set or half model now run (#362)
+ - Apply Loads now loads a renamed skin part (#371)
+ - No crash adding a laminate layer with no material
+ - View no longer jumps after setting 180 degree view angles
+ - Wheel zoom now zooms the viewport under the cursor
+ - Wheel zoom now stops at the Zoom limit
+ - Orient Wing and Orient Structure now keep their rotation
+ - Edit Curve zoom and pan now persist (#333, #385)
+ - GUI no longer hangs on API mesh runs with GUI up (#401)
+ - Cut/copy/paste shortcuts now consistent on macOS
+ - Large screenshots no longer leak memory or write blank PNGs
+ - Results viewer now shows new Results, in order
+ - Clicking a selected Geom now reopens its closed window 
+ - FindParm no longer rebuilds the Parm index after AddGeom
+ - Copy/PasteXSecCurve from the API now rebuild the surface
+ - Two subsurfaces on one Geom can now both be found by name
+ - SetDriverGroup now rejects invalid drivers
+ - Opening a non-model file no longer loses the model (#400)
+ - Inserting a file no longer leaves links to the originals
+ - Custom script subsurfaces no longer duplicate on save
+ - Airfoil export now at the drawn stations (#285)
+ - macOS app no longer reported as damaged (#373)
+ - Help now builds on Windows
+ - Builds with LLVM 23 libc++
+
+
+---
+
+
 # [OpenVSP 3.56.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.56.0)
 
 2026-11-03
