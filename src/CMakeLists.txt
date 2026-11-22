@@ -439,6 +439,13 @@ ELSEIF ( ${VSP_CPACK_GEN} STREQUAL BUNDLE )
   ADD_CUSTOM_TARGET( openvsp_icns ALL DEPENDS ${ICNS_OUTPUT} )
 
   SET( CPACK_BUNDLE_ICON ${ICNS_OUTPUT} )
+
+  # Without a signature over the whole bundle, the launcher's own linker signature
+  # does not cover the bundle's resources, and Gatekeeper calls a downloaded copy
+  # damaged.  Sign it ad hoc unless a certificate is given.
+  IF( NOT CPACK_BUNDLE_APPLE_CERT_APP )
+    SET( CPACK_BUNDLE_APPLE_CERT_APP "-" )
+  ENDIF()
 ENDIF()
 
 IF( APPLE )
