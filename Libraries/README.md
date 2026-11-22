@@ -1,10 +1,13 @@
 # Vendored library archives
 
-Each third party library OpenVSP builds from source is kept here as a zip named
-`<name>-<first 12 characters of the commit sha>.zip`, and referenced by that name
-from the matching `Libraries/cmake/External_<Name>.cmake`.
+Each third party library OpenVSP builds from source is kept here as an archive,
+referenced by its file name from the matching `Libraries/cmake/External_<Name>.cmake`.
+The name identifies the exact source either way: it is either a zip named
+`<name>-<first 12 characters of the commit sha>.zip`, made from a git commit as
+described below, or a library's official release archive with the version number
+in its name, such as `eigen-5.0.1.zip`.
 
-## Making one
+## Making one from a commit
 
 The archives are `git archive` output, so the tree inside is prefixed with the
 **full** sha while the file name carries the first twelve.  From a clone of the

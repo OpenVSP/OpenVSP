@@ -73,11 +73,19 @@
 
 ##### Bundled with OpenVSP, but system libraries may substitute.
 
+   Each link below names the library's upstream project, its authoritative
+   source.  Where OpenVSP needs changes the upstream project does not have,
+   it uses a version with those changes on top, kept at
+   [Rob McDonald's GitHub](https://github.com/ramcdona); those locations are
+   given with each library.
+
    - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
-   language for C++.  Used for user-defined components.
+   language for C++.  Used for user-defined components.  OpenVSP uses a version
+   with build changes kept at https://github.com/ramcdona/angelscript.
 
    - [Clipper2](https://github.com/PolyClipping/Clipper2) - An open
-   source library for clipping and offsetting 2D lines and polygons.
+   source library for clipping and offsetting 2D lines and polygons.  OpenVSP
+   uses a version with changes kept at https://github.com/ramcdona/Clipper2.
 
    - [CMinpack](http://devernay.free.fr/hacks/cminpack/) - C/C++ port of
    standard Fortran Levenberg-Marquardt implementation.
@@ -85,19 +93,22 @@
    - [Code-Eli](http://github.com/ddmarshall/Code-Eli) - Curve & surface library.
    Code-Eli was developed by David Marshall to meet OpenVSP's needs.
    It is a header-only library that must be available to build.  It is
-   not likely to be packaged on any system.
+   not likely to be packaged on any system.  OpenVSP uses a version with
+   changes kept at https://github.com/ramcdona/Code-Eli.
 
    - [CppTest](http://cpptest.sourceforge.net) - C++ Unit testing framework.
 
    - [delabella](https://github.com/msokalski/delabella) - A c++ Delaunay
-   triangulation library.
+   triangulation library.  OpenVSP uses a version with CMake changes kept at
+   https://github.com/ramcdona/delabella.
 
    - [Eigen3](http://eigen.tuxfamily.org) - Template library for linear algebra.
    This header-only library is required by Code-Eli.  Eigen3 is likely
    to be available as a standard package on Linux.
 
    - [exprparse](http://github.com/amgary/exprparse) - A simple c++ library to
-   compute values from simple math expressions stored as strings.
+   compute values from simple math expressions stored as strings.  OpenVSP
+   uses a version with changes kept at https://github.com/ramcdona/exprparse.
 
    - [FLTK](http://www.fltk.org) - Cross-platform windowing library.  FLTK should
    be available as a standard package on most Linux systems and can
@@ -126,7 +137,8 @@
    build this library following the Libxml2 instructions.
 
    - [OpenABF](https://gitlab.com/educelab/OpenABF) - A c++ Angle based
-   flattening mesh parameterization library.
+   flattening mesh parameterization library.  OpenVSP uses a version with
+   fixes kept at https://github.com/ramcdona/OpenABF.
 
    - [STEPcode](http://stepcode.github.io/) - Library for working with STEP 
    standard files.  Based on an old library developed by NIST.  This is a
