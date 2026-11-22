@@ -206,6 +206,17 @@ jobs:
         cp pydoc.zip $GITHUB_WORKSPACE/artifacts
         ls pydoc.zip && (echo "PYDOC COPY SUCCESSFUL" ) || (echo "PYDOC COPY FAILED" )
 
+    - name: Help Documentation
+      if: matrix.os == 'macos-15'
+      shell: bash
+      run:    |
+        cd $GITHUB_WORKSPACE/build
+
+        make help_zip
+
+        cp help.zip $GITHUB_WORKSPACE/artifacts
+        ls help.zip && (echo "HELP ZIP SUCCESSFUL" && exit 0) || (echo "HELP ZIP FAILED" && exit 1)
+
     - name: Upload Artifacts
       uses: actions/upload-artifact@v7
       with:
