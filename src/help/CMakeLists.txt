@@ -68,6 +68,10 @@ INCLUDE ( pandocology )
 
 FILE ( GLOB_RECURSE HELP_FILES *.md )
 
+# The pages for help.zip, as built or as committed, and the targets that make them.
+SET ( HELP_ZIP_PAGES )
+SET ( HELP_ZIP_DEPS )
+
 FOREACH ( hpath ${HELP_FILES} )
     CMAKE_PATH ( GET hpath STEM hbase )
 
@@ -85,6 +89,9 @@ FOREACH ( hpath ${HELP_FILES} )
 
         # The Lua filter reads each screenshot's size from images/, so the images are copied first.
         ADD_DEPENDENCIES ( ${hbase}.html_product copy_images )
+
+        LIST ( APPEND HELP_ZIP_PAGES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html )
+        LIST ( APPEND HELP_ZIP_DEPS ${hbase} )
 
         INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION help )
 
@@ -112,6 +119,8 @@ FOREACH ( hpath ${HELP_FILES} )
         IF ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html )
             INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html DESTINATION help )
 
+            LIST ( APPEND HELP_ZIP_PAGES ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html )
+
             ADD_CUSTOM_TARGET ( copy_html_${hbase} ALL
                     COMMAND ${CMAKE_COMMAND} -E copy
                     ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html
@@ -130,5 +139,22 @@ FOREACH ( hpath ${HELP_FILES} )
     ENDIF()
 
 ENDFOREACH ()
+
+# help.zip: the pages, their stylesheet and images, laid out as the installed help, for
+# posting a release's help on the web site.  Built on request ( make help_zip ), not by ALL.
+SET ( HELP_ZIP_DIR ${CMAKE_CURRENT_BINARY_DIR}/help_zip )
+
+ADD_CUSTOM_TARGET ( help_zip
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${HELP_ZIP_DIR}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${HELP_ZIP_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy ${HELP_ZIP_PAGES} ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css ${HELP_ZIP_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/images ${HELP_ZIP_DIR}/images
+        COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_BINARY_DIR}/help.zip
+        COMMAND ${CMAKE_COMMAND} -E chdir ${HELP_ZIP_DIR} ${CMAKE_COMMAND} -E tar cf ${CMAKE_BINARY_DIR}/help.zip --format=zip -- .
+        COMMENT "Zipping the help into help.zip" )
+
+IF ( HELP_ZIP_DEPS )
+    ADD_DEPENDENCIES ( help_zip ${HELP_ZIP_DEPS} )
+ENDIF()
 
 
