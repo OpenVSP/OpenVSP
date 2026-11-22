@@ -400,7 +400,7 @@ void VspGlWindow::update()
 
         for( int i = 0; i < (int)drawObjs.size(); i++ )
         {
-            if( drawObjs[i]->m_Screen == m_LinkedScreen )
+            if( drawObjs[i]->m_Screen == m_LinkedScreen && drawObjs[i]->m_Visible )
             {
                 drawObjs[i]->m_GeomChanged = false;
             }
@@ -1044,6 +1044,10 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
 
         VSPGraphic::Entity * eObj;
 
+        // A hidden object's data is sent to the graphics card when it is first drawn, not each
+        // time it changes, and its m_GeomChanged stays set until then.
+        bool loaddata = objects[i]->m_GeomChanged && objects[i]->m_Visible;
+
         switch( objects[i]->m_Type )
         {
         case DrawObj::VSP_SETTING:
@@ -1079,7 +1083,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadXSecData( eObj, objects[i] );
                 }
@@ -1109,7 +1113,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1139,7 +1143,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadXSecData( eObj, objects[i] );
                 }
@@ -1169,7 +1173,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1199,7 +1203,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1229,7 +1233,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1259,7 +1263,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1289,7 +1293,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1319,7 +1323,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                                    objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1349,7 +1353,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadQuadsData( eObj, objects[i] );
                 }
@@ -1379,7 +1383,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadQuadsData( eObj, objects[i] );
                 }
@@ -1407,7 +1411,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                                    objects[i]->m_MaterialInfo.Shininess );
 
-                if ( objects[i]->m_GeomChanged )
+                if ( loaddata )
                 {
                     _loadQuadsData( eObj, objects[i] );
                 }
@@ -1437,7 +1441,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                                    objects[i]->m_MaterialInfo.Shininess );
 
-                if ( objects[i]->m_GeomChanged )
+                if ( loaddata )
                 {
                     _loadQuadsData( eObj, objects[i] );
                 }
@@ -1467,7 +1471,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                                    objects[i]->m_MaterialInfo.Shininess );
 
-                if ( objects[i]->m_GeomChanged )
+                if ( loaddata )
                 {
                     _loadQuadsData( eObj, objects[i] );
                 }
@@ -1497,7 +1501,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                                    objects[i]->m_MaterialInfo.Shininess );
 
-                if ( objects[i]->m_GeomChanged )
+                if ( loaddata )
                 {
                     _loadQuadsData( eObj, objects[i] );
                 }
@@ -1527,7 +1531,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                                    objects[i]->m_MaterialInfo.Shininess );
 
-                if ( objects[i]->m_GeomChanged )
+                if ( loaddata )
                 {
                     _loadQuadsData( eObj, objects[i] );
                 }
@@ -1555,7 +1559,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadXSecData( eObj, objects[i] );
                 }
@@ -1583,7 +1587,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadTrisData( eObj, objects[i] );
                 }
@@ -1611,7 +1615,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadXSecData( eObj, objects[i] );
                 }
@@ -1641,7 +1645,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadXSecData( eObj, objects[i] );
                 }
@@ -1671,7 +1675,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
                     objects[i]->m_MaterialInfo.Shininess );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadXSecData( eObj, objects[i] );
                 }
@@ -1708,6 +1712,9 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
         VSPGraphic::Ruler * ruler = nullptr;
         VSPGraphic::Protractor * protractor = nullptr;
         VSPGraphic::Routing * routing = nullptr;
+
+        // As above, a hidden object's data waits until it is drawn.
+        bool loaddata = objects[i]->m_GeomChanged && objects[i]->m_Visible;
 
         switch( objects[i]->m_Type )
         {
@@ -1934,7 +1941,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
 
                 routing->setLiveIndex( objects[i]->m_Routing.LiveIndex );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     routing->_v.clear();
                     int npt = objects[i]->m_PntVec.size();
@@ -2096,6 +2103,9 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
 
         Renderable * rObj;
 
+        // As above, a hidden marker's data waits until it is drawn.
+        bool loaddata = objects[i]->m_GeomChanged && objects[i]->m_Visible;
+
         switch( objects[i]->m_Type )
         {
         case DrawObj::VSP_POINTS:
@@ -2119,7 +2129,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 rObj->setPointSize( objects[i]->m_PointSize );
 
                 // Update buffer data if needed.
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadMarkData( rObj, objects[i] );
                 }
@@ -2148,7 +2158,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 rObj->setStipplePattern( stipplePattern );
                 rObj->setStippleFlag( stippleFlag );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadMarkData( rObj, objects[i] );
                 }
@@ -2176,7 +2186,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 rObj->setStipplePattern( stipplePattern );
                 rObj->setStippleFlag( stippleFlag );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadMarkData( rObj, objects[i] );
                 }
@@ -2204,7 +2214,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 rObj->setStipplePattern( stipplePattern );
                 rObj->setStippleFlag( stippleFlag );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadMarkData( rObj, objects[i] );
                 }

@@ -97,7 +97,7 @@ void VspSubGlWindow::update()
 
         for( int i = 0; i < (int)drawObjs.size(); i++ )
         {
-            if( drawObjs[i]->m_Screen == m_LinkedScreen )
+            if( drawObjs[i]->m_Screen == m_LinkedScreen && drawObjs[i]->m_Visible )
             {
                 drawObjs[i]->m_GeomChanged = false;
             }
@@ -152,6 +152,10 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
             id = 0xFFFFFFFF;
         }
 
+        // A hidden object's data is sent to the graphics card when it is first drawn, not each
+        // time it changes, and its m_GeomChanged stays set until then.
+        bool loaddata = objects[i]->m_GeomChanged && objects[i]->m_Visible;
+
         VSPGraphic::Renderable * rObj;
         VSPGraphic::Entity * eObj;
         switch( objects[i]->m_Type )
@@ -186,7 +190,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setPointColor( red, green, blue );
                 rObj->setPointSize( size );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadPointData( rObj, objects[ i ] );
                 }
@@ -222,7 +226,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setStipplePattern( stipplePattern );
                 rObj->setStippleFlag( stippleFlag );
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadLineData( rObj, objects[ i ] );
                 }
@@ -252,7 +256,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
                                    objects[i]->m_MaterialInfo.Shininess );
 
 
-                if( objects[i]->m_GeomChanged )
+                if( loaddata )
                 {
                     _loadXSecData( eObj, objects[i] );
                 }
