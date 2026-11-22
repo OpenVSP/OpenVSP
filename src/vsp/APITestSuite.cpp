@@ -10,6 +10,8 @@
 #include "APITestSuite.h"
 #include <float.h>
 #include "Vec3d.h"
+#include <fstream>
+#include <sstream>
 
 //Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
 #define TEST_TOL FLT_MIN
@@ -587,6 +589,72 @@ void APITestSuite::TestFacetExport()
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "\n" );
+}
+
+void APITestSuite::TestAirfoilExportStations()
+{
+    printf( "APITestSuite::TestAirfoilExportStations()\n" );
+
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    vsp::ErrorMgr.PopErrorAndPrint( stdout );
+
+    //==== A wing whose section clusters its tessellation toward both ends ====//
+    string wing_id = vsp::AddGeom( "WING" );
+    vsp::SetParmVal( wing_id, "InCluster", "XSec_1", 0.2 );
+    vsp::SetParmVal( wing_id, "OutCluster", "XSec_1", 0.2 );
+    vsp::Update();
+
+    vector < double > utess, wtess;
+    vsp::GetUWTess01( wing_id, 0, utess, wtess );
+
+    //==== Export its airfoils by a bare file name ====//
+    string fname = "apitest_AirfoilStations.csv";
+    vsp::ExportFile( fname, vsp::SET_ALL, vsp::EXPORT_SELIG_AIRFOIL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+
+    vector < double > uexport;
+    vector < string > files;
+    std::ifstream meta( fname.c_str() );
+    string line;
+    while ( std::getline( meta, line ) )
+    {
+        if ( line.find( "Global u Value, " ) == 0 )
+        {
+            uexport.push_back( std::stod( line.substr( 16 ) ) );
+        }
+        else if ( line.find( "Airfoil File Name, " ) == 0 )
+        {
+            files.push_back( line.substr( 19 ) );
+        }
+    }
+    meta.close();
+
+    //==== Each airfoil is at a drawn station, between the end caps ====//
+    TEST_ASSERT( uexport.size() > 2 );
+    int nmatch = 0;
+    for ( int i = 0; i < ( int ) uexport.size(); i++ )
+    {
+        for ( int j = 0; j < ( int ) utess.size(); j++ )
+        {
+            if ( std::abs( uexport[i] - utess[j] ) < 1e-5 )
+            {
+                nmatch++;
+                break;
+            }
+        }
+    }
+    TEST_ASSERT( nmatch == ( int ) uexport.size() );
+
+    //==== The airfoil files are beside the metadata file ====//
+    for ( int i = 0; i < ( int ) files.size(); i++ )
+    {
+        std::ifstream af( files[i].c_str() );
+        TEST_ASSERT( af.good() );
+        af.close();
+        remove( files[i].c_str() );
+    }
+    remove( fname.c_str() );
 }
 
 void APITestSuite::TestSaveLoad()
