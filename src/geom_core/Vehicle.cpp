@@ -6859,7 +6859,7 @@ void Vehicle::WriteAirfoilFile( const string &file_name, int write_set, bool use
     }
     else
     {
-        m_AFFileDir = PathToCWD();
+        m_AFFileDir = PathToCWD() + "/";
     }
     fprintf( meta_fid, "Airfoil File Directory, %s\n\n", m_AFFileDir.c_str() );
 

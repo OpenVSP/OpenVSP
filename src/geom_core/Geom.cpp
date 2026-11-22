@@ -6121,6 +6121,18 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid, const string &name, const string &
     double Vmax = GetMainWMax(0);
     double Vle = ( Vmin + Vmax ) * 0.5;
 
+    // The stations the wireframe draws, clustering included, between the end caps.
+    vector < double > utess, vtess;
+    GetUWTess( m_MainSurfVec[0], m_CapUMinSuccess[0], m_CapUMaxSuccess[0], false, utess, vtess );
+    vector < double > ustation;
+    for ( int k = 0; k < ( int ) utess.size(); k++ )
+    {
+        if ( utess[k] >= Umin - 1e-9 && utess[k] <= Umax + 1e-9 )
+        {
+            ustation.push_back( utess[k] );
+        }
+    }
+
     int foil_cnt = 0;
     int xsec_cnt = 0;
 
@@ -6156,6 +6168,12 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid, const string &name, const string &
             }
 
             double u = sec_umin + ( j * ( sec_umax - sec_umin ) / ( utess_vec[i] - 1 ) );
+            double u_global = umin + ( i  * ustep ) + ( ustep * ( (double)j / ( utess_vec[i] - 1.0 ) ) ); // Get u value on main surface
+            if ( ( int ) ustation.size() == num_foil )
+            {
+                u = ( ustation[foil_cnt] - Umin ) / ( Umax - Umin );
+                u_global = ustation[foil_cnt] / m_MainSurfVec[0].GetUMax();
+            }
 
             bool xsec_flag = false;
             if ( j == 0 || j == utess_vec[i] - 1 )
@@ -6176,7 +6194,6 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid, const string &name, const string &
                 fprintf( meta_fid, "XSecSurf ID, %s\n", xsecsurf_id.c_str() );
             }
 
-            double u_global = umin + ( i  * ustep ) + ( ustep * ( (double)j / ( utess_vec[i] - 1.0 ) ) ); // Get u value on main surface
             u_global = std::clamp( u_global, 0.0, 1.0 );
 
             vec3d le_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vle / Vmax ) );
