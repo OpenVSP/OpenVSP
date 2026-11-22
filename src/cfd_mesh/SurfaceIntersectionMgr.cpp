@@ -369,6 +369,7 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
 
     m_ProgressTotal = 0;
     m_ProgressDone = 0;
+    m_ProgressShown = 0;
     m_WriteBar = nullptr;
 
     // A mesh belongs to the model it was built from, so it has to go when that model does.
@@ -1092,21 +1093,12 @@ void SurfaceIntersectionSingleton::RenewMesh()
     CleanUp();
 }
 
-// addOutputText appends to one buffer, so calls coming from several surfaces at once have to
-// be kept from overlapping.
-void SurfaceIntersectionSingleton::ReportProgress( const string &str, int output_type )
-{
-    static std::mutex outmutex;
-    std::lock_guard< std::mutex > lock( outmutex );
-
-    addOutputText( str, output_type );
-}
-
 void SurfaceIntersectionSingleton::BeginProgress( const string &label, int n, int output_type )
 {
     m_ProgressLabel = label;
     m_ProgressTotal = n;
     m_ProgressDone = 0;
+    m_ProgressShown = 0;
 
     StepProgress( output_type );
 }
@@ -1114,9 +1106,16 @@ void SurfaceIntersectionSingleton::BeginProgress( const string &label, int n, in
 // Draw the bar at a given count.  The line is redrawn in place, so every call has to write the
 // same width -- a shorter line would leave the tail of the previous one behind.  The counts only
 // ever grow, so the width is stable as long as the last draw uses the total.
+//
+// Threads draw as they finish, and a thread that read the count first can reach the console
+// after one that read it later.  The bar is drawn one thread at a time, and a count below one
+// already shown is not drawn, so the bar never moves backwards.
 void SurfaceIntersectionSingleton::DrawProgress( int done, char term, int output_type )
 {
     const int nbar = 24;
+
+    static std::mutex outmutex;
+    std::lock_guard< std::mutex > lock( outmutex );
 
     // A count that was only an estimate stops at the total.
     if ( done > m_ProgressTotal )
@@ -1124,7 +1123,14 @@ void SurfaceIntersectionSingleton::DrawProgress( int done, char term, int output
         done = m_ProgressTotal;
     }
 
-    int nfill = ( nbar * done ) / m_ProgressTotal;
+    if ( term == '\r' && done < m_ProgressShown )
+    {
+        return;
+    }
+    m_ProgressShown = done;
+
+    // In 64 bits: a stage can count more than 2^31 / nbar pieces.
+    int nfill = ( int )( ( ( long long )nbar * done ) / m_ProgressTotal );
 
     char bar[nbar + 1];
     for ( int i = 0; i < nbar; i++ )
@@ -1143,7 +1149,7 @@ void SurfaceIntersectionSingleton::DrawProgress( int done, char term, int output
     char str[256];
     snprintf( str, sizeof( str ), "%-16s [%s] %d/%d%c", m_ProgressLabel.c_str(), bar, done, m_ProgressTotal, term );
 
-    ReportProgress( str, output_type );
+    addOutputText( str, output_type );
 }
 
 void SurfaceIntersectionSingleton::StepProgress( int output_type )
