@@ -3485,7 +3485,10 @@ bool FileXSec::ReadOldXSecFile( FILE* file_id )
     int num_pnts;
 
     rewind( file_id );
-    fgets( buff, 255, file_id );
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        return false;
+    }
     line.assign( buff );
 
     //==== Check For Valid File Type ====//
@@ -3563,7 +3566,10 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
     string line;
 
     rewind( file_id );
-    fgets( buff, 255, file_id );
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        return false;
+    }
     line.assign( buff );
 
     //==== Check For Valid File Type ====//

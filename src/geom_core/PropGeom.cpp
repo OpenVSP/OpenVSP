@@ -3119,19 +3119,33 @@ int PropGeom::ReadBEM( const string &file_name )
     else
     {
         char buf[255];
-        fgets( buf, 255, fid );  // Advance past "...BEM Propeller..."
-
-        fscanf( fid, "Num_Sections: %u\n", &num_sect );
-        fscanf( fid, "Num_Blade: %u\n", &num_blade );
-        fscanf( fid, "Diameter: %lf\n", &diam );
-        fscanf( fid, "Beta 3/4 (deg): %lf\n", &beta34 );
-        fscanf( fid, "Feather (deg): %lf\n", &feather );
-        fscanf( fid, "Pre_Cone (deg): %lf\n", &precone );
         double x, y, z;
-        fscanf( fid, "Center: %lf, %lf, %lf\n", &x, &y, &z );
+        double nx, ny, nz;
+        if ( !fgets( buf, 255, fid ) ||  // Advance past "...BEM Propeller..."
+             fscanf( fid, "Num_Sections: %u\n", &num_sect ) != 1 ||
+             fscanf( fid, "Num_Blade: %u\n", &num_blade ) != 1 ||
+             fscanf( fid, "Diameter: %lf\n", &diam ) != 1 ||
+             fscanf( fid, "Beta 3/4 (deg): %lf\n", &beta34 ) != 1 ||
+             fscanf( fid, "Feather (deg): %lf\n", &feather ) != 1 )
+        {
+            fclose( fid );
+            return 0;
+        }
+
+        // Files written before precone was added have no Pre_Cone line.
+        if ( fscanf( fid, "Pre_Cone (deg): %lf\n", &precone ) != 1 )
+        {
+            precone = 0.0;
+        }
+
+        if ( fscanf( fid, "Center: %lf, %lf, %lf\n", &x, &y, &z ) != 3 ||
+             fscanf( fid, "Normal: %lf, %lf, %lf\n", &nx, &ny, &nz ) != 3 )
+        {
+            fclose( fid );
+            return 0;
+        }
         cen.set_xyz( x, y, z );
-        fscanf( fid, "Normal: %lf, %lf, %lf\n", &x, &y, &z );
-        norm.set_xyz( x, y, z );
+        norm.set_xyz( nx, ny, nz );
 
         r_vec.resize( num_sect );
         chord_vec.resize( num_sect );
@@ -3144,11 +3158,19 @@ int PropGeom::ReadBEM( const string &file_name )
         axial_vec.resize( num_sect );
         tangential_vec.resize( num_sect );
 
-        fgets( buf, 255, fid );  // Advance past "Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi, Axial, Tangential"
+        if ( !fgets( buf, 255, fid ) )  // Advance past "Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi, Axial, Tangential"
+        {
+            fclose( fid );
+            return 0;
+        }
 
         for ( int i = 0; i < num_sect; i++ )
         {
-            fscanf( fid, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &r_vec[i], &chord_vec[i], &twist_vec[i], &rake_vec[i], &skew_vec[i], &sweep_vec[i], &thick_vec[i], &cli_vec[i], &axial_vec[i], &tangential_vec[i] );
+            if ( fscanf( fid, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &r_vec[i], &chord_vec[i], &twist_vec[i], &rake_vec[i], &skew_vec[i], &sweep_vec[i], &thick_vec[i], &cli_vec[i], &axial_vec[i], &tangential_vec[i] ) != 10 )
+            {
+                fclose( fid );
+                return 0;
+            }
         }
 
         fclose( fid );

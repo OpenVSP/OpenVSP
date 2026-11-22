@@ -181,17 +181,14 @@ int MeshGeom::ReadXSec( const char* file_name )
     }
 
     //==== Read first Line of file and compare against expected header ====//
-    fscanf( fp, "%255s INPUT FILE\n\n", str );
-    if ( strcmp( "HERMITE", str ) != 0 )
+    if ( fscanf( fp, "%255s INPUT FILE\n\n", str ) != 1 || strcmp( "HERMITE", str ) != 0 )
     {
         fclose( fp );
         return 0;
     }
     //==== Read in number of components ====//
-    int num_comps;
-    fscanf( fp, " NUMBER OF COMPONENTS = %d\n", &num_comps );
-
-    if ( num_comps <= 0 )
+    int num_comps = 0;
+    if ( fscanf( fp, " NUMBER OF COMPONENTS = %d\n", &num_comps ) != 1 || num_comps <= 0 )
     {
         fclose( fp );
         return 0;
@@ -206,11 +203,16 @@ int MeshGeom::ReadXSec( const char* file_name )
         unsigned int num_pnts, num_cross;
         vector < vector < vec3d > > crossVec;
 
-        fgets( name_str, 256, fp );
-        fscanf( fp, " GROUP NUMBER = %d\n", &group_num );
-        fscanf( fp, " TYPE = %d\n", &type );
-        fscanf( fp, " CROSS SECTIONS = %u\n", &( num_cross ) );
-        fscanf( fp, " PTS/CROSS SECTION = %u\n", &( num_pnts ) );
+        if ( !fgets( name_str, 256, fp ) ||
+             fscanf( fp, " GROUP NUMBER = %d\n", &group_num ) != 1 ||
+             fscanf( fp, " TYPE = %d\n", &type ) != 1 ||
+             fscanf( fp, " CROSS SECTIONS = %u\n", &( num_cross ) ) != 1 ||
+             fscanf( fp, " PTS/CROSS SECTION = %u\n", &( num_pnts ) ) != 1 )
+        {
+            delete tMesh;
+            fclose( fp );
+            return 0;
+        }
 
         //===== Size Cross Vec ====//
         crossVec.resize( num_cross );
@@ -219,7 +221,12 @@ int MeshGeom::ReadXSec( const char* file_name )
             crossVec[i].resize( num_pnts );
             for ( int j = 0 ; j < num_pnts ; j++ )
             {
-                fscanf( fp, "%f %f %f\n", &x, &y, &z );
+                if ( fscanf( fp, "%f %f %f\n", &x, &y, &z ) != 3 )
+                {
+                    delete tMesh;
+                    fclose( fp );
+                    return 0;
+                }
                 crossVec[i][j] = vec3d( x, y, z );
             }
         }
@@ -288,8 +295,7 @@ int MeshGeom::ReadSTL( const char* file_name )
             {
                 char buf[256];
 
-                fgets( buf, 255, file_id );
-                if ( feof( file_id ) )
+                if ( !fgets( buf, 255, file_id ) || feof( file_id ) )
                 {
                     break;
                 }
@@ -297,8 +303,7 @@ int MeshGeom::ReadSTL( const char* file_name )
 
                 if ( strcmp( str, "endsolid" ) == 0 )
                 {
-                    fgets( buf, 255, file_id );
-                    if ( feof( file_id ) )
+                    if ( !fgets( buf, 255, file_id ) || feof( file_id ) )
                     {
                         break;
                     }
@@ -307,8 +312,7 @@ int MeshGeom::ReadSTL( const char* file_name )
 
                 if ( strcmp( str, "solid" ) == 0 )
                 {
-                    fgets( buf, 255, file_id );
-                    if ( feof( file_id ) )
+                    if ( !fgets( buf, 255, file_id ) || feof( file_id ) )
                     {
                         break;
                     }
@@ -317,41 +321,35 @@ int MeshGeom::ReadSTL( const char* file_name )
                 // facet normal
                 sscanf( buf, "%*s %*s %f %f %f\n", &nx, &ny, &nz );
 
-                fgets( buf, 255, file_id ); // outer loop
-                if ( feof( file_id ) )
+                if ( !fgets( buf, 255, file_id ) || feof( file_id ) ) // outer loop
                 {
                     break;
                 }
 
-                fgets( buf, 255, file_id );
-                if ( feof( file_id ) )
+                if ( !fgets( buf, 255, file_id ) || feof( file_id ) )
                 {
                     break;
                 }
                 sscanf( buf, "%*s %f %f %f\n", &v0[0], &v0[1], &v0[2] );
 
-                fgets( buf, 255, file_id );
-                if ( feof( file_id ) )
+                if ( !fgets( buf, 255, file_id ) || feof( file_id ) )
                 {
                     break;
                 }
                 sscanf( buf, "%*s %f %f %f\n", &v1[0], &v1[1], &v1[2] );
 
-                fgets( buf, 255, file_id );
-                if ( feof( file_id ) )
+                if ( !fgets( buf, 255, file_id ) || feof( file_id ) )
                 {
                     break;
                 }
                 sscanf( buf, "%*s %f %f %f\n", &v2[0], &v2[1], &v2[2] );
 
-                fgets( buf, 255, file_id ); // endloop
-                if ( feof( file_id ) )
+                if ( !fgets( buf, 255, file_id ) || feof( file_id ) ) // endloop
                 {
                     break;
                 }
 
-                fgets( buf, 255, file_id ); // endfacet
-                if ( feof( file_id ) )
+                if ( !fgets( buf, 255, file_id ) || feof( file_id ) ) // endfacet
                 {
                     break;
                 }
@@ -470,7 +468,10 @@ void MeshGeom::ReadBinSTLBlock( FILE* file_id, TMesh* tMesh, int attSize )
     TTri*  tPtr;
 
     //==== Header ====//
-    fread( str, sizeof( char ), 80, file_id );
+    if ( fread( str, sizeof( char ), 80, file_id ) != 80 )
+    {
+        return;
+    }
 
     int numFacet = ReadBinInt( file_id );
 
@@ -518,7 +519,10 @@ void MeshGeom::ReadBinSTLBlock( FILE* file_id, TMesh* tMesh, int attSize )
 float MeshGeom::ReadBinFloat( FILE* fptr )
 {
     float fval = 0x00;
-    fread( &fval, 4, 1, fptr );
+    if ( fread( &fval, 4, 1, fptr ) != 1 )
+    {
+        return 0;
+    }
 
     if ( m_BigEndianFlag )
     {
@@ -539,7 +543,10 @@ float MeshGeom::ReadBinFloat( FILE* fptr )
 int MeshGeom::ReadBinInt( FILE* fptr )
 {
     int ival = 0x00;
-    fread( &ival, 4, 1, fptr );
+    if ( fread( &ival, 4, 1, fptr ) != 1 )
+    {
+        return 0;
+    }
 
     if ( m_BigEndianFlag )
     {
@@ -609,21 +616,35 @@ int MeshGeom::ReadNascart( const char* file_name )
     float col;
     int num_tris, num_nodes;
 
-    fscanf( file_id, "%d", &num_nodes );
-    fscanf( file_id, "%d", &num_tris  );
+    if ( fscanf( file_id, "%d", &num_nodes ) != 1 || fscanf( file_id, "%d", &num_tris  ) != 1 )
+    {
+        delete tMesh;
+        fclose( file_id );
+        return 0;
+    }
 
     vec3d p;
     vector< vec3d > pVec;
     for ( i = 0 ; i < num_nodes ; i++ )
     {
-        fscanf( file_id, "%f %f %f", &x, &y, &z );
+        if ( fscanf( file_id, "%f %f %f", &x, &y, &z ) != 3 )
+        {
+            delete tMesh;
+            fclose( file_id );
+            return 0;
+        }
         p.set_xyz( x, -z, y );
         pVec.push_back( p );
     }
 
     for ( i = 0 ; i < num_tris ; i++ )
     {
-        fscanf( file_id, "%d %d %d %f", &n0, &n2, &n1, &col );
+        if ( fscanf( file_id, "%d %d %d %f", &n0, &n2, &n1, &col ) != 4 )
+        {
+            delete tMesh;
+            fclose( file_id );
+            return 0;
+        }
 
         //==== Compute Normal ====//
         vec3d p10 = pVec[n1 - 1] - pVec[n0 - 1];

@@ -263,7 +263,10 @@ static bool is_pie_elf( const char* path )
          ident[2] == ELFMAG2 && ident[3] == ELFMAG3 )
     {
         // e_type immediately follows e_ident in both ELF32 and ELF64.
-        fread( &etype, sizeof( etype ), 1, f );
+        if ( fread( &etype, sizeof( etype ), 1, f ) != 1 )
+        {
+            etype = ET_DYN;
+        }
     }
     fclose( f );
     return etype == ET_DYN;

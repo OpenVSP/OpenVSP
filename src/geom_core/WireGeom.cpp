@@ -767,7 +767,10 @@ void WireGeom::ReadP3D( FILE* fp, int ni, int nj, int nk, int nvar )
                 for ( int i = 0 ; i < ni ; i++ )
                 {
                     double xi;
-                    fscanf( fp, "%lf ", &xi );
+                    if ( fscanf( fp, "%lf ", &xi ) != 1 )
+                    {
+                        return;
+                    }
                     if ( k == 0 && ix < 3 )  // Only store k=0 surface, and only coordinates
                     {
                         m_WirePts[i][j].v[ix] = xi;
@@ -836,11 +839,14 @@ void WireGeom::ReadXSec( FILE* fp )
     int group_num, type;
     int num_pnts, num_cross;
 
-    fgets( name_str, 256, fp );
-    fscanf( fp, " GROUP NUMBER = %d\n", &group_num );
-    fscanf( fp, " TYPE = %d\n", &type );
-    fscanf( fp, " CROSS SECTIONS = %d\n", &( num_cross ) );
-    fscanf( fp, " PTS/CROSS SECTION = %d\n", &( num_pnts ) );
+    if ( !fgets( name_str, 256, fp ) ||
+         fscanf( fp, " GROUP NUMBER = %d\n", &group_num ) != 1 ||
+         fscanf( fp, " TYPE = %d\n", &type ) != 1 ||
+         fscanf( fp, " CROSS SECTIONS = %d\n", &( num_cross ) ) != 1 ||
+         fscanf( fp, " PTS/CROSS SECTION = %d\n", &( num_pnts ) ) != 1 )
+    {
+        return;
+    }
 
     // The whole line is the name, without its line ending or surrounding blanks.
     m_Name = string( name_str );
@@ -857,7 +863,10 @@ void WireGeom::ReadXSec( FILE* fp )
         m_WirePts[i].resize( num_pnts );
         for ( int j = 0 ; j < num_pnts ; j++ )
         {
-            fscanf( fp, "%f %f %f\n", &x, &y, &z );
+            if ( fscanf( fp, "%f %f %f\n", &x, &y, &z ) != 3 )
+            {
+                return;
+            }
             m_WirePts[i][j].set_xyz( x, y, z );
         }
     }

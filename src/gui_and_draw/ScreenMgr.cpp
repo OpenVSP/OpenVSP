@@ -1438,12 +1438,18 @@ vector < VspScreen* > ScreenMgr::GetAllScreens()
 void ScreenMgr::LaunchSystemDefaultBrowser( const string &url )
 {
 #if     defined(__APPLE__)
-        system( string( "open " + url ).c_str() );
+        if ( system( string( "open " + url ).c_str() ) != 0 )
+        {
+            printf( "Could not open %s\n", url.c_str() );
+        }
 #elif   defined(_WIN32) || defined(WIN32)
         ShellExecute( nullptr, "open", url.c_str(),
                       nullptr, nullptr, SW_SHOWNORMAL );
 #else
-        system( string( "xdg-open " + url ).c_str() );
+        if ( system( string( "xdg-open " + url ).c_str() ) != 0 )
+        {
+            printf( "Could not open %s\n", url.c_str() );
+        }
 #endif
 }
 

@@ -1926,7 +1926,11 @@ bool FileAirfoil::ReadFile( const string &file_name )
     char buff[256];
     string line;
 
-    fgets( buff, 255, file_id );
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        fclose( file_id );
+        return false;
+    }
     line.assign( buff );
 
     size_t found = line.find( "AIRFOIL FILE" );
@@ -1943,8 +1947,10 @@ bool FileAirfoil::ReadFile( const string &file_name )
     }
     else
     {
-        fgets( buff, 255, file_id );                        // Name
-        valid_file = ReadVspAirfoil( file_id );             // VSP Format
+        if ( fgets( buff, 255, file_id ) )                  // Name
+        {
+            valid_file = ReadVspAirfoil( file_id );         // VSP Format
+        }
     }
 
     if ( !valid_file )
@@ -2060,9 +2066,11 @@ bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
 
     rewind( file_id );
 
-    fgets( buff, 255, file_id );
-    fgets( buff, 255, file_id );
-    if ( sscanf( buff, "%f %f", &x, &y ) != 2 )
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        return false;
+    }
+    if ( !fgets( buff, 255, file_id ) || sscanf( buff, "%f %f", &x, &y ) != 2 )
     {
         return false;
     }
@@ -2079,7 +2087,10 @@ bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
     m_LowerPnts.clear();
 
     // Every point line must hold two numbers; a file that ends early is not a Lednicer airfoil.
-    fgets( buff, 255, file_id );
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        return false;
+    }
     for ( int i = 0 ; i < num_pnts_upper ; i++ )
     {
         if ( !fgets( buff, 255, file_id ) || sscanf( buff, "%f %f", &x, &y ) != 2 )
@@ -2088,7 +2099,10 @@ bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
         }
         m_UpperPnts.push_back( vec3d( x, y, 0.0 ) );
     }
-    fgets( buff, 255, file_id );
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        return false;
+    }
     for ( int i = 0 ; i < num_pnts_lower ; i++ )
     {
         if ( !fgets( buff, 255, file_id ) || sscanf( buff, "%f %f", &x, &y ) != 2 )
@@ -2111,10 +2125,16 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
     int num_pnts_upper, num_pnts_lower;
     float x, y;
 
-    fgets( buff, 255, file_id );
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        return false;
+    }
     sscanf( buff, "%d", &sym_flag );
 
-    fgets( buff, 255, file_id );
+    if ( !fgets( buff, 255, file_id ) )
+    {
+        return false;
+    }
     sscanf( buff, "%d", &num_pnts_upper );
 
     if ( sym_flag )
@@ -2123,7 +2143,10 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
     }
     else
     {
-        fgets( buff, 255, file_id );
+        if ( !fgets( buff, 255, file_id ) )
+        {
+            return false;
+        }
         sscanf( buff, "%d", &num_pnts_lower );
     }
 
@@ -2131,7 +2154,10 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
     m_LowerPnts.clear();
     for ( i = 0 ; i < num_pnts_upper ; i++ )
     {
-        fgets( buff, 255, file_id );
+        if ( !fgets( buff, 255, file_id ) )
+        {
+            return false;
+        }
         sscanf( buff, "%f %f", &x, &y );
 
         m_UpperPnts.push_back( vec3d( x, y, 0.0 ) );
@@ -2141,13 +2167,19 @@ bool FileAirfoil::ReadVspAirfoil( FILE* file_id )
             m_LowerPnts.push_back( vec3d( x, -y, 0.0 ) );
         }
     }
-    fgets( buff, 255, file_id );
-
     if ( !sym_flag )
     {
+        // Blank line between the upper and lower points.
+        if ( !fgets( buff, 255, file_id ) )
+        {
+            return false;
+        }
         for ( i = 0 ; i < num_pnts_lower ; i++ )
         {
-            fgets( buff, 255, file_id );
+            if ( !fgets( buff, 255, file_id ) )
+            {
+                return false;
+            }
             sscanf( buff, "%f %f", &x, &y );
             m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
         }

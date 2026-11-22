@@ -8771,17 +8771,14 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         }
 
         //==== Read first Line of file and compare against expected header ====//
-        fscanf( fp, "%255s INPUT FILE\n\n", str );
-        if ( strcmp( "HERMITE", str ) != 0 )
+        if ( fscanf( fp, "%255s INPUT FILE\n\n", str ) != 1 || strcmp( "HERMITE", str ) != 0 )
         {
             fclose ( fp );
             return id;
         }
         //==== Read in number of components ====//
-        int num_comps;
-        fscanf( fp, " NUMBER OF COMPONENTS = %d\n", &num_comps );
-
-        if ( num_comps <= 0 )
+        int num_comps = 0;
+        if ( fscanf( fp, " NUMBER OF COMPONENTS = %d\n", &num_comps ) != 1 || num_comps <= 0 )
         {
             fclose ( fp );
             return id;

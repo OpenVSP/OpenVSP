@@ -265,9 +265,15 @@ string PathToCWD()
 {
     char buff[FILENAME_MAX];
 #ifdef WIN32
-    _getcwd( buff, FILENAME_MAX );
+    if ( !_getcwd( buff, FILENAME_MAX ) )
+    {
+        return string();
+    }
 #else
-    getcwd( buff, FILENAME_MAX );
+    if ( !getcwd( buff, FILENAME_MAX ) )
+    {
+        return string();
+    }
 #endif
     return string( buff );
 }

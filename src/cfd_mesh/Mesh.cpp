@@ -3918,9 +3918,8 @@ void Mesh::ReadSTL( const char* file_name )
     float v1[3];
     float v2[3];
 
-    if ( file_id )
+    if ( file_id && fgets( str, 255, file_id ) )
     {
-        fgets( str, 255, file_id );
         int stopFlag = 0;
         while ( !stopFlag )
         {

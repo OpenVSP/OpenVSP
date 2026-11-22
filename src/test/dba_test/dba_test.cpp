@@ -62,50 +62,90 @@ int main( int argc, char* argv[] )
 
     // Read input file.
     int npt;
-    fscanf( fp, "%d", &npt );
+    if ( fscanf( fp, "%d", &npt ) != 1 )
+    {
+        printf( "Bad input file.\n" );
+        exit( 1 );
+    }
 
     dba_point* cloud = new dba_point[npt];
 
     for ( int j = 0; j < npt; j++ )
     {
         int indx;
-        fscanf( fp, "%d %lf %lf", &indx, &(cloud[ j ].x), &(cloud[ j ].y) );
+        if ( fscanf( fp, "%d %lf %lf", &indx, &(cloud[ j ].x), &(cloud[ j ].y) ) != 3 )
+        {
+            printf( "Bad input file.\n" );
+            exit( 1 );
+        }
     }
 
     int nedg;
-    fscanf( fp, "%d", &nedg );
+    if ( fscanf( fp, "%d", &nedg ) != 1 )
+    {
+        printf( "Bad input file.\n" );
+        exit( 1 );
+    }
 
     dba_edge* bounds = new dba_edge[nedg];
 
     for ( int i = 0 ; i < nedg ; i++ )
     {
         int indx;
-        fscanf( fp, "%d %d %d", &indx, &(bounds[i].a), &(bounds[i].b) );
+        if ( fscanf( fp, "%d %d %d", &indx, &(bounds[i].a), &(bounds[i].b) ) != 3 )
+        {
+            printf( "Bad input file.\n" );
+            exit( 1 );
+        }
     }
 
     char buff[256];
-    fscanf( fp, "%255s", buff );
+    if ( fscanf( fp, "%255s", buff ) != 1 )
+    {
+        printf( "Bad input file.\n" );
+        exit( 1 );
+    }
 
     int ntDLB;
-    fscanf( fp, "%d", &ntDLB );
+    if ( fscanf( fp, "%d", &ntDLB ) != 1 )
+    {
+        printf( "Bad input file.\n" );
+        exit( 1 );
+    }
 
     Face* tDLB = new Face[ntDLB];
     for ( int i = 0 ; i < ntDLB ; i++ )
     {
         int indx;
-        fscanf( fp, "%d %d %d %d", &indx, &(tDLB[i].v[0]), &(tDLB[i].v[1]), &(tDLB[i].v[2]) );
+        if ( fscanf( fp, "%d %d %d %d", &indx, &(tDLB[i].v[0]), &(tDLB[i].v[1]), &(tDLB[i].v[2]) ) != 4 )
+        {
+            printf( "Bad input file.\n" );
+            exit( 1 );
+        }
     }
 
-    fscanf( fp, "%255s", buff );
+    if ( fscanf( fp, "%255s", buff ) != 1 )
+    {
+        printf( "Bad input file.\n" );
+        exit( 1 );
+    }
 
     int ntTRI;
-    fscanf( fp, "%d", &ntTRI );
+    if ( fscanf( fp, "%d", &ntTRI ) != 1 )
+    {
+        printf( "Bad input file.\n" );
+        exit( 1 );
+    }
 
     Face* tTRI = new Face[ntTRI];
     for ( int i = 0 ; i < ntTRI ; i++ )
     {
         int indx;
-        fscanf( fp, "%d %d %d %d", &indx, &(tTRI[i].v[0]), &(tTRI[i].v[1]), &(tTRI[i].v[2]) );
+        if ( fscanf( fp, "%d %d %d %d", &indx, &(tTRI[i].v[0]), &(tTRI[i].v[1]), &(tTRI[i].v[2]) ) != 4 )
+        {
+            printf( "Bad input file.\n" );
+            exit( 1 );
+        }
     }
     fclose( fp );
 

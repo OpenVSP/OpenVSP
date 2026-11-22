@@ -27,7 +27,10 @@ SelectFileScreen::SelectFileScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 440, 34
 {
 
     char cCurrentPath[FILENAME_MAX];
-    GetCurrentDir( cCurrentPath, sizeof( cCurrentPath ) );
+    if ( !GetCurrentDir( cCurrentPath, sizeof( cCurrentPath ) ) )
+    {
+        cCurrentPath[0] = '\0';
+    }
 
     m_DirString = string( cCurrentPath );
 
