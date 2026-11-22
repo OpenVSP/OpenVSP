@@ -37,6 +37,7 @@ VspAeroControlSurf::VspAeroControlSurf()
     isGrouped = false;
     iReflect = false;
     isHinge = false;
+    isMeshed = true;
 }
 
 bool VspAeroControlSurf::isMatch( const VspAeroControlSurf &cs ) const
@@ -981,6 +982,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
     {
         for ( size_t k = 0; k < m_ControlSurfaceGroupVec[i]->m_ControlSurfVec.size(); ++k )
         {
+            bool found = false;
             for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
             {
                 // If Control Surface ID AND Reflection Number Match - Replace Subsurf within Control Surface Group
@@ -989,10 +991,18 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].fullName = m_CompleteControlSurfaceVec[j].fullName;
                     m_CompleteControlSurfaceVec[j].isGrouped = true;
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isGrouped = true;
+                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isMeshed = m_CompleteControlSurfaceVec[j].isMeshed;
+                    found = true;
                 }
             }
 
-            bool remove_flag = false;
+            // A group holds only control surfaces of the run's sets (UpdateCompleteControlSurfVec).
+            // Hinges are listed only in experimental mode, so without it a hinge member is kept.
+            bool remove_flag = !found;
+            if ( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isHinge && !VehicleMgr.GetVehicle()->GetExperimental() )
+            {
+                remove_flag = false;
+            }
 
             // Remove Deleted Sub Surfaces and Sub Surfaces with Parent Geoms That No Longer Exist
             Geom* parent = VehicleMgr.GetVehicle()->FindGeom( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId );
@@ -1053,6 +1063,57 @@ void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
     }
 }
 
+// A half model meshes only the triangles at Y >= 0 (Vehicle::WriteVSPGeomFile), so a copy of a
+// control surface is in the mesh when its outline lies on that side.  The outline's mean Y is
+// used, so a rudder on a fin at Y = 0 is kept and the -Y copy of a flap that reaches the root
+// is not.
+static bool ControlSurfOnHalfModelSide( Geom* g, SubSurface* ssurf, size_t iReflect )
+{
+    vector < int > mains;
+    int imain = ssurf->m_MainSurfIndx();
+    if ( imain == -1 )
+    {
+        for ( int i = 0; i < g->GetNumMainSurfs(); i++ )
+        {
+            mains.push_back( i );
+        }
+    }
+    else
+    {
+        mains.push_back( imain );
+    }
+
+    double ysum = 0.0;
+    int npts = 0;
+    vector< SSLineSeg > & segs = ssurf->GetLVec();
+    for ( size_t i = 0; i < mains.size(); i++ )
+    {
+        vector < int > symms;
+        g->GetSymmIndexs( mains[i], symms );
+        if ( iReflect >= symms.size() || !g->GetSurfPtr( symms[ iReflect ] ) )
+        {
+            continue;
+        }
+
+        for ( size_t j = 0; j < segs.size(); j++ )
+        {
+            vector < vec3d > pts;
+            segs[j].GetDOPts( g->GetSurfPtr( symms[ iReflect ] ), g, pts, 3 );
+            for ( size_t k = 0; k < pts.size(); k++ )
+            {
+                ysum += pts[k].y();
+                npts++;
+            }
+        }
+    }
+
+    if ( npts == 0 )
+    {
+        return true;
+    }
+    return ysum / npts >= -1e-5;
+}
+
 void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
 {
     m_CompleteControlSurfaceVec.clear();
@@ -1060,12 +1121,32 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
+        int set = m_GeomSet();
+        int degenset = m_ThinGeomSet();
+
+        if ( m_UseMode() )
+        {
+            Mode *m = ModeMgr.GetMode( m_ModeID );
+            if ( m )
+            {
+                set = m->m_NormalSet();
+                degenset = m->m_DegenSet();
+            }
+        }
+
+        // Control surfaces work only with the run's sets, so only those of the Geoms in them are
+        // listed, grouped and offered for grouping.
+        vector< string > run_geoms = veh->GetGeomSet( set );
+        vector< string > thin_geoms = veh->GetGeomSet( degenset );
+        run_geoms.insert( run_geoms.end(), thin_geoms.begin(), thin_geoms.end() );
+
         vector< string > geom_vec = veh->GetGeomVec();
         for ( size_t i = 0; i < geom_vec.size(); ++i )
         {
             Geom *g = veh->FindGeom( geom_vec[i] );
-            if ( g )
+            if ( g && std::find( run_geoms.begin(), run_geoms.end(), geom_vec[i] ) != run_geoms.end() )
             {
+
                 // A Clone of a hinge articulates its children the same way, so it offers a
                 // control surface too.
                 if ( Geom::CastTo< JointRole >( g ) )
@@ -1107,6 +1188,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                                     newSurf.parentGeomId = ssurf->GetCompID();
                                     newSurf.iReflect = iReflect;
                                     newSurf.isHinge = false;
+                                    newSurf.isMeshed = !m_Symmetry() || ControlSurfOnHalfModelSide( g, ssurf, iReflect );
 
                                     m_CompleteControlSurfaceVec.push_back( newSurf );
                                 }
@@ -1293,6 +1375,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     //Update information derived from the degenerate geometry
     UpdateRotorDisks();
     UpdateCompleteControlSurfVec();
+    UpdateControlSurfaceGroups();
 
     UpdateFilenames();
 
@@ -1313,7 +1396,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     vector < string > sub_vec;
     for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
     {
-        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && !m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.empty() )
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->NumMeshed() > 0 )
         {
             for ( size_t i = 0; i < m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size(); i++ )
             {
@@ -1322,7 +1405,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
                 // An all-moving surface is driven by a hinge, not by a subsurface, and
                 // carries no SSID.  Pushing its empty ID would make sub_vec non-empty and
                 // so turn on subsurface intersection for a model that has none.
-                if ( cs.isHinge || cs.SSID.empty() )
+                if ( cs.isHinge || cs.SSID.empty() || !cs.isMeshed )
                 {
                     continue;
                 }
@@ -1563,7 +1646,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     unsigned int numUsedCSGs = 0;
     for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
     {
-        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && !m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.empty() )
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->NumMeshed() > 0 )
         {
             // Don't "use" if no control surfaces are assigned to the group
             numUsedCSGs++;
@@ -1573,7 +1656,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "NumberOfControlGroups = %u \n", numUsedCSGs );
     for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
     {
-        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && !m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.empty() )
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->NumMeshed() > 0 )
         {
             m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
         }
@@ -3898,7 +3981,7 @@ vector < VspAeroControlSurf > VSPAEROMgrSingleton::GetAvailableCSVec()
             }
         }
 
-        if ( !grouped )
+        if ( !grouped && m_CompleteControlSurfaceVec[i].isMeshed )
         {
             ungrouped_cs.push_back( m_CompleteControlSurfaceVec[i] );
         }
@@ -6414,28 +6497,50 @@ void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )
     StringUtil::change_space_to_underscore( nospacename );
     fprintf( InputFile, "%s\n", nospacename.c_str() );
 
-    // surface names ( Cannot have trailing commas )
-    unsigned int i = 0;
-    for ( i = 0; i < m_ControlSurfVec.size() - 1; i++ )
+    // The surfaces a run meshes, with their deflection mixing gains, comma separated with no
+    // trailing comma.
+    string names;
+    string gains;
+    char gain[64];
+    for ( size_t i = 0; i < m_ControlSurfVec.size(); i++ )
     {
+        if ( !m_ControlSurfVec[i].isMeshed )
+        {
+            continue;
+        }
+
+        if ( !names.empty() )
+        {
+            names += ",";
+            gains += ", ";
+        }
+
         nospacename = m_ControlSurfVec[i].fullName;
         StringUtil::change_space_to_underscore( nospacename );
-        fprintf( InputFile, "%s,", nospacename.c_str() );
-    }
-    nospacename = m_ControlSurfVec[i++].fullName;
-    StringUtil::change_space_to_underscore( nospacename );
-    fprintf( InputFile, "%s\n", nospacename.c_str() );
+        names += nospacename;
 
-    // deflection mixing gains ( Cannot have trailing commas )
-    for ( i = 0; i < m_DeflectionGainVec.size() - 1; i++ )
-    {
-        fprintf( InputFile, "%.17g, ", m_DeflectionGainVec[i]->Get() );
+        snprintf( gain, sizeof( gain ), "%.17g", m_DeflectionGainVec[i]->Get() );
+        gains += gain;
     }
-    fprintf( InputFile, "%.17g\n", m_DeflectionGainVec[i++]->Get() );
+    fprintf( InputFile, "%s\n", names.c_str() );
+    fprintf( InputFile, "%s\n", gains.c_str() );
 
     // group deflection angle
     fprintf( InputFile, "%.17g\n", m_DeflectionAngle() );
 
+}
+
+int ControlSurfaceGroup::NumMeshed() const
+{
+    int n = 0;
+    for ( size_t i = 0; i < m_ControlSurfVec.size(); i++ )
+    {
+        if ( m_ControlSurfVec[i].isMeshed )
+        {
+            n++;
+        }
+    }
+    return n;
 }
 
 xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )

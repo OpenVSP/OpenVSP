@@ -36,6 +36,7 @@ public:
     bool isGrouped;
     unsigned int iReflect;      // mapping index to which reflected sub surface
     bool isHinge;
+    bool isMeshed;              // false for a copy a half model does not mesh
 };
 
 class PropDriverGroup : public DriverGroup
@@ -151,6 +152,9 @@ public:
 
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
+
+    // The group's surfaces a run meshes; a run writes and intersects only these.
+    int NumMeshed() const;
 
     // vsp3 file xml I/O
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
