@@ -4421,13 +4421,8 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
 }
 
 //==== Read File ====//
-int Vehicle::ReadXMLFile( const string & file_name )
+int Vehicle::ReadXMLFile( const string & file_name, bool replace_model )
 {
-    string lastreset = IDMgr.ResetRemapID();
-
-    // Disable link updates when until all geoms are loaded
-    LinkMgr.SetFreezeUpdateFlag( true );
-
     //==== Read Xml File ====//
     xmlDocPtr doc;
 
@@ -4474,6 +4469,20 @@ int Vehicle::ReadXMLFile( const string & file_name )
         m_FileOpenVersion = -1;
         return 4;
     }
+
+    // The file is a model, so the current one can now be replaced.
+    if ( replace_model )
+    {
+        int file_version = m_FileOpenVersion;
+        Renew();
+        SetVSP3FileName( file_name );
+        m_FileOpenVersion = file_version;
+    }
+
+    string lastreset = IDMgr.ResetRemapID();
+
+    // Disable link updates until all geoms are loaded
+    LinkMgr.SetFreezeUpdateFlag( true );
 
     // Register every identity in the file before reading any of it, so a reference resolves
     // whichever order the file lists it and the thing it names.
@@ -4499,7 +4508,6 @@ int Vehicle::ReadXMLFile( const string & file_name )
 //==== Read File ====//
 int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 {
-    string lastreset = IDMgr.ResetRemapID();
 
     //==== Read Xml File ====//
     xmlDocPtr doc;
@@ -4547,6 +4555,8 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
         m_FileOpenVersion = -1;
         return 4;
     }
+
+    string lastreset = IDMgr.ResetRemapID();
 
     //==== Decode Vehicle from document ====//
 

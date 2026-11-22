@@ -10,6 +10,8 @@
 #include "APITestSuite.h"
 #include <float.h>
 #include "Vec3d.h"
+#include "Vehicle.h"
+#include "VehicleMgr.h"
 #include <fstream>
 #include <sstream>
 
@@ -690,6 +692,13 @@ void APITestSuite::TestFailedReadKeepsModel()
     vsp::SetParmVal( len_id, 9.0 );
     vsp::Update();
     TEST_ASSERT_DELTA( vsp::GetParmVal( fine_id ), 9.0, TEST_TOL );
+
+    //==== File > Open's read, which replaces the model, leaves it and its name alone too ====//
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    string model_name = veh->GetVSP3FileName();
+    TEST_ASSERT( veh->ReadXMLFile( fname, true ) != 0 );
+    TEST_ASSERT( vsp::FindGeoms().size() == 1 );
+    TEST_ASSERT( veh->GetVSP3FileName() == model_name );
 
     remove( fname.c_str() );
 }
