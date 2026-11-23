@@ -154,6 +154,24 @@ VspCaptiveFrame* VspCaptiveLayer::TopFrame()
     return nullptr;
 }
 
+bool VspCaptiveLayer::Restack()
+{
+    if ( !CaptiveCanRaiseNative() )
+    {
+        return false;
+    }
+    // Each window is drawn above those before it, leaving the last child on top.  The view stays beneath them all.
+    for ( int i = 0; i < children(); i++ )
+    {
+        Fl_Window* w = child( i )->as_window();
+        if ( w && w != m_View && w->shown() && w->visible_r() )
+        {
+            CaptiveRaiseNative( w );
+        }
+    }
+    return true;
+}
+
 void VspCaptiveLayer::UpdateActive()
 {
     VspCaptiveFrame* top = TopFrame();
@@ -274,6 +292,7 @@ void VspCaptiveFrame::ShowFrame()
     show();
     m_Body->show();
     CaptiveShowSubwindows( m_Body );
+    m_Layer->Restack();
     m_Layer->UpdateActive();
 }
 
@@ -297,7 +316,7 @@ void VspCaptiveFrame::Raise()
     }
     m_Layer->insert( *this, m_Layer->children() );
 
-    if ( FrameShown() && !CaptiveRaiseNative( this ) )
+    if ( FrameShown() && !m_Layer->Restack() )
     {
         // A window shown is drawn above those shown before it.  Hiding the frame takes the keyboard from the widget
         // in it that has it, which is given back.

@@ -854,6 +854,11 @@ void MainVSPScreen::Show()
     if ( m_GlWin )
     {
         m_GlWin->show();
+        // Showing the view leaves it drawn above the windows in the layer, which belong over it
+        if ( m_CaptiveLayer )
+        {
+            m_CaptiveLayer->Restack();
+        }
     }
 }
 

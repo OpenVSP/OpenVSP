@@ -192,6 +192,7 @@ void VspSidePanel::ShowScreen( VspScreen* screen )
     show();
     body->show();
     CaptiveShowSubwindows( body );
+    m_Layer->Restack();
 }
 
 void VspSidePanel::HideScreen( VspScreen* screen )
@@ -293,6 +294,7 @@ void VspSidePanel::Place()
     else if ( top && top->shown() && !m_Tab->visible() )
     {
         m_Tab->show();
+        m_Layer->Restack();
     }
 
     m_InPlace = false;

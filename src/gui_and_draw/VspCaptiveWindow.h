@@ -58,6 +58,11 @@ public:
     // Draws the title bar of the frame on top as active and the others as inactive
     void UpdateActive();
 
+    // Draws the layer's windows in the order of its children, the last on top: false where the platform does not
+    // allow it.  FLTK's model draws a window shown last above its siblings, which Windows does not, so the order
+    // is set here whenever one of them is shown.
+    bool Restack();
+
 private:
     Fl_Window* m_View;
     int m_ViewRight;
