@@ -778,6 +778,8 @@ void BuildFaceZones( const vector< TMesh* >& meshVec, vector< TMeshFaceZone > & 
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir );
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir, int own, const vector< TMeshFaceZone > & zones );
+void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir, int own, const vector< TMeshFaceZone > & zones,
+                     const vector < int > & cand );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 )  );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );

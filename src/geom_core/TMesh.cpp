@@ -4772,6 +4772,28 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
         }
     }
 
+    // Only a mesh whose zone meets this mesh's box can hold one of its tris.
+    BndBox box;
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+        box.Update( tri->m_N0->m_Pnt );
+        box.Update( tri->m_N1->m_Pnt );
+        box.Update( tri->m_N2->m_Pnt );
+    }
+
+    vector < int > cand;
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        if ( meshVec[m] != this && meshVec[m]->m_ThickSurf &&
+             zones[m].m_Lo.x() <= box.GetMax().x() && zones[m].m_Hi.x() >= box.GetMin().x() &&
+             zones[m].m_Lo.y() <= box.GetMax().y() && zones[m].m_Hi.y() >= box.GetMin().y() &&
+             zones[m].m_Lo.z() <= box.GetMax().z() && zones[m].m_Hi.z() >= box.GetMin().z() )
+        {
+            cand.push_back( m );
+        }
+    }
+
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         TTri* tri = m_TVec[t];
@@ -4781,12 +4803,12 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
         {
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                DeterIntExtTri( tri->m_SplitVec[s], meshVec, dir, own, zones );
+                DeterIntExtTri( tri->m_SplitVec[s], meshVec, dir, own, zones, cand );
             }
         }
         else
         {
-            DeterIntExtTri( tri, meshVec, dir, own, zones );
+            DeterIntExtTri( tri, meshVec, dir, own, zones, cand );
         }
     }
 }

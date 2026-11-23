@@ -2961,6 +2961,23 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &di
 
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir, int own, const vector< TMeshFaceZone > & zones )
 {
+    vector < int > cand;
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        if ( meshVec[m] != tri->GetTMeshPtr() && meshVec[m]->m_ThickSurf )
+        {
+            cand.push_back( m );
+        }
+    }
+    DeterIntExtTri( tri, meshVec, dir, own, zones, cand );
+}
+
+// As above, testing only the meshes in cand (ascending), which must hold every thick mesh other than
+// the tri's own whose zone can contain the tri.  A point outside a mesh's zone is outside the mesh: a
+// ray from it can cross the mesh an odd number of times only where the mesh is not closed.
+void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir, int own, const vector< TMeshFaceZone > & zones,
+                     const vector < int > & cand )
+{
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) / 3.0;
     tri->m_IgnoreTriFlag = false;
     int prior = -1;
@@ -2969,12 +2986,16 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &di
     tri->m_insideSurf.clear();
     tri->m_insideSurf.resize( nmesh, false );
 
-    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    for ( int c = 0 ; c < ( int )cand.size() ; c++ )
     {
-        if ( meshVec[m] != tri->GetTMeshPtr() && meshVec[m]->m_ThickSurf )
+        int m = cand[c];
+        const TMeshFaceZone &zone = zones[m];
+        if ( orig.x() >= zone.m_Lo.x() && orig.x() <= zone.m_Hi.x() &&
+             orig.y() >= zone.m_Lo.y() && orig.y() <= zone.m_Hi.y() &&
+             orig.z() >= zone.m_Lo.z() && orig.z() <= zone.m_Hi.z() )
         {
             bool inside = false;
-            if ( !CoincidentInside( tri, orig, meshVec, own, m, zones[m], inside ) )
+            if ( !CoincidentInside( tri, orig, meshVec, own, m, zone, inside ) )
             {
                 vector<double > tParmVec;
                 vector <TTri*> triVec;
