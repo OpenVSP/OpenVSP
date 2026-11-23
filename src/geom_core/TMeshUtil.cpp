@@ -2265,8 +2265,11 @@ bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < b
 
     bool aInOneNormal = false;
 
-    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
+    // Only the meshes the tri is inside matter, so only those are visited, in order.
+    for ( vector < bool >::const_iterator it = std::find( aInB.begin(), aInB.end(), true ) ; it != aInB.end() ;
+          it = std::find( it + 1, aInB.end(), true ) )
     {
+        int b = ( int )( it - aInB.begin() );
         bool aInThisB = aInB[b];
         int bType = bTypes[b];
         bool bThick = thicksurf[b];
@@ -2319,8 +2322,10 @@ bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < b
     }
 
     // Check non-absolute cases
-    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
+    for ( vector < bool >::const_iterator it = std::find( aInB.begin(), aInB.end(), true ) ; it != aInB.end() ;
+          it = std::find( it + 1, aInB.end(), true ) )
     {
+        int b = ( int )( it - aInB.begin() );
         bool aInThisB = aInB[b];
         int bType = bTypes[b];
         bool bThick = thicksurf[b];
