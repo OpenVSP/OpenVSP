@@ -29,6 +29,7 @@
 #include <string>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <list>
 
 using std::vector;
@@ -54,6 +55,7 @@ class TBndBox;
 class NBndBox;
 class TMesh;
 class PGMesh;
+struct TMeshFaceZone;
 
 // Below this a triangle encloses nothing worth keeping.  Its area over the square of its
 // longest edge, so the test does not depend on the model's size.  See TMesh::AddTri.
@@ -523,7 +525,15 @@ public:
     void IgnoreNone();
 
     void DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
-    void BuildRegions( vector < TTri* > & leaves, vector < vector < int > > & regions );
+    void DeterIntExtPiece( TTri* piece, int parent, const vector< TMesh* >& meshVec, const vec3d &dir, int own,
+                           const vector< TMeshFaceZone > & zones, const vector < int > & cand,
+                           const vector < bool > & known, const vector < bool > & coinc_parent, vector < TTri* > & decided );
+    void BuildRegions( vector < TTri* > & leaves, vector < int > & leaf_parent, vector < vector < int > > & regions );
+
+    // Record, while intersecting, which meshes touch each tri, for the next DeterIntExt.
+    void RecordTouches();
+    void AddTouch( TTri* tri, TMesh* tm );
+    void ClearTouches();
     void DeterIntExt( TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
 
     void LoadBndBox();
@@ -658,6 +668,12 @@ public:
 
     bool m_DeleteMeFlag;
     vector< TTri* > m_NonClosedTriVec;
+
+    // Which meshes touch each tri, and which meshes this one was intersected with while recording, so
+    // the touches with them are complete.  Kept from Intersect to DeterIntExt.
+    bool m_RecordTouches;
+    std::unordered_map < TTri*, vector < TMesh* > > m_TouchMap;
+    std::unordered_set < TMesh* > m_TouchKnown;
 
     vector< vec3d > m_VertVec;
 

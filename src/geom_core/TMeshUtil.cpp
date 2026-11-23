@@ -4066,6 +4066,11 @@ void IntersectTrim( vector<TMesh*> &tmv, vector<TMesh*> &subSurfVec, BndBox &bbo
     bbox = b;
 
     //==== Intersect All Mesh Geoms ====//
+    // Which meshes touch each tri lets DeterIntExt decide split tris' pieces with fewer rays.
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    {
+        tmv[i]->RecordTouches();
+    }
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
         for ( int j = i + 1 ; j < ( int )tmv.size() ; j++ )

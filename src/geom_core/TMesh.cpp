@@ -3008,6 +3008,8 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
 // This avoids lots of pedantic intersections.
 // However, this check is somewhat slow and is not needed in the normal case of intersecting independent
 // meshes.
+static void RecordTouch( TTri* t0, TTri* t1 );
+
 void TBndBox::Intersect( TBndBox* iBox, bool UWFlag, bool checkSharedEdges )
 {
 #ifdef DEBUG_TMESH
@@ -3058,6 +3060,10 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag, bool checkSharedEdges )
 
                 if ( checkSharedEdges && t0->ShareEdge( t1 ) )
                 {
+                    if ( !UWFlag )
+                    {
+                        RecordTouch( t0, t1 );
+                    }
                     continue;
                 }
 
@@ -3069,6 +3075,11 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag, bool checkSharedEdges )
                                 t0->m_N0->m_Pnt.v, t0->m_N1->m_Pnt.v, t0->m_N2->m_Pnt.v,
                                 t1->m_N0->m_Pnt.v, t1->m_N1->m_Pnt.v, t1->m_N2->m_Pnt.v,
                                 &coplanarFlag, e0.v, e1.v );
+
+                if ( iflag && !UWFlag )
+                {
+                    RecordTouch( t0, t1 );
+                }
 
                 if ( iflag && ( coplanarFlag || dist( e0, e1 ) <= tol ) )
                 {
@@ -3395,6 +3406,7 @@ void TMesh::Init()
     m_ShellMassArea = 0;
     m_ShellFlag = false;
     m_DeleteMeFlag = false;
+    m_RecordTouches = false;
     m_TheoArea = m_WetArea = 0.0;
     m_TheoVol    = m_WetVol = 0.0;
     m_SurfNum = 0;
@@ -3420,6 +3432,8 @@ TMesh::~TMesh()
 
 void TMesh::Wype()
 {
+    ClearTouches();
+
     for ( int i = 0 ; i < ( int )m_TVec.size() ; i++ )
     {
         delete m_TVec[i];
@@ -4130,6 +4144,46 @@ void TMesh::MergeTMeshes( const TMesh* tm )
 void TMesh::Intersect( TMesh* tm, bool UWFlag, bool checkSharedEdges )
 {
     m_TBox.Intersect( &tm->m_TBox, UWFlag, checkSharedEdges );
+
+    if ( !UWFlag && m_RecordTouches && tm->m_RecordTouches )
+    {
+        m_TouchKnown.insert( tm );
+        tm->m_TouchKnown.insert( this );
+    }
+}
+
+void TMesh::RecordTouches()
+{
+    ClearTouches();
+    m_RecordTouches = true;
+}
+
+void TMesh::AddTouch( TTri* tri, TMesh* tm )
+{
+    vector < TMesh* > &touch = m_TouchMap[ tri ];
+    if ( std::find( touch.begin(), touch.end(), tm ) == touch.end() )
+    {
+        touch.push_back( tm );
+    }
+}
+
+void TMesh::ClearTouches()
+{
+    m_RecordTouches = false;
+    m_TouchMap.clear();
+    m_TouchKnown.clear();
+}
+
+// Two tris of different meshes that meet: each mesh touches the other's tri.
+static void RecordTouch( TTri* t0, TTri* t1 )
+{
+    TMesh* m0 = t0->GetTMeshPtr();
+    TMesh* m1 = t1->GetTMeshPtr();
+    if ( m0 && m1 && m0 != m1 && m0->m_RecordTouches && m1->m_RecordTouches )
+    {
+        m0->AddTouch( t0, m1 );
+        m1->AddTouch( t1, m0 );
+    }
 }
 
 bool TMesh::CheckIntersect( TMesh* tm )
@@ -4768,6 +4822,66 @@ void TMesh::IgnoreNone()
     }
 }
 
+// Which meshes a piece of the tri m_TVec[ parent ] is inside.  The first piece decided casts rays at
+// every candidate; the others take its answer for each mesh known not to touch the tri, and cast rays
+// only at the rest.  Every piece of a tri with a piece on another mesh's face casts at every candidate,
+// as that mesh need not touch the tri.
+void TMesh::DeterIntExtPiece( TTri* piece, int parent, const vector< TMesh* >& meshVec, const vec3d &dir, int own,
+                              const vector< TMeshFaceZone > & zones, const vector < int > & cand,
+                              const vector < bool > & known, const vector < bool > & coinc_parent,
+                              vector < TTri* > & decided )
+{
+    if ( coinc_parent[ parent ] )
+    {
+        DeterIntExtTri( piece, meshVec, dir, own, zones, cand );
+        return;
+    }
+
+    TTri* ref = decided[ parent ];
+    if ( !ref )
+    {
+        DeterIntExtTri( piece, meshVec, dir, own, zones, cand );
+        decided[ parent ] = piece;
+        return;
+    }
+
+    const vector < TMesh* > *touch = nullptr;
+    std::unordered_map < TTri*, vector < TMesh* > >::const_iterator it = m_TouchMap.find( m_TVec[ parent ] );
+    if ( it != m_TouchMap.end() )
+    {
+        touch = &it->second;
+    }
+
+    vector < int > cast;
+    for ( int c = 0 ; c < ( int )cand.size() ; c++ )
+    {
+        TMesh* tm = meshVec[ cand[c] ];
+        if ( !known[c] || ( touch && std::find( touch->begin(), touch->end(), tm ) != touch->end() ) )
+        {
+            cast.push_back( cand[c] );
+        }
+    }
+
+    DeterIntExtTri( piece, meshVec, dir, own, zones, cast );
+
+    // The rest as the first piece has them, then the mesh the piece takes its mass properties from.
+    int prior = -1;
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        if ( !piece->m_insideSurf[m] && ref->m_insideSurf[m] &&
+             std::find( cast.begin(), cast.end(), m ) == cast.end() )
+        {
+            piece->m_insideSurf[m] = true;
+        }
+        if ( piece->m_insideSurf[m] && meshVec[m]->m_MassPrior > prior )
+        {
+            piece->m_GeomID = meshVec[m]->m_OriginGeomID;
+            piece->m_Density = meshVec[m]->m_Density;
+            prior = meshVec[m]->m_MassPrior;
+        }
+    }
+}
+
 void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
 {
     vector< TMeshFaceZone > zones;
@@ -4808,17 +4922,29 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
     // spread over a region decide it; when they disagree, a curve the regions could not see crosses
     // it, and every tri of it is decided by its own rays.
     vector < TTri* > leaves;
+    vector < int > leaf_parent;
     vector < vector < int > > regions;
-    BuildRegions( leaves, regions );
+    BuildRegions( leaves, leaf_parent, regions );
+
+    // A piece of a split tri differs from another piece of it only in the meshes that touch the tri, so
+    // once one piece is decided, the rest cast rays only at those.
+    vector < bool > known( cand.size(), false );
+    for ( int c = 0 ; c < ( int )cand.size() ; c++ )
+    {
+        known[c] = m_TouchKnown.count( meshVec[ cand[c] ] ) > 0;
+    }
+    vector < TTri* > decided( m_TVec.size(), nullptr );
 
     // A tri on another mesh's face is decided by the faces, which can differ from its neighbors'
     // answer with no intersection between them, so it is decided alone.
     vector < bool > coinc( leaves.size(), false );
+    vector < bool > coinc_parent( m_TVec.size(), false );
     for ( int i = 0 ; i < ( int )leaves.size() ; i++ )
     {
         if ( OnCoincidentFace( leaves[i], meshVec, own, zones, cand ) )
         {
             coinc[i] = true;
+            coinc_parent[ leaf_parent[i] ] = true;
         }
     }
 
@@ -4849,7 +4975,7 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
         {
             for ( int i = 0 ; i < n ; i++ )
             {
-                DeterIntExtTri( leaves[ reg[i] ], meshVec, dir, own, zones, cand );
+                DeterIntExtPiece( leaves[ reg[i] ], leaf_parent[ reg[i] ], meshVec, dir, own, zones, cand, known, coinc_parent, decided );
             }
             continue;
         }
@@ -4892,7 +5018,7 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
             TTri* tri = leaves[ reg[i] ];
             if ( !agree )
             {
-                DeterIntExtTri( tri, meshVec, dir, own, zones, cand );
+                DeterIntExtPiece( tri, leaf_parent[ reg[i] ], meshVec, dir, own, zones, cand, known, coinc_parent, decided );
                 continue;
             }
 
@@ -4905,6 +5031,8 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
             }
         }
     }
+
+    ClearTouches();
 }
 
 // An edge of a split tri, by its nodes in address order.
@@ -5091,9 +5219,10 @@ static void AddPerimSeg( vector < TPerimSeg > & perim, TNode* c0, TNode* c1, dou
 // points, more than two tris on an edge, an unsplit tri with intersections, a tri touching another
 // where the intersection left no edge, a tri whose intersection edges stop short -- it leaves them
 // apart.
-void TMesh::BuildRegions( vector < TTri* > & leaves, vector < vector < int > > & regions )
+void TMesh::BuildRegions( vector < TTri* > & leaves, vector < int > & leaf_parent, vector < vector < int > > & regions )
 {
     leaves.clear();
+    leaf_parent.clear();
     regions.clear();
 
     vector < int > up;
@@ -5109,6 +5238,7 @@ void TMesh::BuildRegions( vector < TTri* > & leaves, vector < vector < int > > &
         {
             int leaf = ( int )leaves.size();
             leaves.push_back( tri );
+            leaf_parent.push_back( t );
             up.push_back( leaf );
             if ( tri->m_ISectEdgeVec.empty() && !tri->m_ContactFlag )
             {
@@ -5127,6 +5257,7 @@ void TMesh::BuildRegions( vector < TTri* > & leaves, vector < vector < int > > &
         {
             TTri* sub = tri->m_SplitVec[s];
             leaves.push_back( sub );
+            leaf_parent.push_back( t );
             up.push_back( first + s );
 
             TNode* sn[3] = { sub->m_N0, sub->m_N1, sub->m_N2 };
