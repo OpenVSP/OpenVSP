@@ -222,6 +222,7 @@ public:
 //  TNode* mapNode;
 
     int m_IsectFlag;
+    bool m_ScaleMark; // Already scaled, within one ApplyScale.
 
     enum { HAS_UNKNOWN = 0, HAS_XYZ = 1, HAS_UW = 2 };
 

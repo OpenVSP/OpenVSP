@@ -705,15 +705,23 @@ void UpdateBBox( BndBox &bbox, vector<TMesh*> &tmv, const Matrix4d &transMat )
     }
 }
 
+// Scale every node of the meshes and their split tris once, though tris share them.
+static void ScaleNodeOnce( TNode* n, double scalefac )
+{
+    if ( !n->m_ScaleMark )
+    {
+        n->m_ScaleMark = true;
+        n->m_Pnt = n->m_Pnt * ( scalefac );
+    }
+}
+
 void ApplyScale( double scalefac, vector<TMesh*> &tmv )
 {
-    unordered_set < TNode* > nodeSet;
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )tmv[i]->m_NVec.size() ; j++ )
         {
-            TNode* n = tmv[i]->m_NVec[j];
-            nodeSet.insert( n );
+            ScaleNodeOnce( tmv[i]->m_NVec[j], scalefac );
         }
         //==== Split Tris ====//
         for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
@@ -721,8 +729,7 @@ void ApplyScale( double scalefac, vector<TMesh*> &tmv )
             TTri* t = tmv[i]->m_TVec[j];
             for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
             {
-                TNode* n = t->m_NVec[k];
-                nodeSet.insert( n );
+                ScaleNodeOnce( t->m_NVec[k], scalefac );
             }
         }
 
@@ -734,9 +741,22 @@ void ApplyScale( double scalefac, vector<TMesh*> &tmv )
             }
         }
     }
-    for ( const auto& n : nodeSet )
+
+    // Clear the marks for the next scaling.
+    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
-        n->m_Pnt = n->m_Pnt * ( scalefac );
+        for ( int j = 0 ; j < ( int )tmv[i]->m_NVec.size() ; j++ )
+        {
+            tmv[i]->m_NVec[j]->m_ScaleMark = false;
+        }
+        for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
+        {
+            TTri* t = tmv[i]->m_TVec[j];
+            for ( int k = 0 ; k < ( int )t->m_NVec.size() ; k++ )
+            {
+                t->m_NVec[k]->m_ScaleMark = false;
+            }
+        }
     }
 }
 

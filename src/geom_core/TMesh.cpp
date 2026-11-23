@@ -59,6 +59,7 @@ TNode::TNode()
 //  mapNode = 0;
     m_IsectFlag = 0;
     m_XYZFlag = true; // true if xyz
+    m_ScaleMark = false;
     m_CoordInfo = HAS_UNKNOWN;
     m_UWPnt = vec3d( -1, -1, 0 );
 }
