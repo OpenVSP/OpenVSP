@@ -399,6 +399,7 @@ public:
     vector<int> m_Tags;
     double m_Density;
     bool m_InvalidFlag;
+    bool m_ContactFlag; // Touches another tri where the intersection left no edge.
     int m_iQuad;
     int m_ID;
     int m_jref;
@@ -521,6 +522,7 @@ public:
     void IgnoreNone();
 
     void DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
+    void BuildRegions( vector < TTri* > & leaves, vector < vector < int > > & regions );
     void DeterIntExt( TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 ) );
 
     void LoadBndBox();
@@ -781,6 +783,8 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &di
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir, int own, const vector< TMeshFaceZone > & zones,
                      const vector < int > & cand );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 )  );
+bool OnCoincidentFace( TTri* tri, const vector< TMesh* >& meshVec, int own, const vector< TMeshFaceZone > & zones,
+                       const vector < int > & cand );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );
 void WriteInsideMStl( const string &file_name, const vector< TMesh* >& meshVec, int minside );

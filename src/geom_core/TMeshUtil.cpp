@@ -3019,6 +3019,23 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &di
     }
 }
 
+// Whether the tri lies on a face of one of the meshes in cand, where DeterIntExtTri decides it by the
+// faces and not by a ray.
+bool OnCoincidentFace( TTri* tri, const vector< TMesh* >& meshVec, int own, const vector< TMeshFaceZone > & zones,
+                       const vector < int > & cand )
+{
+    vec3d cen = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) / 3.0;
+    for ( int c = 0 ; c < ( int )cand.size() ; c++ )
+    {
+        bool inside = false;
+        if ( CoincidentInside( tri, cen, meshVec, own, cand[c], zones[ cand[c] ], inside ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir )
 {
     if ( tri )

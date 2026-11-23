@@ -453,6 +453,7 @@ TTri::TTri( TMesh* tmesh )
     m_N0 = m_N1 = m_N2 = 0;
     m_IgnoreTriFlag = false;
     m_InvalidFlag  = false;
+    m_ContactFlag = false;
     m_Density = 1.0;
     m_TMesh = tmesh;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = nullptr;
@@ -3068,6 +3069,12 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag, bool checkSharedEdges )
                                 t1->m_N0->m_Pnt.v, t1->m_N1->m_Pnt.v, t1->m_N2->m_Pnt.v,
                                 &coplanarFlag, e0.v, e1.v );
 
+                if ( iflag && ( coplanarFlag || dist( e0, e1 ) <= tol ) )
+                {
+                    t0->m_ContactFlag = true;
+                    t1->m_ContactFlag = true;
+                }
+
                 if ( iflag && !coplanarFlag )
                 {
                     if ( UWFlag )
@@ -3206,6 +3213,8 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag, bool checkSharedEdges )
                                 // tri_tri_intersection_test_3d() above gives bonkers results in situations with
                                 // two triangles that share a point along a colinear edge.  The resulting intersection
                                 // segment fails this InTri() test, so this code seems to filter this failure out.
+                                t0->m_ContactFlag = true;
+                                t1->m_ContactFlag = true;
                                 continue;
                             }
 
@@ -4794,22 +4803,455 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
         }
     }
 
+    // Tris of one region are inside the same meshes, as no intersection crosses it.  Rays from tris
+    // spread over a region decide it; when they disagree, a curve the regions could not see crosses
+    // it, and every tri of it is decided by its own rays.
+    vector < TTri* > leaves;
+    vector < vector < int > > regions;
+    BuildRegions( leaves, regions );
+
+    // A tri on another mesh's face is decided by the faces, which can differ from its neighbors'
+    // answer with no intersection between them, so it is decided alone.
+    vector < bool > coinc( leaves.size(), false );
+    for ( int i = 0 ; i < ( int )leaves.size() ; i++ )
+    {
+        if ( OnCoincidentFace( leaves[i], meshVec, own, zones, cand ) )
+        {
+            coinc[i] = true;
+        }
+    }
+
+    for ( int r = 0 ; r < ( int )regions.size() ; r++ )
+    {
+        vector < int > reg;
+        reg.reserve( regions[r].size() );
+        for ( int i = 0 ; i < ( int )regions[r].size() ; i++ )
+        {
+            int leaf = regions[r][i];
+            if ( coinc[leaf] )
+            {
+                DeterIntExtTri( leaves[leaf], meshVec, dir, own, zones, cand );
+            }
+            else
+            {
+                reg.push_back( leaf );
+            }
+        }
+        int n = ( int )reg.size();
+        if ( n == 0 )
+        {
+            continue;
+        }
+
+        int k = std::max( 3, ( int )std::ceil( std::sqrt( ( double )n ) ) );
+        if ( k >= n )
+        {
+            for ( int i = 0 ; i < n ; i++ )
+            {
+                DeterIntExtTri( leaves[ reg[i] ], meshVec, dir, own, zones, cand );
+            }
+            continue;
+        }
+
+        vector < bool > is_sample( n, false );
+        TTri* first = nullptr;
+        bool agree = true;
+        for ( int j = 0 ; j < k ; j++ )
+        {
+            int i = ( int )( ( ( long long )j * n ) / k );
+            is_sample[i] = true;
+            TTri* tri = leaves[ reg[i] ];
+            DeterIntExtTri( tri, meshVec, dir, own, zones, cand );
+            if ( !first )
+            {
+                first = tri;
+            }
+            else if ( tri->m_insideSurf != first->m_insideSurf )
+            {
+                agree = false;
+            }
+        }
+
+        bool any_inside = false;
+        for ( int m = 0 ; m < ( int )first->m_insideSurf.size() ; m++ )
+        {
+            if ( first->m_insideSurf[m] )
+            {
+                any_inside = true;
+            }
+        }
+
+        for ( int i = 0 ; i < n ; i++ )
+        {
+            if ( is_sample[i] )
+            {
+                continue;
+            }
+
+            TTri* tri = leaves[ reg[i] ];
+            if ( !agree )
+            {
+                DeterIntExtTri( tri, meshVec, dir, own, zones, cand );
+                continue;
+            }
+
+            tri->m_IgnoreTriFlag = false;
+            tri->m_insideSurf = first->m_insideSurf;
+            if ( any_inside )
+            {
+                tri->m_GeomID = first->m_GeomID;
+                tri->m_Density = first->m_Density;
+            }
+        }
+    }
+}
+
+// An edge of a split tri, by its nodes in address order.
+struct TSubEdge
+{
+    TNode* m_A;
+    TNode* m_B;
+    int m_Leaf;
+};
+
+static bool SubEdgeLess( const TSubEdge &x, const TSubEdge &y )
+{
+    if ( x.m_A != y.m_A )
+    {
+        return std::less < TNode* >()( x.m_A, y.m_A );
+    }
+    return std::less < TNode* >()( x.m_B, y.m_B );
+}
+
+// A piece of a tri's edge, as a parameter range along the original tri's edge (corners in address
+// order) it lies on.
+struct TPerimSeg
+{
+    TNode* m_C0;
+    TNode* m_C1;
+    int m_Leaf;
+    int m_Parent;
+    double m_T0;
+    double m_T1;
+};
+
+static bool PerimSegLess( const TPerimSeg &x, const TPerimSeg &y )
+{
+    if ( x.m_C0 != y.m_C0 )
+    {
+        return std::less < TNode* >()( x.m_C0, y.m_C0 );
+    }
+    return std::less < TNode* >()( x.m_C1, y.m_C1 );
+}
+
+static int RegionRoot( vector < int > & up, int i )
+{
+    while ( up[i] != i )
+    {
+        up[i] = up[ up[i] ];
+        i = up[i];
+    }
+    return i;
+}
+
+static void RegionJoin( vector < int > & up, int a, int b )
+{
+    a = RegionRoot( up, a );
+    b = RegionRoot( up, b );
+    if ( a < b )
+    {
+        up[b] = a;
+    }
+    else if ( b < a )
+    {
+        up[a] = b;
+    }
+}
+
+// The squared distance from p to the segment p0-p1, however short the segment is.
+static double SegDistSquared( const vec3d &p, const vec3d &p0, const vec3d &p1 )
+{
+    vec3d d = p1 - p0;
+    double len2 = dot( d, d );
+    double t = 0.0;
+    if ( len2 > 0.0 )
+    {
+        t = dot( p - p0, d ) / len2;
+        t = std::max( 0.0, std::min( 1.0, t ) );
+    }
+    return dist_squared( p, p0 + d * t );
+}
+
+// Whether a-b lies along one of the tri's intersection edges: both ends within tol of it.
+static bool OnISectEdge( TTri* tri, TNode* a, TNode* b, double tol )
+{
+    double tol2 = tol * tol;
+    vec3d pa = a->GetXYZPnt();
+    vec3d pb = b->GetXYZPnt();
+    for ( int i = 0 ; i < ( int )tri->m_ISectEdgeVec.size() ; i++ )
+    {
+        vec3d p0 = tri->m_ISectEdgeVec[i]->m_N0->GetXYZPnt();
+        vec3d p1 = tri->m_ISectEdgeVec[i]->m_N1->GetXYZPnt();
+        if ( SegDistSquared( pa, p0, p1 ) <= tol2 && SegDistSquared( pb, p0, p1 ) <= tol2 )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Whether every intersection edge of the tri ends on its perimeter or at another intersection edge, so
+// the curves through it are unbroken.  An end anywhere else is a curve the intersection lost.
+static bool ISectEdgesClosed( TTri* tri, double tol )
+{
+    double tol2 = tol * tol;
+    vec3d c[3] = { tri->m_N0->GetXYZPnt(), tri->m_N1->GetXYZPnt(), tri->m_N2->GetXYZPnt() };
+    int n = ( int )tri->m_ISectEdgeVec.size();
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        for ( int k = 0 ; k < 2 ; k++ )
+        {
+            TNode* nd = tri->m_ISectEdgeVec[i]->m_N0;
+            if ( k == 1 )
+            {
+                nd = tri->m_ISectEdgeVec[i]->m_N1;
+            }
+            vec3d p = nd->GetXYZPnt();
+
+            bool met = false;
+            for ( int e = 0 ; e < 3 && !met ; e++ )
+            {
+                double t;
+                vec3d pon;
+                if ( pointSegDistSquared( p, c[e], c[ ( e + 1 ) % 3 ], t, pon ) <= tol2 )
+                {
+                    met = true;
+                }
+            }
+            for ( int j = 0 ; j < n && !met ; j++ )
+            {
+                if ( j != i &&
+                     ( dist_squared( p, tri->m_ISectEdgeVec[j]->m_N0->GetXYZPnt() ) <= tol2 ||
+                       dist_squared( p, tri->m_ISectEdgeVec[j]->m_N1->GetXYZPnt() ) <= tol2 ) )
+                {
+                    met = true;
+                }
+            }
+            if ( !met )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Where a-b lies along c0-c1, as the parameter of each end.  False when either end is off the line.
+static bool OnTriEdge( const vec3d &c0, const vec3d &c1, const vec3d &a, const vec3d &b, double &ta, double &tb )
+{
+    vec3d d = c1 - c0;
+    double len2 = dot( d, d );
+    if ( len2 <= 0.0 )
+    {
+        return false;
+    }
+    ta = dot( a - c0, d ) / len2;
+    tb = dot( b - c0, d ) / len2;
+    double tol2 = 1e-12 * len2;
+    if ( dist_squared( a, c0 + d * ta ) > tol2 || dist_squared( b, c0 + d * tb ) > tol2 )
+    {
+        return false;
+    }
+    return true;
+}
+
+// A piece of corner c0-c1 from t0 to t1, with the corners in address order.
+static void AddPerimSeg( vector < TPerimSeg > & perim, TNode* c0, TNode* c1, double t0, double t1, int leaf, int parent )
+{
+    if ( std::less < TNode* >()( c1, c0 ) )
+    {
+        std::swap( c0, c1 );
+        t0 = 1.0 - t0;
+        t1 = 1.0 - t1;
+    }
+    TPerimSeg seg;
+    seg.m_C0 = c0;
+    seg.m_C1 = c1;
+    seg.m_Leaf = leaf;
+    seg.m_Parent = parent;
+    seg.m_T0 = std::min( t0, t1 );
+    seg.m_T1 = std::max( t0, t1 );
+    perim.push_back( seg );
+}
+
+// The leaf tris (split tris, or the tri itself when unsplit) grouped into regions no intersection
+// crosses: neighbors are joined across an edge unless an intersection edge lies along it.  Where it
+// is unsure -- pieces of a shared edge that do not match end to end, an edge between two intersection
+// points, more than two tris on an edge, an unsplit tri with intersections, a tri touching another
+// where the intersection left no edge, a tri whose intersection edges stop short -- it leaves them
+// apart.
+void TMesh::BuildRegions( vector < TTri* > & leaves, vector < vector < int > > & regions )
+{
+    leaves.clear();
+    regions.clear();
+
+    vector < int > up;
+    vector < TPerimSeg > perim;
+    vector < TSubEdge > edges;
+
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         TTri* tri = m_TVec[t];
+        TNode* corner[3] = { tri->m_N0, tri->m_N1, tri->m_N2 };
 
-        //==== Do Interior Tris ====//
-        if ( tri->m_SplitVec.size() )
+        if ( tri->m_SplitVec.empty() )
         {
-            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            int leaf = ( int )leaves.size();
+            leaves.push_back( tri );
+            up.push_back( leaf );
+            if ( tri->m_ISectEdgeVec.empty() && !tri->m_ContactFlag )
             {
-                DeterIntExtTri( tri->m_SplitVec[s], meshVec, dir, own, zones, cand );
+                for ( int e = 0 ; e < 3 ; e++ )
+                {
+                    AddPerimSeg( perim, corner[e], corner[ ( e + 1 ) % 3 ], 0.0, 1.0, leaf, t );
+                }
+            }
+            continue;
+        }
+
+        int first = ( int )leaves.size();
+        int nsub = ( int )tri->m_SplitVec.size();
+        edges.clear();
+        for ( int s = 0 ; s < nsub ; s++ )
+        {
+            TTri* sub = tri->m_SplitVec[s];
+            leaves.push_back( sub );
+            up.push_back( first + s );
+
+            TNode* sn[3] = { sub->m_N0, sub->m_N1, sub->m_N2 };
+            for ( int e = 0 ; e < 3 ; e++ )
+            {
+                TSubEdge se;
+                se.m_A = sn[e];
+                se.m_B = sn[ ( e + 1 ) % 3 ];
+                se.m_Leaf = first + s;
+                if ( std::less < TNode* >()( se.m_B, se.m_A ) )
+                {
+                    std::swap( se.m_A, se.m_B );
+                }
+                edges.push_back( se );
             }
         }
-        else
+        // Nodes closer than this were merged by the split; an edge this close to an intersection edge
+        // lies along it.
+        double tol = ON_EDGE_TOL;
+        for ( int c = 0 ; c < 3 ; c++ )
         {
-            DeterIntExtTri( tri, meshVec, dir, own, zones, cand );
+            tol = std::max( tol, 1e-6 * dist( corner[c]->m_Pnt, corner[ ( c + 1 ) % 3 ]->m_Pnt ) );
         }
+
+        if ( tri->m_ContactFlag || !ISectEdgesClosed( tri, tol ) )
+        {
+            continue;
+        }
+        std::sort( edges.begin(), edges.end(), SubEdgeLess );
+
+        int i = 0;
+        while ( i < ( int )edges.size() )
+        {
+            int j = i + 1;
+            while ( j < ( int )edges.size() && edges[j].m_A == edges[i].m_A && edges[j].m_B == edges[i].m_B )
+            {
+                j++;
+            }
+
+            TNode* a = edges[i].m_A;
+            TNode* b = edges[i].m_B;
+            bool barrier = ( a->m_IsectFlag && b->m_IsectFlag ) || OnISectEdge( tri, a, b, tol );
+
+            if ( !barrier && j - i == 2 )
+            {
+                // Inside the tri, between two of its pieces.
+                RegionJoin( up, edges[i].m_Leaf, edges[i + 1].m_Leaf );
+            }
+            else if ( !barrier && j - i == 1 )
+            {
+                // On one of the tri's own edges.
+                for ( int c = 0 ; c < 3 ; c++ )
+                {
+                    double ta, tb;
+                    if ( OnTriEdge( corner[c]->m_Pnt, corner[ ( c + 1 ) % 3 ]->m_Pnt, a->m_Pnt, b->m_Pnt, ta, tb ) )
+                    {
+                        AddPerimSeg( perim, corner[c], corner[ ( c + 1 ) % 3 ], ta, tb, edges[i].m_Leaf, t );
+                        break;
+                    }
+                }
+            }
+            i = j;
+        }
+    }
+
+    // Join pieces of a shared edge that match end to end, between the two tris that share it.
+    std::sort( perim.begin(), perim.end(), PerimSegLess );
+    double eps = 1e-6;
+    int i = 0;
+    while ( i < ( int )perim.size() )
+    {
+        int j = i + 1;
+        while ( j < ( int )perim.size() && perim[j].m_C0 == perim[i].m_C0 && perim[j].m_C1 == perim[i].m_C1 )
+        {
+            j++;
+        }
+
+        int p0 = perim[i].m_Parent;
+        int p1 = -1;
+        bool two = true;
+        for ( int k = i + 1 ; k < j ; k++ )
+        {
+            if ( perim[k].m_Parent != p0 )
+            {
+                if ( p1 < 0 )
+                {
+                    p1 = perim[k].m_Parent;
+                }
+                else if ( perim[k].m_Parent != p1 )
+                {
+                    two = false;
+                }
+            }
+        }
+
+        if ( two && p1 >= 0 )
+        {
+            for ( int k = i ; k < j ; k++ )
+            {
+                if ( perim[k].m_Parent != p0 )
+                {
+                    continue;
+                }
+                for ( int q = i ; q < j ; q++ )
+                {
+                    if ( perim[q].m_Parent == p1 &&
+                         std::abs( perim[k].m_T0 - perim[q].m_T0 ) < eps && std::abs( perim[k].m_T1 - perim[q].m_T1 ) < eps )
+                    {
+                        RegionJoin( up, perim[k].m_Leaf, perim[q].m_Leaf );
+                    }
+                }
+            }
+        }
+        i = j;
+    }
+
+    vector < int > index( leaves.size(), -1 );
+    for ( int i = 0 ; i < ( int )leaves.size() ; i++ )
+    {
+        int root = RegionRoot( up, i );
+        if ( index[root] < 0 )
+        {
+            index[root] = ( int )regions.size();
+            regions.push_back( vector < int > () );
+        }
+        regions[ index[root] ].push_back( i );
     }
 }
 
