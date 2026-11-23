@@ -1699,6 +1699,20 @@ int dba_errlog( void* stream, const char* fmt, ...)
     return ret;
 }
 
+// A DelaBella triangulator, destroyed with its holder.
+struct DelaBellaHolder
+{
+    DelaBellaHolder()
+    {
+        m_Idb = IDelaBella2 < double > ::Create();
+    }
+    ~DelaBellaHolder()
+    {
+        m_Idb->Destroy();
+    }
+    IDelaBella2 < double > * m_Idb;
+};
+
 bool TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
                                  vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist  )
 {
@@ -1783,7 +1797,9 @@ bool TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     }
 #endif
 
-    IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
+    // One triangulator, kept from tri to tri, reuses its buffers.
+    thread_local DelaBellaHolder holder;
+    IDelaBella2 < double > * idb = holder.m_Idb;
 #ifdef DEBUG_TMESH
     idb->SetErrLog( dba_errlog, stdout );
 #endif
@@ -1803,9 +1819,7 @@ bool TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         for ( int i = 0; i < tris; i++ )
         {
             // Note winding order!
-            connlist[i].push_back( dela->v[ 0 ]->i );
-            connlist[i].push_back( dela->v[ 1 ]->i );
-            connlist[i].push_back( dela->v[ 2 ]->i );
+            connlist[i] = { dela->v[ 0 ]->i, dela->v[ 1 ]->i, dela->v[ 2 ]->i };
 
             dela = dela->next;
         }
@@ -1849,8 +1863,6 @@ bool TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 
     delete[] cloud;
     delete[] bounds;
-
-    idb->Destroy();
 
     return success;
 }
