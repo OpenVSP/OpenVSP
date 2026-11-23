@@ -5273,13 +5273,20 @@ double TMesh::ComputeTheoArea()
         m_TagTheoAreaVec.resize( ntags, 0.0);
     }
 
+    // Neighboring tris mostly share tags, so the tag is looked up only when they change.
+    const vector < int > *last_tags = nullptr;
+    int itag = -1;
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         double area = m_TVec[t]->ComputeArea();
         m_TheoArea += area;
         if ( ntags > 0 )
         {
-            int itag = SubSurfaceMgr.GetTag(m_TVec[t]->m_Tags) - 1;
+            if ( !last_tags || *last_tags != m_TVec[t]->m_Tags )
+            {
+                itag = SubSurfaceMgr.GetTag( m_TVec[t]->m_Tags ) - 1;
+                last_tags = &m_TVec[t]->m_Tags;
+            }
             if ( itag >= 0 && itag < ntags )
             {
                 m_TagTheoAreaVec[itag] += area;
@@ -5300,13 +5307,20 @@ double TMesh::ComputeWetArea()
         m_TagWetAreaVec.resize( ntags, 0.0);
     }
 
+    // Neighboring tris mostly share tags, so the tag is looked up only when they change.
+    const vector < int > *last_tags = nullptr;
+    int itag = -1;
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         TTri* tri = m_TVec[t];
 
         // TMesh::SubTag guarantees that split tris have same tags as normal tris.
         // So, just look up tag index once per tri.
-        int itag = SubSurfaceMgr.GetTag( tri->m_Tags ) - 1;
+        if ( !last_tags || *last_tags != tri->m_Tags )
+        {
+            itag = SubSurfaceMgr.GetTag( tri->m_Tags ) - 1;
+            last_tags = &tri->m_Tags;
+        }
 
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
