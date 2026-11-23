@@ -22,6 +22,7 @@
 #include "SubSurfaceMgr.h"
 #include "FileUtil.h"
 #include "PntNodeMerge.h"
+#include "FastFormat.h"
 
 #include "triangle.h"
 #include "triangle_api.h"
@@ -4801,6 +4802,25 @@ void PGMesh::CleanColinearVerts()
     m_PGMulti->DumpGarbage();
 }
 
+// Writes lead, the values as printf's "%16.10g" would, separated by spaces, then tail, in one write.
+static void WriteG16( FILE* fp, const char* lead, const double* v, int n, const char* tail )
+{
+    // Kept from call to call, so it is not allocated for every line.
+    thread_local string line;
+    line.clear();
+    line += lead;
+    for ( int i = 0; i < n; i++ )
+    {
+        if ( i > 0 )
+        {
+            line += ' ';
+        }
+        FastFormat::AppendG( line, v[i], 16, 10 );
+    }
+    line += tail;
+    fwrite( line.data(), 1, line.size(), fp );
+}
+
 void PGMesh::WriteVSPGeom( const string & fname )
 {
     Matrix4d mat;
@@ -4841,7 +4861,7 @@ void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
     {
         // Apply Transformations
         v = XFormMat.xform( ( *n )->m_Pt->m_Pnt );
-        fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() ); // , tnode->m_UWPnt.x(), tnode->m_UWPnt.y() );
+        WriteG16( file_id, "", v.v, 3, "\n" );
     }
 }
 
@@ -4951,7 +4971,8 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id, bool flipnormal )
                 vec2d uw;
                 nodVec[i]->GetUW( tag, uw );
 
-                fprintf( file_id, " %16.10g %16.10g", uw.x() / uscale, uw.y() / wscale );
+                double uwv[2] = { uw.x() / uscale, uw.y() / wscale };
+                WriteG16( file_id, " ", uwv, 2, "" );
             }
             else
             {
@@ -5100,7 +5121,8 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id, bool flipnormal )
                 vec2d uw;
                 nodVec[i]->GetUW( tag, uw );
 
-                fprintf( file_id, " %16.10g %16.10g", uw.x() / uscale, uw.y() / wscale );
+                double uwv[2] = { uw.x() / uscale, uw.y() / wscale };
+                WriteG16( file_id, " ", uwv, 2, "" );
             }
             else
             {
@@ -5824,7 +5846,7 @@ void PGMulti::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
                 (*n)->m_Pt->m_ID = ipoint;
                 // Apply Transformations
                 vec3d v = XFormMat.xform( ( *n )->m_Pt->m_Pnt );
-                fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+                WriteG16( file_id, "", v.v, 3, "\n" );
                 ipoint++;
             }
         }
