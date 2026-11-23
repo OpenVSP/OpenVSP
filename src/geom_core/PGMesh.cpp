@@ -4890,10 +4890,11 @@ void PGMesh::WriteVSPGeomFaces( FILE* file_id, bool flipnormal )
     //==== Write Out Tris ====//
     int nFaceError = 0;
     list< PGFace* >::iterator f;
+    // Kept from face to face, so it is not allocated for each.
+    vector < PGNode* > nodVec;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
         bool faceError = false;
-        vector < PGNode* > nodVec;
         ( *f )->GetNodes( nodVec );
         if ( flipnormal )
         {
@@ -4944,9 +4945,10 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id, bool flipnormal )
     int tag;
 
     list< PGFace* >::iterator f;
+    // Kept from face to face, so it is not allocated for each.
+    vector < PGNode* > nodVec;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
-        vector < PGNode* > nodVec;
         ( *f )->GetNodes( nodVec );
         if ( flipnormal )
         {
@@ -5062,9 +5064,10 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id, bool flipnormal )
 {
     //==== Write Out Tris ====//
     list< PGFace* >::iterator f;
+    // Kept from face to face, so it is not allocated for each.
+    vector < PGNode* > nodVec;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
-        vector < PGNode* > nodVec;
         ( *f )->GetNodesAsTris( nodVec );
         if ( flipnormal )
         {
@@ -5095,9 +5098,10 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id, bool flipnormal )
     int tag;
 
     list< PGFace* >::iterator f;
+    // Kept from face to face, so it is not allocated for each.
+    vector < PGNode* > nodVec;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
-        vector < PGNode* > nodVec;
         ( *f )->GetNodesAsTris( nodVec );
         if ( flipnormal )
         {
@@ -6617,8 +6621,7 @@ int PGMulti::GetPart( int tag ) const
 {
     if ( tag >= 1 && tag <= ( int )m_TagKeys.size() )
     {
-        vector < int > tags = m_TagKeys[ tag - 1 ];
-        return GetPart( tags );
+        return GetPart( m_TagKeys[ tag - 1 ] );
     }
     return -1;
 }
