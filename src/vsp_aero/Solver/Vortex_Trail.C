@@ -872,9 +872,19 @@ void VORTEX_TRAIL::UpdateUnsteadyWakeLocation(double WakeRelax, double &ResMax, 
 
     for ( i = 2 ; i <= iMax + 1 ; i++ ) {
        
+       // Frozen wing wake: convect with the local free stream only, no induced velocities
+
+       if ( IsFrozenTrailingEdge_ && IsARotor_ == 0 ) {
+
+          Vec[0] = EdgeList_[i-1]->LocalFreeStreamVelocity(0);
+          Vec[1] = EdgeList_[i-1]->LocalFreeStreamVelocity(1);
+          Vec[2] = EdgeList_[i-1]->LocalFreeStreamVelocity(2);
+
+       }
+       
        // Full, unsteady time step using full velocity field
 
-       if ( IsARotor_ == 0 || IsARotor_ == 2 ) {
+       else if ( IsARotor_ == 0 || IsARotor_ == 2 ) {
 
           Vec[0] = EdgeList_[i-1]->Velocity()[0];
           Vec[1] = EdgeList_[i-1]->Velocity()[1];

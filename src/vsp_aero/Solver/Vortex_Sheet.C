@@ -471,8 +471,13 @@ void VORTEX_SHEET::UpdateUnsteadyWakeLocation(double WakeRelax, double &ResMax, 
        if ( i == 1 ) im = i;
        if ( i == NumberOfTrailingVortices_ ) ip = i;
 
+       // A frozen wing wake is still convected in a time accurate solution... with the
+       // local free stream only (see VORTEX_TRAIL::UpdateUnsteadyWakeLocation).
+       // Skipping it leaves the shed wake on the trailing edge of moving components.
+       // Frozen rotor wakes are skipped, as before.
+       
        if ( !TrailingVortexList_[i].TE_Node_Region_Is_Concave() &&
-            !TrailingVortexList_[i].IsFrozenTrailingEdge()         ) {
+            ( !TrailingVortexList_[i].IsFrozenTrailingEdge() || TrailingVortexList_[i].IsARotor() == 0 ) ) {
 
           TrailingVortexList_[i].UpdateUnsteadyWakeLocation(WakeRelax,Rmax,RL2);
 
