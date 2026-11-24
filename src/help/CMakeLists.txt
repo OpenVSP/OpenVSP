@@ -68,6 +68,9 @@ INCLUDE ( pandocology )
 
 FILE ( GLOB_RECURSE HELP_FILES *.md )
 
+# The Lua filter sizes each screenshot from its image, so a page is made again when an image changes.
+FILE ( GLOB HELP_IMAGES ${CMAKE_CURRENT_SOURCE_DIR}/images/* )
+
 # The pages for help.zip, as built or as committed, and the targets that make them.
 SET ( HELP_ZIP_PAGES )
 SET ( HELP_ZIP_DEPS )
@@ -81,6 +84,7 @@ FOREACH ( hpath ${HELP_FILES} )
                        OUTPUT_FILE ${hbase}.html
                        SOURCES ${hbase}.md
                        RESOURCE_FILES links-to-html.lua github-pandoc.css
+                       DEPENDS ${HELP_IMAGES}
                        PANDOC_DIRECTIVES --lua-filter=links-to-html.lua
                                          --standalone
                                          -f gfm+tex_math_gfm+yaml_metadata_block
