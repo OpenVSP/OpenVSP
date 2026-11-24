@@ -1,3 +1,51 @@
+# [OpenVSP 3.57.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.57.1)
+
+2026-11-23
+
+OpenVSP 3.57.1
+
+This is a quick follow-up to 3.57.0 with some fixes and a couple
+speedups while we're at it.
+
+The important fix that made this release happen is that the new
+Captive Window mode did not work on Windows.  Hopefully this has
+it sorted.
+
+The turkey model made to accompany the 3.57.0 release provided a
+stress test for CFDMesh and Comp Geom.  CFDMesh worked, but after
+completion, it had insufficient graphics memory to visualize all
+the intersection curves -- that caused a crash.
+
+It also revealed a couple of CFDMesh's steps that scaled poorly
+with the number of curve segments.  This changes the algorithms
+to take the time to mesh the turkey from 109s to 56s.
+
+While I was at it, I also checked how CompGeom did with the
+Turkey.  A different performance bottleneck was identified and
+the change took that from 65s to 13s.
+
+The new Surface mode of HumanGeom would apply a point mass to
+every surface, greatly over-estimating their weight.  The same
+thing would happen for every blade of a prop.
+
+There were also some build system tweaks for systems running old
+CMake.  And a dependency fix for the help.
+
+Features:
+ - Faster CompGeom for large models.
+ - Faster CFDMesh with less memory on large models
+
+Bug Fixes:
+ - Captive windows no longer hidden behind the 3D view
+ - Huge meshes no longer crash the macOS graphics
+ - OpenAxis builds on RHEL and SLES
+ - Mesher progress bars that move steadily forward
+ - Surface HumanGeom point masses multiple counted
+
+
+---
+
+
 # [OpenVSP 3.57.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.57.0)
 
 2026-11-22
