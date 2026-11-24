@@ -7277,10 +7277,96 @@ void TMesh::DeleteDupNodes()
 
 }
 
+// The master of a node indexed by its m_ID, or the node itself when it is not one of nodes.
+static TNode* MasterNode( TNode* nd, const vector < TNode* > & nodes, const vector < TNode* > & master )
+{
+    int id = nd->m_ID;
+    if ( id >= 0 && id < ( int )nodes.size() && nodes[id] == nd )
+    {
+        return master[id];
+    }
+    return nd;
+}
+
+// Merge coincident nodes, as BuildNodeMaps and DeleteDupNodes do, by each node's index: tris take their
+// nodes' masters, tris left degenerate are deleted, and the masters, in order, become the nodes.
 void TMesh::MatchNodes()
 {
-    BuildMergeMaps();
-    DeleteDupNodes();
+    int nnode = ( int )m_NVec.size();
+    if ( nnode == 0 )
+    {
+        return;
+    }
+
+    PntNodeCloud pnCloud;
+    pnCloud.ReserveMorePntNodes( nnode );
+    for ( int n = 0 ; n < nnode ; n++ )
+    {
+        pnCloud.AddPntNode( m_NVec[n]->m_Pnt );
+    }
+    IndexPntNodes( pnCloud, 1.0e-12 );
+
+    // Each node's master, found through its index, held in m_ID meanwhile.
+    vector < int > saved_id( nnode );
+    for ( int n = 0 ; n < nnode ; n++ )
+    {
+        saved_id[n] = m_NVec[n]->m_ID;
+        m_NVec[n]->m_ID = n;
+    }
+    vector < TNode* > master( nnode );
+    for ( int n = 0 ; n < nnode ; n++ )
+    {
+        if ( pnCloud.UsedNode( n ) )
+        {
+            master[n] = m_NVec[n];
+        }
+        else
+        {
+            master[n] = m_NVec[ pnCloud.GetNodeBaseIndex( n ) ];
+        }
+    }
+
+    vector< TTri* > tempTVec;
+    tempTVec.reserve( m_TVec.size() );
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+        tri->m_N0 = MasterNode( tri->m_N0, m_NVec, master );
+        tri->m_N1 = MasterNode( tri->m_N1, m_NVec, master );
+        tri->m_N2 = MasterNode( tri->m_N2, m_NVec, master );
+        if ( tri->m_N0 != tri->m_N1 && tri->m_N0 != tri->m_N2 && tri->m_N1 != tri->m_N2 )
+        {
+            tempTVec.push_back( tri );
+        }
+        else
+        {
+            delete tri;
+        }
+    }
+    m_TVec = tempTVec;
+
+    vector < TNode* > keep;
+    keep.reserve( nnode );
+    for ( int n = 0 ; n < nnode ; n++ )
+    {
+        TNode* nd = m_NVec[n];
+        nd->m_ID = saved_id[n];
+        if ( master[n] == nd )
+        {
+            nd->m_TriVec.clear();
+            keep.push_back( nd );
+        }
+        else
+        {
+            delete nd;
+        }
+    }
+    m_NVec = keep;
+
+    m_NAMap.clear();
+    m_NSMMap.clear();
+    m_EAMap.clear();
+    m_ESMMap.clear();
 }
 
 void TMesh::CheckQualitySwapEdges()
