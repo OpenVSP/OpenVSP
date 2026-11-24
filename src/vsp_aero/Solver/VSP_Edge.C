@@ -3364,7 +3364,12 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
 
     if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
     
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
 
     Denom = d * sqrt(R);
 
@@ -3411,7 +3416,12 @@ double VSP_EDGE::GradientFint(double &a, double &b, double &c, double &d, double
 
     if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
 
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
 
     Denom = d * sqrt(R);
     
@@ -3457,7 +3467,12 @@ double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
 
     if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
     
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
     
     Denom = d * sqrt(R);
     
@@ -3485,7 +3500,12 @@ double VSP_EDGE::GradientGint(double &a, double &b, double &c, double &d, double
 
     if ( !IsWakeEdge_ && ( ABS(d) <= Tolerance_2_*Length_*Length_ || R < Tolerance_1_*Length_ ) ) return 0.;
     
-    if ( ABS(d) <= CoreWidth_*CoreWidth_ || R < CoreWidth_ ) return 0.;
+    // Inside the vortex core? R = a + b*s + c*s*s is the squared distance from the point to the
+    // segment end at s, and d = 4*a*c - b*b is 4 * (perpendicular distance)^2 * c, with c the
+    // squared segment length. Compare them with the core width squared (R) and 4 * c * core width
+    // squared (d). Comparing R with the core width itself, as before, cut at sqrt(CoreWidth_)
+    // rather than CoreWidth_. Bug fix only: the intended core is unchanged.
+    if ( ABS(d) <= 4.*c*CoreWidth_*CoreWidth_ || R < CoreWidth_*CoreWidth_ ) return 0.;
     
     Denom = d * sqrt(R);
     
