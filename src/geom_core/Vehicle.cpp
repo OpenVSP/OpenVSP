@@ -1684,7 +1684,7 @@ vector< TetraMassProp* > Vehicle::CreateTetraMassPropVec( const string &geomid )
     {
         if ( geom_ptr->m_PointMass() != 0.0 )
         {
-            vector <Matrix4d> tmv = geom_ptr->GetTransMatVec();
+            vector <Matrix4d> tmv = geom_ptr->GetCopyTransMatVec();
 
             for ( int j = 0; j < tmv.size(); j++ )
             {

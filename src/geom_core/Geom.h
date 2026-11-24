@@ -734,6 +734,29 @@ public:
         return m_TransMatVec;
     }
 
+    // One matrix for each symmetric copy of the Geom, where GetTransMatVec has one for each surface.
+    // A Geom with no surface map, a Blank, has one per copy already.
+    vector < Matrix4d > GetCopyTransMatVec()
+    {
+        vector < int > symindexs;
+        GetSymmIndexs( 0, symindexs );
+        if ( symindexs.empty() )
+        {
+            return m_TransMatVec;
+        }
+
+        vector < Matrix4d > tmv;
+        tmv.reserve( symindexs.size() );
+        for ( int j = 0; j < ( int )symindexs.size(); j++ )
+        {
+            if ( symindexs[ j ] >= 0 && symindexs[ j ] < ( int )m_TransMatVec.size() )
+            {
+                tmv.push_back( m_TransMatVec[ symindexs[ j ] ] );
+            }
+        }
+        return tmv;
+    }
+
     //==== XSec Surfs ====//
     virtual int GetNumXSecSurfs() const
     {

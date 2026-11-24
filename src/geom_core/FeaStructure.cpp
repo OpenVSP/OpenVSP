@@ -4017,7 +4017,7 @@ vector < vec3d > FeaFixPoint::GetPntVec( const double & scale )
 
         if ( other_geom )
         {
-            vector <Matrix4d> tmv = other_geom->GetTransMatVec();
+            vector <Matrix4d> tmv = other_geom->GetCopyTransMatVec();
 
             pnt_vec.resize( tmv.size() );
 

@@ -3682,9 +3682,10 @@ void Geom::UpdateDrawObj()
     m_PtMassCGDrawObj.m_GeomChanged = true;
     if ( m_PointMass() > 0.0 )
     {
-        for ( int j = 0; j < m_TransMatVec.size(); j++ )
+        vector < Matrix4d > tmv = GetCopyTransMatVec();
+        for ( int j = 0; j < tmv.size(); j++ )
         {
-            vec3d cg = m_TransMatVec[ j ].xform( vec3d( m_CGx(), m_CGy(), m_CGz() ) );
+            vec3d cg = tmv[ j ].xform( vec3d( m_CGx(), m_CGy(), m_CGz() ) );
             m_PtMassCGDrawObj.m_PntVec.push_back( cg );
         }
     }
