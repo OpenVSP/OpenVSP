@@ -16,6 +16,7 @@
 #include "ScreenBase.h"
 #include "GuiDevice.h"
 #include "NavDevice.h"
+#include "SpaceMouse.h"
 #include "FL/Fl_Box.H"
 #include "FL/Fl_Button.H"
 #include "FL/Fl_SVG_Image.H"
@@ -78,6 +79,12 @@ public:
         return m_NavDevice;
     }
 
+    // The SpaceMouse that moves the main window's view.
+    VSPGUI::SpaceMouse * GetSpaceMouse()
+    {
+        return m_SpaceMouse;
+    }
+
     // The part of the window over the 3D view that screens shown inside the main window lie in
     VspCaptiveLayer * GetCaptiveLayer()
     {
@@ -131,11 +138,21 @@ public:
     // The 3D input device's status changed.
     static void NavDeviceStatusCB( void * data );
 
+    // The SpaceMouse's status changed.
+    static void SpaceMouseStatusCB( void * data );
+
+    // Do a binding's command, a VSPGUI::NavAction.
+    static void NavCommandCB( int action, void * data );
+    void NavCommand( int action );
+
     // A preference of the 3D interaction changed outside the preferences: keep and use it.
     void KeepNavSettings( const VSPGUI::NavSettings & settings );
 
     // The preferences, on the tab with the 3D devices.
     void ShowDevicePreferences();
+
+    // The preferences, on the SpaceMouse's tab.
+    void ShowSpaceMousePreferences();
 
     // Show the device's status on its bottom strip button and in the View menu.
     void UpdateDeviceButton();
@@ -280,6 +297,7 @@ protected:
     Fl_Sys_Menu_Bar *m_MenuBar;
     VSPGUI::VspGlWindow * m_GlWin;
     VSPGUI::NavDevice * m_NavDevice;
+    VSPGUI::SpaceMouse * m_SpaceMouse;
     VspCaptiveLayer * m_CaptiveLayer;
     VspSidePanel * m_SidePanel;
     Fl_Box * m_TitleBox;

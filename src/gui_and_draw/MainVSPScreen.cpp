@@ -298,6 +298,14 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
         m_NavDevice->Start();
     }
 
+    m_SpaceMouse = new VSPGUI::SpaceMouse( m_GlWin );
+    m_SpaceMouse->SetStatusCallback( SpaceMouseStatusCB, this );
+    m_GlWin->GetNav().SetCommandCallback( NavCommandCB, this );
+    if ( nav_settings.m_UseSpaceMouse )
+    {
+        m_SpaceMouse->Start();
+    }
+
     // The bottom strip: the device's button at the left keeps its size; the file name and title
     // take the rest.
     int iconw = 30;
@@ -371,6 +379,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 MainVSPScreen::~MainVSPScreen()
 {
     m_GlWin->m_ViewChangedCB = nullptr;
+    delete m_SpaceMouse;
     delete m_NavDevice;
     delete m_GlWin;
 }
@@ -830,6 +839,95 @@ void MainVSPScreen::UpdateDeviceButton()
     m_PivotLockMenuItem.Update( m_NavDevice->IsPivotLocked() );
 }
 
+void MainVSPScreen::SpaceMouseStatusCB( void * data )
+{
+    MainVSPScreen * screen = ( MainVSPScreen * )data;
+
+    // Of the screens, only the preferences show it.
+    VspScreen * prefs = screen->m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
+    if ( prefs && prefs->IsShown() )
+    {
+        prefs->Update();
+    }
+}
+
+void MainVSPScreen::NavCommandCB( int action, void * data )
+{
+    MainVSPScreen * screen = ( MainVSPScreen * )data;
+    screen->NavCommand( action );
+    screen->m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void MainVSPScreen::NavCommand( int action )
+{
+    VSPGUI::NavSettings settings = m_GlWin->GetNav().GetSettings();
+
+    switch ( action )
+    {
+    case VSPGUI::NAV_FIT:
+        FitView( false );
+        break;
+    case VSPGUI::NAV_PREFERENCES:
+        ShowSpaceMousePreferences();
+        break;
+    case VSPGUI::NAV_VIEW_TOP:
+        SetView( VSPGraphic::Common::VSP_CAM_TOP );
+        break;
+    case VSPGUI::NAV_VIEW_FRONT:
+        SetView( VSPGraphic::Common::VSP_CAM_FRONT );
+        break;
+    case VSPGUI::NAV_VIEW_LEFT:
+        SetView( VSPGraphic::Common::VSP_CAM_LEFT );
+        break;
+    case VSPGUI::NAV_VIEW_RIGHT:
+        SetView( VSPGraphic::Common::VSP_CAM_RIGHT );
+        break;
+    case VSPGUI::NAV_VIEW_BOTTOM:
+        SetView( VSPGraphic::Common::VSP_CAM_BOTTOM );
+        break;
+    case VSPGUI::NAV_VIEW_REAR:
+        SetView( VSPGraphic::Common::VSP_CAM_REAR );
+        break;
+    case VSPGUI::NAV_VIEW_LEFT_ISO:
+        SetView( VSPGraphic::Common::VSP_CAM_LEFT_ISO );
+        break;
+    case VSPGUI::NAV_VIEW_RIGHT_ISO:
+        SetView( VSPGraphic::Common::VSP_CAM_RIGHT_ISO );
+        break;
+    case VSPGUI::NAV_ROLL_CW:
+        m_GlWin->GetNav().RollView( -0.5 * M_PI );
+        break;
+    case VSPGUI::NAV_ROLL_CCW:
+        m_GlWin->GetNav().RollView( 0.5 * M_PI );
+        break;
+    case VSPGUI::NAV_Z_UP:
+        LevelZUp();
+        break;
+    case VSPGUI::NAV_DEVICE_ROTATE:
+        settings.m_SpaceMouseRotate = !settings.m_SpaceMouseRotate;
+        KeepNavSettings( settings );
+        break;
+    case VSPGUI::NAV_DEVICE_MOVE:
+        settings.m_SpaceMouseMove = !settings.m_SpaceMouseMove;
+        KeepNavSettings( settings );
+        break;
+    case VSPGUI::NAV_DEVICE_DOMINANT:
+        settings.m_SpaceMouseDominant = !settings.m_SpaceMouseDominant;
+        KeepNavSettings( settings );
+        break;
+    case VSPGUI::NAV_DEVICE_FASTER:
+        settings.StepSpaceMouseSpeed( 1 );
+        KeepNavSettings( settings );
+        break;
+    case VSPGUI::NAV_DEVICE_SLOWER:
+        settings.StepSpaceMouseSpeed( -1 );
+        KeepNavSettings( settings );
+        break;
+    default:
+        break;
+    }
+}
+
 void MainVSPScreen::KeepNavSettings( const VSPGUI::NavSettings & settings )
 {
     settings.Save();
@@ -841,6 +939,29 @@ void MainVSPScreen::KeepNavSettings( const VSPGUI::NavSettings & settings )
     {
         prefs->Show();
     }
+}
+
+void MainVSPScreen::ShowSpaceMousePreferences()
+{
+    m_ScreenMgr->ShowScreen( vsp::VSP_PREFERENCES_SCREEN );
+    TabScreen * prefs = dynamic_cast < TabScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN ) );
+    if ( !prefs )
+    {
+        return;
+    }
+
+    // The SpaceMouse's tab, or the 3D View tab in a build without one.
+    Fl_Group * tab = prefs->GetTab( 1 );
+    for ( int i = 0; prefs->GetTab( i ); i++ )
+    {
+        const char * label = prefs->GetTab( i )->label();
+        if ( label && std::string( label ) == "SpaceMouse" )
+        {
+            tab = prefs->GetTab( i );
+        }
+    }
+    prefs->GetTabs()->value( tab );
+    prefs->GetFlWindow()->redraw();
 }
 
 void MainVSPScreen::ShowDevicePreferences()
@@ -1052,6 +1173,15 @@ void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
     else if ( !settings.m_UseDevice && m_NavDevice->IsStarted() )
     {
         m_NavDevice->Stop();
+    }
+
+    if ( settings.m_UseSpaceMouse && !m_SpaceMouse->IsStarted() )
+    {
+        m_SpaceMouse->Start();
+    }
+    else if ( !settings.m_UseSpaceMouse && m_SpaceMouse->IsStarted() )
+    {
+        m_SpaceMouse->Stop();
     }
 }
 

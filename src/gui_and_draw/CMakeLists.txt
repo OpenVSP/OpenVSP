@@ -118,6 +118,7 @@ ScreenshotScreen.cpp
 SelectFileScreen.cpp
 SetEditorScreen.cpp
 SnapToScreen.cpp
+SpaceMouse.cpp
 SpreadSheetWidget.cpp
 StackScreen.cpp
 StructScreen.cpp
@@ -236,6 +237,7 @@ ScreenshotScreen.h
 SelectFileScreen.h
 SetEditorScreen.h
 SnapToScreen.h
+SpaceMouse.h
 SpreadSheetWidget.h
 StackScreen.h
 StructScreen.h
