@@ -6,7 +6,7 @@
 // GesturePlayer.cpp: replays scripted mouse and key events into the main GL window.
 // For development and regression testing only.
 //
-// One event per line, a command and up to four integers; '#' starts a comment.
+// One event per line, a command and up to six integers; '#' starts a comment.
 //   push x y state button      FL_PUSH at FLTK window coordinates (origin upper left)
 //   drag x y state button      FL_DRAG
 //   release x y state button   FL_RELEASE; state holds the buttons still down
@@ -42,6 +42,12 @@
 //                              millidegrees through its pick, or the rotation center, about world
 //                              Z, or world X when a is 1
 //   navend g                   motion_end
+//   axes tx ty tz rx ry rz     the SpaceMouse's axes, in device counts, held for 1/60 s
+//   devbutton press name       the SpaceMouse's button of that name (the rest of the line) goes
+//                              down (press 1) or up (press 0)
+//   smaxis i action reverse    SpaceMouse axis i does NavAxisAction action, reversed if 1
+//   smrotate b, smmove b, smdominant b, smspeed percent
+//                              set that NavSettings SpaceMouse member
 //   wait                       nothing; one tick
 //   dump                       nothing, but write the camera and Parms
 //   select i                   make Geom i the only one selected, or none for -1
@@ -94,10 +100,13 @@ namespace
 struct GestureEvent
 {
     std::string m_Cmd;
+    std::string m_Text;
     int m_A;
     int m_B;
     int m_C;
     int m_D;
+    int m_E;
+    int m_F;
 };
 
 std::vector < GestureEvent > g_Events;
@@ -313,6 +322,28 @@ bool SetNavOption( VSPGUI::VspGlWindow * win, const GestureEvent & e )
     {
         settings.m_EmulateMiddle = ( e.m_A != 0 );
     }
+    else if ( e.m_Cmd == "smaxis" && e.m_A >= 0 && e.m_A < VSPGUI::NAV_NUM_AXES && e.m_B >= 0 &&
+              e.m_B < VSPGUI::NAV_NUM_AXIS_ACTIONS )
+    {
+        settings.m_SpaceMouseAxis[ e.m_A ] = e.m_B;
+        settings.m_SpaceMouseReverse[ e.m_A ] = ( e.m_C != 0 );
+    }
+    else if ( e.m_Cmd == "smrotate" )
+    {
+        settings.m_SpaceMouseRotate = ( e.m_A != 0 );
+    }
+    else if ( e.m_Cmd == "smmove" )
+    {
+        settings.m_SpaceMouseMove = ( e.m_A != 0 );
+    }
+    else if ( e.m_Cmd == "smdominant" )
+    {
+        settings.m_SpaceMouseDominant = ( e.m_A != 0 );
+    }
+    else if ( e.m_Cmd == "smspeed" )
+    {
+        settings.m_SpaceMouseSpeed = 0.01 * e.m_A;
+    }
     else
     {
         return false;
@@ -388,6 +419,15 @@ void Step( void * )
     else if ( e.m_Cmd == "view" )
     {
         g_Screen->SetView( e.m_A + VSPGraphic::Common::VSP_CAM_TOP );
+    }
+    else if ( e.m_Cmd == "axes" )
+    {
+        int counts[ 6 ] = { e.m_A, e.m_B, e.m_C, e.m_D, e.m_E, e.m_F };
+        g_Screen->GetSpaceMouse()->Move( counts, 1.0 / 60.0 );
+    }
+    else if ( e.m_Cmd == "devbutton" )
+    {
+        g_Screen->GetGLWindow()->GetNav().DeviceButton( e.m_Text, e.m_A != 0 );
     }
     else if ( e.m_Cmd == "dump" )
     {
@@ -596,11 +636,32 @@ void StartGesturePlayer( MainVSPScreen * screen )
         e.m_B = 0;
         e.m_C = 0;
         e.m_D = 0;
+        e.m_E = 0;
+        e.m_F = 0;
         if ( !( ss >> e.m_Cmd ) || e.m_Cmd[0] == '#' )
         {
             continue;
         }
-        ss >> e.m_A >> e.m_B >> e.m_C >> e.m_D;
+        if ( e.m_Cmd == "devbutton" )
+        {
+            // A button's name may hold spaces: it is the rest of the line.
+            ss >> e.m_A;
+            std::getline( ss, e.m_Text );
+            size_t a = e.m_Text.find_first_not_of( " \t" );
+            size_t b = e.m_Text.find_last_not_of( " \t\r" );
+            if ( a == std::string::npos )
+            {
+                e.m_Text.clear();
+            }
+            else
+            {
+                e.m_Text = e.m_Text.substr( a, b - a + 1 );
+            }
+        }
+        else
+        {
+            ss >> e.m_A >> e.m_B >> e.m_C >> e.m_D >> e.m_E >> e.m_F;
+        }
         g_Events.push_back( e );
     }
 
