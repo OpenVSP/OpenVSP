@@ -37,6 +37,9 @@ static const int BUTTONS[] = { FL_BUTTON1, FL_BUTTON2, FL_BUTTON3, FL_BUTTON4, F
 static const char * const BUTTON_NAMES[] = { "Left", "Middle", "Right", "Back", "Forward" };
 static const int NUM_BUTTONS = 5;
 
+// m_ButtonChoice's values for the device's buttons start here.
+static const int DEVICE_BUTTON_VAL = 100;
+
 static const int MODIFIER_BITS[] = { FL_SHIFT, FL_CTRL, FL_ALT, FL_META };
 
 // What a modifier must be for a binding to act.
@@ -72,9 +75,55 @@ static const char * ActionName( int action )
         return "Zoom in";
     case VSPGUI::NAV_ZOOM_OUT:
         return "Zoom out";
+    case VSPGUI::NAV_FIT:
+        return "Fit";
+    case VSPGUI::NAV_PREFERENCES:
+        return "SpaceMouse settings";
+    case VSPGUI::NAV_VIEW_TOP:
+        return "Top view";
+    case VSPGUI::NAV_VIEW_FRONT:
+        return "Front view";
+    case VSPGUI::NAV_VIEW_LEFT:
+        return "Left view";
+    case VSPGUI::NAV_VIEW_RIGHT:
+        return "Right view";
+    case VSPGUI::NAV_VIEW_BOTTOM:
+        return "Bottom view";
+    case VSPGUI::NAV_VIEW_REAR:
+        return "Rear view";
+    case VSPGUI::NAV_VIEW_LEFT_ISO:
+        return "Left iso view";
+    case VSPGUI::NAV_VIEW_RIGHT_ISO:
+        return "Right iso view";
+    case VSPGUI::NAV_ROLL_CW:
+        return "Roll 90 clockwise";
+    case VSPGUI::NAV_ROLL_CCW:
+        return "Roll 90 counterclockwise";
+    case VSPGUI::NAV_Z_UP:
+        return "Z up";
+    case VSPGUI::NAV_DEVICE_ROTATE:
+        return "SpaceMouse turns on/off";
+    case VSPGUI::NAV_DEVICE_MOVE:
+        return "SpaceMouse pan and zoom on/off";
+    case VSPGUI::NAV_DEVICE_DOMINANT:
+        return "SpaceMouse dominant on/off";
+    case VSPGUI::NAV_DEVICE_FASTER:
+        return "SpaceMouse faster";
+    case VSPGUI::NAV_DEVICE_SLOWER:
+        return "SpaceMouse slower";
     default:
         return "Tool picks only";
     }
+}
+
+// A binding's action, for people.  A device button has no tool picks to go to.
+static const char * BindingActionName( const VSPGUI::NavBinding & b )
+{
+    if ( !b.m_DeviceButton.empty() && b.m_Action == VSPGUI::NAV_NONE )
+    {
+        return "None";
+    }
+    return ActionName( b.m_Action );
 }
 
 // What each of a six-axis device's axes may do, as m_AxisChoice offers them.
@@ -303,6 +352,7 @@ static string LoadPrefsFile( const string & fname )
 PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 800, "Preferences", "MouseKeyboard.html", 30 )
 {
     m_SelBinding = -1;
+    m_ShowedDevice = false;
     m_FCTypeAtShow = vsp::FC_OPENVSP;
     m_ToolbarAtShow = TOOLBAR_MEDIUM;
     m_WindowModeAtShow = vsp::WINDOW_MODE_FREE;
@@ -556,12 +606,7 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ButtonsLayout.AddYGap();
     m_ButtonsLayout.AddDividerBox( "Selected Binding" );
 
-    const int actions[] = { VSPGUI::NAV_ROTATE, VSPGUI::NAV_ROLL, VSPGUI::NAV_PAN, VSPGUI::NAV_ZOOM, VSPGUI::NAV_ZOOM_IN,
-                            VSPGUI::NAV_ZOOM_OUT, VSPGUI::NAV_ZOOM_BOX, VSPGUI::NAV_SET_PIVOT, VSPGUI::NAV_SELECT };
-    for ( int i = 0; i < ( int )( sizeof( actions ) / sizeof( actions[0] ) ); i++ )
-    {
-        m_ActionChoice.AddItem( ActionName( actions[i] ), actions[i] );
-    }
+    // The actions offered depend on the selected row; ShowBindings fills them in.
     m_ActionChoice.AddItem( ActionName( VSPGUI::NAV_NONE ), VSPGUI::NAV_NONE );
     m_ActionChoice.UpdateItems();
 
@@ -571,6 +616,8 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_TriggerChoice.AddItem( "Click", VSPGUI::NAV_ON_CLICK );
     m_TriggerChoice.UpdateItems();
 
+    // The device's buttons follow the mouse's in m_ButtonChoice while it is open; ShowBindings
+    // fills them in.
     m_WithButtonChoice.AddItem( "None", 0 );
     for ( int i = 0; i < NUM_BUTTONS; i++ )
     {
@@ -589,7 +636,7 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ButtonsLayout.AddChoice( m_ButtonChoice, "Button", half );
     m_ButtonsLayout.AddChoice( m_WithButtonChoice, "With", half );
     m_ButtonsLayout.ForceNewLine();
-    m_ButtonChoice.GetFlChoice()->tooltip( "The button that must be down; Back and Forward are a mouse's side buttons" );
+    m_ButtonChoice.GetFlChoice()->tooltip( "The button that must be down; Back and Forward are a mouse's side buttons.  While a SpaceMouse is connected, its buttons follow; one acts at its press." );
     m_WithButtonChoice.GetFlChoice()->tooltip( "A second button that must be down with it, for a chord, or none" );
 
     for ( int i = 0; i < 4; i++ )
@@ -806,6 +853,12 @@ bool PreferencesScreen::Update()
         m_SpaceMouseStatus.Update( main->GetSpaceMouse()->GetStatus() );
     }
 
+    // A device came or went: its button rows come or go.
+    if ( HasDevice() != m_ShowedDevice )
+    {
+        ShowBindings();
+    }
+
     m_FLTK_Window->redraw();
 
     return false;
@@ -864,6 +917,30 @@ void PreferencesScreen::ShowMeters()
             m_AxisMeter[i]->SetCounts( counts[i] );
         }
     }
+}
+
+bool PreferencesScreen::HasDevice()
+{
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    return main && main->GetSpaceMouse()->IsAvailable();
+}
+
+int PreferencesScreen::NeighborBinding( int step )
+{
+    const std::vector < VSPGUI::NavBinding > & bindings = m_Nav.m_Profile.m_Bindings;
+    if ( m_SelBinding < 0 || m_SelBinding >= ( int )bindings.size() )
+    {
+        return -1;
+    }
+    bool mouse = bindings[ m_SelBinding ].m_DeviceButton.empty();
+    for ( int i = m_SelBinding + step; i >= 0 && i < ( int )bindings.size(); i += step )
+    {
+        if ( bindings[i].m_DeviceButton.empty() == mouse )
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void PreferencesScreen::ShowNav()
@@ -1104,34 +1181,60 @@ bool PreferencesScreen::ReadBinding( GuiDevice * device )
 
     if ( device == &m_DeleteBindingButton )
     {
+        // Select the next row of the same kind, else the one before, else none.
+        int next = NeighborBinding( 1 );
+        if ( next < 0 )
+        {
+            next = NeighborBinding( -1 );
+        }
+        if ( next > m_SelBinding )
+        {
+            next--;
+        }
         bindings.erase( bindings.begin() + m_SelBinding );
-        if ( m_SelBinding >= ( int )bindings.size() )
-        {
-            m_SelBinding = ( int )bindings.size() - 1;
-        }
+        m_SelBinding = next;
     }
-    else if ( device == &m_UpBindingButton )
+    else if ( device == &m_UpBindingButton || device == &m_DownBindingButton )
     {
-        if ( m_SelBinding > 0 )
+        // Past the next row of the same kind: only the order among those matters.
+        int step = 1;
+        if ( device == &m_UpBindingButton )
         {
-            std::swap( bindings[ m_SelBinding ], bindings[ m_SelBinding - 1 ] );
-            m_SelBinding--;
+            step = -1;
         }
-    }
-    else if ( device == &m_DownBindingButton )
-    {
-        if ( m_SelBinding + 1 < ( int )bindings.size() )
+        int other = NeighborBinding( step );
+        if ( other >= 0 )
         {
-            std::swap( bindings[ m_SelBinding ], bindings[ m_SelBinding + 1 ] );
-            m_SelBinding++;
+            std::swap( bindings[ m_SelBinding ], bindings[ other ] );
+            m_SelBinding = other;
         }
     }
     else if ( device == &m_ActionChoice )
     {
         b.m_Action = ( VSPGUI::NavAction )m_ActionChoice.GetVal();
-        if ( b.m_Action == VSPGUI::NAV_ZOOM_IN || b.m_Action == VSPGUI::NAV_ZOOM_OUT )
+        if ( VSPGUI::NavActsAtPress( b.m_Action ) )
         {
             b.m_Trigger = VSPGUI::NAV_ON_DRAG;
+        }
+    }
+    else if ( device == &m_ButtonChoice && m_ButtonChoice.GetVal() >= DEVICE_BUTTON_VAL )
+    {
+        // A device button: it acts at its press, alone, anywhere.
+        int k = m_ButtonChoice.GetVal() - DEVICE_BUTTON_VAL;
+        if ( k >= ( int )m_DeviceButtonNames.size() )
+        {
+            return false;
+        }
+        b.m_DeviceButton = m_DeviceButtonNames[k];
+        b.m_Buttons = 0;
+        b.m_OtherButtons = 0;
+        b.m_PressedButton = 0;
+        b.m_Trigger = VSPGUI::NAV_ON_DRAG;
+        b.m_Where = VSPGUI::NAV_ANYWHERE;
+        b.m_PickFirst = false;
+        if ( !VSPGUI::NavActsAtPress( b.m_Action ) )
+        {
+            b.m_Action = VSPGUI::NAV_NONE;
         }
     }
     else if ( device == &m_TriggerChoice )
@@ -1142,6 +1245,11 @@ bool PreferencesScreen::ReadBinding( GuiDevice * device )
     {
         // Other buttons allowed before stay allowed, except those now needed.
         bool any_other = ( b.m_OtherButtons == ( ALL_BUTTONS & ~b.m_Buttons ) );
+        if ( !b.m_DeviceButton.empty() )
+        {
+            b.m_DeviceButton.clear();
+            any_other = false;
+        }
         b.m_Buttons = BUTTONS[ m_ButtonChoice.GetVal() ];
         int with = m_WithButtonChoice.GetVal();
         if ( with > 0 )
@@ -1195,6 +1303,7 @@ bool PreferencesScreen::ReadBinding( GuiDevice * device )
         }
         // Exactly this press: the buttons and keys down, and no others.
         const VSPGUI::NavPress & p = m_PressBox->m_Press;
+        b.m_DeviceButton.clear();
         b.m_Buttons = p.m_Buttons;
         b.m_OtherButtons = 0;
         b.m_Modifiers = p.m_Modifiers;
@@ -1248,13 +1357,30 @@ void PreferencesScreen::ShowBindings()
         m_SelBinding = ( int )bindings.size() - 1;
     }
 
+    // A device's button rows only while one is open.
+    bool has_device = HasDevice();
+    m_ShowedDevice = has_device;
+    m_BindingRows.clear();
+    for ( int i = 0; i < ( int )bindings.size(); i++ )
+    {
+        if ( has_device || bindings[i].m_DeviceButton.empty() )
+        {
+            m_BindingRows.push_back( i );
+        }
+    }
+    if ( std::find( m_BindingRows.begin(), m_BindingRows.end(), m_SelBinding ) == m_BindingRows.end() )
+    {
+        m_SelBinding = -1;
+    }
+
     int vpos = m_BindingBrowser->vposition();
     m_BindingBrowser->clear();
     m_BindingBrowser->column_char( ':' );
     m_BindingBrowser->add( "@b@.ACTION:@b@.PRESS:@b@.NOTE" );
 
-    for ( int i = 0; i < ( int )bindings.size(); i++ )
+    for ( int row = 0; row < ( int )m_BindingRows.size(); row++ )
     {
+        int i = m_BindingRows[ row ];
         const VSPGUI::NavBinding & b = bindings[i];
 
         std::string note;
@@ -1275,14 +1401,109 @@ void PreferencesScreen::ShowBindings()
             note = "@.other keys ok";
         }
 
-        std::string row = std::string( "@." ) + ActionName( b.m_Action ) + ":@." + VSPGUI::NavDescribe( b ) + ":" + note;
-        m_BindingBrowser->add( row.c_str() );
+        std::string line = std::string( "@." ) + BindingActionName( b ) + ":@." + VSPGUI::NavDescribe( b ) + ":" + note;
+        m_BindingBrowser->add( line.c_str() );
     }
-    if ( m_SelBinding >= 0 )
+    for ( int row = 0; row < ( int )m_BindingRows.size(); row++ )
     {
-        m_BindingBrowser->select( m_SelBinding + 2 );
+        if ( m_BindingRows[ row ] == m_SelBinding )
+        {
+            m_BindingBrowser->select( row + 2 );
+        }
     }
     m_BindingBrowser->vposition( vpos );
+
+    // The actions a row can take: a device button only what acts at its press.
+    bool device_row = ( m_SelBinding >= 0 && !bindings[ m_SelBinding ].m_DeviceButton.empty() );
+    const int drags[] = { VSPGUI::NAV_ROTATE, VSPGUI::NAV_ROLL, VSPGUI::NAV_PAN, VSPGUI::NAV_ZOOM };
+    const int presses[] = { VSPGUI::NAV_ZOOM_IN, VSPGUI::NAV_ZOOM_OUT };
+    const int clicks[] = { VSPGUI::NAV_ZOOM_BOX, VSPGUI::NAV_SET_PIVOT, VSPGUI::NAV_SELECT };
+    m_ActionChoice.ClearItems();
+    if ( !device_row )
+    {
+        for ( int i = 0; i < 4; i++ )
+        {
+            m_ActionChoice.AddItem( ActionName( drags[i] ), drags[i] );
+        }
+    }
+    for ( int i = 0; i < 2; i++ )
+    {
+        m_ActionChoice.AddItem( ActionName( presses[i] ), presses[i] );
+    }
+    if ( !device_row )
+    {
+        for ( int i = 0; i < 3; i++ )
+        {
+            m_ActionChoice.AddItem( ActionName( clicks[i] ), clicks[i] );
+        }
+    }
+    for ( int a = VSPGUI::NAV_FIT; a < VSPGUI::NAV_BOX_SELECT; a++ )
+    {
+        // The SpaceMouse's own commands only in builds that read one, or where the row has one.
+        bool spacemouse = ( a == VSPGUI::NAV_PREFERENCES || a >= VSPGUI::NAV_DEVICE_ROTATE );
+        bool chosen = ( m_SelBinding >= 0 && bindings[ m_SelBinding ].m_Action == a );
+        if ( !spacemouse || VSPGUI::SpaceMouse::IsBuilt() || chosen )
+        {
+            m_ActionChoice.AddItem( ActionName( a ), a );
+        }
+    }
+    if ( device_row )
+    {
+        m_ActionChoice.AddItem( "None", VSPGUI::NAV_NONE );
+    }
+    else
+    {
+        m_ActionChoice.AddItem( ActionName( VSPGUI::NAV_NONE ), VSPGUI::NAV_NONE );
+    }
+    m_ActionChoice.UpdateItems();
+
+    // The mouse's buttons, then the open device's, and the selected row's if the device has
+    // no button of that name.
+    m_DeviceButtonNames.clear();
+    if ( has_device )
+    {
+        MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+        std::vector < std::string > names = main->GetSpaceMouse()->GetButtonNames();
+        for ( int i = 0; i < ( int )names.size(); i++ )
+        {
+            bool seen = false;
+            for ( int j = 0; j < ( int )m_DeviceButtonNames.size() && !seen; j++ )
+            {
+                seen = VSPGUI::NavSameDeviceButton( m_DeviceButtonNames[j], names[i] );
+            }
+            if ( !seen )
+            {
+                m_DeviceButtonNames.push_back( names[i] );
+            }
+        }
+    }
+    int device_val = -1;
+    if ( device_row )
+    {
+        const std::string & name = bindings[ m_SelBinding ].m_DeviceButton;
+        for ( int j = 0; j < ( int )m_DeviceButtonNames.size(); j++ )
+        {
+            if ( VSPGUI::NavSameDeviceButton( m_DeviceButtonNames[j], name ) )
+            {
+                device_val = DEVICE_BUTTON_VAL + j;
+            }
+        }
+        if ( device_val < 0 )
+        {
+            m_DeviceButtonNames.push_back( name );
+            device_val = DEVICE_BUTTON_VAL + ( int )m_DeviceButtonNames.size() - 1;
+        }
+    }
+    m_ButtonChoice.ClearItems();
+    for ( int i = 0; i < NUM_BUTTONS; i++ )
+    {
+        m_ButtonChoice.AddItem( BUTTON_NAMES[i], i );
+    }
+    for ( int j = 0; j < ( int )m_DeviceButtonNames.size(); j++ )
+    {
+        m_ButtonChoice.AddItem( "Device " + m_DeviceButtonNames[j], DEVICE_BUTTON_VAL + j );
+    }
+    m_ButtonChoice.UpdateItems();
 
     // The selected binding.
     bool has_sel = ( m_SelBinding >= 0 );
@@ -1301,11 +1522,20 @@ void PreferencesScreen::ShowBindings()
             edits[i]->Deactivate();
         }
     }
-    // Zoom in and Zoom out act at the press; On does not apply.
-    if ( has_sel && ( bindings[ m_SelBinding ].m_Action == VSPGUI::NAV_ZOOM_IN ||
-                      bindings[ m_SelBinding ].m_Action == VSPGUI::NAV_ZOOM_OUT ) )
+    // Zoom in, Zoom out and the commands act at the press; On does not apply.
+    if ( has_sel && VSPGUI::NavActsAtPress( bindings[ m_SelBinding ].m_Action ) )
     {
         m_TriggerChoice.Deactivate();
+    }
+    // A device button acts alone, wherever the pointer is.
+    if ( device_row )
+    {
+        GuiDevice * mouse_only[] = { &m_TriggerChoice, &m_WithButtonChoice, &m_OtherButtonsChoice, &m_WhereChoice,
+                                     &m_PickFirstChoice };
+        for ( int i = 0; i < ( int )( sizeof( mouse_only ) / sizeof( mouse_only[0] ) ); i++ )
+        {
+            mouse_only[i]->Deactivate();
+        }
     }
     if ( has_sel && m_PressBox->m_HasPress )
     {
@@ -1341,6 +1571,10 @@ void PreferencesScreen::ShowBindings()
         if ( button < 0 )
         {
             button = 0;
+        }
+        if ( device_row )
+        {
+            button = device_val;
         }
         m_ButtonChoice.SetVal( button );
         m_WithButtonChoice.SetVal( with );
@@ -1469,6 +1703,19 @@ void PreferencesScreen::ShowBindings()
     ShowTriedPress();
 }
 
+// The row, counted from 1, that shows a binding.
+static int ShownRow( const std::vector < int > & rows, int binding )
+{
+    for ( int i = 0; i < ( int )rows.size(); i++ )
+    {
+        if ( rows[i] == binding )
+        {
+            return i + 1;
+        }
+    }
+    return binding + 1;
+}
+
 void PreferencesScreen::ShowTriedPress()
 {
     static std::string label;
@@ -1488,7 +1735,7 @@ void PreferencesScreen::ShowTriedPress()
 
         if ( drag )
         {
-            label += std::string( "drag " ) + ActionName( drag->m_Action ) + " (row " + std::to_string( ( int )( drag - &bindings[0] ) + 1 ) + ")";
+            label += std::string( "drag " ) + ActionName( drag->m_Action ) + " (row " + std::to_string( ShownRow( m_BindingRows, ( int )( drag - &bindings[0] ) ) ) + ")";
         }
         else
         {
@@ -1496,7 +1743,7 @@ void PreferencesScreen::ShowTriedPress()
         }
         if ( click )
         {
-            label += std::string( ", click " ) + ActionName( click->m_Action ) + " (row " + std::to_string( ( int )( click - &bindings[0] ) + 1 ) + ")";
+            label += std::string( ", click " ) + ActionName( click->m_Action ) + " (row " + std::to_string( ShownRow( m_BindingRows, ( int )( click - &bindings[0] ) ) ) + ")";
         }
     }
     m_PressBox->label( label.c_str() );
@@ -1514,7 +1761,12 @@ void PreferencesScreen::CallBack( Fl_Widget* w )
 {
     if ( w == m_BindingBrowser )
     {
-        m_SelBinding = m_BindingBrowser->value() - 2;
+        int row = m_BindingBrowser->value() - 2;
+        m_SelBinding = -1;
+        if ( row >= 0 && row < ( int )m_BindingRows.size() )
+        {
+            m_SelBinding = m_BindingRows[ row ];
+        }
         ShowBindings();
     }
     else if ( w == m_PressBox )

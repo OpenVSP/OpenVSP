@@ -96,6 +96,13 @@ protected:
     static void StaticMeterCB( void* data );
     void ShowMeters();
 
+    // True if a six-axis device is open, so its buttons can be bound and its rows are shown.
+    bool HasDevice();
+
+    // The binding before (step -1) or after (step 1) the selected one that is of the same kind,
+    // mouse or device, or -1.
+    int NeighborBinding( int step );
+
     // The 3D interaction settings being edited.
     VSPGUI::NavSettings m_Nav;
 
@@ -111,6 +118,17 @@ protected:
 
     // Index of the selected binding, or -1.
     int m_SelBinding;
+
+    // The binding shown on each row of the bindings list, after its header.  Device button
+    // rows are left out while no device is open.
+    std::vector < int > m_BindingRows;
+
+    // Whether device rows were shown, to show the list again when a device comes or goes.
+    bool m_ShowedDevice;
+
+    // The device buttons offered in m_ButtonChoice, after the mouse's, as values from
+    // DEVICE_BUTTON_VAL on.
+    std::vector < std::string > m_DeviceButtonNames;
 
     // General tab.
     GroupLayout m_GenLayout;
