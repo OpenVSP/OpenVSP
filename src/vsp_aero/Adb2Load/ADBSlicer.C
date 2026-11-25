@@ -999,13 +999,19 @@ void ADBSLICER::LoadSolutionData(int Case)
           
        }
        
+       // Read in any control surface deflection data.  Every case ends with them, so they are
+       // read inside the case loop: read once after it, every case before the last one left the
+       // file that many floats short of the next case's mesh data.
+
+       for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
+
+          BIO.fread(&(ControlSurface[i].DeflectionAngle), f_size, 1, adb_file); 
+
+       }
+
     }
-    
-    // Read in any control surface deflection data
 
     for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
-
-       BIO.fread(&(ControlSurface[i].DeflectionAngle), f_size, 1, adb_file); 
        
        printf("ControlSurface[%d].DeflectionAngle: %f \n",i,ControlSurface[i].DeflectionAngle);
   
