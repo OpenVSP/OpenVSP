@@ -21,6 +21,7 @@
 using namespace std;
 
 class NavPressBox;
+class NavAxisMeter;
 
 class PreferencesScreen : public TabScreen
 {
@@ -90,6 +91,10 @@ protected:
 
     // Shows the screens as the window mode kept in the preferences says
     static void StaticWindowModeCB( void* data );
+
+    // While the window is shown, show the SpaceMouse's axes as they move.
+    static void StaticMeterCB( void* data );
+    void ShowMeters();
 
     // The 3D interaction settings being edited.
     VSPGUI::NavSettings m_Nav;
@@ -169,6 +174,19 @@ protected:
     Choice m_EmulateMiddleChoice;
 
     Fl_Multiline_Output * m_NotesOutput;
+
+    // SpaceMouse tab.
+    GroupLayout m_SpaceMouseLayout;
+    Choice m_SpaceMouseChoice;
+    StringOutput m_SpaceMouseStatus;
+    Choice m_SpaceMouseSpeedChoice;
+    Choice m_SpaceMouseRotateChoice;
+    Choice m_SpaceMouseMoveChoice;
+    Choice m_SpaceMouseDominantChoice;
+    Choice m_AxisChoice[ VSPGUI::NAV_NUM_AXES ];
+    Choice m_AxisReverseChoice[ VSPGUI::NAV_NUM_AXES ];
+    NavAxisMeter * m_AxisMeter[ VSPGUI::NAV_NUM_AXES ];
+    TriggerButton m_AxisDefaultsButton;
 
     // Bottom of the window.
     GroupLayout m_BottomLayout;

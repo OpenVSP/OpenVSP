@@ -14,6 +14,7 @@
 
 #include <FL/Fl_Box.H>
 #include <FL/fl_ask.H>
+#include <FL/fl_draw.H>
 #include <FL/filename.H>
 
 #include "PreferencesScreen.h"
@@ -21,6 +22,7 @@
 #include "ScreenMgr.h"
 #include "NavController.h"
 #include "NavDevice.h"
+#include "SpaceMouse.h"
 
 // Values offered for the numeric 3D interaction preferences.
 static const double BALL_SIZES[] = { 0.6, 0.75, 0.9, 1.0 };
@@ -74,6 +76,73 @@ static const char * ActionName( int action )
         return "Tool picks only";
     }
 }
+
+// What each of a six-axis device's axes may do, as m_AxisChoice offers them.
+static const char * const AXIS_ACTION_NAMES[] = { "Nothing", "Pan right", "Pan up", "Zoom in", "Turn top toward you",
+                                                  "Turn right side away", "Roll counterclockwise" };
+
+// The device's axes, in its order, by the motion of the cap that drives each.
+static const char * const AXIS_LABELS[] = { "Left / Right", "Forward / Back", "Up / Down", "Tilt Fwd / Back",
+                                            "Tilt Left / Right", "Twist" };
+
+// One axis of a six-axis device: a bar from the middle, as far as the cap is pushed, over a
+// shaded dead zone.
+class NavAxisMeter : public Fl_Widget
+{
+public:
+    NavAxisMeter( int x, int y, int w, int h ) : Fl_Widget( x, y, w, h )
+    {
+        m_Counts = 0;
+    }
+
+    void SetCounts( int counts )
+    {
+        if ( counts != m_Counts )
+        {
+            m_Counts = counts;
+            redraw();
+        }
+    }
+
+    void draw()
+    {
+        fl_draw_box( FL_DOWN_BOX, x(), y(), w(), h(), FL_WHITE );
+        int inner_x = x() + 2;
+        int inner_w = w() - 4;
+        int mid = inner_x + inner_w / 2;
+        double full = VSPGUI::SpaceMouse::FullCounts();
+
+        // At least a little, so the dead zone shows.
+        int dead = std::max( 2, ( int )( 0.5 * inner_w * VSPGUI::SpaceMouse::DeadCounts() / full ) );
+        fl_color( fl_rgb_color( 220, 220, 232 ) );
+        fl_rectf( mid - dead, y() + 2, 2 * dead + 1, h() - 4 );
+
+        double f = m_Counts / full;
+        if ( f > 1.0 )
+        {
+            f = 1.0;
+        }
+        if ( f < -1.0 )
+        {
+            f = -1.0;
+        }
+        int len = ( int )( 0.5 * inner_w * f );
+        fl_color( fl_rgb_color( 76, 76, 255 ) );
+        if ( len > 0 )
+        {
+            fl_rectf( mid, y() + 4, len, h() - 8 );
+        }
+        else if ( len < 0 )
+        {
+            fl_rectf( mid + len, y() + 4, -len, h() - 8 );
+        }
+
+        fl_color( fl_rgb_color( 64, 64, 64 ) );
+        fl_line( mid, y() + 2, mid, y() + h() - 3 );
+    }
+
+    int m_Counts;
+};
 
 // Index of the offered value nearest a stored one.
 static int NearestIndex( const double * vals, int n, double v )
@@ -582,6 +651,114 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     buttons_group->add( m_NotesOutput );
     m_ButtonsLayout.AddY( notes_h );
 
+    //==== SpaceMouse ====//
+    for ( int i = 0; i < VSPGUI::NAV_NUM_AXES; i++ )
+    {
+        m_AxisMeter[i] = nullptr;
+    }
+    if ( VSPGUI::SpaceMouse::IsBuilt() )
+    {
+        Fl_Group * sm_tab = AddTab( "SpaceMouse" );
+        Fl_Group * sm_group = AddSubGroup( sm_tab, 5 );
+        m_SpaceMouseLayout.SetGroupAndScreen( sm_group, this );
+
+        m_SpaceMouseLayout.AddDividerBox( "Device" );
+
+        m_SpaceMouseChoice.AddItem( "Use when present", 1 );
+        m_SpaceMouseChoice.AddItem( "Off", 0 );
+        m_SpaceMouseChoice.UpdateItems();
+        m_SpaceMouseLayout.AddChoice( m_SpaceMouseChoice, "SpaceMouse" );
+        m_SpaceMouseChoice.GetFlChoice()->tooltip( "A 3Dconnexion SpaceMouse or other six-axis device on USB, read with no vendor driver.  It moves the view while OpenVSP has the keyboard focus." );
+
+        int sm_button_w = m_SpaceMouseLayout.GetButtonWidth();
+        m_SpaceMouseLayout.SetButtonWidth( m_SpaceMouseLayout.GetChoiceButtonWidth() );
+        m_SpaceMouseLayout.AddOutput( m_SpaceMouseStatus, "Status" );
+        m_SpaceMouseLayout.SetButtonWidth( sm_button_w );
+        m_SpaceMouseLayout.AddYGap();
+
+        m_SpaceMouseLayout.AddDividerBox( "Motion" );
+
+        const char * speed_names[] = { "Slowest", "Slow", "Normal", "Fast", "Fastest" };
+        for ( int i = 0; i < VSPGUI::NAV_NUM_SPACEMOUSE_SPEEDS; i++ )
+        {
+            m_SpaceMouseSpeedChoice.AddItem( speed_names[i], i );
+        }
+        m_SpaceMouseSpeedChoice.UpdateItems();
+        m_SpaceMouseLayout.AddChoice( m_SpaceMouseSpeedChoice, "Speed" );
+        m_SpaceMouseSpeedChoice.GetFlChoice()->tooltip( "How fast the SpaceMouse turns, pans and zooms the view" );
+
+        m_SpaceMouseRotateChoice.AddItem( "On", 1 );
+        m_SpaceMouseRotateChoice.AddItem( "Off", 0 );
+        m_SpaceMouseRotateChoice.UpdateItems();
+        m_SpaceMouseLayout.AddChoice( m_SpaceMouseRotateChoice, "Turns" );
+        m_SpaceMouseRotateChoice.GetFlChoice()->tooltip( "Off: the axes that turn the model do nothing" );
+
+        m_SpaceMouseMoveChoice.AddItem( "On", 1 );
+        m_SpaceMouseMoveChoice.AddItem( "Off", 0 );
+        m_SpaceMouseMoveChoice.UpdateItems();
+        m_SpaceMouseLayout.AddChoice( m_SpaceMouseMoveChoice, "Pan and Zoom" );
+        m_SpaceMouseMoveChoice.GetFlChoice()->tooltip( "Off: the axes that pan and zoom do nothing" );
+
+        m_SpaceMouseDominantChoice.AddItem( "Every axis", 0 );
+        m_SpaceMouseDominantChoice.AddItem( "Only the axis pushed furthest", 1 );
+        m_SpaceMouseDominantChoice.UpdateItems();
+        m_SpaceMouseLayout.AddChoice( m_SpaceMouseDominantChoice, "Acting Axes" );
+        m_SpaceMouseDominantChoice.GetFlChoice()->tooltip( "Only the axis pushed furthest: one motion at a time, so twisting the cap does not also pan or zoom.  3Dconnexion calls this Dominant." );
+        m_SpaceMouseLayout.AddYGap();
+
+        m_SpaceMouseLayout.AddDividerBox( "Axes" );
+
+        int about_h = 2 * m_SpaceMouseLayout.GetStdHeight();
+        Fl_Box * about = new Fl_Box( m_SpaceMouseLayout.GetX(), m_SpaceMouseLayout.GetY(), m_SpaceMouseLayout.GetW(), about_h );
+        about->box( FL_NO_BOX );
+        about->labelsize( 12 );
+        about->align( FL_ALIGN_LEFT | FL_ALIGN_TOP | FL_ALIGN_INSIDE | FL_ALIGN_WRAP );
+        about->label( "What each motion of the cap does.  Move the cap: each bar shows how far its axis is pushed; "
+                      "inside the shaded middle an axis does nothing." );
+        sm_group->add( about );
+        m_SpaceMouseLayout.AddY( about_h );
+
+        // Each row: the motion and what it does, whether reversed, and how far it is pushed.
+        int label_w = m_SpaceMouseLayout.GetChoiceButtonWidth();
+        int row_w = m_SpaceMouseLayout.GetW();
+        int motion_w = 110;
+        int action_w = 170;
+        int reverse_w = 80;
+        int meter_w = row_w - motion_w - action_w - reverse_w;
+
+        // A choice's width is what the rest of the line leaves it.
+        m_SpaceMouseLayout.SetSameLineFlag( true );
+        for ( int i = 0; i < VSPGUI::NAV_NUM_AXES; i++ )
+        {
+            for ( int a = 0; a < VSPGUI::NAV_NUM_AXIS_ACTIONS; a++ )
+            {
+                m_AxisChoice[i].AddItem( AXIS_ACTION_NAMES[a], a );
+            }
+            m_AxisChoice[i].UpdateItems();
+            m_AxisReverseChoice[i].AddItem( "Normal", 0 );
+            m_AxisReverseChoice[i].AddItem( "Reverse", 1 );
+            m_AxisReverseChoice[i].UpdateItems();
+
+            m_SpaceMouseLayout.SetChoiceButtonWidth( motion_w );
+            m_SpaceMouseLayout.AddChoice( m_AxisChoice[i], AXIS_LABELS[i], reverse_w + meter_w );
+            m_SpaceMouseLayout.SetChoiceButtonWidth( 0 );
+            m_SpaceMouseLayout.AddChoice( m_AxisReverseChoice[i], "", row_w - reverse_w );
+            m_AxisReverseChoice[i].GetFlChoice()->tooltip( "Reversed: the axis acts the other way" );
+
+            m_AxisMeter[i] = new NavAxisMeter( m_SpaceMouseLayout.GetX(), m_SpaceMouseLayout.GetY(), meter_w,
+                                               m_SpaceMouseLayout.GetStdHeight() );
+            m_AxisMeter[i]->tooltip( "How far the cap is pushed along this axis" );
+            sm_group->add( m_AxisMeter[i] );
+            m_SpaceMouseLayout.ForceNewLine();
+        }
+        m_SpaceMouseLayout.SetSameLineFlag( false );
+        m_SpaceMouseLayout.SetChoiceButtonWidth( label_w );
+
+        m_SpaceMouseLayout.AddYGap();
+        m_SpaceMouseLayout.AddButton( m_AxisDefaultsButton, "Default Axes" );
+        m_AxisDefaultsButton.GetFlButton()->tooltip( "Put every axis back as OpenVSP starts, with the model moving as the cap does" );
+    }
+
     //==== Bottom ====//
     m_BottomLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_BottomLayout.SetY( m_FLTK_Window->h() - 27 );
@@ -612,6 +789,7 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
 
 PreferencesScreen::~PreferencesScreen()
 {
+    Fl::remove_timeout( StaticMeterCB, this );
 }
 
 bool PreferencesScreen::Update()
@@ -622,6 +800,10 @@ bool PreferencesScreen::Update()
     if ( main && VSPGUI::NavDevice::IsBuilt() )
     {
         m_DeviceStatus.Update( main->GetNavDevice()->GetStatus() );
+    }
+    if ( main && VSPGUI::SpaceMouse::IsBuilt() )
+    {
+        m_SpaceMouseStatus.Update( main->GetSpaceMouse()->GetStatus() );
     }
 
     m_FLTK_Window->redraw();
@@ -649,8 +831,39 @@ void PreferencesScreen::Show()
     m_Nav.Load();
     ShowNav();
 
+    Fl::remove_timeout( StaticMeterCB, this );
+    if ( VSPGUI::SpaceMouse::IsBuilt() )
+    {
+        Fl::add_timeout( 0.05, StaticMeterCB, this );
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
     TabScreen::Show();
+}
+
+void PreferencesScreen::StaticMeterCB( void * data )
+{
+    PreferencesScreen * screen = ( PreferencesScreen * )data;
+    screen->ShowMeters();
+    Fl::repeat_timeout( 0.05, StaticMeterCB, data );
+}
+
+void PreferencesScreen::ShowMeters()
+{
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( !main )
+    {
+        return;
+    }
+    int counts[ VSPGUI::NAV_NUM_AXES ];
+    main->GetSpaceMouse()->GetCounts( counts );
+    for ( int i = 0; i < VSPGUI::NAV_NUM_AXES; i++ )
+    {
+        if ( m_AxisMeter[i] )
+        {
+            m_AxisMeter[i]->SetCounts( counts[i] );
+        }
+    }
 }
 
 void PreferencesScreen::ShowNav()
@@ -674,6 +887,20 @@ void PreferencesScreen::ShowNav()
     if ( VSPGUI::NavDevice::IsBuilt() )
     {
         m_DeviceChoice.SetVal( ( int )m_Nav.m_UseDevice );
+    }
+    if ( VSPGUI::SpaceMouse::IsBuilt() )
+    {
+        m_SpaceMouseChoice.SetVal( ( int )m_Nav.m_UseSpaceMouse );
+        m_SpaceMouseSpeedChoice.SetVal( NearestIndex( VSPGUI::NAV_SPACEMOUSE_SPEEDS, VSPGUI::NAV_NUM_SPACEMOUSE_SPEEDS,
+                                                      m_Nav.m_SpaceMouseSpeed ) );
+        m_SpaceMouseRotateChoice.SetVal( ( int )m_Nav.m_SpaceMouseRotate );
+        m_SpaceMouseMoveChoice.SetVal( ( int )m_Nav.m_SpaceMouseMove );
+        m_SpaceMouseDominantChoice.SetVal( ( int )m_Nav.m_SpaceMouseDominant );
+        for ( int i = 0; i < VSPGUI::NAV_NUM_AXES; i++ )
+        {
+            m_AxisChoice[i].SetVal( m_Nav.m_SpaceMouseAxis[i] );
+            m_AxisReverseChoice[i].SetVal( ( int )m_Nav.m_SpaceMouseReverse[i] );
+        }
     }
 
     ShowActive();
@@ -790,8 +1017,51 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     {
         m_Nav.m_UseDevice = ( m_DeviceChoice.GetVal() != 0 );
     }
+    else if ( device == &m_SpaceMouseChoice )
+    {
+        m_Nav.m_UseSpaceMouse = ( m_SpaceMouseChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_SpaceMouseSpeedChoice )
+    {
+        m_Nav.m_SpaceMouseSpeed = VSPGUI::NAV_SPACEMOUSE_SPEEDS[ m_SpaceMouseSpeedChoice.GetVal() ];
+    }
+    else if ( device == &m_SpaceMouseRotateChoice )
+    {
+        m_Nav.m_SpaceMouseRotate = ( m_SpaceMouseRotateChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_SpaceMouseMoveChoice )
+    {
+        m_Nav.m_SpaceMouseMove = ( m_SpaceMouseMoveChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_SpaceMouseDominantChoice )
+    {
+        m_Nav.m_SpaceMouseDominant = ( m_SpaceMouseDominantChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_AxisDefaultsButton )
+    {
+        VSPGUI::NavSettings def;
+        for ( int i = 0; i < VSPGUI::NAV_NUM_AXES; i++ )
+        {
+            m_Nav.m_SpaceMouseAxis[i] = def.m_SpaceMouseAxis[i];
+            m_Nav.m_SpaceMouseReverse[i] = def.m_SpaceMouseReverse[i];
+        }
+        ShowNav();
+    }
     else
     {
+        for ( int i = 0; i < VSPGUI::NAV_NUM_AXES; i++ )
+        {
+            if ( device == &m_AxisChoice[i] )
+            {
+                m_Nav.m_SpaceMouseAxis[i] = m_AxisChoice[i].GetVal();
+                return true;
+            }
+            if ( device == &m_AxisReverseChoice[i] )
+            {
+                m_Nav.m_SpaceMouseReverse[i] = ( m_AxisReverseChoice[i].GetVal() != 0 );
+                return true;
+            }
+        }
         return false;
     }
     return true;
@@ -1235,6 +1505,7 @@ void PreferencesScreen::ShowTriedPress()
 
 void PreferencesScreen::Hide()
 {
+    Fl::remove_timeout( StaticMeterCB, this );
     VspScreen::Hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
