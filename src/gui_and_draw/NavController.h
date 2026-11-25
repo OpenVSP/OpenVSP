@@ -70,6 +70,26 @@ enum NavPivot
     NAV_PIVOT_UNDER_CURSOR  // The surface under the press, for that drag; else the rotation center.
 };
 
+// What one of a six-axis device's axes does to the view.
+enum NavAxisAction
+{
+    NAV_AXIS_NONE,
+    NAV_AXIS_PAN_X,     // Move the model right.
+    NAV_AXIS_PAN_Y,     // Move the model up.
+    NAV_AXIS_ZOOM,      // Bring the model closer.
+    NAV_AXIS_TURN_X,    // Turn the model about the screen's horizontal axis, its top toward you.
+    NAV_AXIS_TURN_Y,    // Turn the model about the screen's vertical axis, its right side away.
+    NAV_AXIS_TURN_Z,    // Turn the model counterclockwise about the screen's center.
+    NAV_NUM_AXIS_ACTIONS
+};
+
+// A six-axis device's axes, in the order it reports them.
+static const int NAV_NUM_AXES = 6;
+
+// The SpaceMouse speeds offered, slowest first; Faster and Slower step through them.
+static const int NAV_NUM_SPACEMOUSE_SPEEDS = 5;
+extern const double NAV_SPACEMOUSE_SPEEDS[ NAV_NUM_SPACEMOUSE_SPEEDS ];
+
 // The user's 3D interaction preferences.
 struct NavSettings
 {
@@ -102,11 +122,22 @@ struct NavSettings
 
     bool m_UseDevice;           // Look for a 3D input device and use it when there is one.
 
+    bool m_UseSpaceMouse;       // Look for a SpaceMouse and use it when there is one.
+    double m_SpaceMouseSpeed;   // Multiplier on the SpaceMouse's speed, 0.1 to 10.
+    int m_SpaceMouseAxis[ NAV_NUM_AXES ];       // NavAxisAction of each device axis.
+    bool m_SpaceMouseReverse[ NAV_NUM_AXES ];   // The axis acts the other way.
+    bool m_SpaceMouseRotate;    // The SpaceMouse's turns act.
+    bool m_SpaceMouseMove;      // The SpaceMouse's pans and zoom act.
+    bool m_SpaceMouseDominant;  // Only the SpaceMouse axis pushed furthest acts.
+
+    // The next SpaceMouse speed offered, faster (step 1) or slower (step -1).
+    void StepSpaceMouseSpeed( int step );
+
     NavProfile m_Profile;       // The mouse bindings.
 
-    // Set what a preset sets: the bindings, how rotation starts and what it turns about, and
-    // how the wheel and drags zoom.  Every other setting but the 3D device's goes back to its
-    // default.
+    // Set what a preset sets: the mouse bindings, how rotation starts and what it turns about,
+    // and how the wheel and drags zoom.  Every other setting but the 3D devices' and the device
+    // button bindings goes back to its default.
     void ApplyPreset( int preset );
 
     // The NavPreset whose settings these match, or -1 for none.

@@ -36,6 +36,14 @@ static const double NAV_STEP_ZOOM = 1.15;
 static const double NAV_STEP_DELAY = 0.4;
 static const double NAV_STEP_INTERVAL = 0.1;
 
+const double NAV_SPACEMOUSE_SPEEDS[ NAV_NUM_SPACEMOUSE_SPEEDS ] = { 0.25, 0.5, 1.0, 2.0, 4.0 };
+
+// As 3Dconnexion's driver and Blender start: push right and up to move the model so, pull
+// toward you to bring it closer, tilt and twist to turn it as the cap turns.
+static const int SPACEMOUSE_AXES[ NAV_NUM_AXES ] = { NAV_AXIS_PAN_X, NAV_AXIS_ZOOM, NAV_AXIS_PAN_Y, NAV_AXIS_TURN_X,
+                                                     NAV_AXIS_TURN_Z, NAV_AXIS_TURN_Y };
+static const bool SPACEMOUSE_REVERSE[ NAV_NUM_AXES ] = { false, false, true, false, false, true };
+
 static bool IsStepZoom( int action )
 {
     return action == NAV_ZOOM_IN || action == NAV_ZOOM_OUT;
@@ -66,14 +74,51 @@ NavSettings::NavSettings()
 
     m_UseDevice = true;
 
+    m_UseSpaceMouse = true;
+    m_SpaceMouseSpeed = 1.0;
+    for ( int i = 0; i < NAV_NUM_AXES; i++ )
+    {
+        m_SpaceMouseAxis[i] = SPACEMOUSE_AXES[i];
+        m_SpaceMouseReverse[i] = SPACEMOUSE_REVERSE[i];
+    }
+    m_SpaceMouseRotate = true;
+    m_SpaceMouseMove = true;
+    m_SpaceMouseDominant = false;
+
     m_Profile = NavProfile::Preset( NAV_PRESET_OPENVSP );
+    std::vector < NavBinding > device = NavProfile::DeviceDefaults();
+    m_Profile.m_Bindings.insert( m_Profile.m_Bindings.end(), device.begin(), device.end() );
+}
+
+void NavSettings::StepSpaceMouseSpeed( int step )
+{
+    int now = 0;
+    for ( int i = 1; i < NAV_NUM_SPACEMOUSE_SPEEDS; i++ )
+    {
+        if ( std::abs( NAV_SPACEMOUSE_SPEEDS[i] - m_SpaceMouseSpeed ) < std::abs( NAV_SPACEMOUSE_SPEEDS[now] - m_SpaceMouseSpeed ) )
+        {
+            now = i;
+        }
+    }
+    now += step;
+    if ( now < 0 )
+    {
+        now = 0;
+    }
+    if ( now >= NAV_NUM_SPACEMOUSE_SPEEDS )
+    {
+        now = NAV_NUM_SPACEMOUSE_SPEEDS - 1;
+    }
+    m_SpaceMouseSpeed = NAV_SPACEMOUSE_SPEEDS[ now ];
 }
 
 void NavSettings::ApplyPreset( int preset )
 {
     NavSettings def;
 
+    std::vector < NavBinding > device = m_Profile.DeviceBindings();
     m_Profile = NavProfile::Preset( preset );
+    m_Profile.m_Bindings.insert( m_Profile.m_Bindings.end(), device.begin(), device.end() );
     m_StartupRotateMode = def.m_StartupRotateMode;
     m_BallType = def.m_BallType;
     m_Pivot = def.m_Pivot;
@@ -234,6 +279,80 @@ static const char * const ANCHOR_NAMES[] = { "Pointer", "Center" };
 static const char * const WHEEL_STEP_NAMES[] = { "PerEvent", "Proportional" };
 static const char * const ZOOM_LAW_NAMES[] = { "PerEvent", "Continuous" };
 static const char * const PIVOT_NAMES[] = { "Fixed", "UnderCursor" };
+static const char * const AXIS_NAMES[] = { "None", "PanX", "PanY", "Zoom", "TurnX", "TurnY", "TurnZ" };
+
+// The axes as text: "PanX Zoom -PanY ...", a minus for a reversed axis.
+static std::string AxesText( const int * axis, const bool * reverse )
+{
+    std::string t;
+    for ( int i = 0; i < NAV_NUM_AXES; i++ )
+    {
+        if ( i > 0 )
+        {
+            t += " ";
+        }
+        if ( reverse[i] )
+        {
+            t += "-";
+        }
+        t += AXIS_NAMES[ axis[i] ];
+    }
+    return t;
+}
+
+// Read AxesText's text.  On any error, return false and leave the axes as they were.
+static bool ReadAxesText( const std::string & text, int * axis, bool * reverse )
+{
+    int a[ NAV_NUM_AXES ];
+    bool r[ NAV_NUM_AXES ];
+    size_t start = 0;
+    for ( int i = 0; i < NAV_NUM_AXES; i++ )
+    {
+        if ( start > text.size() )
+        {
+            return false;
+        }
+        size_t end = text.find( ' ', start );
+        if ( end == std::string::npos )
+        {
+            end = text.size();
+        }
+        std::string name = text.substr( start, end - start );
+        start = end + 1;
+
+        r[i] = ( !name.empty() && name[0] == '-' );
+        if ( r[i] )
+        {
+            name = name.substr( 1 );
+        }
+        a[i] = -1;
+        for ( int j = 0; j < NAV_NUM_AXIS_ACTIONS; j++ )
+        {
+            if ( name == AXIS_NAMES[j] )
+            {
+                a[i] = j;
+            }
+        }
+        if ( a[i] < 0 )
+        {
+            return false;
+        }
+    }
+    for ( int i = 0; i < NAV_NUM_AXES; i++ )
+    {
+        axis[i] = a[i];
+        reverse[i] = r[i];
+    }
+    return true;
+}
+
+// The bindings' text, as a profile's.
+static std::string BindingsText( const std::vector < NavBinding > & bindings )
+{
+    NavProfile p;
+    p.m_Bindings = bindings;
+    return p.BindingsText();
+}
 
 // USER_L writes and reads numbers in the C locale, so a decimal comma never gets into the file.
 void NavSettings::Load()
@@ -294,6 +413,20 @@ void NavSettings::Load()
 
     m_EmulateMiddle = GetFlag( grp, "EmulateMiddle", def.m_EmulateMiddle );
     m_UseDevice = GetFlag( grp, "UseDevice", def.m_UseDevice );
+    m_UseSpaceMouse = GetFlag( grp, "UseSpaceMouse", def.m_UseSpaceMouse );
+    grp.get( "SpaceMouseSpeed", m_SpaceMouseSpeed, def.m_SpaceMouseSpeed );
+    m_SpaceMouseSpeed = Checked( m_SpaceMouseSpeed, 0.1, 10.0, def.m_SpaceMouseSpeed );
+    char axes[ 256 ];
+    grp.get( "SpaceMouseAxes", axes, "", sizeof( axes ) );
+    for ( int i = 0; i < NAV_NUM_AXES; i++ )
+    {
+        m_SpaceMouseAxis[i] = def.m_SpaceMouseAxis[i];
+        m_SpaceMouseReverse[i] = def.m_SpaceMouseReverse[i];
+    }
+    ReadAxesText( axes, m_SpaceMouseAxis, m_SpaceMouseReverse );
+    m_SpaceMouseRotate = GetFlag( grp, "SpaceMouseRotate", def.m_SpaceMouseRotate );
+    m_SpaceMouseMove = GetFlag( grp, "SpaceMouseMove", def.m_SpaceMouseMove );
+    m_SpaceMouseDominant = GetFlag( grp, "SpaceMouseDominant", def.m_SpaceMouseDominant );
 
     grp.get( "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
     if ( m_Profile.m_ClickDistance < 0 || m_Profile.m_ClickDistance > 50 )
@@ -302,15 +435,35 @@ void NavSettings::Load()
     }
     m_Profile.m_ChordEnds = GetFlag( grp, "ChordEnds", def.m_Profile.m_ChordEnds );
 
-    // Bindings that do not read give the default profile whole.
-    m_Profile.m_Bindings = def.m_Profile.m_Bindings;
+    // Mouse bindings that do not read give the default profile whole; device button bindings
+    // that do not read give the default device bindings.
+    std::vector < NavBinding > mouse = def.m_Profile.MouseBindings();
+    std::vector < NavBinding > device = def.m_Profile.DeviceBindings();
+    NavProfile read;
     char * text = nullptr;
     grp.get( "Bindings", text, "" );
-    if ( text && grp.entryExists( "Bindings" ) && !m_Profile.SetBindingsText( text ) )
+    if ( text && grp.entryExists( "Bindings" ) )
     {
-        m_Profile = def.m_Profile;
+        if ( read.SetBindingsText( text ) )
+        {
+            mouse = read.MouseBindings();
+        }
+        else
+        {
+            m_Profile.m_ClickDistance = def.m_Profile.m_ClickDistance;
+            m_Profile.m_ChordEnds = def.m_Profile.m_ChordEnds;
+        }
     }
     free( text );
+    text = nullptr;
+    grp.get( "DeviceBindings", text, "" );
+    if ( text && grp.entryExists( "DeviceBindings" ) && read.SetBindingsText( text ) )
+    {
+        device = read.DeviceBindings();
+    }
+    free( text );
+    m_Profile.m_Bindings = mouse;
+    m_Profile.m_Bindings.insert( m_Profile.m_Bindings.end(), device.begin(), device.end() );
 }
 
 // Only values that differ from the defaults are stored, so a later change of a default
@@ -395,7 +548,17 @@ void NavSettings::Save() const
     SaveName( grp, "Pivot", PIVOT_NAMES[ m_Pivot ], PIVOT_NAMES[ def.m_Pivot ] );
     SaveFlag( grp, "EmulateMiddle", m_EmulateMiddle, def.m_EmulateMiddle );
     SaveFlag( grp, "UseDevice", m_UseDevice, def.m_UseDevice );
-    SaveName( grp, "Bindings", m_Profile.BindingsText().c_str(), def.m_Profile.BindingsText().c_str() );
+    SaveFlag( grp, "UseSpaceMouse", m_UseSpaceMouse, def.m_UseSpaceMouse );
+    SaveDouble( grp, "SpaceMouseSpeed", m_SpaceMouseSpeed, def.m_SpaceMouseSpeed );
+    SaveName( grp, "SpaceMouseAxes", AxesText( m_SpaceMouseAxis, m_SpaceMouseReverse ).c_str(),
+              AxesText( def.m_SpaceMouseAxis, def.m_SpaceMouseReverse ).c_str() );
+    SaveFlag( grp, "SpaceMouseRotate", m_SpaceMouseRotate, def.m_SpaceMouseRotate );
+    SaveFlag( grp, "SpaceMouseMove", m_SpaceMouseMove, def.m_SpaceMouseMove );
+    SaveFlag( grp, "SpaceMouseDominant", m_SpaceMouseDominant, def.m_SpaceMouseDominant );
+    SaveName( grp, "Bindings", BindingsText( m_Profile.MouseBindings() ).c_str(),
+              BindingsText( def.m_Profile.MouseBindings() ).c_str() );
+    SaveName( grp, "DeviceBindings", BindingsText( m_Profile.DeviceBindings() ).c_str(),
+              BindingsText( def.m_Profile.DeviceBindings() ).c_str() );
     SaveInt( grp, "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
     SaveFlag( grp, "ChordEnds", m_Profile.m_ChordEnds, def.m_Profile.m_ChordEnds );
 
