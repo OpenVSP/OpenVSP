@@ -162,6 +162,11 @@ public:
     void Release( int x, int y );
     void Wheel( int dx, int dy, int x, int y );
 
+    // Move the view by a six-axis device's motion over a frame, in eye axes (+x right, +y up,
+    // +z toward the viewer): turn the model by rotation, in radians, and move it by
+    // translation, in view heights across and natural-log zoom steps along z.
+    void ApplyAxes( const glm::dvec3 & rotation, const glm::dvec3 & translation );
+
     // Turn the view about the screen's axis until world Z points up the screen.  Looking along
     // Z, first tip it a quarter turn about the screen's x axis.  False if Z is already up.
     bool LevelZUp();

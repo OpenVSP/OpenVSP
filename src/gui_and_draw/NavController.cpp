@@ -1234,6 +1234,50 @@ void NavController::Wheel( int dx, int dy, int x, int y )
     }
 }
 
+void NavController::ApplyAxes( const glm::dvec3 & rotation, const glm::dvec3 & translation )
+{
+    VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
+    if ( !camera )
+    {
+        return;
+    }
+
+    if ( m_RotateMode == NAV_ROTATE_TURNTABLE )
+    {
+        // Tip about the screen's horizontal axis, then turn about world up, the way that moves
+        // the near side with the device, as the mouse turntable does.  There is no roll.
+        glm::dquat r0( camera->getViewRotation() );
+        glm::dvec3 up( 0.0, 0.0, 1.0 );
+        double yaw = rotation.y;
+        if ( ( r0 * up ).y < 0.0 )
+        {
+            yaw = -yaw;
+        }
+        glm::dquat r = glm::angleAxis( rotation.x, glm::dvec3( 1.0, 0.0, 0.0 ) ) * r0 * glm::angleAxis( yaw, up );
+        camera->setViewRotation( glm::quat( r ) );
+    }
+    else
+    {
+        camera->rotateEye( rotation );
+    }
+
+    double height = camera->viewportHeight() * camera->getRelativeZoomValue();
+    glm::vec2 pan = camera->getPanValues();
+    camera->relativePan( pan.x + height * translation.x, pan.y + height * translation.y );
+
+    if ( translation.z != 0.0 )
+    {
+        // Toward the viewer brings the model closer.
+        ZoomAt( camera, std::exp( -translation.z ), NAV_ANCHOR_CENTER, 0, 0 );
+    }
+
+    m_Win->UpdateRotationParms();
+    m_Win->UpdatePanParms();
+    m_Win->UpdateZoomParms();
+    m_Win->ViewChanged();
+    m_Win->redraw();
+}
+
 bool NavController::LevelZUp()
 {
     VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
