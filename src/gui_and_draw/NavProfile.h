@@ -17,7 +17,7 @@
 namespace VSPGUI
 {
 
-// What a mouse gesture does to the view.
+// What a mouse gesture or a device button does to the view.
 enum NavAction
 {
     NAV_NONE,
@@ -30,8 +30,36 @@ enum NavAction
     NAV_SELECT,         // Click: select the Geom there; Shift adds, Ctrl or Cmd toggles.
     NAV_ZOOM_IN,        // A wheel step in at the press, repeated while held.  Always NAV_ON_DRAG.
     NAV_ZOOM_OUT,       // As NAV_ZOOM_IN, out.
+
+    // Commands: each acts once, at the press.
+    NAV_FIT,            // Fit the model on screen.
+    NAV_PREFERENCES,    // Show the 3D View preferences.
+    NAV_VIEW_TOP,       // Look along a standard view.
+    NAV_VIEW_FRONT,
+    NAV_VIEW_LEFT,
+    NAV_VIEW_RIGHT,
+    NAV_VIEW_BOTTOM,
+    NAV_VIEW_REAR,
+    NAV_VIEW_LEFT_ISO,
+    NAV_VIEW_RIGHT_ISO,
+    NAV_ROLL_CW,        // Turn the view a quarter turn clockwise about the screen's center.
+    NAV_ROLL_CCW,
+    NAV_Z_UP,           // Turn the view until world Z points up the screen.
+    NAV_DEVICE_ROTATE,  // Turn the six-axis device's rotations off, or on again.
+    NAV_DEVICE_MOVE,    // Turn the six-axis device's pans and zoom off, or on again.
+    NAV_DEVICE_DOMINANT,// Turn on or off following only the device's largest axis.
+    NAV_DEVICE_FASTER,  // Make the six-axis device faster.
+    NAV_DEVICE_SLOWER,
+
     NAV_BOX_SELECT      // Fit Model's box selection, which no binding starts.
 };
+
+// True for the actions that act at the press, whatever the trigger: Zoom in, Zoom out and the
+// commands.
+bool NavActsAtPress( int action );
+
+// True for the commands.
+bool NavIsCommand( int action );
 
 // When a binding acts.
 enum NavTrigger
@@ -48,9 +76,11 @@ enum NavWhere
     NAV_ON_BACKGROUND
 };
 
-// One row of a profile: the press that starts a gesture, and what it does.
+// One row of a profile: the press that starts a gesture, and what it does.  A row for a six-axis
+// device's button names it and needs no mouse button; it acts at the button's press.
 struct NavBinding
 {
+    std::string m_DeviceButton; // The device button's name, as the device gives it, or "".
     int m_Buttons;          // FL_BUTTON1 to FL_BUTTON5 bits that must all be down.
     int m_OtherButtons;     // Further button bits that may also be down.  Any others may not.
     int m_Modifiers;        // FL_SHIFT, FL_CTRL, FL_ALT and FL_META bits that must all be down.
@@ -72,6 +102,12 @@ NavBinding NavBind( int buttons, int modifiers, NavAction action );
 // A binding for at least these buttons and modifiers: any others may also be down.
 NavBinding NavBindAtLeast( int buttons, int modifiers, NavAction action );
 
+// A binding for a six-axis device's button, with no modifiers.
+NavBinding NavBindDevice( const std::string & button, NavAction action );
+
+// True if two device button names are the same button.  Devices differ in case ("MENU", "Menu").
+bool NavSameDeviceButton( const std::string & a, const std::string & b );
+
 // A modifier bit's name on this platform: "Cmd" for FL_META on macOS, "Option" for FL_ALT, ...
 const char * NavModifierName( int bit );
 
@@ -83,6 +119,7 @@ struct NavPress
 {
     NavPress();
 
+    std::string m_DeviceButton; // The six-axis device button just pressed, or "" for the mouse.
     int m_Buttons;              // Button bits down.
     int m_Modifiers;            // Modifier bits down.
     std::set < int > m_HeldKeys;
@@ -128,6 +165,13 @@ public:
     // OpenVSP's bindings as of 3.55.
     static NavProfile Classic();
 
+    // The six-axis device button bindings every profile starts with.
+    static std::vector < NavBinding > DeviceDefaults();
+
+    // The bindings for the mouse, and for a six-axis device's buttons.
+    std::vector < NavBinding > MouseBindings() const;
+    std::vector < NavBinding > DeviceBindings() const;
+
     // A built-in profile, by NavPreset.  An unknown value gives Classic.
     static NavProfile Preset( int preset );
 
@@ -153,7 +197,8 @@ public:
     // the same trigger matches too.
     std::vector < int > Shadowed() const;
 
-    // The bindings as text, one per line: "Rotate: Buttons=Middle Mods=Ctrl ...".  Fields at
+    // The bindings as text, one per line: "Rotate: Buttons=Middle Mods=Ctrl ...", or
+    // "Fit: Device=FIT" for a device button, with spaces in its name written as '_'.  Fields at
     // their NavBind() values are left out.
     std::string BindingsText() const;
 

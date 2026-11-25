@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <cctype>
 #include <cstdlib>
 
 #include <FL/Enumerations.H>
@@ -19,9 +20,36 @@ namespace VSPGUI
 static const int NAV_ALL_BUTTONS = FL_BUTTON1 | FL_BUTTON2 | FL_BUTTON3 | FL_BUTTON4 | FL_BUTTON5;
 static const int NAV_ALL_MODIFIERS = FL_SHIFT | FL_CTRL | FL_ALT | FL_META;
 
+bool NavActsAtPress( int action )
+{
+    return action == NAV_ZOOM_IN || action == NAV_ZOOM_OUT || NavIsCommand( action );
+}
+
+bool NavIsCommand( int action )
+{
+    return action >= NAV_FIT && action < NAV_BOX_SELECT;
+}
+
+bool NavSameDeviceButton( const std::string & a, const std::string & b )
+{
+    if ( a.size() != b.size() )
+    {
+        return false;
+    }
+    for ( int i = 0; i < ( int )a.size(); i++ )
+    {
+        if ( std::tolower( ( unsigned char )a[i] ) != std::tolower( ( unsigned char )b[i] ) )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool operator==( const NavBinding & a, const NavBinding & b )
 {
-    return a.m_Buttons == b.m_Buttons &&
+    return a.m_DeviceButton == b.m_DeviceButton &&
+           a.m_Buttons == b.m_Buttons &&
            a.m_OtherButtons == b.m_OtherButtons &&
            a.m_Modifiers == b.m_Modifiers &&
            a.m_OtherModifiers == b.m_OtherModifiers &&
@@ -59,6 +87,13 @@ NavBinding NavBindAtLeast( int buttons, int modifiers, NavAction action )
     NavBinding b = NavBind( buttons, modifiers, action );
     b.m_OtherButtons = NAV_ALL_BUTTONS & ~buttons;
     b.m_OtherModifiers = NAV_ALL_MODIFIERS & ~modifiers;
+    return b;
+}
+
+NavBinding NavBindDevice( const std::string & button, NavAction action )
+{
+    NavBinding b = NavBind( 0, 0, action );
+    b.m_DeviceButton = button;
     return b;
 }
 
@@ -463,9 +498,66 @@ NavProfile NavProfile::Classic()
     return p;
 }
 
+std::vector < NavBinding > NavProfile::DeviceDefaults()
+{
+    // As 3Dconnexion's own driver sets them, where OpenVSP has the same command.  The names
+    // are those of every device's buttons in libspnavdev.
+    std::vector < NavBinding > b;
+    b.push_back( NavBindDevice( "FIT", NAV_FIT ) );
+    b.push_back( NavBindDevice( "MENU", NAV_PREFERENCES ) );
+    b.push_back( NavBindDevice( "PANEL", NAV_PREFERENCES ) );
+    b.push_back( NavBindDevice( "T", NAV_VIEW_TOP ) );
+    b.push_back( NavBindDevice( "F", NAV_VIEW_FRONT ) );
+    b.push_back( NavBindDevice( "L", NAV_VIEW_LEFT ) );
+    b.push_back( NavBindDevice( "R", NAV_VIEW_RIGHT ) );
+    b.push_back( NavBindDevice( "B", NAV_VIEW_BOTTOM ) );
+    b.push_back( NavBindDevice( "BK", NAV_VIEW_REAR ) );
+    b.push_back( NavBindDevice( "ISO1", NAV_VIEW_LEFT_ISO ) );
+    b.push_back( NavBindDevice( "ISO2", NAV_VIEW_RIGHT_ISO ) );
+    b.push_back( NavBindDevice( "Roll +", NAV_ROLL_CW ) );
+    b.push_back( NavBindDevice( "Roll -", NAV_ROLL_CCW ) );
+    b.push_back( NavBindDevice( "Rot", NAV_DEVICE_ROTATE ) );
+    b.push_back( NavBindDevice( "Pan/Zoom", NAV_DEVICE_MOVE ) );
+    b.push_back( NavBindDevice( "Dom", NAV_DEVICE_DOMINANT ) );
+    b.push_back( NavBindDevice( "+", NAV_DEVICE_FASTER ) );
+    b.push_back( NavBindDevice( "-", NAV_DEVICE_SLOWER ) );
+    return b;
+}
+
+std::vector < NavBinding > NavProfile::MouseBindings() const
+{
+    std::vector < NavBinding > b;
+    for ( int i = 0; i < ( int )m_Bindings.size(); i++ )
+    {
+        if ( m_Bindings[i].m_DeviceButton.empty() )
+        {
+            b.push_back( m_Bindings[i] );
+        }
+    }
+    return b;
+}
+
+std::vector < NavBinding > NavProfile::DeviceBindings() const
+{
+    std::vector < NavBinding > b;
+    for ( int i = 0; i < ( int )m_Bindings.size(); i++ )
+    {
+        if ( !m_Bindings[i].m_DeviceButton.empty() )
+        {
+            b.push_back( m_Bindings[i] );
+        }
+    }
+    return b;
+}
+
 // True if the binding matches the press, whatever its trigger.
 static bool Matches( const NavBinding & b, const NavPress & press )
 {
+    if ( !NavSameDeviceButton( b.m_DeviceButton, press.m_DeviceButton ) )
+    {
+        return false;
+    }
+
     if ( ( press.m_Buttons & ~b.m_OtherButtons ) != b.m_Buttons )
     {
         return false;
@@ -593,6 +685,11 @@ static std::string DescribeKeys( int buttons, int modifiers, int key )
 
 std::string NavDescribe( const NavBinding & b )
 {
+    if ( !b.m_DeviceButton.empty() )
+    {
+        return DescribeKeys( 0, b.m_Modifiers, b.m_HeldKey ) + "Device " + b.m_DeviceButton;
+    }
+
     std::string d = DescribeKeys( b.m_Buttons, b.m_Modifiers, b.m_HeldKey );
     if ( b.m_Trigger == NAV_ON_CLICK )
     {
@@ -611,6 +708,10 @@ std::string NavDescribe( const NavPress & press )
     if ( !press.m_HeldKeys.empty() )
     {
         key = *press.m_HeldKeys.begin();
+    }
+    if ( !press.m_DeviceButton.empty() )
+    {
+        return DescribeKeys( 0, press.m_Modifiers, key ) + "Device " + press.m_DeviceButton;
     }
     return DescribeKeys( press.m_Buttons, press.m_Modifiers, key );
 }
@@ -749,6 +850,48 @@ static std::vector < NavPress > AllPresses( const std::vector < NavBinding > & b
             }
         }
     }
+
+    // Each device button a binding names, alone, with the modifiers and keys.
+    std::vector < std::string > device;
+    for ( int i = 0; i < ( int )bindings.size(); i++ )
+    {
+        const std::string & name = bindings[i].m_DeviceButton;
+        bool seen = name.empty();
+        for ( int j = 0; j < ( int )device.size() && !seen; j++ )
+        {
+            seen = NavSameDeviceButton( device[j], name );
+        }
+        if ( !seen )
+        {
+            device.push_back( name );
+        }
+    }
+    for ( int id = 0; id < ( int )device.size(); id++ )
+    {
+        for ( int im = 0; im < 16; im++ )
+        {
+            for ( int ik = 0; ik < ( 1 << ( int )keys.size() ); ik++ )
+            {
+                NavPress press;
+                press.m_DeviceButton = device[id];
+                for ( int j = 0; j < 4; j++ )
+                {
+                    if ( im & ( 1 << j ) )
+                    {
+                        press.m_Modifiers |= modbits[j];
+                    }
+                }
+                for ( int j = 0; j < ( int )keys.size(); j++ )
+                {
+                    if ( ik & ( 1 << j ) )
+                    {
+                        press.m_HeldKeys.insert( keys[j] );
+                    }
+                }
+                presses.push_back( press );
+            }
+        }
+    }
     return presses;
 }
 
@@ -777,8 +920,11 @@ std::vector < int > NavProfile::Shadowed() const
 
 // Names for the text form.  These are stored, so they never change.
 static const char * const ACTION_NAMES[] = { "None", "Rotate", "Roll", "Pan", "Zoom", "ZoomBox", "SetPivot", "Select",
-                                             "ZoomIn", "ZoomOut" };
-static const int NUM_ACTIONS = 10;
+                                             "ZoomIn", "ZoomOut", "Fit", "Preferences", "ViewTop", "ViewFront",
+                                             "ViewLeft", "ViewRight", "ViewBottom", "ViewRear", "ViewLeftIso",
+                                             "ViewRightIso", "RollCW", "RollCCW", "ZUp", "DeviceRotate", "DeviceMove",
+                                             "DeviceDominant", "DeviceFaster", "DeviceSlower" };
+static const int NUM_ACTIONS = NAV_BOX_SELECT;
 
 struct NavBit
 {
@@ -894,7 +1040,22 @@ std::string NavProfile::BindingsText() const
         NavBinding def = NavBind( b.m_Buttons, b.m_Modifiers, b.m_Action );
 
         t += ACTION_NAMES[ b.m_Action ];
-        t += ": Buttons=" + BitsText( b.m_Buttons, BUTTON_BITS, 5 );
+        if ( !b.m_DeviceButton.empty() )
+        {
+            std::string name = b.m_DeviceButton;
+            for ( int j = 0; j < ( int )name.size(); j++ )
+            {
+                if ( name[j] == ' ' )
+                {
+                    name[j] = '_';
+                }
+            }
+            t += ": Device=" + name;
+        }
+        else
+        {
+            t += ": Buttons=" + BitsText( b.m_Buttons, BUTTON_BITS, 5 );
+        }
         if ( b.m_Modifiers != 0 )
         {
             t += " Mods=" + BitsText( b.m_Modifiers, MODIFIER_BITS, 4 );
@@ -975,7 +1136,7 @@ bool NavProfile::SetBindingsText( const std::string & text )
         }
 
         // Read the fields first: the defaults of the "other" masks depend on the required ones.
-        std::string buttons, mods, other_buttons, other_mods, key, press, trigger, where;
+        std::string device, buttons, mods, other_buttons, other_mods, key, press, trigger, where;
         bool pick = false;
         bool has_other_buttons = false;
         bool has_other_mods = false;
@@ -1008,7 +1169,11 @@ bool NavProfile::SetBindingsText( const std::string & text )
             }
             std::string k = field.substr( 0, eq );
             std::string v = field.substr( eq + 1 );
-            if ( k == "Buttons" )
+            if ( k == "Device" )
+            {
+                device = v;
+            }
+            else if ( k == "Buttons" )
             {
                 buttons = v;
             }
@@ -1050,11 +1215,29 @@ bool NavProfile::SetBindingsText( const std::string & text )
 
         int ib = 0;
         int im = 0;
-        if ( !ParseBits( buttons, BUTTON_BITS, 5, ib ) || ib == 0 || !ParseBits( mods, MODIFIER_BITS, 4, im ) )
+        if ( !ParseBits( buttons, BUTTON_BITS, 5, ib ) || !ParseBits( mods, MODIFIER_BITS, 4, im ) )
         {
             return false;
         }
+        // A row needs a mouse button or a device button, not both.  A device button only
+        // starts what acts at its press.
+        if ( device.empty() == ( ib == 0 ) )
+        {
+            return false;
+        }
+        if ( !device.empty() && !NavActsAtPress( ia ) && ia != NAV_NONE )
+        {
+            return false;
+        }
+        for ( int j = 0; j < ( int )device.size(); j++ )
+        {
+            if ( device[j] == '_' )
+            {
+                device[j] = ' ';
+            }
+        }
         NavBinding b = NavBind( ib, im, ( NavAction )ia );
+        b.m_DeviceButton = device;
 
         if ( has_other_buttons && !ParseOtherBits( other_buttons, BUTTON_BITS, 5, ib, b.m_OtherButtons ) )
         {
@@ -1100,8 +1283,15 @@ bool NavProfile::SetBindingsText( const std::string & text )
         }
         b.m_PickFirst = pick;
 
-        // Zoom in and Zoom out act at the press whatever the trigger read.
-        if ( b.m_Action == NAV_ZOOM_IN || b.m_Action == NAV_ZOOM_OUT )
+        // A device row acts at its press, alone, anywhere.
+        if ( !b.m_DeviceButton.empty() && ( b.m_Trigger != NAV_ON_DRAG || b.m_Where != NAV_ANYWHERE ||
+                                            b.m_PressedButton != 0 || b.m_OtherButtons != 0 || b.m_PickFirst ) )
+        {
+            return false;
+        }
+
+        // Zoom in, Zoom out and the commands act at the press whatever the trigger read.
+        if ( NavActsAtPress( b.m_Action ) )
         {
             b.m_Trigger = NAV_ON_DRAG;
         }
@@ -1115,7 +1305,10 @@ bool NavProfile::SetBindingsText( const std::string & text )
 
 bool NavProfile::SameBehavior( const NavProfile & other ) const
 {
-    return m_Bindings == other.m_Bindings &&
+    // Mouse and device rows never match each other's presses, so only the order within each
+    // kind matters.
+    return MouseBindings() == other.MouseBindings() &&
+           DeviceBindings() == other.DeviceBindings() &&
            m_ClickDistance == other.m_ClickDistance &&
            m_ChordEnds == other.m_ChordEnds;
 }
