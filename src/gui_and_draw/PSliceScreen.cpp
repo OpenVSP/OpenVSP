@@ -175,9 +175,6 @@ bool PSliceScreen::Update()
         m_SetChoice.Activate();
     }
 
-    m_Norm.set_xyz( 0, 0, 0 );
-    m_Norm[veh->m_PlanarAxisType.Get()] = 1;
-
     if ( veh->m_AutoBoundsFlag() )
     {
         vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
@@ -263,7 +260,10 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
         bool useMode = veh->m_UseModePlanarSlicesFlag();
         string modeID = veh->m_PlanarSlicesModeID;
 
-        string id = veh->PSliceAndFlatten( m_SelectedSetIndex, veh->m_NumPlanerSlices.Get(), m_Norm,
+        // Read the current axis even if the screen refresh has not run yet.
+        vec3d normal( 0, 0, 0 );
+        normal[veh->m_PlanarAxisType.Get()] = 1;
+        string id = veh->PSliceAndFlatten( m_SelectedSetIndex, veh->m_NumPlanerSlices.Get(), normal,
                                            !!veh->m_AutoBoundsFlag.Get(),
                                            veh->m_PlanarStartLocation.Get(), veh->m_PlanarEndLocation.Get(),
                                            veh->m_PlanarMeasureDuct.Get(), useMode, modeID );

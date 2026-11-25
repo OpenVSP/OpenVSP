@@ -64,8 +64,6 @@ protected:
     Fl_Text_Display* m_TextDisplay;
     Fl_Text_Buffer* m_TextBuffer;
 
-    vec3d m_Norm;
-
 private :
 
     int m_SelectedSetIndex;
