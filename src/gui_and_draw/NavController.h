@@ -188,6 +188,18 @@ public:
         m_ZoomBoxArmed = true;
     }
 
+    // Called for a binding's command, a NavAction for which NavIsCommand is true.
+    void SetCommandCallback( void ( *cb )( int action, void * data ), void * data );
+
+    // A six-axis device's button went down or up.  Its binding acts on the selected viewport.
+    void DeviceButton( const std::string & name, bool press );
+
+    // Forget the device's buttons held down, as when it is closed.
+    void ReleaseDeviceButtons();
+
+    // Turn the view by angle, in radians, counterclockwise about the screen's center.
+    void RollView( double angle );
+
     void Push( int x, int y );
     void Drag( int x, int y );
     void Release( int x, int y );
@@ -229,11 +241,17 @@ private:
     void DragZoom( int x, int y );
 
     // One wheel step of NAV_ZOOM_IN or NAV_ZOOM_OUT in the selected viewport, at x y or its
-    // center as the wheel zooms.
-    void StepZoom( int action, int x, int y );
+    // center, by NavZoomAnchor.
+    void StepZoom( int action, int anchor, int x, int y );
 
     // While a Zoom in or Zoom out press is held, step again.
     static void RepeatZoom( void * data );
+
+    // While a device button's Zoom in or Zoom out is held, step again.
+    static void RepeatDeviceZoom( void * data );
+
+    // The modifier keys down now, as FL_SHIFT, FL_CTRL, FL_ALT and FL_META bits.
+    static int HeldModifiers();
 
     // Turn about the surface under the mouse for this drag, if there is one.
     void StartPivot( VSPGraphic::Camera * camera, int x, int y );
@@ -312,6 +330,13 @@ private:
 
     bool m_RotateEnabled;
     bool m_ZoomBoxArmed;
+
+    void ( *m_CommandCB )( int, void * );
+    void * m_CommandData;
+
+    // The device button whose Zoom in or Zoom out repeats while it is held, and which.
+    std::string m_DeviceZoomButton;
+    int m_DeviceZoom;
 };
 }
 

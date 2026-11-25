@@ -593,12 +593,109 @@ NavController::NavController( VspGlWindow * win )
     m_PivotCamera = nullptr;
     m_StickyCOR = glm::vec3( 0.0f );
 
+    m_CommandCB = nullptr;
+    m_CommandData = nullptr;
+    m_DeviceZoom = NAV_NONE;
+
     SetSettings( m_Settings );
 }
 
 NavController::~NavController()
 {
     Fl::remove_timeout( RepeatZoom, this );
+    Fl::remove_timeout( RepeatDeviceZoom, this );
+}
+
+void NavController::SetCommandCallback( void ( *cb )( int action, void * data ), void * data )
+{
+    m_CommandCB = cb;
+    m_CommandData = data;
+}
+
+void NavController::DeviceButton( const std::string & name, bool press )
+{
+    if ( !press )
+    {
+        if ( NavSameDeviceButton( name, m_DeviceZoomButton ) )
+        {
+            Fl::remove_timeout( RepeatDeviceZoom, this );
+            m_DeviceZoomButton.clear();
+            m_DeviceZoom = NAV_NONE;
+        }
+        return;
+    }
+
+    NavPress p;
+    p.m_DeviceButton = name;
+    p.m_Modifiers = HeldModifiers();
+    p.m_HeldKeys = m_HeldKeys;
+    const NavBinding * b = m_Settings.m_Profile.Match( p, NAV_ON_DRAG );
+    if ( !b )
+    {
+        return;
+    }
+
+    if ( IsStepZoom( b->m_Action ) )
+    {
+        // No pointer goes with the device: zoom at the view's center.
+        Fl::remove_timeout( RepeatDeviceZoom, this );
+        m_DeviceZoomButton = name;
+        m_DeviceZoom = b->m_Action;
+        StepZoom( m_DeviceZoom, NAV_ANCHOR_CENTER, 0, 0 );
+        Fl::add_timeout( NAV_STEP_DELAY, RepeatDeviceZoom, this );
+    }
+    else if ( NavIsCommand( b->m_Action ) && m_CommandCB )
+    {
+        m_CommandCB( b->m_Action, m_CommandData );
+    }
+}
+
+void NavController::ReleaseDeviceButtons()
+{
+    Fl::remove_timeout( RepeatDeviceZoom, this );
+    m_DeviceZoomButton.clear();
+    m_DeviceZoom = NAV_NONE;
+}
+
+int NavController::HeldModifiers()
+{
+    // No event comes with a device button, and the last event's state may be old: after
+    // switching programs it can still show the key that switched.
+    const int keys[][3] = { { FL_Shift_L, FL_Shift_R, FL_SHIFT }, { FL_Control_L, FL_Control_R, FL_CTRL },
+                            { FL_Alt_L, FL_Alt_R, FL_ALT }, { FL_Meta_L, FL_Meta_R, FL_META } };
+    int mods = 0;
+    for ( int i = 0; i < 4; i++ )
+    {
+        if ( Fl::get_key( keys[i][0] ) || Fl::get_key( keys[i][1] ) )
+        {
+            mods |= keys[i][2];
+        }
+    }
+    return mods;
+}
+
+void NavController::RepeatDeviceZoom( void * data )
+{
+    NavController * nav = ( NavController * )data;
+    if ( IsStepZoom( nav->m_DeviceZoom ) )
+    {
+        nav->StepZoom( nav->m_DeviceZoom, NAV_ANCHOR_CENTER, 0, 0 );
+        Fl::repeat_timeout( NAV_STEP_INTERVAL, RepeatDeviceZoom, data );
+    }
+}
+
+void NavController::RollView( double angle )
+{
+    VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
+    if ( !camera )
+    {
+        return;
+    }
+    camera->rotateEye( glm::dvec3( 0.0, 0.0, angle ) );
+    m_Win->UpdateRotationParms();
+    m_Win->UpdatePanParms();
+    m_Win->ViewChanged();
+    m_Win->redraw();
 }
 
 void NavController::SetSettings( const NavSettings & settings )
@@ -810,6 +907,17 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
         return;
     }
 
+    if ( drag && NavIsCommand( drag->m_Action ) )
+    {
+        // So does a command, once: only at a press, not when a chord's other button lets go.
+        m_PendingClick = nullptr;
+        if ( m_CommandCB && pressed != 0 )
+        {
+            m_CommandCB( drag->m_Action, m_CommandData );
+        }
+        return;
+    }
+
     if ( m_Settings.m_Profile.m_ClickDistance > 0 && ( m_PendingClick || CountButtons( press.m_Buttons ) == 1 ) )
     {
         // Wait to see whether this is a click, or the first button of a chord.
@@ -864,7 +972,7 @@ void NavController::Start( NavAction action, int x, int y )
     }
     else if ( IsStepZoom( m_Action ) )
     {
-        StepZoom( m_Action, x, y );
+        StepZoom( m_Action, m_Settings.m_WheelAnchor, x, y );
         Fl::add_timeout( NAV_STEP_DELAY, RepeatZoom, this );
     }
 }
@@ -1314,7 +1422,7 @@ void NavController::ZoomAt( VSPGraphic::Camera * camera, double factor, int anch
     }
 }
 
-void NavController::StepZoom( int action, int x, int y )
+void NavController::StepZoom( int action, int anchor, int x, int y )
 {
     VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
     if ( !camera )
@@ -1327,7 +1435,7 @@ void NavController::StepZoom( int action, int x, int y )
     {
         factor = 1.0 / NAV_STEP_ZOOM;
     }
-    ZoomAt( camera, factor, m_Settings.m_WheelAnchor, x, y );
+    ZoomAt( camera, factor, anchor, x, y );
     FollowPivot( camera );
 
     m_Win->UpdateZoomParms();
@@ -1341,7 +1449,7 @@ void NavController::RepeatZoom( void * data )
     NavController * nav = ( NavController * )data;
     if ( IsStepZoom( nav->m_Action ) )
     {
-        nav->StepZoom( nav->m_Action, nav->m_PressX, nav->m_PressY );
+        nav->StepZoom( nav->m_Action, nav->m_Settings.m_WheelAnchor, nav->m_PressX, nav->m_PressY );
         Fl::repeat_timeout( NAV_STEP_INTERVAL, RepeatZoom, data );
     }
 }
