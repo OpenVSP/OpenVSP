@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -596,6 +597,7 @@ NavController::NavController( VspGlWindow * win )
     m_CommandCB = nullptr;
     m_CommandData = nullptr;
     m_DeviceZoom = NAV_NONE;
+    m_WheelHeldUntil = std::chrono::steady_clock::now();
 
     SetSettings( m_Settings );
 }
@@ -1454,8 +1456,18 @@ void NavController::RepeatZoom( void * data )
     }
 }
 
+void NavController::HoldWheel( double seconds )
+{
+    m_WheelHeldUntil = std::chrono::steady_clock::now() + std::chrono::duration_cast < std::chrono::steady_clock::duration > ( std::chrono::duration < double > ( seconds ) );
+}
+
 void NavController::Wheel( int dx, int dy, int x, int y )
 {
+    if ( std::chrono::steady_clock::now() < m_WheelHeldUntil )
+    {
+        return;
+    }
+
     if ( m_Settings.m_WheelReverse )
     {
         dy = -dy;

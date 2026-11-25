@@ -10,6 +10,7 @@
 #ifndef VSP_GUI_NAV_CONTROLLER_H
 #define VSP_GUI_NAV_CONTROLLER_H
 
+#include <chrono>
 #include <set>
 #include <string>
 #include <vector>
@@ -200,6 +201,10 @@ public:
     // Turn the view by angle, in radians, counterclockwise about the screen's center.
     void RollView( double angle );
 
+    // Ignore the wheel for this long from now.  macOS sends wheel events for a SpaceMouse's
+    // twist; they must not zoom the view as well.
+    void HoldWheel( double seconds );
+
     void Push( int x, int y );
     void Drag( int x, int y );
     void Release( int x, int y );
@@ -337,6 +342,9 @@ private:
     // The device button whose Zoom in or Zoom out repeats while it is held, and which.
     std::string m_DeviceZoomButton;
     int m_DeviceZoom;
+
+    // Until when the wheel is ignored.
+    std::chrono::steady_clock::time_point m_WheelHeldUntil;
 };
 }
 

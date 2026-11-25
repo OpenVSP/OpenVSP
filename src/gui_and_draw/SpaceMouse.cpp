@@ -39,6 +39,11 @@ static const double ZOOM_RATE = 1.0;
 // How often the device is read while open, and looked for while not.
 static const double POLL_PERIOD = 1.0 / 60.0;
 static const double LOOK_PERIOD = 2.0;
+
+#ifdef __APPLE__
+// How long the wheel is ignored after the cap was last seen off center.
+static const double WHEEL_HOLD = 0.25;
+#endif
 #endif
 
 // Past the dead zone, the fraction of full deflection, squared so small motions are fine.
@@ -221,6 +226,18 @@ void SpaceMouse::Impl::Poll( void * data )
     {
         dt = 0.1;
     }
+
+#ifdef __APPLE__
+    // While the cap is off center, macOS also sends wheel events for its twist.
+    for ( int i = 0; i < 6; i++ )
+    {
+        if ( std::abs( impl->m_Counts[ i ] ) > DEAD_COUNTS )
+        {
+            impl->m_Win->GetNav().HoldWheel( WHEEL_HOLD );
+            break;
+        }
+    }
+#endif
 
     // Only the program with the keyboard focus follows the device.
     if ( Fl::focus() )
