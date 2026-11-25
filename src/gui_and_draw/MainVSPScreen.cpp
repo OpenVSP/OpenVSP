@@ -830,6 +830,30 @@ void MainVSPScreen::UpdateDeviceButton()
     m_PivotLockMenuItem.Update( m_NavDevice->IsPivotLocked() );
 }
 
+void MainVSPScreen::KeepNavSettings( const VSPGUI::NavSettings & settings )
+{
+    settings.Save();
+    SetNavSettings( settings );
+    UpdateDeviceButton();
+
+    VspScreen * prefs = m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
+    if ( prefs && prefs->IsShown() )
+    {
+        prefs->Show();
+    }
+}
+
+void MainVSPScreen::ShowDevicePreferences()
+{
+    m_ScreenMgr->ShowScreen( vsp::VSP_PREFERENCES_SCREEN );
+    TabScreen * prefs = dynamic_cast < TabScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN ) );
+    if ( prefs )
+    {
+        prefs->GetTabs()->value( prefs->GetTab( 1 ) );
+        prefs->GetFlWindow()->redraw();
+    }
+}
+
 void MainVSPScreen::NavDeviceStatusCB( void * data )
 {
     MainVSPScreen * screen = ( MainVSPScreen * )data;
@@ -978,14 +1002,7 @@ void MainVSPScreen::CallBack( Fl_Widget* w )
 
     if ( w == m_DeviceButton )
     {
-        // The preferences, on the tab with the device.
-        m_ScreenMgr->ShowScreen( vsp::VSP_PREFERENCES_SCREEN );
-        TabScreen * prefs = dynamic_cast < TabScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN ) );
-        if ( prefs )
-        {
-            prefs->GetTabs()->value( prefs->GetTab( 1 ) );
-            prefs->GetFlWindow()->redraw();
-        }
+        ShowDevicePreferences();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1357,15 +1374,7 @@ void MainVSPScreen::ActionCB( void * data )
         // Turning the device on or off is a preference, kept like the others.
         VSPGUI::NavSettings settings = m_GlWin->GetNav().GetSettings();
         settings.m_UseDevice = !settings.m_UseDevice;
-        settings.Save();
-        SetNavSettings( settings );
-        UpdateDeviceButton();
-
-        VspScreen * prefs = m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
-        if ( prefs && prefs->IsShown() )
-        {
-            prefs->Show();
-        }
+        KeepNavSettings( settings );
     }
     else if ( data == &m_CenterMenuItem )
     {

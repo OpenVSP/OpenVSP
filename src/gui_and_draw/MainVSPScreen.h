@@ -131,6 +131,12 @@ public:
     // The 3D input device's status changed.
     static void NavDeviceStatusCB( void * data );
 
+    // A preference of the 3D interaction changed outside the preferences: keep and use it.
+    void KeepNavSettings( const VSPGUI::NavSettings & settings );
+
+    // The preferences, on the tab with the 3D devices.
+    void ShowDevicePreferences();
+
     // Show the device's status on its bottom strip button and in the View menu.
     void UpdateDeviceButton();
 
