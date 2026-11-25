@@ -172,6 +172,12 @@
      - [LibreSSL](https://www.libressl.org) - Its libcrypto checks the host's
      signature on macOS and Linux.  Windows uses the system's bcrypt instead.
 
+   - [libspnavdev](https://github.com/ruevs/libspnavdev) - Reads 3Dconnexion
+   SpaceMouse and other six-axis devices straight from USB, used to move the 3D
+   view with them.  VSP_ENABLE_SPNAVDEV=OFF leaves it and the library below
+   out.  On Linux it needs libudev.  GRAPHICS_ONLY
+     - [hidapi](https://github.com/libusb/hidapi) - USB HID device library.
+
    - [pcg-cpp](https://github.com/imneme/pcg-cpp) - Random number generator
 
    - sixseries - NASA 6-Series airfoil generation Fortran code released

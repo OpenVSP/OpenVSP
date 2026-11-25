@@ -89,6 +89,14 @@ IF( NOT VSP_NO_GRAPHICS )
 	IF( VSP_ENABLE_OPENAXIS )
 		INCLUDE( External_OpenAxis )
 	ENDIF()
+
+	# SpaceMouse and other six-axis devices, read with no vendor driver.
+	IF( NOT DEFINED VSP_ENABLE_SPNAVDEV OR "${VSP_ENABLE_SPNAVDEV}" STREQUAL "" )
+		SET( VSP_ENABLE_SPNAVDEV ON )
+	ENDIF()
+	IF( VSP_ENABLE_SPNAVDEV )
+		INCLUDE( External_SpaceMouse )
+	ENDIF()
 ENDIF()
 
 # Set targeted variables in file to be read by VSP's CMake

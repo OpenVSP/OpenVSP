@@ -109,6 +109,33 @@ IF( NOT VSP_NO_GRAPHICS )
             MESSAGE( FATAL_ERROR "VSP_ENABLE_OPENAXIS is set, but the OpenAxis libraries are not in ${OPENAXIS_BINARY_DIR}" )
         ENDIF()
     ENDIF()
+
+    # libspnavdev, linked from its build tree, and the hidapi it reads devices through.
+    IF( VSP_ENABLE_SPNAVDEV )
+        find_library( SPNAVDEV_LIBRARY NAMES spnavdev
+                HINTS ${SPNAVDEV_BINARY_DIR}
+                PATH_SUFFIXES Release RelWithDebInfo Debug MinSizeRel
+                NO_DEFAULT_PATH
+        )
+        find_library( HIDAPI_LIBRARY NAMES hidapi hidapi-hidraw
+                HINTS ${HIDAPI_INSTALL_DIR}/lib
+                NO_DEFAULT_PATH
+        )
+        IF( NOT SPNAVDEV_LIBRARY OR NOT HIDAPI_LIBRARY )
+            MESSAGE( FATAL_ERROR "VSP_ENABLE_SPNAVDEV is set, but libspnavdev or hidapi is not in ${SPNAVDEV_BINARY_DIR} or ${HIDAPI_INSTALL_DIR}/lib" )
+        ENDIF()
+        SET( SPNAVDEV_INCLUDE_DIRS ${SPNAVDEV_SOURCE_DIR}/src )
+
+        SET( SPNAVDEV_LIBRARIES ${SPNAVDEV_LIBRARY} ${HIDAPI_LIBRARY} )
+        IF( APPLE )
+            SET( SPNAVDEV_LIBRARIES ${SPNAVDEV_LIBRARIES} "-framework IOKit" "-framework CoreFoundation" )
+        ELSEIF( UNIX )
+            find_package( PkgConfig REQUIRED )
+            pkg_check_modules( LIBUDEV REQUIRED IMPORTED_TARGET libudev )
+            FIND_PACKAGE( Threads REQUIRED )
+            SET( SPNAVDEV_LIBRARIES ${SPNAVDEV_LIBRARIES} PkgConfig::LIBUDEV Threads::Threads )
+        ENDIF()
+    ENDIF()
 ENDIF()
 
 SET( CMAKE_PREFIX_PATH ${ORIG_CMAKE_PREFIX_PATH} )
