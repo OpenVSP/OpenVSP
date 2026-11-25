@@ -16,6 +16,7 @@ obvious use, including where a Parm can be dragged and dropped.
 | [Keyboard in the 3D window](#keyboard-in-the-3d-window) | the 3D window and View menu |
 | [3D View preferences](#3d-view-preferences) | File > Preferences > 3D View |
 | [Mouse button preferences](#mouse-button-preferences) | File > Preferences > Mouse Buttons |
+| [SpaceMouse preferences](#spacemouse-preferences) | File > Preferences > SpaceMouse |
 | [Schemes](#schemes) | File > Preferences |
 | [Saving and loading preferences](#saving-and-loading-preferences) | File > Preferences |
 | [Parm controls](#parm-controls) | every slider and value box |
@@ -150,6 +151,37 @@ a click opens its preferences.  View > Rotatrix Trackball (d) turns it on or off
 own controls and chooses the point to turn about itself; View > Lock Rotatrix Pivot (l) asks it to keep turning about
 the current one, and again frees it.  In the turntable mode OpenVSP keeps Z upright as Rotatrix turns the view.
 
+### SpaceMouse
+
+When OpenVSP is built with libspnavdev, it reads a 3Dconnexion SpaceMouse, or another six-axis device of theirs,
+straight from USB; no 3Dconnexion driver is needed.  OpenVSP finds a device when it is plugged in, and while one is open
+a SpaceMouse icon shows at the bottom left of the main window, beside the trackball's; its tooltip gives the status, and
+a click opens its preferences.  By default the model moves as the cap does, as in 3Dconnexion's own object mode: push
+the cap sideways or lift and press it to pan, pull it toward you to zoom in and push it away to zoom out, tilt it
+forward or back to tip the model, tilt it left or right to roll it, and twist it to turn the model about the screen's
+vertical axis, all about the rotation center.  The farther the cap moves, the faster the view moves; a small motion
+about rest does nothing.  In the turntable mode the model turns about Z and tips about the screen's horizontal axis, and
+the axis that rolls it does nothing.  Only the program with the keyboard focus follows the device, although other
+programs can read it at the same time.
+
+What each motion of the cap does is set on the SpaceMouse tab of the Preferences; see [SpaceMouse
+preferences](#spacemouse-preferences).  A cap is hard to move along one axis alone: a twist often pushes it forward or
+sideways too.  If the view pans or zooms when it should only turn, set Acting Axes to Only the axis pushed furthest.
+With no 3Dconnexion driver, macOS also moves the cursor as the cap is pushed and scrolls as it is twisted, as a mouse
+would.  While the cap is off center and OpenVSP has the focus, the cursor stays where it was, and the mouse cannot move
+it until the cap is back at rest; the Cursor setting can let it follow the cap instead.  The 3D view also ignores the
+wheel then, so a twist does not zoom as well; other windows may still scroll.
+
+The device's buttons act through the bindings on the Mouse Buttons tab, where they can be changed; see [Mouse button
+preferences](#mouse-button-preferences).  By default FIT fits the model on screen and MENU, or PANEL on older devices,
+opens the SpaceMouse preferences.  On the larger devices, T, F, R, L, B and BK show the top, front, right, left,
+bottom and rear views, ISO1 and ISO2 the left and right isometric views, Roll + and Roll - turn the view a quarter
+turn clockwise and counterclockwise, Rot turns the cap's turns off and on, Pan/Zoom its pans and zoom, Dom switches
+Acting Axes, and + and - make it faster and slower.  If 3Dconnexion's own driver is running, it may keep the device to
+itself; quit it to use the device in OpenVSP.  On Linux the device must be readable by the user, which usually takes a
+udev rule such as `SUBSYSTEM=="hidraw", ATTRS{idVendor}=="256f", TAG+="uaccess"` (046d for older devices), and
+spacenavd must not hold it.
+
 ## Picking and selecting
 
 Several tools ask for a point on the model and then wait for a click: Set Rotation Center (r), View Normal To (n),
@@ -250,9 +282,9 @@ removes it, and Up and Down move it.  The selected binding's fields are:
 
 | Field | What it means |
 |---|---|
-| Action | Rotate, Roll, Pan, Zoom, Zoom in, Zoom out, Zoom box, Rotation center, Select Geom, or Tool picks only, which gives the press to a waiting tool and does nothing else. |
+| Action | Rotate, Roll, Pan, Zoom, Zoom in, Zoom out, Zoom box, Rotation center, Select Geom, a command, or Tool picks only, which gives the press to a waiting tool and does nothing else. |
 | On | Whether the binding acts on a drag or on a click. |
-| Button | The button that must be down: Left, Middle, Right, or a mouse's Back or Forward side button. |
+| Button | The button that must be down: Left, Middle, Right, a mouse's Back or Forward side button, or, while a SpaceMouse is connected, one of its buttons. |
 | With | A second button that must be down with it, for a chord, or None. |
 | Shift, Ctrl, Alt, Cmd | Whether each key must be up, down, or may be either.  Cmd is named Win on Windows and Super on Linux. |
 | Other Buttons | Whether buttons the binding does not need may also be down. |
@@ -264,8 +296,40 @@ Zoom in and Zoom out zoom one wheel notch, about the pointer or the middle of th
 at the press and, after a short pause, ten times a second while the button is held, however the mouse moves; On does
 not apply to them.  A mouse's Back and Forward buttons bound to Zoom out and Zoom in zoom the view without the wheel.
 
+The commands act once, at the press: Fit, SpaceMouse settings, the top, front, left, right, bottom, rear and left and
+right isometric views, Roll 90 clockwise and counterclockwise, Z up, and five that change the SpaceMouse's own
+settings: its turns or its pans and zoom on or off, its Acting Axes, and faster or slower.  A mouse's side buttons can
+be bound to them too.
+
+A SpaceMouse's buttons are bound in the same list, after the mouse's.  Their rows are shown, and the device's buttons
+offered under Button, only while one is connected.  A device button's binding acts at its press, wherever the pointer
+is, with the keys held then; it can take Zoom in, Zoom out, a command or None, and its Zoom in and Zoom out zoom about
+the middle of the view.  The schemes keep the device's bindings as they are.
+
 Rather than setting the fields by hand, press in the Try a Press box with the buttons and keys wanted: it shows what
 that press does now, and Use This Press for the Selected Binding copies it into the selected binding.
+
+## SpaceMouse preferences
+
+The SpaceMouse tab appears in builds with libspnavdev.
+
+| Section | Setting | What it does |
+|---|---|---|
+| Device | SpaceMouse | Whether to use a SpaceMouse when one is plugged in. |
+| | Cursor | macOS only: whether the cursor is held still while the cap moves the view, or moves with the cap. |
+| | Status | Whether a SpaceMouse is open, and its name. |
+| Motion | Speed | How fast the SpaceMouse turns, pans and zooms the view, from Slowest to Fastest; each step doubles it. |
+| | Turns | Off: the axes that turn the model do nothing. |
+| | Pan and Zoom | Off: the axes that pan and zoom do nothing. |
+| | Acting Axes | Every axis, or only the axis pushed furthest, which 3Dconnexion calls Dominant. |
+
+Under Axes is a row for each of the cap's six motions: left and right, forward and back, up and down, tilting forward
+and back, tilting left and right, and twisting.  Each row sets what that motion does: pan right, pan up, zoom in, turn
+the model's top toward you, turn its right side away, roll it counterclockwise, or nothing; and whether it acts the
+other way.  The bar at the end of each row shows how far the cap is pushed along that axis, so moving the cap shows
+which row it drives; inside the shaded middle an axis does nothing.  Default Axes puts every row back as OpenVSP starts.
+To zoom by lifting and pressing the cap rather than pulling and pushing it, as FreeCAD does, swap what the forward and
+back and the up and down rows do.
 
 ## Schemes
 
@@ -298,8 +362,8 @@ zoom drags go by distance, and on macOS Cmd works wherever Ctrl does.
 | STAR-CCM+ | Left | Right | Middle | Roll: Ctrl + left; Tumbler |
 | Tecplot | Ctrl + right | Right | Middle | |
 
-The schemes leave the Rotatrix settings alone.  Changing anything after choosing a scheme makes it Custom; choosing
-the scheme again puts all of its settings back.
+The schemes leave the Rotatrix and SpaceMouse settings, and the SpaceMouse's button bindings, alone.  Changing
+anything after choosing a scheme makes it Custom; choosing the scheme again puts all of its settings back.
 
 ## Saving and loading preferences
 

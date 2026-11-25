@@ -105,6 +105,10 @@ preferences</a></td>
 <td>File &gt; Preferences &gt; Mouse Buttons</td>
 </tr>
 <tr>
+<td><a href="#spacemouse-preferences">SpaceMouse preferences</a></td>
+<td>File &gt; Preferences &gt; SpaceMouse</td>
+</tr>
+<tr>
 <td><a href="#schemes">Schemes</a></td>
 <td>File &gt; Preferences</td>
 </tr>
@@ -339,6 +343,50 @@ with its own controls and chooses the point to turn about itself; View
 &gt; Lock Rotatrix Pivot (l) asks it to keep turning about the current
 one, and again frees it. In the turntable mode OpenVSP keeps Z upright
 as Rotatrix turns the view.</p>
+<h3 id="spacemouse">SpaceMouse</h3>
+<p>When OpenVSP is built with libspnavdev, it reads a 3Dconnexion
+SpaceMouse, or another six-axis device of theirs, straight from USB; no
+3Dconnexion driver is needed. OpenVSP finds a device when it is plugged
+in, and while one is open a SpaceMouse icon shows at the bottom left of
+the main window, beside the trackball's; its tooltip gives the status,
+and a click opens its preferences. By default the model moves as the cap
+does, as in 3Dconnexion's own object mode: push the cap sideways or lift
+and press it to pan, pull it toward you to zoom in and push it away to
+zoom out, tilt it forward or back to tip the model, tilt it left or
+right to roll it, and twist it to turn the model about the screen's
+vertical axis, all about the rotation center. The farther the cap moves,
+the faster the view moves; a small motion about rest does nothing. In
+the turntable mode the model turns about Z and tips about the screen's
+horizontal axis, and the axis that rolls it does nothing. Only the
+program with the keyboard focus follows the device, although other
+programs can read it at the same time.</p>
+<p>What each motion of the cap does is set on the SpaceMouse tab of the
+Preferences; see <a href="#spacemouse-preferences">SpaceMouse
+preferences</a>. A cap is hard to move along one axis alone: a twist
+often pushes it forward or sideways too. If the view pans or zooms when
+it should only turn, set Acting Axes to Only the axis pushed furthest.
+With no 3Dconnexion driver, macOS also moves the cursor as the cap is
+pushed and scrolls as it is twisted, as a mouse would. While the cap is
+off center and OpenVSP has the focus, the cursor stays where it was, and
+the mouse cannot move it until the cap is back at rest; the Cursor
+setting can let it follow the cap instead. The 3D view also ignores the
+wheel then, so a twist does not zoom as well; other windows may still
+scroll.</p>
+<p>The device's buttons act through the bindings on the Mouse Buttons
+tab, where they can be changed; see <a
+href="#mouse-button-preferences">Mouse button preferences</a>. By
+default FIT fits the model on screen and MENU, or PANEL on older
+devices, opens the SpaceMouse preferences. On the larger devices, T, F,
+R, L, B and BK show the top, front, right, left, bottom and rear views,
+ISO1 and ISO2 the left and right isometric views, Roll + and Roll - turn
+the view a quarter turn clockwise and counterclockwise, Rot turns the
+cap's turns off and on, Pan/Zoom its pans and zoom, Dom switches Acting
+Axes, and + and - make it faster and slower. If 3Dconnexion's own driver
+is running, it may keep the device to itself; quit it to use the device
+in OpenVSP. On Linux the device must be readable by the user, which
+usually takes a udev rule such as
+<code>SUBSYSTEM=="hidraw", ATTRS{idVendor}=="256f", TAG+="uaccess"</code>
+(046d for older devices), and spacenavd must not hold it.</p>
 <h2 id="picking-and-selecting">Picking and selecting</h2>
 <p>Several tools ask for a point on the model and then wait for a click:
 Set Rotation Center (r), View Normal To (n), the rulers, probes and
@@ -601,8 +649,8 @@ The selected binding's fields are:</p>
 <tr>
 <td>Action</td>
 <td>Rotate, Roll, Pan, Zoom, Zoom in, Zoom out, Zoom box, Rotation
-center, Select Geom, or Tool picks only, which gives the press to a
-waiting tool and does nothing else.</td>
+center, Select Geom, a command, or Tool picks only, which gives the
+press to a waiting tool and does nothing else.</td>
 </tr>
 <tr>
 <td>On</td>
@@ -610,8 +658,9 @@ waiting tool and does nothing else.</td>
 </tr>
 <tr>
 <td>Button</td>
-<td>The button that must be down: Left, Middle, Right, or a mouse's Back
-or Forward side button.</td>
+<td>The button that must be down: Left, Middle, Right, a mouse's Back or
+Forward side button, or, while a SpaceMouse is connected, one of its
+buttons.</td>
 </tr>
 <tr>
 <td>With</td>
@@ -647,10 +696,85 @@ after a short pause, ten times a second while the button is held,
 however the mouse moves; On does not apply to them. A mouse's Back and
 Forward buttons bound to Zoom out and Zoom in zoom the view without the
 wheel.</p>
+<p>The commands act once, at the press: Fit, SpaceMouse settings, the
+top, front, left, right, bottom, rear and left and right isometric
+views, Roll 90 clockwise and counterclockwise, Z up, and five that
+change the SpaceMouse's own settings: its turns or its pans and zoom on
+or off, its Acting Axes, and faster or slower. A mouse's side buttons
+can be bound to them too.</p>
+<p>A SpaceMouse's buttons are bound in the same list, after the mouse's.
+Their rows are shown, and the device's buttons offered under Button,
+only while one is connected. A device button's binding acts at its
+press, wherever the pointer is, with the keys held then; it can take
+Zoom in, Zoom out, a command or None, and its Zoom in and Zoom out zoom
+about the middle of the view. The schemes keep the device's bindings as
+they are.</p>
 <p>Rather than setting the fields by hand, press in the Try a Press box
 with the buttons and keys wanted: it shows what that press does now, and
 Use This Press for the Selected Binding copies it into the selected
 binding.</p>
+<h2 id="spacemouse-preferences">SpaceMouse preferences</h2>
+<p>The SpaceMouse tab appears in builds with libspnavdev.</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Setting</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Device</td>
+<td>SpaceMouse</td>
+<td>Whether to use a SpaceMouse when one is plugged in.</td>
+</tr>
+<tr>
+<td></td>
+<td>Cursor</td>
+<td>macOS only: whether the cursor is held still while the cap moves the
+view, or moves with the cap.</td>
+</tr>
+<tr>
+<td></td>
+<td>Status</td>
+<td>Whether a SpaceMouse is open, and its name.</td>
+</tr>
+<tr>
+<td>Motion</td>
+<td>Speed</td>
+<td>How fast the SpaceMouse turns, pans and zooms the view, from Slowest
+to Fastest; each step doubles it.</td>
+</tr>
+<tr>
+<td></td>
+<td>Turns</td>
+<td>Off: the axes that turn the model do nothing.</td>
+</tr>
+<tr>
+<td></td>
+<td>Pan and Zoom</td>
+<td>Off: the axes that pan and zoom do nothing.</td>
+</tr>
+<tr>
+<td></td>
+<td>Acting Axes</td>
+<td>Every axis, or only the axis pushed furthest, which 3Dconnexion
+calls Dominant.</td>
+</tr>
+</tbody>
+</table>
+<p>Under Axes is a row for each of the cap's six motions: left and
+right, forward and back, up and down, tilting forward and back, tilting
+left and right, and twisting. Each row sets what that motion does: pan
+right, pan up, zoom in, turn the model's top toward you, turn its right
+side away, roll it counterclockwise, or nothing; and whether it acts the
+other way. The bar at the end of each row shows how far the cap is
+pushed along that axis, so moving the cap shows which row it drives;
+inside the shaded middle an axis does nothing. Default Axes puts every
+row back as OpenVSP starts. To zoom by lifting and pressing the cap
+rather than pulling and pushing it, as FreeCAD does, swap what the
+forward and back and the up and down rows do.</p>
 <h2 id="schemes">Schemes</h2>
 <p>A scheme sets the mouse buttons, and the rotation and zoom settings,
 to those of another program, so a user of that program finds the view
@@ -805,9 +929,10 @@ Tumbler</td>
 </tr>
 </tbody>
 </table>
-<p>The schemes leave the Rotatrix settings alone. Changing anything
-after choosing a scheme makes it Custom; choosing the scheme again puts
-all of its settings back.</p>
+<p>The schemes leave the Rotatrix and SpaceMouse settings, and the
+SpaceMouse's button bindings, alone. Changing anything after choosing a
+scheme makes it Custom; choosing the scheme again puts all of its
+settings back.</p>
 <h2 id="saving-and-loading-preferences">Saving and loading
 preferences</h2>
 <p>Save... at the bottom of the Preferences writes every preference to a
