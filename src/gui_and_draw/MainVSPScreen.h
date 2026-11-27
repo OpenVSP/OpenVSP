@@ -157,6 +157,9 @@ public:
     // Show the device's status on its bottom strip button and in the View menu.
     void UpdateDeviceButton();
 
+    // Show the SpaceMouse's button on the bottom strip only while a device is open.
+    void UpdateSpaceMouseButton();
+
     static Fl_SVG_Image * MakeIcon( const char * svg );
 
     // The toolbar's size, a ToolbarSize, kept in the preferences.
@@ -303,6 +306,8 @@ protected:
     Fl_Box * m_TitleBox;
     Fl_Box * m_FileNameBox;
     Fl_Button * m_DeviceButton;
+    Fl_Button * m_SpaceMouseButton;
+    Fl_Group * m_Strip;
 
     Fl_Group * m_Toolbar;
     std::vector < Fl_Button * > m_ToolButtons;
@@ -315,6 +320,7 @@ protected:
     Fl_SVG_Image * m_DeviceIconOn;
     Fl_Image * m_DeviceIconOff;
     std::string m_DeviceTip;
+    std::string m_SpaceMouseTip;
 
     bool m_ShowXYZArrow;
     bool m_ShowBorder;

@@ -284,6 +284,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GlWin->GetNav().SetRotateMode( nav_settings.m_StartupRotateMode );
 
     m_DeviceButton = nullptr;
+    m_SpaceMouseButton = nullptr;
+    m_Strip = nullptr;
     m_DeviceIconOn = nullptr;
     m_DeviceIconOff = nullptr;
     m_NavDevice = new VSPGUI::NavDevice( m_GlWin );
@@ -306,7 +308,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
         m_SpaceMouse->Start();
     }
 
-    // The bottom strip: the device's button at the left keeps its size; the file name and title
+    // The bottom strip: the devices' buttons at the left keep their size; the file name and title
     // take the rest.
     int iconw = 30;
     int stripx = m_GenLayout.GetX();
@@ -314,6 +316,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     int stripw = m_GenLayout.GetW();
     Fl_Group * strip = new Fl_Group( stripx, stripy, stripw, 20 );
     m_GenLayout.GetGroup()->add( strip );
+    m_Strip = strip;
 
     int textx = stripx;
     if ( VSPGUI::NavDevice::IsBuilt() )
@@ -328,6 +331,18 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
         m_DeviceButton->callback( staticCB, this );
         m_DeviceButton->clear_visible_focus();
         textx += iconw;
+    }
+
+    // Shown only while a device is open, and the file name moves over to make room.
+    int stretchx = textx;
+    if ( VSPGUI::SpaceMouse::IsBuilt() )
+    {
+        m_SpaceMouseButton = new Fl_Button( textx, stripy, iconw, 20 );
+        m_SpaceMouseButton->image( MakeIcon( svg_spacemouse_icon ) );
+        m_SpaceMouseButton->callback( staticCB, this );
+        m_SpaceMouseButton->clear_visible_focus();
+        m_SpaceMouseButton->hide();
+        stretchx += iconw;
     }
 
     int restw = stripx + stripw - textx;
@@ -345,12 +360,13 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_TitleBox->align(Fl_Align(FL_ALIGN_CLIP));
 
     // Only the file name and title stretch.
-    Fl_Box * stretch = new Fl_Box( textx, stripy, restw, 20 );
+    Fl_Box * stretch = new Fl_Box( stretchx, stripy, stripx + stripw - stretchx, 20 );
     stretch->hide();
     strip->resizable( stretch );
     strip->end();
 
     UpdateDeviceButton();
+    UpdateSpaceMouseButton();
 
     m_ToolbarMenuItem.Update( m_ToolbarSize != TOOLBAR_HIDDEN );
     UpdateToolbar();
@@ -839,9 +855,44 @@ void MainVSPScreen::UpdateDeviceButton()
     m_PivotLockMenuItem.Update( m_NavDevice->IsPivotLocked() );
 }
 
+void MainVSPScreen::UpdateSpaceMouseButton()
+{
+    if ( !m_SpaceMouseButton )
+    {
+        return;
+    }
+
+    m_SpaceMouseTip = "SpaceMouse: " + m_SpaceMouse->GetStatus() + ".  Click for its preferences.";
+    m_SpaceMouseButton->tooltip( m_SpaceMouseTip.c_str() );
+
+    bool show = m_SpaceMouse->IsAvailable();
+    if ( show == ( m_SpaceMouseButton->visible() != 0 ) )
+    {
+        return;
+    }
+
+    // The file name starts after the button while it is shown, and where it is otherwise.
+    int filex = m_SpaceMouseButton->x();
+    int filer = m_FileNameBox->x() + m_FileNameBox->w();
+    if ( show )
+    {
+        m_SpaceMouseButton->show();
+        filex += m_SpaceMouseButton->w();
+    }
+    else
+    {
+        m_SpaceMouseButton->hide();
+    }
+    m_FileNameBox->resize( filex, m_FileNameBox->y(), filer - filex, m_FileNameBox->h() );
+    m_Strip->init_sizes();
+    m_Strip->redraw();
+}
+
 void MainVSPScreen::SpaceMouseStatusCB( void * data )
 {
     MainVSPScreen * screen = ( MainVSPScreen * )data;
+
+    screen->UpdateSpaceMouseButton();
 
     // Of the screens, only the preferences show it.
     VspScreen * prefs = screen->m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
@@ -1124,6 +1175,10 @@ void MainVSPScreen::CallBack( Fl_Widget* w )
     if ( w == m_DeviceButton )
     {
         ShowDevicePreferences();
+    }
+    else if ( w == m_SpaceMouseButton )
+    {
+        ShowSpaceMousePreferences();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

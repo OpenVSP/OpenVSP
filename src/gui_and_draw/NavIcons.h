@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// NavIcons.h: SVG icons for the 3D input device.
+// NavIcons.h: SVG icons for the 3D input devices.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -12,5 +12,8 @@
 
 // A trackball's ball on its base.
 extern const char * svg_trackball_icon;
+
+// A SpaceMouse's cap on its base.
+extern const char * svg_spacemouse_icon;
 
 #endif
