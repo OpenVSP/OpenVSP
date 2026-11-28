@@ -717,6 +717,15 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
         m_SpaceMouseLayout.AddChoice( m_SpaceMouseChoice, "SpaceMouse" );
         m_SpaceMouseChoice.GetFlChoice()->tooltip( "A 3Dconnexion SpaceMouse or other six-axis device on USB, read with no vendor driver.  It moves the view while OpenVSP has the keyboard focus." );
 
+        if ( VSPGUI::SpaceMouse::CanHoldCursor() )
+        {
+            m_SpaceMouseCursorChoice.AddItem( "Held still while the cap moves the view", 1 );
+            m_SpaceMouseCursorChoice.AddItem( "Moves with the cap", 0 );
+            m_SpaceMouseCursorChoice.UpdateItems();
+            m_SpaceMouseLayout.AddChoice( m_SpaceMouseCursorChoice, "Cursor" );
+            m_SpaceMouseCursorChoice.GetFlChoice()->tooltip( "macOS moves the cursor with the cap.  Held, the cursor stays where it was until the cap is back at rest, and the mouse cannot move it meanwhile." );
+        }
+
         int sm_button_w = m_SpaceMouseLayout.GetButtonWidth();
         m_SpaceMouseLayout.SetButtonWidth( m_SpaceMouseLayout.GetChoiceButtonWidth() );
         m_SpaceMouseLayout.AddOutput( m_SpaceMouseStatus, "Status" );
@@ -968,6 +977,10 @@ void PreferencesScreen::ShowNav()
     if ( VSPGUI::SpaceMouse::IsBuilt() )
     {
         m_SpaceMouseChoice.SetVal( ( int )m_Nav.m_UseSpaceMouse );
+        if ( VSPGUI::SpaceMouse::CanHoldCursor() )
+        {
+            m_SpaceMouseCursorChoice.SetVal( ( int )m_Nav.m_SpaceMouseHoldCursor );
+        }
         m_SpaceMouseSpeedChoice.SetVal( NearestIndex( VSPGUI::NAV_SPACEMOUSE_SPEEDS, VSPGUI::NAV_NUM_SPACEMOUSE_SPEEDS,
                                                       m_Nav.m_SpaceMouseSpeed ) );
         m_SpaceMouseRotateChoice.SetVal( ( int )m_Nav.m_SpaceMouseRotate );
@@ -1097,6 +1110,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_SpaceMouseChoice )
     {
         m_Nav.m_UseSpaceMouse = ( m_SpaceMouseChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_SpaceMouseCursorChoice )
+    {
+        m_Nav.m_SpaceMouseHoldCursor = ( m_SpaceMouseCursorChoice.GetVal() != 0 );
     }
     else if ( device == &m_SpaceMouseSpeedChoice )
     {

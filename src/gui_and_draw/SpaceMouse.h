@@ -10,7 +10,8 @@
 // device is opened shared, so other programs can use it too; OpenVSP moves its view only while
 // one of its windows has the keyboard focus.  What each axis does is a preference; by default the
 // view moves as the cap does: push to pan, pull toward you to zoom in, tilt and twist to turn the
-// model.  Its buttons act through the bindings.  With no device it looks again every two seconds,
+// model.  Its buttons act through the bindings.  On macOS, which moves the cursor with the cap
+// too, the cursor is held still while the cap moves the view.  With no device it looks again every two seconds,
 // and nothing about it is shown.
 //
 //////////////////////////////////////////////////////////////////////
@@ -35,6 +36,9 @@ public:
 
     // True if OpenVSP was built with SpaceMouse support.
     static bool IsBuilt();
+
+    // True where the system moves the cursor with the cap and it can be held still (macOS).
+    static bool CanHoldCursor();
 
     // Look for a device, and keep looking until Stop.  Must be called from the main thread.
     void Start();

@@ -196,6 +196,7 @@ protected:
     // SpaceMouse tab.
     GroupLayout m_SpaceMouseLayout;
     Choice m_SpaceMouseChoice;
+    Choice m_SpaceMouseCursorChoice;
     StringOutput m_SpaceMouseStatus;
     Choice m_SpaceMouseSpeedChoice;
     Choice m_SpaceMouseRotateChoice;

@@ -20,6 +20,9 @@
 
 #ifdef VSP_SPNAVDEV
 #include "spnavdev.h"
+#ifdef __APPLE__
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 #endif
 
 namespace VSPGUI
@@ -79,6 +82,10 @@ struct SpaceMouse::Impl
 
 #ifdef VSP_SPNAVDEV
     struct spndev * m_Dev;
+#ifdef __APPLE__
+    bool m_CursorHeld;          // The cursor is kept from following the cap.
+    CGPoint m_CursorRest;       // Where the cursor was while the cap was last at rest.
+#endif
 #endif
 
     void ( *m_StatusCB )( void * );
@@ -93,9 +100,36 @@ struct SpaceMouse::Impl
 #endif
     }
 
+#if defined( VSP_SPNAVDEV ) && defined( __APPLE__ )
+    // macOS moves the cursor with the cap too.  Held, the cursor stays where it was when the cap
+    // was last at rest; the mouse cannot move it either.
+    void HoldCursor( bool hold )
+    {
+        if ( hold && !m_CursorHeld )
+        {
+            CGAssociateMouseAndMouseCursorPosition( false );
+            CGWarpMouseCursorPosition( m_CursorRest );
+        }
+        else if ( !hold && m_CursorHeld )
+        {
+            CGAssociateMouseAndMouseCursorPosition( true );
+        }
+        m_CursorHeld = hold;
+        if ( !hold )
+        {
+            CGEventRef e = CGEventCreate( nullptr );
+            m_CursorRest = CGEventGetLocation( e );
+            CFRelease( e );
+        }
+    }
+#endif
+
     void Close()
     {
 #ifdef VSP_SPNAVDEV
+#ifdef __APPLE__
+        HoldCursor( false );
+#endif
         if ( m_Dev )
         {
             spndev_close( m_Dev );
@@ -229,14 +263,19 @@ void SpaceMouse::Impl::Poll( void * data )
 
 #ifdef __APPLE__
     // While the cap is off center, macOS also sends wheel events for its twist.
+    bool off = false;
     for ( int i = 0; i < 6; i++ )
     {
         if ( std::abs( impl->m_Counts[ i ] ) > DEAD_COUNTS )
         {
-            impl->m_Win->GetNav().HoldWheel( WHEEL_HOLD );
-            break;
+            off = true;
         }
     }
+    if ( off )
+    {
+        impl->m_Win->GetNav().HoldWheel( WHEEL_HOLD );
+    }
+    impl->HoldCursor( off && Fl::focus() && impl->m_Win->GetNav().GetSettings().m_SpaceMouseHoldCursor );
 #endif
 
     // Only the program with the keyboard focus follows the device.
@@ -263,6 +302,10 @@ SpaceMouse::SpaceMouse( VspGlWindow * win ) : m_Impl( new Impl() )
     }
 #ifdef VSP_SPNAVDEV
     m_Impl->m_Dev = nullptr;
+#ifdef __APPLE__
+    m_Impl->m_CursorHeld = false;
+    m_Impl->m_CursorRest = CGPointZero;
+#endif
 #endif
     m_Impl->m_StatusCB = nullptr;
     m_Impl->m_StatusData = nullptr;
@@ -278,6 +321,15 @@ SpaceMouse::~SpaceMouse()
 bool SpaceMouse::IsBuilt()
 {
 #ifdef VSP_SPNAVDEV
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool SpaceMouse::CanHoldCursor()
+{
+#if defined( VSP_SPNAVDEV ) && defined( __APPLE__ )
     return true;
 #else
     return false;

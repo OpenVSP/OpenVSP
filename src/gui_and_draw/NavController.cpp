@@ -85,6 +85,7 @@ NavSettings::NavSettings()
     m_SpaceMouseRotate = true;
     m_SpaceMouseMove = true;
     m_SpaceMouseDominant = false;
+    m_SpaceMouseHoldCursor = true;
 
     m_Profile = NavProfile::Preset( NAV_PRESET_OPENVSP );
     std::vector < NavBinding > device = NavProfile::DeviceDefaults();
@@ -428,6 +429,7 @@ void NavSettings::Load()
     m_SpaceMouseRotate = GetFlag( grp, "SpaceMouseRotate", def.m_SpaceMouseRotate );
     m_SpaceMouseMove = GetFlag( grp, "SpaceMouseMove", def.m_SpaceMouseMove );
     m_SpaceMouseDominant = GetFlag( grp, "SpaceMouseDominant", def.m_SpaceMouseDominant );
+    m_SpaceMouseHoldCursor = GetFlag( grp, "SpaceMouseHoldCursor", def.m_SpaceMouseHoldCursor );
 
     grp.get( "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
     if ( m_Profile.m_ClickDistance < 0 || m_Profile.m_ClickDistance > 50 )
@@ -556,6 +558,7 @@ void NavSettings::Save() const
     SaveFlag( grp, "SpaceMouseRotate", m_SpaceMouseRotate, def.m_SpaceMouseRotate );
     SaveFlag( grp, "SpaceMouseMove", m_SpaceMouseMove, def.m_SpaceMouseMove );
     SaveFlag( grp, "SpaceMouseDominant", m_SpaceMouseDominant, def.m_SpaceMouseDominant );
+    SaveFlag( grp, "SpaceMouseHoldCursor", m_SpaceMouseHoldCursor, def.m_SpaceMouseHoldCursor );
     SaveName( grp, "Bindings", BindingsText( m_Profile.MouseBindings() ).c_str(),
               BindingsText( def.m_Profile.MouseBindings() ).c_str() );
     SaveName( grp, "DeviceBindings", BindingsText( m_Profile.DeviceBindings() ).c_str(),

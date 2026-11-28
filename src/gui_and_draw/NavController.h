@@ -130,6 +130,7 @@ struct NavSettings
     bool m_SpaceMouseRotate;    // The SpaceMouse's turns act.
     bool m_SpaceMouseMove;      // The SpaceMouse's pans and zoom act.
     bool m_SpaceMouseDominant;  // Only the SpaceMouse axis pushed furthest acts.
+    bool m_SpaceMouseHoldCursor;    // macOS: the cursor stays still while the cap moves the view.
 
     // The next SpaceMouse speed offered, faster (step 1) or slower (step -1).
     void StepSpaceMouseSpeed( int step );
